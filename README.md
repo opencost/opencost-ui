@@ -1,18 +1,17 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # OpenCost UI
+
+<img src="./opencost-header.png"/>
+
+This is the web UI for the [OpenCost](http://github.com/opencost/opencost) project. You can learn more about the [User Interface](https://www.opencost.io/docs/installation/ui) in the OpenCost docs.
+
+[![OpenCost UI Walkthrough](./ui/src/thumbnail.png)](https://youtu.be/lCP4Ci9Kcdg)
+*OpenCost UI Walkthrough*
 
 ## Installing
 
 See https://www.opencost.io/docs/install for the full instructions.
-
-```
-helm install prometheus --repo https://prometheus-community.github.io/helm-charts prometheus \
-  --namespace prometheus-system --create-namespace \
-  --set pushgateway.enabled=false \
-  --set alertmanager.enabled=false \
-  -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/prometheus/extraScrapeConfigs.yaml
-
-kubectl apply --namespace opencost -f https://raw.githubusercontent.com/opencost/opencost/develop/kubernetes/opencost.yaml
-```
 
 ## Using
 

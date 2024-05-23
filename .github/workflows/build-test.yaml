@@ -19,7 +19,7 @@ jobs:
 
       -
         name: Install just
-        uses: extractions/setup-just@v1
+        uses: extractions/setup-just@v2
 
       -
         name: Install node

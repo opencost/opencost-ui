@@ -10,7 +10,6 @@ build-local:
     npx parcel build src/index.html
 
 build IMAGE_TAG RELEASE_VERSION: build-local
-    cp ../{{thirdPartyLicenseFile}} .
     docker buildx build \
         --rm \
         --platform "linux/amd64" \

@@ -48,6 +48,7 @@ function stableSort(array, comparator) {
 const headCells = [
   { id: "name", numeric: false, label: "Name", width: "auto" },
   { id: "cpuCost", numeric: true, label: "CPU", width: 90 },
+  { id: "gpuCost", numeric: true, label: "GPU", width: 90 },
   { id: "ramCost", numeric: true, label: "RAM", width: 90 },
   { id: "pvCost", numeric: true, label: "PV", width: 90 },
   { id: "totalEfficiency", numeric: true, label: "Efficiency", width: 90 },
@@ -186,6 +187,9 @@ const AllocationReport = ({
                       {toCurrency(row.cpuCost, currency)}
                     </TableCell>
                     <TableCell align="right">
+                      {toCurrency(row.gpuCost, currency)}
+                    </TableCell>
+                    <TableCell align="right">
                       {toCurrency(row.ramCost, currency)}
                     </TableCell>
                     <TableCell align="right">
@@ -208,6 +212,9 @@ const AllocationReport = ({
                   <TableCell align="left">{row.name}</TableCell>
                   <TableCell align="right">
                     {toCurrency(row.cpuCost, currency)}
+                  </TableCell>
+                  <TableCell align="right">
+                    {toCurrency(row.gpuCost, currency)}
                   </TableCell>
                   <TableCell align="right">
                     {toCurrency(row.ramCost, currency)}

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { parseFilters } from "../util";
-import { costMetricToPropName } from "../cloudCost/tokens";
+import { costMetricToPropName } from "../components/cloudCost/tokens";
 
 function formatItemsForCost({ data, costType }) {
   return data.sets.map(({ cloudCosts, window }) => {

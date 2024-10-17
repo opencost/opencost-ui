@@ -6,7 +6,7 @@ import Select from "@material-ui/core/Select";
 
 import * as React from "react";
 
-import SelectWindow from "../../components/SelectWindow";
+import SelectWindow from "../../SelectWindow";
 
 const useStyles = makeStyles({
   wrapper: {

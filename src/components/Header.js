@@ -23,10 +23,7 @@ const useStyles = makeStyles({
 
 const Header = (props) => {
   const classes = useStyles();
-  const { title, breadcrumbs } = props;
-  const { pathname } = useLocation();
-
-  const headerTitle = pathname === "/cloud" ? "Cloud Costs" : "Cost Allocation";
+  const { title, breadcrumbs, headerTitle } = props;
 
   return (
     <div className={classes.root}>
@@ -36,7 +33,7 @@ const Header = (props) => {
       <div className={classes.context}>
         {title && (
           <Typography variant="h4" className={classes.title}>
-            {props.title}
+            {title}
           </Typography>
         )}
         {breadcrumbs && breadcrumbs.length > 0 && (

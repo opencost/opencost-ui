@@ -2,8 +2,8 @@ import * as React from "react";
 
 import { TableCell, TableRow } from "@material-ui/core";
 
-import { toCurrency } from "../util";
-import { primary } from "../constants/colors";
+import { toCurrency } from "../../util";
+import { primary } from "../../constants/colors";
 
 const displayCurrencyAsLessThanPenny = (amount, currency) =>
   amount > 0 && amount < 0.01

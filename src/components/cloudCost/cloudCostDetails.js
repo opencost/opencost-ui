@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Modal, Paper, Typography } from "@material-ui/core";
-import Warnings from "../components/Warnings";
+import Warnings from "../../components/Warnings";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 import {
@@ -13,8 +13,8 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { toCurrency } from "../util";
-import cloudCostDayTotals from "../services/cloudCostDayTotals";
+import { toCurrency } from "../../util";
+import cloudCostDayTotals from "../../services/cloudCostDayTotals";
 
 const CloudCostDetails = ({
   onClose,

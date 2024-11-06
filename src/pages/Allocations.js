@@ -18,21 +18,21 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation, useHistory } from "react-router";
 
-import AllocationReport from "./components/allocationReport";
-import Controls from "./components/Controls";
-import Header from "./components/Header";
-import Page from "./components/Page";
-import Footer from "./components/Footer";
-import Subtitle from "./components/Subtitle";
-import Warnings from "./components/Warnings";
-import AllocationService from "./services/allocation";
+import AllocationReport from "../components/allocationReport";
+import Controls from "../components/Controls";
+import Header from "../components/Header";
+import Page from "../components/Page";
+import Footer from "../components/Footer";
+import Subtitle from "../components/Subtitle";
+import Warnings from "../components/Warnings";
+import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
   rangeToCumulative,
   toVerboseTimeRange,
-} from "./util";
-import { currencyCodes } from "./constants/currencyCodes";
+} from "../util";
+import { currencyCodes } from "../constants/currencyCodes";
 
 const windowOptions = [
   { name: "Today", value: "today" },
@@ -231,7 +231,7 @@ const ReportsPage = () => {
   }
   return (
     <Page active="reports.html">
-      <Header>
+       <Header headerTitle='Cost Allocation'>
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
         </IconButton>

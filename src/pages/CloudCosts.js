@@ -1,7 +1,7 @@
 import * as React from "react";
-import Page from "./components/Page";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Page from "../components/Page";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import IconButton from "@material-ui/core/IconButton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
@@ -10,23 +10,24 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { get, find } from "lodash";
 import { useLocation, useHistory } from "react-router";
 
-import { checkCustomWindow, toVerboseTimeRange } from "./util";
-import CloudCostEditControls from "./cloudCost/controls/cloudCostEditControls";
-import Subtitle from "./components/Subtitle";
-import Warnings from "./components/Warnings";
-import CloudCostTopService from "./services/cloudCostTop";
+import { checkCustomWindow, toVerboseTimeRange } from "../util";
+import CloudCostEditControls from "../components/cloudCost/controls/cloudCostEditControls";
+import Subtitle from "../components/Subtitle";
+import Warnings from "../components/Warnings";
+import CloudCostTopService from "../services/cloudCostTop";
 
 import {
   windowOptions,
   costMetricOptions,
   aggregationOptions,
   aggMap,
-} from "./cloudCost/tokens";
-import { currencyCodes } from "./constants/currencyCodes";
-import CloudCost from "./cloudCost/cloudCost";
-import { CloudCostDetails } from "./cloudCost/cloudCostDetails";
+} from "../components/cloudCost/tokens";
 
-const CloudCostReports = () => {
+import { currencyCodes } from "../constants/currencyCodes";
+import CloudCost from "../components/cloudCost/cloudCost";
+import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
+
+const CloudCosts = () => {
   const useStyles = makeStyles({
     reportHeader: {
       display: "flex",
@@ -230,7 +231,7 @@ const CloudCostReports = () => {
 
   return (
     <Page active="cloud.html">
-      <Header>
+      <Header headerTitle='Cloud Costs'>
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
         </IconButton>
@@ -334,4 +335,4 @@ const CloudCostReports = () => {
   );
 };
 
-export default React.memo(CloudCostReports);
+export default React.memo(CloudCosts);

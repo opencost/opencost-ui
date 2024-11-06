@@ -10,8 +10,8 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { primary, greyscale, browns } from "../../constants/colors";
-import { toCurrency } from "../../util";
+import { primary, greyscale, browns } from "../../../constants/colors";
+import { toCurrency } from "../../../util";
 
 const RangeChart = ({ data, currency, height }) => {
   const useStyles = makeStyles({

@@ -13,7 +13,7 @@ import {
   TableBody,
 } from "@material-ui/core";
 
-import { toCurrency } from "../util";
+import { toCurrency } from "../../util";
 import CloudCostChart from "./cloudCostChart";
 import { CloudCostRow } from "./cloudCostRow";
 
@@ -30,8 +30,6 @@ const CloudCost = ({
       padding: 24,
     },
   });
-
- 
 
   const classes = useStyles();
 

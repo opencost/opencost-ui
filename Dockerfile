@@ -36,9 +36,12 @@ COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
 RUN adduser 1001 -g 1000 -D
-RUN chown 1001:1000 -R /var/www
-RUN chown 1001:1000 -R /etc/nginx
-RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
+RUN chown 1001:0 -R /var/www && \
+    chmod -R g=u /var/www
+RUN chown 1001:0 -R /etc/nginx && \
+    chmod -R g=u /etc/nginx
+RUN chown 1001:0 -R /usr/local/bin/docker-entrypoint.sh && \
+    chmod 775 /usr/local/bin/docker-entrypoint.sh
 
 ENV BASE_URL=/model
 

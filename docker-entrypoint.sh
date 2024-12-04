@@ -18,8 +18,9 @@ else
     sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" /var/www/*.js
 fi
 
-envsubst '$API_PORT $API_SERVER $UI_PORT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
-
+if [[ ! -e /etc/nginx/conf.d/default.nginx.conf ]];then
+    envsubst '$API_PORT $API_SERVER $UI_PORT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
+fi
 echo "Starting OpenCost UI version $VERSION ($HEAD)"
 
 # Run the parent (nginx) container's entrypoint script

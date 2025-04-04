@@ -95,7 +95,7 @@ jobs:
           buildkitd-flags: --debug
 
       - name: Set up just
-        uses: extractions/setup-just@v2
+        uses: extractions/setup-just@v3
 
       - name: Install crane
         uses: imjasonh/setup-crane@v0.3

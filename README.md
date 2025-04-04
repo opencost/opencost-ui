@@ -2,7 +2,7 @@
 
 # OpenCost UI
 
-<img src="./opencost-header.png"/>
+<img src="./src/images/logo.png"/>
 
 This is the web UI for the [OpenCost](http://github.com/opencost/opencost) project. You can learn more about the [User Interface](https://www.opencost.io/docs/installation/ui) in the OpenCost docs.
 

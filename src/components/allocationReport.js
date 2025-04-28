@@ -45,6 +45,14 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+// ✅ Helper function to build display name with namespace
+function getDisplayName(row) {
+  if (row.namespace) {
+    return `${row.namespace}:${row.name}`;
+  }
+  return row.name;
+}
+
 const headCells = [
   { id: "name", numeric: false, label: "Name", width: "auto" },
   { id: "cpuCost", numeric: true, label: "CPU", width: 90 },
@@ -159,6 +167,7 @@ const AllocationReport = ({
                 );
               })}
             </TableRow>
+
             {pageRows.map((row, key) => {
               if (row.name === "__unmounted__") {
                 row.name = "Unmounted PVs";
@@ -178,11 +187,10 @@ const AllocationReport = ({
                 efficiency = "Inf";
               }
 
-              // Do not allow drill-down for idle and unallocated rows
               if (isIdle || isUnallocated || isUnmounted) {
                 return (
                   <TableRow key={key}>
-                    <TableCell align="left">{row.name}</TableCell>
+                    <TableCell align="left">{getDisplayName(row)}</TableCell>
                     <TableCell align="right">
                       {toCurrency(row.cpuCost, currency)}
                     </TableCell>
@@ -209,7 +217,7 @@ const AllocationReport = ({
 
               return (
                 <TableRow key={key}>
-                  <TableCell align="left">{row.name}</TableCell>
+                  <TableCell align="left">{getDisplayName(row)}</TableCell>
                   <TableCell align="right">
                     {toCurrency(row.cpuCost, currency)}
                   </TableCell>

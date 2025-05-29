@@ -5,34 +5,28 @@ import Typography from "@material-ui/core/Typography";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import {
-  filter,
   find,
-  forEach,
   get,
-  isArray,
   sortBy,
-  toArray,
-  trim,
+  toArray
 } from "lodash";
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
-import { useLocation, useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
+import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Page from "../components/Page";
-import Footer from "../components/Footer";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
-import AllocationService from "../services/allocation";
+import { currencyCodes } from "../constants/currencyCodes";
 import {
   checkCustomWindow,
   cumulativeToTotals,
   rangeToCumulative,
   toVerboseTimeRange,
 } from "../util";
-import { currencyCodes } from "../constants/currencyCodes";
 
 const windowOptions = [
   { name: "Today", value: "today" },
@@ -123,7 +117,7 @@ const ReportsPage = () => {
   // Form state, which controls form elements, but not the report itself. On
   // certain actions, the form state may flow into the report state.
   const [window, setWindow] = useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = useState(aggregationOptions[0].value);
+  const [aggregateBy, setAggregateBy] = useState([aggregationOptions[0].value]);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
   const [currency, setCurrency] = useState("USD");
 
@@ -159,7 +153,8 @@ const ReportsPage = () => {
   const routerHistory = useHistory();
   useEffect(() => {
     setWindow(searchParams.get("window") || "7d");
-    setAggregateBy(searchParams.get("agg") || "namespace");
+    const aggParam = searchParams.get("agg");
+    setAggregateBy(aggParam ? aggParam.split(",") : [aggregationOptions[0].value]);
     setAccumulate(searchParams.get("acc") === "true" || false);
     setCurrency(searchParams.get("currency") || "USD");
   }, [routerLocation]);
@@ -230,8 +225,8 @@ const ReportsPage = () => {
     setFetch(false);
   }
   return (
-    <Page active="reports.html">
-       <Header headerTitle='Cost Allocation'>
+    <Page active="allocations.html">
+      <Header headerTitle='Allocations'>
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
         </IconButton>
@@ -263,7 +258,7 @@ const ReportsPage = () => {
               aggregationOptions={aggregationOptions}
               aggregateBy={aggregateBy}
               setAggregateBy={(agg) => {
-                searchParams.set("agg", agg);
+                searchParams.set("agg", Array.isArray(agg) ? agg.join(",") : agg);
                 routerHistory.push({
                   search: `?${searchParams.toString()}`,
                 });
@@ -306,7 +301,7 @@ const ReportsPage = () => {
           )}
         </Paper>
       )}
-      <Footer/>
+      <Footer />
     </Page>
   );
 };

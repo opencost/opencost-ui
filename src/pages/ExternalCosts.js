@@ -17,6 +17,7 @@ import {
   aggregationOptions,
   costTypeOptions,
 } from "../components/externalCosts/tokens";
+import { DEFAULT_CURRENCY } from "../constants/defaults";
 import ExternalCostsControls from "../components/externalCosts/externalCostsControls";
 import ExternalCostsChart from "../components/externalCosts/externalCostsChart";
 import ExternalCostsTable from "../components/externalCosts/externalCostsTable";
@@ -43,7 +44,7 @@ const ExternalCosts = () => {
     aggregationOptions[0].value
   );
   const [filters, setFilters] = React.useState([]);
-  const [currency, setCurrency] = React.useState("USD");
+  const [currency, setCurrency] = React.useState(DEFAULT_CURRENCY);
 
   // page and settings state
   const [init, setInit] = React.useState(false);
@@ -213,7 +214,7 @@ const ExternalCosts = () => {
   React.useEffect(() => {
     setWindow(searchParams.get("window") || "7d");
     setAggregateBy(searchParams.get("agg") || "domain");
-    setCurrency(searchParams.get("currency") || "USD");
+    setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
     setCostType(searchParams.get("costType") || "blended");
     setSortBy(searchParams.get("sortBy") || "cost");
     setSortDirection(searchParams.get("sortDirection") || "desc");

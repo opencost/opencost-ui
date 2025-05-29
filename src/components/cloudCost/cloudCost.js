@@ -16,12 +16,13 @@ import {
 import { toCurrency } from "../../util";
 import CloudCostChart from "./cloudCostChart";
 import { CloudCostRow } from "./cloudCostRow";
+import { DEFAULT_CURRENCY } from "../../constants/defaults";
 
 const CloudCost = ({
   cumulativeData = [],
   totalData: totalsRow = {},
   graphData = [],
-  currency = "USD",
+  currency = DEFAULT_CURRENCY,
   drilldown,
   sampleData = false,
 }) => {

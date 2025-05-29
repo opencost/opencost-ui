@@ -24,6 +24,7 @@ import {
 } from "../components/cloudCost/tokens";
 
 import { currencyCodes } from "../constants/currencyCodes";
+import { DEFAULT_CURRENCY } from "../constants/defaults";
 import CloudCost from "../components/cloudCost/cloudCost";
 import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
 
@@ -53,7 +54,7 @@ const CloudCosts = () => {
     costMetricOptions[0].value
   );
   const [filters, setFilters] = React.useState([]);
-  const [currency, setCurrency] = React.useState("USD");
+  const [currency, setCurrency] = React.useState(DEFAULT_CURRENCY);
   const [selectedProviderId, setSelectedProviderId] = React.useState("");
   const [selectedItemName, setselectedItemName] = React.useState("");
   const sampleData = aggregateBy.includes("item");
@@ -187,7 +188,7 @@ const CloudCosts = () => {
     setWindow(searchParams.get("window") || "7d");
     setAggregateBy(searchParams.get("agg") || "provider");
     setCostMetric(searchParams.get("costMetric") || "AmortizedNetCost");
-    setCurrency(searchParams.get("currency") || "USD");
+    setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
 
   // Initialize once, then fetch report each time setFetch(true) is called

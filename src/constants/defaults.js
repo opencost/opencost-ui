@@ -1,1 +1,1 @@
-export const DEFAULT_CURRENCY = "AED";
+export const DEFAULT_CURRENCY = "USD";

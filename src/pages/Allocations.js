@@ -33,6 +33,7 @@ import {
   toVerboseTimeRange,
 } from "../util";
 import { currencyCodes } from "../constants/currencyCodes";
+import { DEFAULT_CURRENCY } from "../constants/defaults";
 
 const windowOptions = [
   { name: "Today", value: "today" },
@@ -125,7 +126,7 @@ const ReportsPage = () => {
   const [window, setWindow] = useState(windowOptions[0].value);
   const [aggregateBy, setAggregateBy] = useState(aggregationOptions[0].value);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
 
   // Report state, including current report and saved options
   const [title, setTitle] = useState("Last 7 days by namespace daily");
@@ -161,7 +162,7 @@ const ReportsPage = () => {
     setWindow(searchParams.get("window") || "7d");
     setAggregateBy(searchParams.get("agg") || "namespace");
     setAccumulate(searchParams.get("acc") === "true" || false);
-    setCurrency(searchParams.get("currency") || "USD");
+    setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
 
   async function initialize() {

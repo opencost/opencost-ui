@@ -15,10 +15,11 @@ import { useLocation, useHistory } from "react-router";
 import { toCurrency } from "../../util";
 import { ExternalCostRow } from "./externalCostRow";
 import { aggToKeyMapExternalCosts } from "./tokens";
+import { DEFAULT_CURRENCY } from "../../constants/defaults";
 
 const ExternalCostsTable = ({
   tableData,
-  currency = "USD",
+  currency = DEFAULT_CURRENCY,
   aggregateBy = "usageUnit",
   drilldown,
 }) => {

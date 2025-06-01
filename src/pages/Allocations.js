@@ -10,8 +10,9 @@ import {
   sortBy,
   toArray
 } from "lodash";
-import React, { useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router";
+import React, { useEffect, useState, useMemo } from "react";
+import ReactDOM from "react-dom";
+import { useLocation, useHistory } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
@@ -20,13 +21,18 @@ import Header from "../components/Header";
 import Page from "../components/Page";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
-import { currencyCodes } from "../constants/currencyCodes";
+import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
   rangeToCumulative,
   toVerboseTimeRange,
+  applyConversionRate,
 } from "../util";
+
+import { currencyCodes } from "../constants/currencyCodes";
+import { DEFAULT_CURRENCY, DEFAULT_CONVERSION_RATE } from "../constants/defaults";
+
 
 const windowOptions = [
   { name: "Today", value: "today" },
@@ -81,13 +87,33 @@ function generateTitle({ window, aggregateBy, accumulate }) {
     }
   }
 
-  let aggregationName = get(
-    find(aggregationOptions, { value: aggregateBy }),
-    "name",
-    ""
-  ).toLowerCase();
-  if (aggregationName === "") {
-    console.warn(`unknown aggregation: ${aggregateBy}`);
+  let aggregationName = "";
+  if (Array.isArray(aggregateBy) && aggregateBy.length > 0) {
+    // If aggregateBy is an array, get names for all selected values
+    const selectedAggregationNames = aggregateBy.map(val =>
+      get(find(aggregationOptions, { value: val }), "name", val).toLowerCase()
+    );
+
+    if (selectedAggregationNames.length === 1) {
+      aggregationName = selectedAggregationNames[0];
+    } else if (selectedAggregationNames.length === 2) {
+      aggregationName = selectedAggregationNames.join(" and "); // "namespace and cluster"
+    } else {
+      // For three or more, use commas with "and" before the last item
+      const last = selectedAggregationNames.pop();
+      aggregationName = `${selectedAggregationNames.join(", ")} and ${last}`; // "namespace, cluster, and node"
+    }
+
+  } else {
+    // Fallback for single string (if it ever occurs or for initial default)
+    aggregationName = get(
+      find(aggregationOptions, { value: aggregateBy }),
+      "name",
+      ""
+    ).toLowerCase();
+    if (aggregationName === "") {
+      console.warn(`unknown aggregation: ${aggregateBy}`);
+    } 
   }
 
   let str = `${windowName} by ${aggregationName}`;
@@ -95,20 +121,24 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   if (!accumulate) {
     str = `${str} daily`;
   }
-
   return str;
 }
 
 const ReportsPage = () => {
   const classes = useStyles();
 
-  // Allocation data state
-  const [allocationData, setAllocationData] = useState([]);
+  // Raw data state which will set allocationData when changed
+  const [rawData, setRawData] = useState([])
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
+  const [conversionRate, setConversionRate] = useState(DEFAULT_CONVERSION_RATE);
+
+  const allocationData = useMemo(() => {
+    return applyConversionRate(rawData, conversionRate);
+  }, [rawData, conversionRate]);
 
   // When allocation data changes, create a cumulative version of it
-  useEffect(() => {
+  useEffect(() =>  {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
     setCumulativeData(toArray(cumulative));
     setTotalData(cumulativeToTotals(cumulative));
@@ -119,7 +149,8 @@ const ReportsPage = () => {
   const [window, setWindow] = useState(windowOptions[0].value);
   const [aggregateBy, setAggregateBy] = useState([aggregationOptions[0].value]);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
+  
 
   // Report state, including current report and saved options
   const [title, setTitle] = useState("Last 7 days by namespace daily");
@@ -156,9 +187,18 @@ const ReportsPage = () => {
     const aggParam = searchParams.get("agg");
     setAggregateBy(aggParam ? aggParam.split(",") : [aggregationOptions[0].value]);
     setAccumulate(searchParams.get("acc") === "true" || false);
-    setCurrency(searchParams.get("currency") || "USD");
+    setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
 
+  useEffect(() => {
+    // Read conversion rate from URL
+    let rate = parseFloat(searchParams.get("rate"));
+    if (isNaN(rate) || rate <= 0) { // Validate: must be a positive number
+      rate = DEFAULT_CONVERSION_RATE;
+    }
+    setConversionRate(rate);
+  }, [routerLocation]);
+  
   async function initialize() {
     setInit(true);
   }
@@ -179,7 +219,7 @@ const ReportsPage = () => {
           // update cluster aggregations to use clusterName/clusterId names
           allocationRange[i] = sortBy(allocationRange[i], (a) => a.totalCost);
         }
-        setAllocationData(allocationRange);
+        setRawData(allocationRange);
       } else {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
@@ -194,7 +234,7 @@ const ReportsPage = () => {
             },
           ]);
         }
-        setAllocationData([]);
+        setRawData([]);
       }
     } catch (err) {
       if (err.message.indexOf("404") === 0) {
@@ -218,7 +258,7 @@ const ReportsPage = () => {
           },
         ]);
       }
-      setAllocationData([]);
+      setRawData([]);
     }
 
     setLoading(false);
@@ -280,6 +320,13 @@ const ReportsPage = () => {
                 routerHistory.push({
                   search: `?${searchParams.toString()}`,
                 });
+              }}
+              conversionRate={conversionRate}
+              setConversionRate={(rate) => {
+                searchParams.set("rate", rate);
+                routerHistory.push({
+                 search: `?${searchParams.toString()}`,
+               });
               }}
             />
           </div>

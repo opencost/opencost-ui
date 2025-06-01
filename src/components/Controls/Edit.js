@@ -5,8 +5,15 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/styles';
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Select from '@material-ui/core/Select'
+import TextField from "@material-ui/core/TextField"
+import Button from "@material-ui/core/Button"
 
-import React from 'react';
+// import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import SelectWindow from '../SelectWindow';
 
@@ -25,6 +32,22 @@ const useStyles = makeStyles({
   },
   chip: {
     margin: 2,
+
+  conversionInputContainer: {
+    display: 'flex',
+    alignItems: 'center', // <--- CHANGE THIS from 'flex-end' to 'center'
+    gap: '8px',
+    margin: 8,
+  },
+  conversionFormControl: {
+    minWidth: 150,
+  },
+  applyButton: {
+    // Experiment with this value. Often a small negative margin-top
+    // or positive margin-bottom is needed to visually shift it up.
+    marginTop: '-6px', // Adjust this value (e.g., -4px, -8px)
+    // Or try a positive margin-bottom if align-items: flex-start
+    // marginBottom: '4px',
   },
 });
 
@@ -33,6 +56,7 @@ function EditControl({
   aggregationOptions, aggregateBy, setAggregateBy,
   accumulateOptions, accumulate, setAccumulate,
   currencyOptions, currency, setCurrency,
+  conversionRate, setConversionRate,
 }) {
   const classes = useStyles();
 
@@ -40,6 +64,25 @@ function EditControl({
   const handleAggregationChange = (event) => {
     const value = event.target.value;
     setAggregateBy(value);
+  const [tempConversionRate, setTempConversionRate] = useState(
+    String(conversionRate)
+  );
+
+  // Effect to update local input field if conversionRate from props changes (e.g., from URL)
+  useEffect(() => {
+    setTempConversionRate(String(conversionRate));
+  }, [conversionRate]);
+
+  // Function to handle button click and apply the rate
+  const handleApplyConversionRate = () => {
+    let rate = parseFloat(tempConversionRate);
+    if (isNaN(rate) || rate <= 0) {
+      // Handle invalid input: revert to default or show an error
+      console.warn("Invalid conversion rate entered. Must be a positive number.");
+      rate = 1.0; // Or some other default/error handling
+      setTempConversionRate(String(rate)); // Update input field to show default
+    }
+    setConversionRate(rate); // Call the prop function, which updates parent state and URL
   };
 
   return (
@@ -84,18 +127,50 @@ function EditControl({
           {accumulateOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.name}</MenuItem>)}
         </Select>
       </FormControl>
-      {currencyOptions && (
-        <FormControl className={classes.formControl}>
-          <InputLabel id="currency-select-label">Currency</InputLabel>
-          <Select
-            id="currency-select"
-            value={currency}
-            onChange={e => setCurrency(e.target.value)}
-          >
-            {currencyOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-          </Select>
+      <FormControl className={classes.formControl}>
+        <InputLabel id="currency-label">Currency</InputLabel>
+        <Select
+          id="currency"
+          value={currency}
+          onChange={e => setCurrency(e.target.value)}
+        >
+          {currencyOptions?.map((currency) => (
+            <MenuItem key={currency} value={currency}>
+              {currency}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <div className={classes.conversionInputContainer}>
+        <FormControl className={classes.conversionFormControl}> {/* Wrapped TextField in FormControl */}
+          <TextField
+            label="Conversion Rate"
+            type="number"
+            value={tempConversionRate}
+            onChange={(e) => setTempConversionRate(e.target.value)}
+            inputProps={{
+              step: "0.0001",
+              min: "0.000001",
+            }}
+            helperText="Enter a positive number"
+            variant="outlined"
+            size="small"
+            // No need for InputLabel here, TextField's label prop handles it
+          />
         </FormControl>
-      )}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleApplyConversionRate}
+          disabled={!tempConversionRate || parseFloat(tempConversionRate) === conversionRate}
+          className={classes.applyButton}
+        >
+          Apply Rate
+        </Button>
+      </div>
+      {/* <--- END OF CONVERSION RATE BLOCK */}
+
     </div>
   );
 }

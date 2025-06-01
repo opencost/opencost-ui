@@ -29,7 +29,8 @@ import {
   toVerboseTimeRange,
   applyConversionRate,
 } from "../util";
-import { DEFAULT_CURRENCY } from "../constants/defaults";
+import { currencyCodes } from "../constants/currencyCodes";
+import { DEFAULT_CURRENCY, DEFAULT_CONVERSION_RATE } from "../constants/defaults";
 
 const windowOptions = [
   { name: "Today", value: "today" },

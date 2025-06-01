@@ -62,3 +62,7 @@ For some use cases such as the case of [OpenCost deployed behind an ingress cont
 ```sh
 $ docker run -p 9091:9090 -e BASE_URL_OVERRIDE=anything -d opencost-ui:latest
 ```
+
+## Overriding the Default Currency
+
+The UI by default assumes all metrics are in the "USD" currency. if you wish to set the default currency to something else, edit [DEFAULT_CURRENCY](src\constants\defaults.js)

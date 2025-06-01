@@ -10,8 +10,9 @@ import {
   sortBy,
   toArray
 } from "lodash";
-import React, { useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router";
+import React, { useEffect, useState, useMemo } from "react";
+import ReactDOM from "react-dom";
+import { useLocation, useHistory } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
@@ -26,10 +27,11 @@ import {
   cumulativeToTotals,
   rangeToCumulative,
   toVerboseTimeRange,
+  applyConversionRate,
 } from "../util";
 
 import { currencyCodes } from "../constants/currencyCodes";
-import { DEFAULT_CURRENCY } from "../constants/defaults";
+import { DEFAULT_CURRENCY, DEFAULT_CONVERSION_RATE } from "../constants/defaults";
 
 
 const windowOptions = [
@@ -106,13 +108,18 @@ function generateTitle({ window, aggregateBy, accumulate }) {
 const ReportsPage = () => {
   const classes = useStyles();
 
-  // Allocation data state
-  const [allocationData, setAllocationData] = useState([]);
+  // Raw data state which will set allocationData when changed
+  const [rawData, setRawData] = useState([])
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
+  const [conversionRate, setConversionRate] = useState(DEFAULT_CONVERSION_RATE);
+
+  const allocationData = useMemo(() => {
+    return applyConversionRate(rawData, conversionRate);
+  }, [rawData, conversionRate]);
 
   // When allocation data changes, create a cumulative version of it
-  useEffect(() => {
+  useEffect(() =>  {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
     setCumulativeData(toArray(cumulative));
     setTotalData(cumulativeToTotals(cumulative));
@@ -124,6 +131,7 @@ const ReportsPage = () => {
   const [aggregateBy, setAggregateBy] = useState([aggregationOptions[0].value]);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
+  
 
   // Report state, including current report and saved options
   const [title, setTitle] = useState("Last 7 days by namespace daily");
@@ -163,6 +171,15 @@ const ReportsPage = () => {
     setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
 
+  useEffect(() => {
+    // Read conversion rate from URL
+    let rate = parseFloat(searchParams.get("rate"));
+    if (isNaN(rate) || rate <= 0) { // Validate: must be a positive number
+      rate = DEFAULT_CONVERSION_RATE;
+    }
+    setConversionRate(rate);
+  }, [routerLocation]);
+  
   async function initialize() {
     setInit(true);
   }
@@ -183,7 +200,7 @@ const ReportsPage = () => {
           // update cluster aggregations to use clusterName/clusterId names
           allocationRange[i] = sortBy(allocationRange[i], (a) => a.totalCost);
         }
-        setAllocationData(allocationRange);
+        setRawData(allocationRange);
       } else {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
@@ -198,7 +215,7 @@ const ReportsPage = () => {
             },
           ]);
         }
-        setAllocationData([]);
+        setRawData([]);
       }
     } catch (err) {
       if (err.message.indexOf("404") === 0) {
@@ -222,7 +239,7 @@ const ReportsPage = () => {
           },
         ]);
       }
-      setAllocationData([]);
+      setRawData([]);
     }
 
     setLoading(false);
@@ -284,6 +301,13 @@ const ReportsPage = () => {
                 routerHistory.push({
                   search: `?${searchParams.toString()}`,
                 });
+              }}
+              conversionRate={conversionRate}
+              setConversionRate={(rate) => {
+                searchParams.set("rate", rate);
+                routerHistory.push({
+                 search: `?${searchParams.toString()}`,
+               });
               }}
             />
           </div>

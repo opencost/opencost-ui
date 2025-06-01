@@ -49,7 +49,7 @@ const useStyles = makeStyles({
     // Or try a positive margin-bottom if align-items: flex-start
     // marginBottom: '4px',
   },
-});
+}});
 
 function EditControl({
   windowOptions, window, setWindow,
@@ -173,6 +173,6 @@ function EditControl({
 
     </div>
   );
-}
+}}
 
 export default EditControl;

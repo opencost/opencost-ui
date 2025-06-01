@@ -21,6 +21,7 @@ import Header from "../components/Header";
 import Page from "../components/Page";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
+import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
@@ -83,13 +84,33 @@ function generateTitle({ window, aggregateBy, accumulate }) {
     }
   }
 
-  let aggregationName = get(
-    find(aggregationOptions, { value: aggregateBy }),
-    "name",
-    ""
-  ).toLowerCase();
-  if (aggregationName === "") {
-    console.warn(`unknown aggregation: ${aggregateBy}`);
+  let aggregationName = "";
+  if (Array.isArray(aggregateBy) && aggregateBy.length > 0) {
+    // If aggregateBy is an array, get names for all selected values
+    const selectedAggregationNames = aggregateBy.map(val =>
+      get(find(aggregationOptions, { value: val }), "name", val).toLowerCase()
+    );
+
+    if (selectedAggregationNames.length === 1) {
+      aggregationName = selectedAggregationNames[0];
+    } else if (selectedAggregationNames.length === 2) {
+      aggregationName = selectedAggregationNames.join(" and "); // "namespace and cluster"
+    } else {
+      // For three or more, use commas with "and" before the last item
+      const last = selectedAggregationNames.pop();
+      aggregationName = `${selectedAggregationNames.join(", ")} and ${last}`; // "namespace, cluster, and node"
+    }
+
+  } else {
+    // Fallback for single string (if it ever occurs or for initial default)
+    aggregationName = get(
+      find(aggregationOptions, { value: aggregateBy }),
+      "name",
+      ""
+    ).toLowerCase();
+    if (aggregationName === "") {
+      console.warn(`unknown aggregation: ${aggregateBy}`);
+    } 
   }
 
   let str = `${windowName} by ${aggregationName}`;
@@ -97,7 +118,6 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   if (!accumulate) {
     str = `${str} daily`;
   }
-
   return str;
 }
 

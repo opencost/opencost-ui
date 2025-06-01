@@ -1,9 +1,5 @@
 import Box from '@material-ui/core/Box';
 import Chip from '@material-ui/core/Chip';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/styles';
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -64,6 +60,7 @@ function EditControl({
   const handleAggregationChange = (event) => {
     const value = event.target.value;
     setAggregateBy(value);
+  }
   const [tempConversionRate, setTempConversionRate] = useState(
     String(conversionRate)
   );
@@ -173,6 +170,6 @@ function EditControl({
 
     </div>
   );
-}}
+}
 
 export default EditControl;

@@ -21,7 +21,6 @@ import Header from "../components/Header";
 import Page from "../components/Page";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
-import { currencyCodes } from "../constants/currencyCodes";
 import {
   checkCustomWindow,
   cumulativeToTotals,

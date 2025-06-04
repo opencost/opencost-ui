@@ -113,7 +113,12 @@ jobs:
 
       - name: Build and push (multiarch) OpenCost UI
         working-directory: ./opencost-ui
+        env:
+          IMAGE_TAG_UI: ${{ steps.tags.outputs.IMAGE_TAG_UI }}
+          IMAGE_TAG_UI_LATEST: ${{ steps.tags.outputs.IMAGE_TAG_UI_LATEST }}
+          IMAGE_TAG_UI_VERSION: ${{ steps.tags.outputs.IMAGE_TAG_UI_VERSION }}
+          RELEASE_VERSION: ${{ steps.version_number.outputs.RELEASE_VERSION }}
         run: |
-          just build '${{ steps.tags.outputs.IMAGE_TAG_UI }}' '${{ steps.version_number.outputs.RELEASE_VERSION }}'
-          crane copy '${{ steps.tags.outputs.IMAGE_TAG_UI }}' '${{ steps.tags.outputs.IMAGE_TAG_UI_LATEST }}'
-          crane copy '${{ steps.tags.outputs.IMAGE_TAG_UI }}' '${{ steps.tags.outputs.IMAGE_TAG_UI_VERSION }}'
+          just build "$IMAGE_TAG_UI" "$RELEASE_VERSION"
+          crane copy "$IMAGE_TAG_UI" "$IMAGE_TAG_UI_LATEST"
+          crane copy "$IMAGE_TAG_UI" "$IMAGE_TAG_UI_VERSION"

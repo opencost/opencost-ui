@@ -15,7 +15,7 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build-and-publish-opencost:
+  build-and-publish-opencost-ui:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
@@ -24,6 +24,7 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+
       - name: Set SHA
         id: sha
         run: |
@@ -35,12 +36,13 @@ jobs:
           echo "IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/opencost-ui:develop-${{ steps.sha.outputs.OC_SHORTHASH }}" >> $GITHUB_OUTPUT
 
       - name: Build and publish container
-        uses: ./.github/actions/build-container 
+        uses: ./.github/actions/build-container
         with:
           actor: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           image_tag: ${{ steps.tags.outputs.IMAGE_TAG }}
           release_version: develop-${{ steps.sha.outputs.OC_SHORTHASH }}
+          registry: ${{ env.REGISTRY }}
       
       - name: Install crane
         uses: imjasonh/setup-crane@v0.4

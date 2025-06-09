@@ -58,3 +58,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           image_tag: ${{ steps.tags.outputs.IMAGE_TAG }}
           release_version: test-${{ steps.sha.outputs.OC_SHORTHASH }}
+          registry: ${{ env.REGISTRY }}

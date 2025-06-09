@@ -16,12 +16,13 @@ import {
 import { toCurrency } from "../../util";
 import CloudCostChart from "./cloudCostChart";
 import { CloudCostRow } from "./cloudCostRow";
+import { DEFAULT_CURRENCY } from "../../constants/defaults";
 
 const CloudCost = ({
   cumulativeData = [],
   totalData: totalsRow = {},
   graphData = [],
-  currency = "USD",
+  currency = DEFAULT_CURRENCY,
   drilldown,
   sampleData = false,
 }) => {
@@ -204,8 +205,8 @@ const CloudCost = ({
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[10, 25, 50]}
           page={Math.min(page, lastPage)}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </div>
     </div>

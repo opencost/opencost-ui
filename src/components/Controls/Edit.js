@@ -1,10 +1,8 @@
-import Box from '@material-ui/core/Box';
-import Chip from '@material-ui/core/Chip';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import { makeStyles } from '@material-ui/styles';
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Select from '@material-ui/core/Select'
 
 import React from 'react';
 
@@ -18,14 +16,6 @@ const useStyles = makeStyles({
     margin: 8,
     minWidth: 120,
   },
-  chips: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 0.5,
-  },
-  chip: {
-    margin: 2,
-  },
 });
 
 function EditControl({
@@ -35,13 +25,6 @@ function EditControl({
   currencyOptions, currency, setCurrency,
 }) {
   const classes = useStyles();
-
-  // Handle multiple aggregations
-  const handleAggregationChange = (event) => {
-    const value = event.target.value;
-    setAggregateBy(value);
-  };
-
   return (
     <div className={classes.wrapper}>
       <SelectWindow
@@ -52,26 +35,12 @@ function EditControl({
         <InputLabel id="aggregation-select-label">Breakdown</InputLabel>
         <Select
           id="aggregation-select"
-          multiple
-          value={Array.isArray(aggregateBy) ? aggregateBy : [aggregateBy]}
-          onChange={handleAggregationChange}
-          renderValue={(selected) => (
-            <Box className={classes.chips}>
-              {selected.map((value) => (
-                <Chip
-                  key={value}
-                  label={aggregationOptions.find(opt => opt.value === value)?.name || value}
-                  className={classes.chip}
-                />
-              ))}
-            </Box>
-          )}
+          value={aggregateBy}
+          onChange={e => {
+            setAggregateBy(e.target.value)
+          }}
         >
-          {aggregationOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
+          {aggregationOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.name}</MenuItem>)}
         </Select>
       </FormControl>
       <FormControl className={classes.formControl}>
@@ -84,20 +53,22 @@ function EditControl({
           {accumulateOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.name}</MenuItem>)}
         </Select>
       </FormControl>
-      {currencyOptions && (
-        <FormControl className={classes.formControl}>
-          <InputLabel id="currency-select-label">Currency</InputLabel>
-          <Select
-            id="currency-select"
-            value={currency}
-            onChange={e => setCurrency(e.target.value)}
-          >
-            {currencyOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-          </Select>
-        </FormControl>
-      )}
+      <FormControl className={classes.formControl}>
+        <InputLabel id="currency-label">Currency</InputLabel>
+        <Select
+          id="currency"
+          value={currency}
+          onChange={e => setCurrency(e.target.value)}
+        >
+          {currencyOptions?.map((currency) => (
+            <MenuItem key={currency} value={currency}>
+              {currency}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </div>
   );
 }
 
-export default EditControl;
+export default React.memo(EditControl);

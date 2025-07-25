@@ -1,5 +1,7 @@
 import { forEach, get, round } from "lodash";
 import { costMetricToPropName } from "./components/cloudCost/tokens";
+import { DEFAULT_CURRENCY } from "./constants/defaults";
+
 
 // rangeToCumulative takes an AllocationSetRange (type: array[AllocationSet])
 // and accumulates the values into a single AllocationSet (type: object)
@@ -98,6 +100,46 @@ export function rangeToCumulative(allocationSetRange, aggregateBy) {
 
   return result;
 }
+
+
+export function applyConversionRate(rawData, conversionRate) {
+  // Return empty array if rawData is null/empty or conversionRate is invalid (<= 0)
+  if (!rawData || rawData.length === 0 || conversionRate <= 0) {
+    return [];
+  }
+
+  // Deep clone rawData to ensure immutability.
+  // This is important because React state should not be mutated directly.
+  const transformedData = JSON.parse(JSON.stringify(rawData));
+  // Iterate over each daily allocation set (e.g., each day in a 7-day range)
+  forEach(transformedData, (WindowStep) => {
+    // Iterate over each allocation item within the daily set
+    forEach(WindowStep, (item) => {
+      // Apply conversion rate to all relevant cost fields.
+      // Add or remove fields here based on what your allocation objects contain
+      // and what needs to be converted.
+      if (item.totalCost !== undefined) {
+        item.totalCost *= conversionRate;
+      }
+      if (item.cpuCost !== undefined) {
+        item.cpuCost *= conversionRate;
+      }
+      if (item.gpuCost !== undefined) {
+        item.gpuCost *= conversionRate;
+      }
+      if (item.ramCost !== undefined) {
+        item.ramCost *= conversionRate;
+      }
+      if (item.pvCost !== undefined) {
+        item.pvCost *= conversionRate;
+      }
+      // Add any other cost fields that need conversion here (e.g., storageCost, idleCost)
+    });
+  });
+  return transformedData;
+}
+
+
 
 // cumulativeToTotals adds each entry in the given AllocationSet (type: object)
 // and returns a single Allocation (type: object) representing the totals
@@ -321,7 +363,7 @@ export function toCurrency(amount, currency, precision) {
   }
 
   if (currency === undefined || currency === "") {
-    currency = "USD";
+    currency = DEFAULT_CURRENCY;
   }
 
   const opts = {
@@ -449,4 +491,5 @@ export default {
   bytesToString,
   toCurrency,
   checkCustomWindow,
+  applyConversionRate,
 };

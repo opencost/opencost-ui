@@ -18,6 +18,8 @@ const Controls = ({
   currency,
   currencyOptions,
   setCurrency,
+  conversionRate,
+  setConversionRate,
 }) => {
 
   return (
@@ -35,6 +37,8 @@ const Controls = ({
         currency={currency}
         currencyOptions={currencyOptions}
         setCurrency={setCurrency}
+        conversionRate={conversionRate}
+        setConversionRate={setConversionRate}
       />
 
       <DownloadControl

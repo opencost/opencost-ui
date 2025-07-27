@@ -6,6 +6,8 @@ import { BarChart } from "@material-ui/icons";
 import { Cloud } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/styles";
 
+const logo = new URL("../../images/logo.png", import.meta.url).href;
+
 const DRAWER_WIDTH = 200;
 
 const SidebarNav = ({ active }) => {
@@ -55,7 +57,7 @@ const SidebarNav = ({ active }) => {
       variant={"permanent"}
     >
       <img
-        src={require("../../images/logo.png")}
+        src={logo}
         alt="OpenCost"
         style={{ flexShrink: 1, padding: "1rem" }}
       />

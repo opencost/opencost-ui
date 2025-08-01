@@ -11,7 +11,7 @@ This is the web UI for the [OpenCost](http://github.com/opencost/opencost) proje
 
 ## Installing
 
-See https://www.opencost.io/docs/install for the full instructions.
+See [Installation Guide](https://opencost.io/docs/installation/install) for the full instructions.
 
 ## Using
 

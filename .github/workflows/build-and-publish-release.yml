@@ -59,6 +59,12 @@ jobs:
           VERSION_NUMBER=${{ steps.version_number.outputs.RELEASE_VERSION }}
           echo "BRANCH_NAME=v${VERSION_NUMBER%.*}" >> $GITHUB_ENV
 
+      # checkout opencost UI to allow access to actions
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: 'opencost/opencost-ui'
+
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
@@ -81,7 +87,6 @@ jobs:
           echo "IMAGE_TAG_UI_VERSION=ghcr.io/opencost/opencost-ui:${{ steps.version_number.outputs.RELEASE_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Build and publish container
-        working-directory: ./opencost-ui
         uses: ./.github/actions/build-container
         with:
           actor: ${{ github.actor }}

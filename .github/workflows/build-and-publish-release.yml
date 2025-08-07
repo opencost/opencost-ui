@@ -66,6 +66,12 @@ jobs:
           ref: '${{ steps.branch.outputs.BRANCH_NAME }}'
           path: ./opencost-ui
 
+      # checkout opencost UI to allow access to actions
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: 'opencost/opencost-ui'
+
       - name: Set SHA
         id: sha
         run: |

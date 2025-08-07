@@ -56,7 +56,7 @@ const ExternalCostsTable = ({
   const routerHistory = useHistory();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const numData = tableData.customCosts?.length;
+  const numData = tableData.customCosts?.length ?? 0;
 
   const lastPage = Math.floor(numData / rowsPerPage);
 
@@ -67,16 +67,20 @@ const ExternalCostsTable = ({
     setPage(0);
   };
 
-  const pageRows = tableData.customCosts.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  let pageRows = [];
+
+  if (tableData && 'customCosts' in tableData) {
+    pageRows = tableData.customCosts.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
+  }
 
   React.useEffect(() => {
     setPage(0);
   }, [numData]);
 
-  if (tableData.customCosts.length === 0) {
+  if ('customCosts' in tableData && tableData.customCosts.length === 0) {
     return (
       <Typography variant="body2" className={classes.noResults}>
         No results
@@ -168,8 +172,8 @@ const ExternalCostsTable = ({
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[10, 25, 50]}
         page={Math.min(page, lastPage)}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </div>
   );

@@ -2,16 +2,16 @@
 
 # OpenCost UI
 
-<img src="./opencost-header.png"/>
+<img src="src/images/logo.png"/>
 
 This is the web UI for the [OpenCost](http://github.com/opencost/opencost) project. You can learn more about the [User Interface](https://www.opencost.io/docs/installation/ui) in the OpenCost docs.
 
-[![OpenCost UI Walkthrough](./ui/src/thumbnail.png)](https://youtu.be/lCP4Ci9Kcdg)
+[![OpenCost UI Walkthrough](./src/thumbnail.png)](https://youtu.be/lCP4Ci9Kcdg)
 *OpenCost UI Walkthrough*
 
 ## Installing
 
-See https://www.opencost.io/docs/install for the full instructions.
+See [Installation Guide](https://opencost.io/docs/installation/install) for the full instructions.
 
 ## Using
 

@@ -81,7 +81,6 @@ jobs:
           echo "IMAGE_TAG_UI_VERSION=ghcr.io/opencost/opencost-ui:${{ steps.version_number.outputs.RELEASE_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Build and publish container
-        working-directory: ./opencost-ui
         uses: ./.github/actions/build-container
         with:
           actor: ${{ github.actor }}

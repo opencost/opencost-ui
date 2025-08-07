@@ -1,0 +1,61 @@
+name: Build and Publish UI Test Image
+
+on:
+  merge_group:
+    types: [checks_requested]
+  pull_request_target:
+    branches:
+      - main
+
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  check_actor_permissions:
+      runs-on: ubuntu-latest
+      if: ${{ github.event_name == 'pull_request_target' }}
+      outputs:
+          ismaintainer: ${{ steps.determine-maintainer.outputs.ismaintainer }}
+      steps:
+        - name: Check team membership
+          uses: tspascoal/get-user-teams-membership@v3
+          id: teamAffiliation
+          with:
+            GITHUB_TOKEN: ${{ secrets.ORG_READER_PAT }}
+            username: ${{ github.actor }}
+            organization: opencost
+        - name: determine if actor is a maintainer
+          id: determine-maintainer
+          run: |
+              echo "Actor: ${{ github.actor }}"
+              echo "Is maintainer: ${{ contains(steps.teamAffiliation.outputs.teams, 'OpenCost Maintainers') || contains(github.actor, 'dependabot[bot]') }}"
+              echo "ismaintainer=${{ contains(steps.teamAffiliation.outputs.teams, 'OpenCost Maintainers') || contains(github.actor, 'dependabot[bot]') }}" >> $GITHUB_OUTPUT
+  build-and-publish-test-image:
+    runs-on: ubuntu-latest
+    needs: check_actor_permissions
+    if: ${{ (always() && !cancelled()) && ( github.event_name == 'merge_group' || needs.check_actor_permissions.outputs.ismaintainer == 'true') }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.merge_group.head_sha || github.event.pull_request.head.sha }}
+      - name: Set SHA
+        id: sha
+        run: |
+          echo "OC_SHORTHASH=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Set OpenCost Image Tags
+        id: tags
+        run: |
+          echo "IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/opencost-ui:test-${{ steps.sha.outputs.OC_SHORTHASH }}" >> $GITHUB_OUTPUT
+      - name: Build and publish container
+        uses: ./.github/actions/build-container
+        with:
+          actor: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          image_tag: ${{ steps.tags.outputs.IMAGE_TAG }}
+          release_version: test-${{ steps.sha.outputs.OC_SHORTHASH }}
+          registry: ${{ env.REGISTRY }}

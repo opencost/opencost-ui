@@ -112,9 +112,9 @@ export function applyConversionRate(rawData, conversionRate) {
   // This is important because React state should not be mutated directly.
   const transformedData = JSON.parse(JSON.stringify(rawData));
   // Iterate over each daily allocation set (e.g., each day in a 7-day range)
-  forEach(transformedData, (WindowStep) => {
+  forEach(transformedData, (windowStep) => {
     // Iterate over each allocation item within the daily set
-    forEach(WindowStep, (item) => {
+    forEach(windowStep, (item) => {
       // Apply conversion rate to all relevant cost fields.
       // Add or remove fields here based on what your allocation objects contain
       // and what needs to be converted.

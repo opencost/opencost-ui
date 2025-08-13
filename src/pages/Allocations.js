@@ -21,6 +21,7 @@ import Header from "../components/Header";
 import Page from "../components/Page";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
+import { getCurrencyConversionRate } from "../services/currency";
 import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
@@ -129,6 +130,10 @@ const ReportsPage = () => {
   const [rawData, setRawData] = useState([])
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
+  
+
+  const [baseCurrency, setBaseCurrency] = useState(DEFAULT_CURRENCY);
+  const [targetCurrency, setTargetCurrency] = useState(DEFAULT_CURRENCY);
   const [conversionRate, setConversionRate] = useState(DEFAULT_CONVERSION_RATE);
 
   const allocationData = useMemo(() => {
@@ -147,7 +152,7 @@ const ReportsPage = () => {
   const [window, setWindow] = useState(windowOptions[0].value);
   const [aggregateBy, setAggregateBy] = useState([aggregationOptions[0].value]);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
+  // const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   
 
   // Report state, including current report and saved options
@@ -185,18 +190,37 @@ const ReportsPage = () => {
     const aggParam = searchParams.get("agg");
     setAggregateBy(aggParam ? aggParam.split(",") : [aggregationOptions[0].value]);
     setAccumulate(searchParams.get("acc") === "true" || false);
-    setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
+    // setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
+    // const initialCurrency = searchParams.get("currency") || DEFAULT_CURRENCY;
+    setTargetCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
 
-  useEffect(() => {
-    // Read conversion rate from URL
-    let rate = parseFloat(searchParams.get("rate"));
-    if (isNaN(rate) || rate <= 0) { // Validate: must be a positive number
-      rate = DEFAULT_CONVERSION_RATE;
-    }
-    setConversionRate(rate);
-  }, [routerLocation]);
+  // useEffect(() => {
+  //   // Read conversion rate from URL
+  //   let rate = parseFloat(searchParams.get("rate"));
+  //   if (isNaN(rate) || rate <= 0) { // Validate: must be a positive number
+  //     rate = DEFAULT_CONVERSION_RATE;
+  //   }
+  //   setConversionRate(rate);
+  // }, [routerLocation]);
   
+  // NEW: Effect to fetch conversion rate whenever targetCurrency changes
+  useEffect(() => {
+    const fetchRate = async () => {
+      if (targetCurrency === baseCurrency || !targetCurrency) {
+        setConversionRate(1);
+        return;
+      }
+      const rate = await getCurrencyConversionRate(baseCurrency, targetCurrency);
+      console.log(rate)
+      if (rate) {
+        setConversionRate(rate);
+        setBaseCurrency(targetCurrency); // Update base to new currency after successful conversion
+      }
+    };
+    fetchRate();
+  }, [targetCurrency]);
+
   async function initialize() {
     setInit(true);
   }
@@ -311,7 +335,7 @@ const ReportsPage = () => {
               }}
               title={title}
               cumulativeData={cumulativeData}
-              currency={currency}
+              currency={targetCurrency}
               currencyOptions={currencyCodes}
               setCurrency={(curr) => {
                 searchParams.set("currency", curr);
@@ -319,13 +343,13 @@ const ReportsPage = () => {
                   search: `?${searchParams.toString()}`,
                 });
               }}
-              conversionRate={conversionRate}
-              setConversionRate={(rate) => {
-                searchParams.set("rate", rate);
-                routerHistory.push({
-                 search: `?${searchParams.toString()}`,
-               });
-              }}
+              // conversionRate={conversionRate}
+              // setConversionRate={(rate) => {
+              //   searchParams.set("rate", rate);
+              //   routerHistory.push({
+              //    search: `?${searchParams.toString()}`,
+              //  });
+              // }}
             />
           </div>
 
@@ -341,7 +365,7 @@ const ReportsPage = () => {
               allocationData={allocationData}
               cumulativeData={cumulativeData}
               totalData={totalData}
-              currency={currency}
+              currency={targetCurrency}
             />
           )}
         </Paper>

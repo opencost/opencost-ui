@@ -152,9 +152,7 @@ const ReportsPage = () => {
   const [window, setWindow] = useState(windowOptions[0].value);
   const [aggregateBy, setAggregateBy] = useState([aggregationOptions[0].value]);
   const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  // const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   
-
   // Report state, including current report and saved options
   const [title, setTitle] = useState("Last 7 days by namespace daily");
 
@@ -190,19 +188,8 @@ const ReportsPage = () => {
     const aggParam = searchParams.get("agg");
     setAggregateBy(aggParam ? aggParam.split(",") : [aggregationOptions[0].value]);
     setAccumulate(searchParams.get("acc") === "true" || false);
-    // setCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
-    // const initialCurrency = searchParams.get("currency") || DEFAULT_CURRENCY;
     setTargetCurrency(searchParams.get("currency") || DEFAULT_CURRENCY);
   }, [routerLocation]);
-
-  // useEffect(() => {
-  //   // Read conversion rate from URL
-  //   let rate = parseFloat(searchParams.get("rate"));
-  //   if (isNaN(rate) || rate <= 0) { // Validate: must be a positive number
-  //     rate = DEFAULT_CONVERSION_RATE;
-  //   }
-  //   setConversionRate(rate);
-  // }, [routerLocation]);
   
   // NEW: Effect to fetch conversion rate whenever targetCurrency changes
   useEffect(() => {
@@ -343,13 +330,6 @@ const ReportsPage = () => {
                   search: `?${searchParams.toString()}`,
                 });
               }}
-              // conversionRate={conversionRate}
-              // setConversionRate={(rate) => {
-              //   searchParams.set("rate", rate);
-              //   routerHistory.push({
-              //    search: `?${searchParams.toString()}`,
-              //  });
-              // }}
             />
           </div>
 

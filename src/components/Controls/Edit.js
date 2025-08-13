@@ -5,8 +5,6 @@ import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
-import TextField from "@material-ui/core/TextField"
-import Button from "@material-ui/core/Button"
 
 // import React from 'react';
 import React, { useState, useEffect } from 'react';
@@ -28,6 +26,7 @@ const useStyles = makeStyles({
   },
   chip: {
     margin: 2,
+<<<<<<< HEAD
 
   conversionInputContainer: {
     display: 'flex',
@@ -46,6 +45,10 @@ const useStyles = makeStyles({
     // marginBottom: '4px',
   },
 }});
+=======
+  },
+});
+>>>>>>> e506066 (feat: Add support for multiple aggregations in cost allocation view)
 
 function EditControl({
   windowOptions, window, setWindow,
@@ -59,7 +62,11 @@ function EditControl({
   const handleAggregationChange = (event) => {
     const value = event.target.value;
     setAggregateBy(value);
+<<<<<<< HEAD
   }
+=======
+  };
+>>>>>>> e506066 (feat: Add support for multiple aggregations in cost allocation view)
 
   return (
     <div className={classes.wrapper}>
@@ -103,20 +110,18 @@ function EditControl({
           {accumulateOptions.map((opt) => <MenuItem key={opt.value} value={opt.value}>{opt.name}</MenuItem>)}
         </Select>
       </FormControl>
-      <FormControl className={classes.formControl}>
-        <InputLabel id="currency-label">Currency</InputLabel>
-        <Select
-          id="currency"
-          value={currency}
-          onChange={e => setCurrency(e.target.value)}
-        >
-          {currencyOptions?.map((currency) => (
-            <MenuItem key={currency} value={currency}>
-              {currency}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {currencyOptions && (
+        <FormControl className={classes.formControl}>
+          <InputLabel id="currency-select-label">Currency</InputLabel>
+          <Select
+            id="currency-select"
+            value={currency}
+            onChange={e => setCurrency(e.target.value)}
+          >
+            {currencyOptions.map((opt) => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+          </Select>
+        </FormControl>
+      )}
     </div>
   );
 }

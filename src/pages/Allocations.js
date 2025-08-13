@@ -23,6 +23,7 @@ import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import { getCurrencyConversionRate } from "../services/currency";
 import AllocationService from "../services/allocation";
+import { currencyCodes } from "../constants/currencyCodes";
 import {
   checkCustomWindow,
   cumulativeToTotals,
@@ -30,7 +31,6 @@ import {
   toVerboseTimeRange,
   applyConversionRate,
 } from "../util";
-import { currencyCodes } from "../constants/currencyCodes";
 import { DEFAULT_CURRENCY, DEFAULT_CONVERSION_RATE } from "../constants/defaults";
 
 const windowOptions = [

@@ -4,7 +4,8 @@ import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 
-import React from 'react';
+// import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import SelectWindow from '../SelectWindow';
 
@@ -25,6 +26,11 @@ function EditControl({
   currencyOptions, currency, setCurrency,
 }) {
   const classes = useStyles();
+  // Handle multiple aggregations
+  const handleAggregationChange = (event) => {
+    const value = event.target.value;
+    setAggregateBy(value);
+  };
   return (
     <div className={classes.wrapper}>
       <SelectWindow

@@ -1,9 +1,14 @@
-FROM node:18.3.0 as builder
+FROM node:18.3.0 AS builder
+
 ADD package*.json /opt/ui/
 WORKDIR /opt/ui
 RUN npm install
 ADD src /opt/ui/src
-RUN npx parcel build src/index.html
+
+ARG ui_path=/
+ENV UI_PATH=${ui_path}
+
+RUN npx parcel build src/index.html --public-url ${UI_PATH}
 
 FROM nginx:alpine
 
@@ -14,14 +19,16 @@ LABEL org.opencontainers.image.source=https://github.com/opencost/opencost-ui
 LABEL org.opencontainers.image.title=opencost-ui
 LABEL org.opencontainers.image.url=https://opencost.io
 
+ARG ui_path=/
 ARG version=dev
-ARG	commit=HEAD
+ARG commit=HEAD
 ENV VERSION=${version}
 ENV HEAD=${commit}
 
 ENV API_PORT=9003
 ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
+ENV UI_PATH=${ui_path}
 
 COPY --from=builder /opt/ui/dist /opt/ui/dist
 RUN mkdir -p /var/www
@@ -40,7 +47,7 @@ RUN chown 1001:1000 -R /var/www
 RUN chown 1001:1000 -R /etc/nginx
 RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
-ENV BASE_URL=/model
+ENV BASE_URL=${UI_PATH%/}/model
 
 USER 1001
 

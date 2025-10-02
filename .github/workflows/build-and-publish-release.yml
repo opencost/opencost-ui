@@ -72,6 +72,12 @@ jobs:
           ref: '${{ steps.branch.outputs.BRANCH_NAME }}'
           path: ./opencost-ui
 
+      # checkout opencost UI to allow access to actions
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: 'opencost/opencost-ui'
+
       - name: Set SHA
         id: sha
         run: |
@@ -94,8 +100,10 @@ jobs:
           image_tag: ${{ steps.tags.outputs.IMAGE_TAG_UI }}
           release_version: ${{ steps.version_number.outputs.RELEASE_VERSION }}
           registry: ${{ env.REGISTRY }}
+      
       - name: Install crane
         uses: imjasonh/setup-crane@v0.4
+      
       - name: Tag and push latest image
         run: |
           crane copy "${{ steps.tags.outputs.IMAGE_TAG_UI }}" "${{ steps.tags.outputs.IMAGE_TAG_UI_LATEST }}"

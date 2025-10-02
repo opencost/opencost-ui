@@ -20,6 +20,7 @@ jobs:
       steps:
         - name: Check team membership
           uses: tspascoal/get-user-teams-membership@v3
+          if: ${{ github.actor != 'dependabot[bot]' }}
           id: teamAffiliation
           with:
             GITHUB_TOKEN: ${{ secrets.ORG_READER_PAT }}

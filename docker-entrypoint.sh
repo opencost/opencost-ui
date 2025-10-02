@@ -3,6 +3,8 @@ set -e
 
 cp -rv /opt/ui/dist/* /var/www
 
+echo "running with UI_PATH=${UI_PATH}"
+
 if [[ ! -z "$BASE_URL_OVERRIDE" ]]; then
     echo "running with BASE_URL=${BASE_URL_OVERRIDE}"
     sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL_OVERRIDE^g" /var/www/*.js
@@ -19,7 +21,9 @@ else
 fi
 
 if [[ ! -e /etc/nginx/conf.d/default.nginx.conf ]];then
-    envsubst '$API_PORT $API_SERVER $UI_PORT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
+    envsubst '$API_PORT $API_SERVER $UI_PORT $UI_PATH $BASE_URL' \
+        < /etc/nginx/conf.d/default.nginx.conf.template \
+        > /etc/nginx/conf.d/default.nginx.conf
 fi
 echo "Starting OpenCost UI version $VERSION ($HEAD)"
 

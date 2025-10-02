@@ -5,9 +5,11 @@ import Reports from "./pages/Allocations.js";
 import CloudCosts from "./pages/CloudCosts.js";
 import ExternalCosts from "./pages/ExternalCosts.js";
 
+const basename = (process.env.UI_PATH || "").replace(/\/+$/, "");
+
 const Routes = () => {
   return (
-    <Router>
+    <Router basename={basename}>
       <Switch>
         <Route exact path="/">
           <Reports />

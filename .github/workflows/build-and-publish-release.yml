@@ -61,12 +61,12 @@ jobs:
 
       # checkout opencost UI to allow access to actions
       - name: Checkout actions
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: 'opencost/opencost-ui'
 
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: 'opencost/opencost-ui'
           ref: '${{ steps.branch.outputs.BRANCH_NAME }}'

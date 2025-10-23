@@ -1,3 +1,7 @@
+/**
+ * The logger defined in this module should be preferred over `console` methods whenever possible.
+ */
+
 // Define basic log levels.
 // The `console` object supports other methods, but we'll only give special attention to these for now.
 const logLevels = [

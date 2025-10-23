@@ -3,6 +3,8 @@
  */
 import axios from "axios";
 
-const client = axios.create();
+const baseURL = process.env.BASE_URL || "http://localhost:9090/model";
+
+const client = axios.create({ baseURL });
 
 export default client;

@@ -14,13 +14,7 @@ export function parseExternalCostFilters(filters) {
   }
 
 class ExternalCostsService {
-  BASE_URL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
-
   async fetchExternalGraphCosts(win, aggregate, filters, costType, sortBy, sortDirection) {
-    if (this.BASE_URL.includes("PLACEHOLDER_BASE_URL")) {
-      this.BASE_URL = `http://localhost:9090/model`;
-    }
-
     const params = {
       window: win,
       aggregate: aggregate,
@@ -30,17 +24,13 @@ class ExternalCostsService {
       sortDirection
     };
     
-    const result = await client.get(`${this.BASE_URL}/customCost/timeseries`, {
+    const result = await client.get(`/customCost/timeseries`, {
       params,
     });
     return result.data.data;
   }
 
   async fetchExternalTableCosts(win, aggregate, filters, costType, sortBy, sortDirection) {
-    if (this.BASE_URL.includes("PLACEHOLDER_BASE_URL")) {
-      this.BASE_URL = `http://localhost:9090/model`;
-    }
-
     const params = {
       window: win,
       aggregate: aggregate,
@@ -50,7 +40,7 @@ class ExternalCostsService {
       sortDirection
     };
     
-    const result = await client.get(`${this.BASE_URL}/customCost/total`, {
+    const result = await client.get(`/customCost/total`, {
       params,
     });
     return result.data.data;

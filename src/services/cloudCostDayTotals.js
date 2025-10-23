@@ -15,17 +15,10 @@ function formatItemsForCost({ data, costType }) {
 }
 
 class CloudCostDayTotalsService {
-  BASE_URL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
-
   async fetchCloudCostData(window, aggregate, costMetric, filters) {
-    if (this.BASE_URL.includes("PLACEHOLDER_BASE_URL")) {
-      this.BASE_URL = `http://localhost:9090/model`;
-    }
     if (aggregate.includes("item")) {
       const resp = await client.get(
-        `${
-          this.BASE_URL
-        }/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
+        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
           filters
         )}`
       );

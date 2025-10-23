@@ -1,6 +1,6 @@
-import axios from "axios";
 import { parseFilters } from "../util";
 import { costMetricToPropName } from "../components/cloudCost/tokens";
+import client from "./api_client";
 
 function formatItemsForCost({ data, costType }) {
   return data.sets.map(({ cloudCosts, window }) => {
@@ -22,7 +22,7 @@ class CloudCostDayTotalsService {
       this.BASE_URL = `http://localhost:9090/model`;
     }
     if (aggregate.includes("item")) {
-      const resp = await axios.get(
+      const resp = await client.get(
         `${
           this.BASE_URL
         }/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(

@@ -1,4 +1,4 @@
-import axios from "axios";
+import client from "./api_client";
 
 // API blows up when comma is encoded
 export function parseExternalCostFilters(filters) {
@@ -30,7 +30,7 @@ class ExternalCostsService {
       sortDirection
     };
     
-    const result = await axios.get(`${this.BASE_URL}/customCost/timeseries`, {
+    const result = await client.get(`${this.BASE_URL}/customCost/timeseries`, {
       params,
     });
     return result.data.data;
@@ -50,7 +50,7 @@ class ExternalCostsService {
       sortDirection
     };
     
-    const result = await axios.get(`${this.BASE_URL}/customCost/total`, {
+    const result = await client.get(`${this.BASE_URL}/customCost/total`, {
       params,
     });
     return result.data.data;

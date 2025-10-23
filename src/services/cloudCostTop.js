@@ -1,5 +1,5 @@
-import axios from "axios";
 import { formatSampleItemsForGraph, parseFilters } from "../util";
+import client from "./api_client";
 
 class CloudCostTopService {
   BASE_URL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
@@ -18,7 +18,7 @@ class CloudCostTopService {
     };
 
     if (aggregate.includes("item")) {
-      const resp = await axios.get(
+      const resp = await client.get(
         `${
           this.BASE_URL
         }/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
@@ -30,20 +30,20 @@ class CloudCostTopService {
       return formatSampleItemsForGraph(result_2, costMetric);
     }
 
-    const tableView = await axios.get(`${this.BASE_URL}/cloudCost/view/table`, {
+    const tableView = await client.get(`${this.BASE_URL}/cloudCost/view/table`, {
       params,
     });
-    const totalsView = await axios.get(
+    const totalsView = await client.get(
       `${this.BASE_URL}/cloudCost/view/totals`,
       {
         params,
       }
     );
-    const graphView = await axios.get(`${this.BASE_URL}/cloudCost/view/graph`, {
+    const graphView = await client.get(`${this.BASE_URL}/cloudCost/view/graph`, {
       params,
     });
 
-    const status = await axios.get(`${this.BASE_URL}/cloudCost/status`);
+    const status = await client.get(`${this.BASE_URL}/cloudCost/status`);
 
     return {
       tableRows: tableView.data.data,

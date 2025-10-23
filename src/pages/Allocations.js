@@ -5,17 +5,12 @@ import Typography from "@material-ui/core/Typography";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
 import {
-  filter,
   find,
-  forEach,
   get,
-  isArray,
   sortBy,
   toArray,
-  trim,
 } from "lodash";
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
 import { useLocation, useHistory } from "react-router";
 
 import AllocationReport from "../components/allocationReport";

@@ -1,6 +1,6 @@
-import axios from "axios";
 import { parseFilters } from "../util";
 import { costMetricToPropName } from "../components/cloudCost/tokens";
+import client from "./api_client";
 
 function formatItemsForCost({ data, costType }) {
   return data.sets.map(({ cloudCosts, window }) => {
@@ -15,17 +15,10 @@ function formatItemsForCost({ data, costType }) {
 }
 
 class CloudCostDayTotalsService {
-  BASE_URL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
-
   async fetchCloudCostData(window, aggregate, costMetric, filters) {
-    if (this.BASE_URL.includes("PLACEHOLDER_BASE_URL")) {
-      this.BASE_URL = `http://localhost:9090/model`;
-    }
     if (aggregate.includes("item")) {
-      const resp = await axios.get(
-        `${
-          this.BASE_URL
-        }/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
+      const resp = await client.get(
+        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
           filters
         )}`
       );

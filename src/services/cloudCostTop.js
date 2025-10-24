@@ -1,14 +1,8 @@
-import axios from "axios";
 import { formatSampleItemsForGraph, parseFilters } from "../util";
+import client from "./api_client";
 
 class CloudCostTopService {
-  BASE_URL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
-
   async fetchCloudCostData(window, aggregate, costMetric, filters) {
-    if (this.BASE_URL.includes("PLACEHOLDER_BASE_URL")) {
-      this.BASE_URL = `http://localhost:9090/model`;
-    }
-
     const params = {
       window,
       aggregate,
@@ -18,10 +12,8 @@ class CloudCostTopService {
     };
 
     if (aggregate.includes("item")) {
-      const resp = await axios.get(
-        `${
-          this.BASE_URL
-        }/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
+      const resp = await client.get(
+        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
           filters
         )}`
       );
@@ -30,20 +22,20 @@ class CloudCostTopService {
       return formatSampleItemsForGraph(result_2, costMetric);
     }
 
-    const tableView = await axios.get(`${this.BASE_URL}/cloudCost/view/table`, {
+    const tableView = await client.get(`/cloudCost/view/table`, {
       params,
     });
-    const totalsView = await axios.get(
-      `${this.BASE_URL}/cloudCost/view/totals`,
+    const totalsView = await client.get(
+      `/cloudCost/view/totals`,
       {
         params,
       }
     );
-    const graphView = await axios.get(`${this.BASE_URL}/cloudCost/view/graph`, {
+    const graphView = await client.get(`/cloudCost/view/graph`, {
       params,
     });
 
-    const status = await axios.get(`${this.BASE_URL}/cloudCost/status`);
+    const status = await client.get(`/cloudCost/status`);
 
     return {
       tableRows: tableView.data.data,

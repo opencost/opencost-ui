@@ -1,72 +1,78 @@
-import React from 'react'
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { primary, greyscale, browns } from '../../constants/colors';
-import { toCurrency } from '../../util';
+import React from "react";
+import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { primary, greyscale, browns } from "../../constants/colors";
+import { toCurrency } from "../../util";
 
 function toPieData(top, other, idle) {
-  let slices = []
+  let slices = [];
 
   for (const i in top) {
-    const allocation = top[i]
-    const fill = allocation.name === "__unallocated__"
-      ? "#212121"
-      : primary[i % primary.length]
+    const allocation = top[i];
+    const fill =
+      allocation.name === "__unallocated__"
+        ? "#212121"
+        : primary[i % primary.length];
 
     slices.push({
       name: allocation.name,
       value: allocation.totalCost,
       fill: fill,
-    })
+    });
   }
 
   for (const i in other) {
-    const allocation = other[i]
-    const fill = browns[i % browns.length]
+    const allocation = other[i];
+    const fill = browns[i % browns.length];
     slices.push({
       name: allocation.name,
       value: allocation.totalCost,
       fill: fill,
-    })
+    });
   }
 
   for (const i in idle) {
-    const allocation = idle[i]
-    const fill = greyscale[i % greyscale.length]
+    const allocation = idle[i];
+    const fill = greyscale[i % greyscale.length];
     slices.push({
       name: allocation.name,
       value: allocation.totalCost,
       fill: fill,
-    })
+    });
   }
 
-  return slices
+  return slices;
 }
 
 const SummaryChart = ({ top, other, idle, currency, height }) => {
-  const pieData = toPieData(top, other, idle)
+  const pieData = toPieData(top, other, idle);
 
   const renderLabel = (params) => {
-    const {
-      cx, cy, midAngle, outerRadius, percent, name, fill, value
-    } = params
+    const { cx, cy, midAngle, outerRadius, percent, name, fill, value } =
+      params;
 
-    const RADIAN = Math.PI / 180
-    const radius = outerRadius * 1.1
-    let x = cx + radius * Math.cos(-midAngle * RADIAN)
-    x += x > cx ? 2 : -2
-    let y = cy + radius * Math.sin(-midAngle * RADIAN)
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius * 1.1;
+    let x = cx + radius * Math.cos(-midAngle * RADIAN);
+    x += x > cx ? 2 : -2;
+    let y = cy + radius * Math.sin(-midAngle * RADIAN);
     // y -= Math.min(Math.abs(2 / Math.cos(-midAngle * RADIAN)), 8)
 
     if (percent < 0.02) {
-      return
+      return;
     }
 
     return (
-      <text x={x} y={y} fill={fill} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+      <text
+        x={x}
+        y={y}
+        fill={fill}
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
         {`${name}: ${toCurrency(value, currency)} (${(percent * 100).toFixed(1)}%)`}
       </text>
-    )
-  }
+    );
+  };
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -86,11 +92,13 @@ const SummaryChart = ({ top, other, idle, currency, height }) => {
           startAngle={180}
           endAngle={0}
         >
-          {pieData.map((datum, i) => <Cell key={i} fill={datum.fill} />)}
+          {pieData.map((datum, i) => (
+            <Cell key={i} fill={datum.fill} />
+          ))}
         </Pie>
       </PieChart>
     </ResponsiveContainer>
-  )
-}
+  );
+};
 
-export default SummaryChart
+export default SummaryChart;

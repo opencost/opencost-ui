@@ -97,7 +97,7 @@ const RangeChart = ({ data, currency, height }) => {
       copy.splice(idleIndex, 1);
     }
     const otherIndex = copy.findIndex(
-      (i) => i.name === _OTHER_ || i.name === "other"
+      (i) => i.name === _OTHER_ || i.name === "other",
     );
     let other = undefined;
     if (otherIndex > -1) {
@@ -263,7 +263,7 @@ const RangeChart = ({ data, currency, height }) => {
                 <Cell fill={keyToFill[bar.items[idx][0]]} />
               ) : (
                 <Cell />
-              )
+              ),
             )}
           </Bar>
         ))}

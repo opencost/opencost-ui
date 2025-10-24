@@ -1,7 +1,7 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/styles'
-import EditControl from './Edit'
-import DownloadControl from './Download'
+import React from "react";
+import { makeStyles } from "@material-ui/styles";
+import EditControl from "./Edit";
+import DownloadControl from "./Download";
 
 const Controls = ({
   windowOptions,
@@ -19,7 +19,6 @@ const Controls = ({
   currencyOptions,
   setCurrency,
 }) => {
-
   return (
     <div>
       <EditControl
@@ -37,12 +36,9 @@ const Controls = ({
         setCurrency={setCurrency}
       />
 
-      <DownloadControl
-        cumulativeData={cumulativeData}
-        title={title}
-      />
+      <DownloadControl cumulativeData={cumulativeData} title={title} />
     </div>
-  )
-}
+  );
+};
 
-export default React.memo(Controls)
+export default React.memo(Controls);

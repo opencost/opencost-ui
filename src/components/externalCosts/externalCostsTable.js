@@ -69,10 +69,10 @@ const ExternalCostsTable = ({
 
   let pageRows = [];
 
-  if (tableData && 'customCosts' in tableData) {
+  if (tableData && "customCosts" in tableData) {
     pageRows = tableData.customCosts.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage,
     );
   }
 
@@ -80,7 +80,7 @@ const ExternalCostsTable = ({
     setPage(0);
   }, [numData]);
 
-  if ('customCosts' in tableData && tableData.customCosts.length === 0) {
+  if ("customCosts" in tableData && tableData.customCosts.length === 0) {
     return (
       <Typography variant="body2" className={classes.noResults}>
         No results
@@ -120,13 +120,15 @@ const ExternalCostsTable = ({
                 >
                   <TableSortLabel
                     active={currentSortBy === cell.id}
-                    direction={currentSortBy === cell.id ? currentSortDirection : 'desc'}
+                    direction={
+                      currentSortBy === cell.id ? currentSortDirection : "desc"
+                    }
                     onClick={() => {
                       if (currentSortBy === cell.id) {
                         // then we simply need to update direction
                         searchParams.set(
                           "sortDirection",
-                          currentSortDirection === "desc" ? "asc" : "desc"
+                          currentSortDirection === "desc" ? "asc" : "desc",
                         );
                       } else {
                         searchParams.set("sortBy", cell.id);

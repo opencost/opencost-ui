@@ -43,14 +43,14 @@ const CloudCosts = () => {
   // Form state, which controls form elements, but not the report itself. On
   // certain actions, the form state may flow into the report state.
   const [title, setTitle] = React.useState(
-    "Cumulative cost for last 7 days by account"
+    "Cumulative cost for last 7 days by account",
   );
   const [window, setWindow] = React.useState(windowOptions[0].value);
   const [aggregateBy, setAggregateBy] = React.useState(
-    aggregationOptions[0].value
+    aggregationOptions[0].value,
   );
   const [costMetric, setCostMetric] = React.useState(
-    costMetricOptions[0].value
+    costMetricOptions[0].value,
   );
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
@@ -79,7 +79,7 @@ const CloudCosts = () => {
     let aggregationName = get(
       find(aggregationOptions, { value: aggregateBy }),
       "name",
-      ""
+      "",
     ).toLowerCase();
     if (aggregationName === "") {
       console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -111,7 +111,7 @@ const CloudCosts = () => {
         window,
         aggregateBy,
         costMetric,
-        filters
+        filters,
       );
       if (resp) {
         setCloudCostData(resp);
@@ -137,7 +137,7 @@ const CloudCosts = () => {
           {
             primary: "Failed to load report data",
             secondary:
-            "Please update OpenCost to the latest version, and open an Issue if problems persist.",
+              "Please update OpenCost to the latest version, and open an Issue if problems persist.",
           },
         ]);
       } else {
@@ -217,9 +217,7 @@ const CloudCosts = () => {
         <>
           Learn more about setting up Cloud Costs{" "}
           <Link
-            href={
-              "https://www.opencost.io/docs/configuration/#cloud-costs"
-            }
+            href={"https://www.opencost.io/docs/configuration/#cloud-costs"}
             target="_blank"
           >
             here
@@ -231,7 +229,7 @@ const CloudCosts = () => {
 
   return (
     <Page active="cloud.html">
-      <Header headerTitle='Cloud Costs'>
+      <Header headerTitle="Cloud Costs">
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
         </IconButton>
@@ -268,7 +266,7 @@ const CloudCosts = () => {
               aggregationOptions={aggregationOptions}
               aggregateBy={aggregateBy}
               setAggregateBy={(agg) => {
-                setFilters([])
+                setFilters([]);
                 searchParams.set("agg", agg);
                 routerHistory.push({
                   search: `?${searchParams.toString()}`,
@@ -330,7 +328,7 @@ const CloudCosts = () => {
           )}
         </Paper>
       )}
-      <Footer/>
+      <Footer />
     </Page>
   );
 };

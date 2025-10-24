@@ -105,7 +105,7 @@ const CloudCost = ({
   const orderedRows = stableSort(cumulativeData, getComparator(order, orderBy));
   const pageRows = orderedRows.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   React.useEffect(() => {
@@ -131,7 +131,7 @@ const CloudCost = ({
         key={row.name}
         kubernetesPercent={row.kubernetesPercent}
         name={
-          sampleData && row.labelName ? row.labelName ?? "" : row.name ?? ""
+          sampleData && row.labelName ? (row.labelName ?? "") : (row.name ?? "")
         }
         row={row}
         sampleData={sampleData}

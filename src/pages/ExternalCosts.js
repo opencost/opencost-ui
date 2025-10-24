@@ -40,7 +40,7 @@ const ExternalCosts = () => {
   const [sortBy, setSortBy] = React.useState("cost");
   const [sortDirection, setSortDirection] = React.useState("desc");
   const [aggregateBy, setAggregateBy] = React.useState(
-    aggregationOptions[0].value
+    aggregationOptions[0].value,
   );
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
@@ -73,7 +73,7 @@ const ExternalCosts = () => {
         filters,
         costType,
         sortBy,
-        sortDirection
+        sortDirection,
       );
       if (resp) {
         setExternalCostData(resp);
@@ -127,7 +127,7 @@ const ExternalCosts = () => {
         filters,
         costType,
         sortBy,
-        sortDirection
+        sortDirection,
       );
       if (resp) {
         setExternalCostTableData(resp);
@@ -188,7 +188,7 @@ const ExternalCosts = () => {
     // We only want drilldown functionality on these items
     if (
       ["domain", "accountName", "resourceType", "resourceName"].includes(
-        aggregateBy
+        aggregateBy,
       )
     ) {
       setFilters([

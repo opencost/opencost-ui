@@ -102,7 +102,7 @@ const AllocationReport = ({
   const orderedRows = stableSort(cumulativeData, getComparator(order, orderBy));
   const pageRows = orderedRows.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   return (

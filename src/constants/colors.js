@@ -1,15 +1,15 @@
-import blue from '@material-ui/core/colors/blue'
-import brown from '@material-ui/core/colors/brown'
-import cyan from '@material-ui/core/colors/cyan'
-import deepOrange from '@material-ui/core/colors/deepOrange'
-import deepPurple from '@material-ui/core/colors/deepPurple'
-import green from '@material-ui/core/colors/green'
-import grey from '@material-ui/core/colors/grey'
-import indigo from '@material-ui/core/colors/indigo'
-import orange from '@material-ui/core/colors/orange'
-import red from '@material-ui/core/colors/red'
-import teal from '@material-ui/core/colors/teal'
-import yellow from '@material-ui/core/colors/yellow'
+import blue from "@material-ui/core/colors/blue";
+import brown from "@material-ui/core/colors/brown";
+import cyan from "@material-ui/core/colors/cyan";
+import deepOrange from "@material-ui/core/colors/deepOrange";
+import deepPurple from "@material-ui/core/colors/deepPurple";
+import green from "@material-ui/core/colors/green";
+import grey from "@material-ui/core/colors/grey";
+import indigo from "@material-ui/core/colors/indigo";
+import orange from "@material-ui/core/colors/orange";
+import red from "@material-ui/core/colors/red";
+import teal from "@material-ui/core/colors/teal";
+import yellow from "@material-ui/core/colors/yellow";
 
 export const primary = [
   blue[500],
@@ -22,7 +22,7 @@ export const primary = [
   indigo[500],
   deepOrange[500],
   deepPurple[500],
-]
+];
 
 export const greyscale = [
   grey[300],
@@ -31,8 +31,6 @@ export const greyscale = [
   grey[500],
   grey[100],
   grey[600],
-]
+];
 
-export const browns = [
-  brown[500],
-]
+export const browns = [brown[500]];

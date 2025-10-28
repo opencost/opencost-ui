@@ -103,6 +103,10 @@ const ReportsPage = () => {
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
 
+  // Data fetching in-progress / error states
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState([]);
+
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
@@ -110,47 +114,34 @@ const ReportsPage = () => {
     setTotalData(cumulativeToTotals(cumulative));
   }, [allocationData]);
 
-  // Form state, which controls form elements, but not the report itself. On
-  // certain actions, the form state may flow into the report state.
-  const [window, setWindow] = useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = useState(aggregationOptions[0].value);
-  const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  const [currency, setCurrency] = useState("USD");
-
-  // Report state, including current report and saved options
-  const [title, setTitle] = useState("Last 7 days by namespace daily");
-
-  // page and settings state
-  const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState([]);
-
-  // When parameters changes, fetch data and generate a sensible default report title from the paramters.
-  useEffect(() => {
-    fetchData();
-    setTitle(generateTitle({ window, aggregateBy, accumulate }));
-  }, [window, aggregateBy, accumulate]);
-
-  // parse any context information from the URL
+  // State of controls on the page is generally derived from query parameters in the url.
+  // Updates to these controls are pushed through the router using `searchParams.set()`.
+  // Defaults are supplied in case of the absence of a query parameter.
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const routerHistory = useHistory();
+
+  const win = searchParams.get("window") || "7d";
+  const aggregateBy = searchParams.get("agg") || "namespace";
+  const accumulate = searchParams.get("acc") === "true";
+  const currency = searchParams.get("currency") || "USD";
+  const title =
+    searchParams.get("title") ||
+    generateTitle({ window: win, aggregateBy, accumulate });
+
+  // When parameters which effect query results change, refetch the data.
   useEffect(() => {
-    setWindow(searchParams.get("window") || "7d");
-    setAggregateBy(searchParams.get("agg") || "namespace");
-    setAccumulate(searchParams.get("acc") === "true" || false);
-    setCurrency(searchParams.get("currency") || "USD");
-  }, [routerLocation]);
+    fetchData();
+  }, [win, aggregateBy, accumulate]);
 
   async function fetchData() {
     setLoading(true);
     setErrors([]);
 
     try {
-      const resp = await AllocationService.fetchAllocation(
-        window,
-        aggregateBy,
-        { accumulate }
-      );
+      const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
+        accumulate,
+      });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
         for (const i in allocationRange) {
@@ -217,12 +208,12 @@ const ReportsPage = () => {
         <div className={classes.reportHeader}>
           <div className={classes.titles}>
             <Typography variant="h5">{title}</Typography>
-            <Subtitle report={{ window, aggregateBy, accumulate }} />
+            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
 
           <Controls
             windowOptions={windowOptions}
-            window={window}
+            window={win}
             setWindow={(win) => {
               searchParams.set("window", win);
               routerHistory.push({

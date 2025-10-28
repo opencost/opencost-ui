@@ -80,7 +80,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    "",
+    ""
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -120,28 +120,15 @@ const ReportsPage = () => {
   // Report state, including current report and saved options
   const [title, setTitle] = useState("Last 7 days by namespace daily");
 
-  // When parameters changes, fetch data. This should be the
-  // only mechanism used to fetch data. Also generate a sensible title from the paramters.
-  useEffect(() => {
-    setFetch(true);
-    setTitle(generateTitle({ window, aggregateBy, accumulate }));
-  }, [window, aggregateBy, accumulate]);
-
   // page and settings state
-  const [init, setInit] = useState(false);
-  const [fetch, setFetch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
 
-  // Initialize once, then fetch report each time setFetch(true) is called
+  // When parameters changes, fetch data and generate a sensible default report title from the paramters.
   useEffect(() => {
-    if (!init) {
-      initialize();
-    }
-    if (init || fetch) {
-      fetchData();
-    }
-  }, [init, fetch]);
+    fetchData();
+    setTitle(generateTitle({ window, aggregateBy, accumulate }));
+  }, [window, aggregateBy, accumulate]);
 
   // parse any context information from the URL
   const routerLocation = useLocation();
@@ -154,10 +141,6 @@ const ReportsPage = () => {
     setCurrency(searchParams.get("currency") || "USD");
   }, [routerLocation]);
 
-  async function initialize() {
-    setInit(true);
-  }
-
   async function fetchData() {
     setLoading(true);
     setErrors([]);
@@ -166,7 +149,7 @@ const ReportsPage = () => {
       const resp = await AllocationService.fetchAllocation(
         window,
         aggregateBy,
-        { accumulate },
+        { accumulate }
       );
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -216,12 +199,11 @@ const ReportsPage = () => {
     }
 
     setLoading(false);
-    setFetch(false);
   }
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
+        <IconButton aria-label="refresh" onClick={() => fetchData()}>
           <RefreshIcon />
         </IconButton>
       </Header>
@@ -231,70 +213,67 @@ const ReportsPage = () => {
           <Warnings warnings={errors} />
         </div>
       )}
-
-      {init && (
-        <Paper id="report">
-          <div className={classes.reportHeader}>
-            <div className={classes.titles}>
-              <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy, accumulate }} />
-            </div>
-
-            <Controls
-              windowOptions={windowOptions}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              aggregationOptions={aggregationOptions}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                searchParams.set("agg", agg);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              accumulateOptions={accumulateOptions}
-              accumulate={accumulate}
-              setAccumulate={(acc) => {
-                searchParams.set("acc", acc);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              title={title}
-              cumulativeData={cumulativeData}
-              currency={currency}
-              currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
-                searchParams.set("currency", curr);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
+      <Paper id="report">
+        <div className={classes.reportHeader}>
+          <div className={classes.titles}>
+            <Typography variant="h5">{title}</Typography>
+            <Subtitle report={{ window, aggregateBy, accumulate }} />
           </div>
 
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
-              </div>
+          <Controls
+            windowOptions={windowOptions}
+            window={window}
+            setWindow={(win) => {
+              searchParams.set("window", win);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            aggregationOptions={aggregationOptions}
+            aggregateBy={aggregateBy}
+            setAggregateBy={(agg) => {
+              searchParams.set("agg", agg);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            accumulateOptions={accumulateOptions}
+            accumulate={accumulate}
+            setAccumulate={(acc) => {
+              searchParams.set("acc", acc);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            title={title}
+            cumulativeData={cumulativeData}
+            currency={currency}
+            currencyOptions={currencyCodes}
+            setCurrency={(curr) => {
+              searchParams.set("currency", curr);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+          />
+        </div>
+
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ paddingTop: 100, paddingBottom: 100 }}>
+              <CircularProgress />
             </div>
-          )}
-          {!loading && (
-            <AllocationReport
-              allocationData={allocationData}
-              cumulativeData={cumulativeData}
-              totalData={totalData}
-              currency={currency}
-            />
-          )}
-        </Paper>
-      )}
+          </div>
+        )}
+        {!loading && (
+          <AllocationReport
+            allocationData={allocationData}
+            cumulativeData={cumulativeData}
+            totalData={totalData}
+            currency={currency}
+          />
+        )}
+      </Paper>
       <Footer />
     </Page>
   );

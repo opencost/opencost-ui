@@ -77,7 +77,7 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
         bar.key = timeFormatter.format(bar.start);
       }
 
-      bar.items[item[aggToKeyMapExternalCosts[aggregateBy]] || 'Unallocated'] =
+      bar.items[item[aggToKeyMapExternalCosts[aggregateBy]] || "Unallocated"] =
         getItemCost(item);
     });
 
@@ -107,7 +107,8 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
 
     orderedDataPoints.forEach(({ graph, start, end }) => {
       graph.forEach((item) => {
-        const key = item[aggToKeyMapExternalCosts[aggregateBy]]  || 'Unallocated';
+        const key =
+          item[aggToKeyMapExternalCosts[aggregateBy]] || "Unallocated";
         if (keyToFill[key] === undefined) {
           assignmentOrder.push(key);
           keyToFill[key] = accents[p];
@@ -212,7 +213,7 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
                 <Cell fill={keyToFill[bar.items[idx][0]]} />
               ) : (
                 <Cell />
-              )
+              ),
             )}
           </Bar>
         ))}

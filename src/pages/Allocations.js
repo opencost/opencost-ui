@@ -4,12 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/styles";
-import {
-  find,
-  get,
-  sortBy,
-  toArray,
-} from "lodash";
+import { find, get, sortBy, toArray } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useLocation, useHistory } from "react-router";
 
@@ -85,7 +80,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    ""
+    "",
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -171,7 +166,7 @@ const ReportsPage = () => {
       const resp = await AllocationService.fetchAllocation(
         window,
         aggregateBy,
-        { accumulate }
+        { accumulate },
       );
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -206,8 +201,7 @@ const ReportsPage = () => {
           },
         ]);
       } else {
-        let secondary =
-          "Please open an Issue on GitHub if problems persist.";
+        let secondary = "Please open an Issue on GitHub if problems persist.";
         if (err.message.length > 0) {
           secondary = err.message;
         }
@@ -226,7 +220,7 @@ const ReportsPage = () => {
   }
   return (
     <Page active="reports.html">
-       <Header headerTitle='Cost Allocation'>
+      <Header headerTitle="Cost Allocation">
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
         </IconButton>
@@ -301,7 +295,7 @@ const ReportsPage = () => {
           )}
         </Paper>
       )}
-      <Footer/>
+      <Footer />
     </Page>
   );
 };

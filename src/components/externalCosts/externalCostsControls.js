@@ -10,8 +10,8 @@ import SelectWindow from "../../components/SelectWindow";
 import {
   windowOptions,
   aggregationOptions,
-  costTypeOptions
-} from '../../components/externalCosts/tokens'
+  costTypeOptions,
+} from "../../components/externalCosts/tokens";
 
 const useStyles = makeStyles({
   wrapper: {
@@ -29,7 +29,7 @@ function ExternalCostsControls({
   aggregateBy,
   setAggregateBy,
   costType,
-  setCostType
+  setCostType,
 }) {
   const classes = useStyles();
   return (

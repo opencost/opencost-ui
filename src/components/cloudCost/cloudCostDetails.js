@@ -45,7 +45,7 @@ const CloudCostDetails = ({
         window,
         agg,
         costMetric,
-        nextFilters
+        nextFilters,
       );
 
       if (resp.data) {
@@ -77,8 +77,7 @@ const CloudCostDetails = ({
           },
         ]);
       } else {
-        let secondary =
-          "Please open an Issue on GitHub if problems persist.";
+        let secondary = "Please open an Issue on GitHub if problems persist.";
         if (err.message.length > 0) {
           secondary = err.message;
         }
@@ -103,7 +102,7 @@ const CloudCostDetails = ({
 
   const drilldownData = data.sort(
     (a, b) =>
-      new Date(a.date ?? "").getTime() - new Date(b.date ?? "").getTime()
+      new Date(a.date ?? "").getTime() - new Date(b.date ?? "").getTime(),
   );
 
   const itemData = drilldownData.map((items) => {

@@ -36,4 +36,9 @@ const aggToKeyMapExternalCosts = {
   domain: "domain",
 };
 
-export { costTypeOptions, windowOptions, aggregationOptions, aggToKeyMapExternalCosts };
+export {
+  costTypeOptions,
+  windowOptions,
+  aggregationOptions,
+  aggToKeyMapExternalCosts,
+};

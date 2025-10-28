@@ -315,7 +315,7 @@ const currencyLocale = "en-US";
 export function toCurrency(amount, currency, precision) {
   if (typeof amount !== "number") {
     console.warn(
-      `Tried to convert "${amount}" to currency, but it is not a number`
+      `Tried to convert "${amount}" to currency, but it is not a number`,
     );
     return "";
   }
@@ -405,7 +405,7 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
         end,
         providerID,
         labelName,
-      })
+      }),
     )
     .sort((a, b) => (a.cost > b.cost ? -1 : 1));
 
@@ -424,7 +424,7 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
       start: "",
       labelName: "",
       providerID: "",
-    }
+    },
   );
 
   return { graphData, tableRows, tableTotal };
@@ -437,7 +437,7 @@ export function parseFilters(filters) {
   // remove dups (via context ) and format
   return (
     [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join(
-      encodeURIComponent("+")
+      encodeURIComponent("+"),
     ) || ""
   );
 }

@@ -8,7 +8,7 @@ function formatItemsForCost({ data, costType }) {
       date: window.start,
       cost: Object.values(cloudCosts).reduce(
         (acc, costs) => acc + costs[costType || "amortizedNetCost"].cost,
-        0
+        0,
       ),
     };
   });
@@ -19,8 +19,8 @@ class CloudCostDayTotalsService {
     if (aggregate.includes("item")) {
       const resp = await client.get(
         `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
-          filters
-        )}`
+          filters,
+        )}`,
       );
       const costMetricProp = costMetricToPropName[costMetric];
 

@@ -80,7 +80,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    "",
+    ""
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -103,6 +103,10 @@ const ReportsPage = () => {
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
 
+  // Data fetching in-progress / error states
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState([]);
+
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
@@ -110,64 +114,34 @@ const ReportsPage = () => {
     setTotalData(cumulativeToTotals(cumulative));
   }, [allocationData]);
 
-  // Form state, which controls form elements, but not the report itself. On
-  // certain actions, the form state may flow into the report state.
-  const [window, setWindow] = useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = useState(aggregationOptions[0].value);
-  const [accumulate, setAccumulate] = useState(accumulateOptions[0].value);
-  const [currency, setCurrency] = useState("USD");
-
-  // Report state, including current report and saved options
-  const [title, setTitle] = useState("Last 7 days by namespace daily");
-
-  // When parameters changes, fetch data. This should be the
-  // only mechanism used to fetch data. Also generate a sensible title from the paramters.
-  useEffect(() => {
-    setFetch(true);
-    setTitle(generateTitle({ window, aggregateBy, accumulate }));
-  }, [window, aggregateBy, accumulate]);
-
-  // page and settings state
-  const [init, setInit] = useState(false);
-  const [fetch, setFetch] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState([]);
-
-  // Initialize once, then fetch report each time setFetch(true) is called
-  useEffect(() => {
-    if (!init) {
-      initialize();
-    }
-    if (init || fetch) {
-      fetchData();
-    }
-  }, [init, fetch]);
-
-  // parse any context information from the URL
+  // State of controls on the page is generally derived from query parameters in the url.
+  // Updates to these controls are pushed through the router using `searchParams.set()`.
+  // Defaults are supplied in case of the absence of a query parameter.
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const routerHistory = useHistory();
-  useEffect(() => {
-    setWindow(searchParams.get("window") || "7d");
-    setAggregateBy(searchParams.get("agg") || "namespace");
-    setAccumulate(searchParams.get("acc") === "true" || false);
-    setCurrency(searchParams.get("currency") || "USD");
-  }, [routerLocation]);
 
-  async function initialize() {
-    setInit(true);
-  }
+  const win = searchParams.get("window") || "7d";
+  const aggregateBy = searchParams.get("agg") || "namespace";
+  const accumulate = searchParams.get("acc") === "true";
+  const currency = searchParams.get("currency") || "USD";
+  const title =
+    searchParams.get("title") ||
+    generateTitle({ window: win, aggregateBy, accumulate });
+
+  // When parameters which effect query results change, refetch the data.
+  useEffect(() => {
+    fetchData();
+  }, [win, aggregateBy, accumulate]);
 
   async function fetchData() {
     setLoading(true);
     setErrors([]);
 
     try {
-      const resp = await AllocationService.fetchAllocation(
-        window,
-        aggregateBy,
-        { accumulate },
-      );
+      const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
+        accumulate,
+      });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
         for (const i in allocationRange) {
@@ -216,12 +190,11 @@ const ReportsPage = () => {
     }
 
     setLoading(false);
-    setFetch(false);
   }
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
+        <IconButton aria-label="refresh" onClick={() => fetchData()}>
           <RefreshIcon />
         </IconButton>
       </Header>
@@ -231,70 +204,67 @@ const ReportsPage = () => {
           <Warnings warnings={errors} />
         </div>
       )}
-
-      {init && (
-        <Paper id="report">
-          <div className={classes.reportHeader}>
-            <div className={classes.titles}>
-              <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy, accumulate }} />
-            </div>
-
-            <Controls
-              windowOptions={windowOptions}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              aggregationOptions={aggregationOptions}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                searchParams.set("agg", agg);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              accumulateOptions={accumulateOptions}
-              accumulate={accumulate}
-              setAccumulate={(acc) => {
-                searchParams.set("acc", acc);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              title={title}
-              cumulativeData={cumulativeData}
-              currency={currency}
-              currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
-                searchParams.set("currency", curr);
-                routerHistory.push({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
+      <Paper id="report">
+        <div className={classes.reportHeader}>
+          <div className={classes.titles}>
+            <Typography variant="h5">{title}</Typography>
+            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
 
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
-              </div>
+          <Controls
+            windowOptions={windowOptions}
+            window={win}
+            setWindow={(win) => {
+              searchParams.set("window", win);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            aggregationOptions={aggregationOptions}
+            aggregateBy={aggregateBy}
+            setAggregateBy={(agg) => {
+              searchParams.set("agg", agg);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            accumulateOptions={accumulateOptions}
+            accumulate={accumulate}
+            setAccumulate={(acc) => {
+              searchParams.set("acc", acc);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            title={title}
+            cumulativeData={cumulativeData}
+            currency={currency}
+            currencyOptions={currencyCodes}
+            setCurrency={(curr) => {
+              searchParams.set("currency", curr);
+              routerHistory.push({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+          />
+        </div>
+
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ paddingTop: 100, paddingBottom: 100 }}>
+              <CircularProgress />
             </div>
-          )}
-          {!loading && (
-            <AllocationReport
-              allocationData={allocationData}
-              cumulativeData={cumulativeData}
-              totalData={totalData}
-              currency={currency}
-            />
-          )}
-        </Paper>
-      )}
+          </div>
+        )}
+        {!loading && (
+          <AllocationReport
+            allocationData={allocationData}
+            cumulativeData={cumulativeData}
+            totalData={totalData}
+            currency={currency}
+          />
+        )}
+      </Paper>
       <Footer />
     </Page>
   );

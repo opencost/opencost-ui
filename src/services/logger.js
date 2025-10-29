@@ -24,10 +24,10 @@ function createLogger(level = defaultLogLevel) {
   let logLevel = level;
   if (!logLevels.includes(level)) {
     console.warn(
-      `Attempting to initialize a logger with an invalid log level: ${level}. Valid levels are: ${logLevels.join(", ")}.`,
+      `Attempting to initialize a logger with an invalid log level: ${level}. Valid levels are: ${logLevels.join(", ")}.`
     );
     console.warn(
-      `Initializing logger with default log level: ${defaultLogLevel}.`,
+      `Initializing logger with default log level: ${defaultLogLevel}.`
     );
     logLevel = defaultLogLevel;
   }
@@ -50,7 +50,14 @@ function createLogger(level = defaultLogLevel) {
     return this._logLevel;
   };
   logger.setLogLevel = function (logLevel) {
-    this._logLevel = logLevel;
+    if (logLevels.includes(logLevel)) {
+      this._logLevel = logLevel;
+    } else {
+      console.warn(
+        `Attempting to set unrecognized log level: ${logLevel}. Skipping.`
+      );
+      console.warn(`Valid log levels are ${logLevels.join(", ")}`);
+    }
   };
   return logger;
 }

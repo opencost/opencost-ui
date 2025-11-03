@@ -21,7 +21,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/pickers": "^3.3.10",
     "@material-ui/styles": "^4.11.5",
-    "axios": "^1.8.4",
+    "axios": "^1.13.1",
     "date-fns": "^4.1.0",
     "html-to-react": "^1.7.0",
     "lodash": "^4.17.21",

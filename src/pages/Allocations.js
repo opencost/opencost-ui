@@ -1,12 +1,11 @@
-import CircularProgress from "@material-ui/core/CircularProgress";
-import IconButton from "@material-ui/core/IconButton";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { makeStyles } from "@material-ui/styles";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { find, get, sortBy, toArray } from "lodash";
 import React, { useEffect, useState } from "react";
-import { useLocation, useHistory } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
@@ -55,17 +54,6 @@ const accumulateOptions = [
   { name: "Daily", value: false },
 ];
 
-const useStyles = makeStyles({
-  reportHeader: {
-    display: "flex",
-    flexFlow: "row",
-    padding: 24,
-  },
-  titles: {
-    flexGrow: 1,
-  },
-});
-
 // generateTitle generates a string title from a report object
 function generateTitle({ window, aggregateBy, accumulate }) {
   let windowName = get(find(windowOptions, { value: window }), "name", "");
@@ -80,7 +68,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    ""
+    "",
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -96,8 +84,6 @@ function generateTitle({ window, aggregateBy, accumulate }) {
 }
 
 const ReportsPage = () => {
-  const classes = useStyles();
-
   // Allocation data state
   const [allocationData, setAllocationData] = useState([]);
   const [cumulativeData, setCumulativeData] = useState({});
@@ -119,7 +105,7 @@ const ReportsPage = () => {
   // Defaults are supplied in case of the absence of a query parameter.
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
-  const routerHistory = useHistory();
+  const navigate = useNavigate();
 
   const win = searchParams.get("window") || "7d";
   const aggregateBy = searchParams.get("agg") || "namespace";
@@ -194,7 +180,11 @@ const ReportsPage = () => {
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
-        <IconButton aria-label="refresh" onClick={() => fetchData()}>
+        <IconButton
+          aria-label="refresh"
+          onClick={() => fetchData()}
+          style={{ padding: 12 }}
+        >
           <RefreshIcon />
         </IconButton>
       </Header>
@@ -205,8 +195,8 @@ const ReportsPage = () => {
         </div>
       )}
       <Paper id="report">
-        <div className={classes.reportHeader}>
-          <div className={classes.titles}>
+        <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
+          <div style={{ flexGrow: 1 }}>
             <Typography variant="h5">{title}</Typography>
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
@@ -216,7 +206,7 @@ const ReportsPage = () => {
             window={win}
             setWindow={(win) => {
               searchParams.set("window", win);
-              routerHistory.push({
+              navigate({
                 search: `?${searchParams.toString()}`,
               });
             }}
@@ -224,7 +214,7 @@ const ReportsPage = () => {
             aggregateBy={aggregateBy}
             setAggregateBy={(agg) => {
               searchParams.set("agg", agg);
-              routerHistory.push({
+              navigate({
                 search: `?${searchParams.toString()}`,
               });
             }}
@@ -232,7 +222,7 @@ const ReportsPage = () => {
             accumulate={accumulate}
             setAccumulate={(acc) => {
               searchParams.set("acc", acc);
-              routerHistory.push({
+              navigate({
                 search: `?${searchParams.toString()}`,
               });
             }}
@@ -242,7 +232,7 @@ const ReportsPage = () => {
             currencyOptions={currencyCodes}
             setCurrency={(curr) => {
               searchParams.set("currency", curr);
-              routerHistory.push({
+              navigate({
                 search: `?${searchParams.toString()}`,
               });
             }}

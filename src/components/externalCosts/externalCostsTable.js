@@ -1,5 +1,4 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
 import {
   Typography,
   TableContainer,
@@ -10,8 +9,8 @@ import {
   TableSortLabel,
   Table,
   TableBody,
-} from "@material-ui/core";
-import { useLocation, useHistory } from "react-router";
+} from "@mui/material";
+import { useLocation, useNavigate } from "react-router";
 import { toCurrency } from "../../util";
 import { ExternalCostRow } from "./externalCostRow";
 import { aggToKeyMapExternalCosts } from "./tokens";
@@ -22,14 +21,6 @@ const ExternalCostsTable = ({
   aggregateBy = "usageUnit",
   drilldown,
 }) => {
-  const useStyles = makeStyles({
-    noResults: {
-      padding: 24,
-    },
-  });
-
-  const classes = useStyles();
-
   const headCells = [
     {
       id: "aggregate",
@@ -53,7 +44,7 @@ const ExternalCostsTable = ({
 
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
-  const routerHistory = useHistory();
+  const navigate = useNavigate();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const numData = tableData.customCosts?.length ?? 0;
@@ -82,7 +73,7 @@ const ExternalCostsTable = ({
 
   if ("customCosts" in tableData && tableData.customCosts.length === 0) {
     return (
-      <Typography variant="body2" className={classes.noResults}>
+      <Typography variant="body2" sx={{ padding: 24 }}>
         No results
       </Typography>
     );
@@ -134,7 +125,7 @@ const ExternalCostsTable = ({
                         searchParams.set("sortBy", cell.id);
                         searchParams.set("sortDirection", "desc");
                       }
-                      routerHistory.push({
+                      navigate({
                         search: `?${searchParams.toString()}`,
                       });
                     }}

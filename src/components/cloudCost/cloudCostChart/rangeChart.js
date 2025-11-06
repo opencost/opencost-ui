@@ -1,5 +1,3 @@
-import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
 import {
   BarChart,
   Bar,
@@ -14,20 +12,6 @@ import { primary, greyscale, browns } from "../../../constants/colors";
 import { toCurrency } from "../../../util";
 
 const RangeChart = ({ data, currency, height }) => {
-  const useStyles = makeStyles({
-    tooltip: {
-      borderRadius: 2,
-      background: "rgba(255, 255, 255, 0.95)",
-      padding: 12,
-    },
-    tooltipLineItem: {
-      fontSize: "1rem",
-      margin: 0,
-      marginBottom: 4,
-      padding: 0,
-    },
-  });
-
   const accents = [...primary, ...greyscale, ...browns];
 
   const _IDLE_ = "__idle__";
@@ -173,8 +157,6 @@ const RangeChart = ({ data, currency, height }) => {
 
   const { bars: barData, labels: barLabels, keyToFill } = getDataForGraph(data);
 
-  const classes = useStyles();
-
   const CustomTooltip = (params) => {
     const { active, payload } = params;
 
@@ -185,10 +167,21 @@ const RangeChart = ({ data, currency, height }) => {
     const total = payload.reduce((sum, item) => sum + item.value, 0.0);
     if (active) {
       return (
-        <div className={classes.tooltip}>
+        <div
+          style={{
+            borderRadius: 2,
+            background: "rgba(255, 255, 255, 0.95)",
+            padding: 12,
+          }}
+        >
           <p
-            className={classes.tooltipLineItem}
-            style={{ color: "#000000" }}
+            style={{
+              fontSize: "1rem",
+              margin: 0,
+              marginBottom: 4,
+              padding: 0,
+              color: "#000000",
+            }}
           >{`Total: ${toCurrency(total, currency)}`}</p>
 
           {payload
@@ -213,7 +206,14 @@ const RangeChart = ({ data, currency, height }) => {
                   />
                 </div>
                 <div>
-                  <p className={classes.tooltipLineItem}>{`${
+                  <p
+                    style={{
+                      fontSize: "1rem",
+                      margin: 0,
+                      marginBottom: 4,
+                      padding: 0,
+                    }}
+                  >{`${
                     item.payload.items[i][0]
                   }: ${toCurrency(item.value, currency)}`}</p>
                 </div>

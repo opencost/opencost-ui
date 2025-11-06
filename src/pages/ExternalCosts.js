@@ -2,13 +2,12 @@ import * as React from "react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import IconButton from "@material-ui/core/IconButton";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { makeStyles } from "@material-ui/styles";
-import { Paper, Button } from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { Paper, Button } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { useLocation, useHistory } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import Warnings from "../components/Warnings";
 import ExternalCostsService from "../services/externalCosts";
 
@@ -24,17 +23,6 @@ import { aggToKeyMapExternalCosts } from "../components/externalCosts/tokens";
 import { ExternalCostDetails } from "../components/externalCosts/externalCostDetailModal";
 
 const ExternalCosts = () => {
-  const useStyles = makeStyles({
-    reportHeader: {
-      display: "flex",
-      flexFlow: "row",
-      padding: 24,
-    },
-    titles: {
-      flexGrow: 1,
-    },
-  });
-  const classes = useStyles();
   const [window, setWindow] = React.useState(windowOptions[0].value);
   const [costType, setCostType] = React.useState(costTypeOptions[0].value);
   const [sortBy, setSortBy] = React.useState("cost");
@@ -59,7 +47,7 @@ const ExternalCosts = () => {
   // parse any context information from the URL
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
-  const routerHistory = useHistory();
+  const navigate = useNavigate();
 
   async function initialize() {
     setInit(true);
@@ -237,7 +225,11 @@ const ExternalCosts = () => {
     <Page active="cloud.html">
       {/* figure out if we need */}
       <Header headerTitle="External Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
+        <IconButton
+          aria-label="refresh"
+          onClick={() => setFetch(true)}
+          style={{ padding: 12 }}
+        >
           <RefreshIcon />
         </IconButton>
       </Header>
@@ -248,19 +240,19 @@ const ExternalCosts = () => {
       )}
       {init && (
         <Paper id="cloud-cost">
-          <div className={classes.reportHeader}>
+          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
             <ExternalCostsControls
               costType={costType}
               setCostType={(type) => {
                 searchParams.set("costType", type);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}
               window={window}
               setWindow={(win) => {
                 searchParams.set("window", win);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}
@@ -268,7 +260,7 @@ const ExternalCosts = () => {
               setAggregateBy={(agg) => {
                 setFilters([]);
                 searchParams.set("agg", agg);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}

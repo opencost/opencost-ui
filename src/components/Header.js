@@ -1,41 +1,25 @@
-import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Link from "@material-ui/core/Link";
-import Typography from "@material-ui/core/Typography";
-import { useLocation } from "react-router-dom";
-
-const useStyles = makeStyles({
-  root: {
-    alignItems: "center",
-    display: "flex",
-    flexFlow: "row",
-    width: "100%",
-    marginTop: "10px",
-  },
-  context: {
-    flex: "1 0 auto",
-  },
-  actions: {
-    flex: "0 0 auto",
-  },
-});
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
 
 const Header = (props) => {
-  const classes = useStyles();
   const { title, breadcrumbs, headerTitle } = props;
 
   return (
-    <div className={classes.root}>
+    <div
+      style={{
+        alignItems: "center",
+        display: "flex",
+        flexFlow: "row",
+        width: "100%",
+        marginTop: "10px",
+      }}
+    >
       <Typography variant="h3" style={{ marginBottom: "10px" }}>
         {headerTitle}
       </Typography>
-      <div className={classes.context}>
-        {title && (
-          <Typography variant="h4" className={classes.title}>
-            {title}
-          </Typography>
-        )}
+      <div style={{ flex: "1 0 auto" }}>
+        {title && <Typography variant="h4">{title}</Typography>}
         {breadcrumbs && breadcrumbs.length > 0 && (
           <Breadcrumbs aria-label="breadcrumb">
             {breadcrumbs.slice(0, breadcrumbs.length - 1).map((b) => (
@@ -49,7 +33,7 @@ const Header = (props) => {
           </Breadcrumbs>
         )}
       </div>
-      <div className={classes.actions}>{props.children}</div>
+      <div style={{ flex: "0 0 auto" }}>{props.children}</div>
     </div>
   );
 };

@@ -1,6 +1,4 @@
-import React from "react";
 import { reverse } from "lodash";
-import { makeStyles } from "@material-ui/styles";
 import {
   BarChart,
   Bar,
@@ -12,20 +10,6 @@ import {
 } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
-
-const useStyles = makeStyles({
-  tooltip: {
-    borderRadius: 2,
-    background: "rgba(255, 255, 255, 0.95)",
-    padding: 12,
-  },
-  tooltipLineItem: {
-    fontSize: "1rem",
-    margin: 0,
-    marginBottom: 4,
-    padding: 0,
-  },
-});
 
 function toBarLabels(allocationRange) {
   let keyToFill = {};
@@ -111,8 +95,6 @@ function toBar(datum) {
 }
 
 const RangeChart = ({ data, currency, height }) => {
-  const classes = useStyles();
-
   const barData = data.map(toBar);
   const barLabels = toBarLabels(data);
 
@@ -126,16 +108,32 @@ const RangeChart = ({ data, currency, height }) => {
     const total = payload.reduce((sum, item) => sum + item.value, 0.0);
     if (active) {
       return (
-        <div className={classes.tooltip}>
+        <div
+          style={{
+            borderRadius: 2,
+            background: "rgba(255, 255, 255, 0.95)",
+            padding: 12,
+          }}
+        >
           <p
-            className={classes.tooltipLineItem}
-            style={{ color: "#000000" }}
+            style={{
+              fontSize: "1rem",
+              margin: 0,
+              marginBottom: 4,
+              padding: 0,
+              color: "#000000",
+            }}
           >{`Total: ${toCurrency(total, currency)}`}</p>
           {reverse(payload).map((item, i) => (
             <p
               key={i}
-              className={classes.tooltipLineItem}
-              style={{ color: item.fill }}
+              style={{
+                fontSize: "1rem",
+                margin: 0,
+                marginBottom: 4,
+                padding: 0,
+                color: item.fill,
+              }}
             >{`${item.name}: ${toCurrency(item.value, currency)}`}</p>
           ))}
         </div>

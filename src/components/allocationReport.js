@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { get, round } from "lodash";
-import { makeStyles } from "@material-ui/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
-import TableRow from "@material-ui/core/TableRow";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
-import Typography from "@material-ui/core/Typography";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import Typography from "@mui/material/Typography";
 import AllocationChart from "./AllocationChart";
 import { toCurrency } from "../util";
-
-const useStyles = makeStyles({
-  noResults: {
-    padding: 24,
-  },
-});
 
 function descendingComparator(a, b, orderBy) {
   if (get(b, orderBy) < get(a, orderBy)) {
@@ -61,11 +54,9 @@ const AllocationReport = ({
   totalData,
   currency,
 }) => {
-  const classes = useStyles();
-
   if (allocationData.length === 0) {
     return (
-      <Typography variant="body2" className={classes.noResults}>
+      <Typography variant="body2" style={{ padding: 24 }}>
         No results
       </Typography>
     );

@@ -1,9 +1,6 @@
-import * as React from "react";
-
-import { TableCell, TableRow } from "@material-ui/core";
+import { TableCell, TableRow } from "@mui/material";
 
 import { toCurrency } from "../../util";
-import { primary } from "../../constants/colors";
 
 const displayCurrencyAsLessThanPenny = (amount, currency) =>
   amount > 0 && amount < 0.01

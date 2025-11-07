@@ -1,8 +1,8 @@
 import React from "react";
 import { get, forEach, reverse, round, sortBy } from "lodash";
-import ExportIcon from "@material-ui/icons/GetApp";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
+import ExportIcon from "@mui/icons-material/GetApp";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 const columns = [
   {
@@ -85,7 +85,7 @@ const DownloadControl = ({ cumulativeData, title }) => {
 
   return (
     <Tooltip title="Download CSV">
-      <IconButton onClick={downloadReport}>
+      <IconButton onClick={downloadReport} style={{ padding: 12 }}>
         <ExportIcon />
       </IconButton>
     </Tooltip>

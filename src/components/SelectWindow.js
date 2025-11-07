@@ -1,46 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/styles";
 import { endOfDay, startOfDay } from "date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
-import Button from "@material-ui/core/Button";
-import DateFnsUtils from "@date-io/date-fns";
-import FormControl from "@material-ui/core/FormControl";
-import Link from "@material-ui/core/Link";
-import Popover from "@material-ui/core/Popover";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Button from "@mui/material/Button";
+import Link from "@mui/material/Link";
+import Popover from "@mui/material/Popover";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { isValid } from "date-fns";
 import { find, get } from "lodash";
 
-const useStyles = makeStyles({
-  dateContainer: {
-    paddingLeft: 18,
-    paddingRight: 18,
-    paddingTop: 6,
-    paddingBottom: 18,
-    display: "flex",
-    flexFlow: "row",
-  },
-  dateContainerColumn: {
-    display: "flex",
-    flexFlow: "column",
-  },
-  formControl: {
-    margin: 8,
-    width: 120,
-  },
-});
-
 const SelectWindow = ({ windowOptions, window, setWindow }) => {
-  const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [intervalString, setIntervalString] = useState(null);
+
+  const [startDateHelperText, setStartDateHelperText] = useState("");
+  const [endDateHelperText, setEndDateHelperText] = useState("");
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -51,12 +28,14 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
   };
 
   const handleStartDateChange = (date) => {
+    setStartDateHelperText("");
     if (isValid(date)) {
       setStartDate(startOfDay(date));
     }
   };
 
   const handleEndDateChange = (date) => {
+    setEndDateHelperText("");
     if (isValid(date)) {
       setEndDate(endOfDay(date));
     }
@@ -100,18 +79,20 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
 
   return (
     <>
-      <FormControl className={classes.formControl}>
-        <TextField
-          id="filled-read-only-input"
-          label="Date Range"
-          value={get(find(windowOptions, { value: window }), "name", "Custom")}
-          onClick={(e) => handleClick(e)}
-          inputProps={{
+      <TextField
+        id="filled-read-only-input"
+        label="Date Range"
+        value={get(find(windowOptions, { value: window }), "name", "Custom")}
+        onClick={(e) => handleClick(e)}
+        slotProps={{
+          htmlInput: {
             readOnly: true,
             style: { cursor: "pointer" },
-          }}
-        />
-      </FormControl>
+          },
+        }}
+        style={{ margin: 8, width: 120 }}
+        variant="standard"
+      />
       <Popover
         id={id}
         open={open}
@@ -126,58 +107,89 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
           horizontal: "center",
         }}
       >
-        <div className={classes.dateContainer}>
-          <div className={classes.dateContainerColumn}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                style={{ width: "144px" }}
-                autoOk={true}
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-start"
-                label="Start Date"
-                value={startDate}
-                maxDate={new Date()}
-                maxDateMessage="Date should not be after today."
-                onChange={handleStartDateChange}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-              <KeyboardDatePicker
-                style={{ width: "144px" }}
-                autoOk={true}
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-end"
-                label="End Date"
-                value={endDate}
-                maxDate={new Date()}
-                maxDateMessage="Date should not be after today."
-                onChange={handleEndDateChange}
-                KeyboardButtonProps={{
-                  "aria-label": "change date",
-                }}
-              />
-            </MuiPickersUtilsProvider>
+        <div
+          style={{
+            paddingLeft: 18,
+            paddingRight: 18,
+            paddingTop: 6,
+            paddingBottom: 18,
+            display: "flex",
+            flexFlow: "row",
+          }}
+        >
+          <div style={{ display: "flex", flexFlow: "column" }}>
+            <DatePicker
+              style={{ width: "144px" }}
+              autoOk={true}
+              disableToolbar
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="date-picker-start"
+              label="Start Date"
+              value={startDate}
+              maxDate={new Date()}
+              maxDateMessage="Date should not be after today."
+              onChange={handleStartDateChange}
+              onError={(error, value) => {
+                if (error === "maxDate") {
+                  setStartDateHelperText("Date should not be after today.");
+                }
+              }}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+              slotProps={{
+                field: {
+                  helperText: startDateHelperText,
+                  variant: "standard",
+                },
+              }}
+            />
+            <DatePicker
+              style={{ width: "144px" }}
+              autoOk={true}
+              disableToolbar
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="date-picker-end"
+              label="End Date"
+              value={endDate}
+              maxDate={new Date()}
+              maxDateMessage="Date should not be after today."
+              onChange={handleEndDateChange}
+              onError={(error, value) => {
+                if (error === "maxDate") {
+                  setEndDateHelperText("Date should not be after today.");
+                }
+              }}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+              slotProps={{
+                field: {
+                  helperText: endDateHelperText,
+                  variant: "standard",
+                },
+              }}
+            />
             <div>
               <Button
                 style={{ marginTop: 16 }}
                 variant="contained"
-                color="default"
                 onClick={handleSubmitCustomDates}
+                color="info"
               >
                 Apply
               </Button>
             </div>
           </div>
           <div
-            className={classes.dateContainerColumn}
-            style={{ paddingTop: 12, marginLeft: 18 }}
+            style={{
+              display: "flex",
+              flexFlow: "column",
+              paddingTop: 12,
+              marginLeft: 18,
+            }}
           >
             {windowOptions.map((opt) => (
               <Typography key={opt.value}>
@@ -186,6 +198,10 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
                   key={opt.value}
                   value={opt.value}
                   onClick={() => handleSubmitPresetDates(opt.value)}
+                  sx={{
+                    textDecoration: "none",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
                 >
                   {opt.name}
                 </Link>

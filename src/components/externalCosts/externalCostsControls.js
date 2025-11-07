@@ -1,8 +1,7 @@
-import { makeStyles } from "@material-ui/styles";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import Select from "@material-ui/core/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 
 import * as React from "react";
 
@@ -13,16 +12,6 @@ import {
   costTypeOptions,
 } from "../../components/externalCosts/tokens";
 
-const useStyles = makeStyles({
-  wrapper: {
-    display: "inline-flex",
-  },
-  formControl: {
-    margin: 8,
-    minWidth: 120,
-  },
-});
-
 function ExternalCostsControls({
   window,
   setWindow,
@@ -31,15 +20,14 @@ function ExternalCostsControls({
   costType,
   setCostType,
 }) {
-  const classes = useStyles();
   return (
-    <div className={classes.wrapper}>
+    <div style={{ display: "inline-flex" }}>
       <SelectWindow
         windowOptions={windowOptions}
         window={window}
         setWindow={setWindow}
       />
-      <FormControl className={classes.formControl}>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
         <InputLabel id="aggregation-select-label">Breakdown</InputLabel>
         <Select
           id="aggregation-select"
@@ -55,7 +43,7 @@ function ExternalCostsControls({
           ))}
         </Select>
       </FormControl>
-      <FormControl className={classes.formControl}>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
         <InputLabel id="aggregation-select-label">Cost Type</InputLabel>
         <Select
           id="cost-type-select"

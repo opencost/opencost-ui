@@ -1,11 +1,11 @@
-import { Modal, Paper } from "@material-ui/core";
+import { Modal, Paper } from "@mui/material";
 import {
   TableContainer,
   TableCell,
   TableRow,
   Table,
   TableBody,
-} from "@material-ui/core";
+} from "@mui/material";
 
 // for now, we can assume that the "Name" is resourceType
 export const ExternalCostDetails = ({ row, onClose }) => (

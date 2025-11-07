@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Modal, Paper, Typography } from "@material-ui/core";
+import { Modal, Paper, Typography } from "@mui/material";
 import Warnings from "../../components/Warnings";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import {
   ResponsiveContainer,

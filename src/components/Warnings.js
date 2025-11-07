@@ -1,25 +1,17 @@
-import React from "react";
-import { makeStyles } from "@material-ui/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Paper from "@material-ui/core/Paper";
-import WarningIcon from "@material-ui/icons/Warning";
-
-const useStyles = makeStyles({
-  root: {},
-});
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import WarningIcon from "@mui/icons-material/Warning";
 
 const Warnings = ({ warnings }) => {
-  const classes = useStyles();
-
   if (!warnings || warnings.length === 0) {
     return null;
   }
 
   return (
-    <Paper className={classes.root}>
+    <Paper>
       <List>
         {warnings.map((warn, i) => (
           <ListItem key={i}>

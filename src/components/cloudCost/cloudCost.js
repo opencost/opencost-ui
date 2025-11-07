@@ -1,6 +1,5 @@
 import * as React from "react";
 import { get } from "lodash";
-import { makeStyles } from "@material-ui/styles";
 import {
   Typography,
   TableContainer,
@@ -11,7 +10,7 @@ import {
   TableSortLabel,
   Table,
   TableBody,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { toCurrency } from "../../util";
 import CloudCostChart from "./cloudCostChart";
@@ -25,14 +24,6 @@ const CloudCost = ({
   drilldown,
   sampleData = false,
 }) => {
-  const useStyles = makeStyles({
-    noResults: {
-      padding: 24,
-    },
-  });
-
-  const classes = useStyles();
-
   function descendingComparator(a, b, orderBy) {
     if (get(b, orderBy) < get(a, orderBy)) {
       return -1;
@@ -114,7 +105,7 @@ const CloudCost = ({
 
   if (cumulativeData.length === 0) {
     return (
-      <Typography variant="body2" className={classes.noResults}>
+      <Typography variant="body2" sx={{ padding: 24 }}>
         No results
       </Typography>
     );

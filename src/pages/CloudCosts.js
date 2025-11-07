@@ -2,13 +2,12 @@ import * as React from "react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import IconButton from "@material-ui/core/IconButton";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { makeStyles } from "@material-ui/styles";
-import { Link, Paper, Typography } from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { Link, Paper, Typography } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import { get, find } from "lodash";
-import { useLocation, useHistory } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { checkCustomWindow, toVerboseTimeRange } from "../util";
 import CloudCostEditControls from "../components/cloudCost/controls/cloudCostEditControls";
@@ -27,18 +26,6 @@ import CloudCost from "../components/cloudCost/cloudCost";
 import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
 
 const CloudCosts = () => {
-  const useStyles = makeStyles({
-    reportHeader: {
-      display: "flex",
-      flexFlow: "row",
-      padding: 24,
-    },
-    titles: {
-      flexGrow: 1,
-    },
-  });
-  const classes = useStyles();
-
   // Form state, which controls form elements, but not the report itself. On
   // certain actions, the form state may flow into the report state.
   const [title, setTitle] = React.useState(
@@ -96,7 +83,7 @@ const CloudCosts = () => {
   // parse any context information from the URL
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
-  const routerHistory = useHistory();
+  const navigate = useNavigate();
 
   async function initialize() {
     setInit(true);
@@ -248,8 +235,8 @@ const CloudCosts = () => {
 
       {init && hasCloudCostEnabled && (
         <Paper id="cloud-cost">
-          <div className={classes.reportHeader}>
-            <div className={classes.titles}>
+          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
+            <div style={{ flexGrow: 1 }}>
               <Typography variant="h5">{title}</Typography>
               <Subtitle report={{ window, aggregateBy }} />
             </div>
@@ -258,7 +245,7 @@ const CloudCosts = () => {
               window={window}
               setWindow={(win) => {
                 searchParams.set("window", win);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}
@@ -267,7 +254,7 @@ const CloudCosts = () => {
               setAggregateBy={(agg) => {
                 setFilters([]);
                 searchParams.set("agg", agg);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}
@@ -275,7 +262,7 @@ const CloudCosts = () => {
               costMetric={costMetric}
               setCostMetric={(c) => {
                 searchParams.set("costMetric", c);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}
@@ -285,7 +272,7 @@ const CloudCosts = () => {
               currencyOptions={currencyCodes}
               setCurrency={(curr) => {
                 searchParams.set("currency", curr);
-                routerHistory.push({
+                navigate({
                   search: `?${searchParams.toString()}`,
                 });
               }}

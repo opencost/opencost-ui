@@ -28,7 +28,7 @@ function EditCloudCostControls({
         window={window}
         setWindow={setWindow}
       />
-      <FormControl sx={{ margin: 8, minWidth: 120 }}>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
         <InputLabel id="aggregation-select-label">Breakdown</InputLabel>
         <Select
           id="aggregation-select"
@@ -44,7 +44,7 @@ function EditCloudCostControls({
           ))}
         </Select>
       </FormControl>
-      <FormControl sx={{ margin: 8, minWidth: 120 }}>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
         <InputLabel id="costMetric-label">Cost Metric</InputLabel>
         <Select
           id="costMetric"
@@ -58,7 +58,7 @@ function EditCloudCostControls({
           ))}
         </Select>
       </FormControl>
-      <FormControl sx={{ margin: 8, minWidth: 120 }}>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
         <InputLabel id="currency-label">Currency</InputLabel>
         <Select
           id="currency"

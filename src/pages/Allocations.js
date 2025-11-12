@@ -225,8 +225,20 @@ const ReportsPage = () => {
       return;
     }
     
+    // Map aggregateBy to filter property name
+    // Backend uses "controllerName" instead of "controller"
+    const filterPropertyMap = {
+      namespace: "namespace",
+      controllerKind: "controllerKind",
+      controller: "controllerName", // Backend expects "controllerName", not "controller"
+      pod: "pod",
+      container: "container",
+    };
+    
+    const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
+    
     const newFilter = {
-      property: aggregateBy,
+      property: filterProperty,
       value: String(row.name).trim(),
     };
 

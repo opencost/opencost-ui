@@ -171,9 +171,18 @@ const AllocationReport = ({
                 efficiency = "Inf";
               }
 
-              // Do not allow drill-down for idle, unallocated, unmounted, or container (last level)
+              // Do not allow drill-down for idle, unallocated, unmounted, or if no next level exists
+              // According to issue #2942, drilldown should work from namespace level
+              const drilldownHierarchy = {
+                namespace: "controllerKind",
+                controllerKind: "controller",
+                controller: "pod",
+                pod: "container",
+              };
+              const hasNextLevel = drilldownHierarchy[aggregateBy] !== undefined;
               const isContainer = aggregateBy === "container";
-              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && !isContainer && drilldown;
+              // Only allow drilldown if there's a next level and we're not at container level
+              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && !isContainer && hasNextLevel && drilldown;
 
               const rowProps = canDrilldown
                 ? {

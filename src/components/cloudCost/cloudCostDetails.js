@@ -4,7 +4,6 @@ import Warnings from "../../components/Warnings";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import {
-  ResponsiveContainer,
   CartesianGrid,
   Legend,
   XAxis,
@@ -140,11 +139,6 @@ const CloudCostDetails = ({
           )}
           {data && (
             <div style={{ display: "flex", marginTop: "2.5rem" }}>
-              <ResponsiveContainer
-                height={250}
-                id={"cloud-cost-drilldown"}
-                width={"100%"}
-              >
                 <BarChart
                   data={itemData}
                   margin={{
@@ -153,6 +147,10 @@ const CloudCostDetails = ({
                     left: 20,
                     right: 0,
                   }}
+                responsive
+                height={250}
+                width="100%"
+                id={"cloud-cost-drilldown"}
                 >
                   <CartesianGrid vertical={false} />
                   <Legend verticalAlign={"bottom"} />
@@ -165,7 +163,6 @@ const CloudCostDetails = ({
                     }
                   />
                 </BarChart>
-              </ResponsiveContainer>
             </div>
           )}
         </Paper>

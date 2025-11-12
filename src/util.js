@@ -435,10 +435,10 @@ export function parseFilters(filters) {
     return filters;
   }
   // remove dups (via context ) and format
+  // Use "+" directly, axios will handle URL encoding
   return (
-    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join(
-      encodeURIComponent("+"),
-    ) || ""
+    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join("+") ||
+    ""
   );
 }
 

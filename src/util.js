@@ -436,8 +436,12 @@ export function parseFilters(filters) {
   }
   // remove dups (via context ) and format
   // Use "+" directly, axios will handle URL encoding
+  // Escape quotes in values by replacing " with \"
   return (
-    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join("+") ||
+    [...new Set(filters.map((f) => {
+      const escapedValue = String(f.value).replace(/"/g, '\\"');
+      return `${f.property}:"${escapedValue}"`;
+    }))].join("+") ||
     ""
   );
 }

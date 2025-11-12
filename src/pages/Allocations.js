@@ -220,9 +220,14 @@ const ReportsPage = () => {
     }
 
     // Create new filter for the current level
+    // Ensure value is not empty and is a string
+    if (!row.name || String(row.name).trim() === "") {
+      return;
+    }
+    
     const newFilter = {
       property: aggregateBy,
-      value: row.name,
+      value: String(row.name).trim(),
     };
 
     // Add to existing filters and update aggregateBy

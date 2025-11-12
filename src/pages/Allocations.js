@@ -92,6 +92,9 @@ const ReportsPage = () => {
   // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
+  
+  // Filters for drilldown
+  const [filters, setFilters] = useState([]);
 
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
@@ -115,10 +118,30 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
+  // Reset filters when aggregateBy changes manually (not through drilldown)
+  useEffect(() => {
+    // Only reset if aggregateBy changed and we're going back to a higher level
+    const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const currentIndex = hierarchy.indexOf(aggregateBy);
+    
+    // If we're at namespace level, always reset filters
+    // Otherwise, reset if we're going back to a higher level
+    setFilters((prevFilters) => {
+      if (currentIndex === 0) {
+        return [];
+      }
+      // If current level index is less than number of filters, we went back
+      if (currentIndex < prevFilters.length) {
+        return [];
+      }
+      return prevFilters;
+    });
+  }, [aggregateBy]);
+
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate]);
+  }, [win, aggregateBy, accumulate, filters]);
 
   async function fetchData() {
     setLoading(true);
@@ -127,6 +150,7 @@ const ReportsPage = () => {
     try {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
+        filters,
       });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -177,6 +201,41 @@ const ReportsPage = () => {
 
     setLoading(false);
   }
+
+  // Drilldown function to navigate to next level of aggregation
+  function drilldown(row) {
+    // Define the hierarchy for drilldown
+    const drilldownHierarchy = {
+      namespace: "controllerKind",
+      controllerKind: "controller",
+      controller: "pod",
+      pod: "container",
+    };
+
+    const nextAgg = drilldownHierarchy[aggregateBy];
+    
+    // If we're at the deepest level, don't allow further drilldown
+    if (!nextAgg) {
+      return;
+    }
+
+    // Create new filter for the current level
+    const newFilter = {
+      property: aggregateBy,
+      value: row.name,
+    };
+
+    // Add to existing filters and update aggregateBy
+    const newFilters = [...filters, newFilter];
+    setFilters(newFilters);
+    
+    // Update URL parameters
+    searchParams.set("agg", nextAgg);
+    navigate({
+      search: `?${searchParams.toString()}`,
+    });
+  }
+
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
@@ -252,6 +311,8 @@ const ReportsPage = () => {
             cumulativeData={cumulativeData}
             totalData={totalData}
             currency={currency}
+            aggregateBy={aggregateBy}
+            drilldown={drilldown}
           />
         )}
       </Paper>

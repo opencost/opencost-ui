@@ -53,6 +53,8 @@ const AllocationReport = ({
   cumulativeData,
   totalData,
   currency,
+  aggregateBy,
+  drilldown,
 }) => {
   if (allocationData.length === 0) {
     return (
@@ -169,7 +171,22 @@ const AllocationReport = ({
                 efficiency = "Inf";
               }
 
-              // Do not allow drill-down for idle and unallocated rows
+              // Do not allow drill-down for idle, unallocated, unmounted, or container (last level)
+              const isContainer = aggregateBy === "container";
+              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && !isContainer && drilldown;
+
+              const rowProps = canDrilldown
+                ? {
+                    onClick: () => drilldown(row),
+                    sx: {
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
+                    },
+                  }
+                : {};
+
               if (isIdle || isUnallocated || isUnmounted) {
                 return (
                   <TableRow key={key}>
@@ -199,7 +216,7 @@ const AllocationReport = ({
               }
 
               return (
-                <TableRow key={key}>
+                <TableRow key={key} {...rowProps}>
                   <TableCell align="left">{row.name}</TableCell>
                   <TableCell align="right">
                     {toCurrency(row.cpuCost, currency)}

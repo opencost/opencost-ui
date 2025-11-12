@@ -1,8 +1,9 @@
+import { parseFilters } from "../util";
 import client from "./api_client";
 
 class AllocationService {
   async fetchAllocation(win, aggregate, options) {
-    const { accumulate } = options;
+    const { accumulate, filters } = options;
     const params = {
       window: win,
       aggregate: aggregate,
@@ -11,6 +12,9 @@ class AllocationService {
     };
     if (typeof accumulate === "boolean") {
       params.accumulate = accumulate;
+    }
+    if (filters && filters.length > 0) {
+      params.filter = parseFilters(filters);
     }
     const result = await client.get("/allocation/compute", {
       params,

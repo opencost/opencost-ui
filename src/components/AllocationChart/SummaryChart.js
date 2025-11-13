@@ -86,8 +86,6 @@ const SummaryChart = ({ top, other, idle, currency, height }) => {
         nameKey="name"
         label={renderLabel}
         labelLine
-        // niko: if tooltips error, try disabling animation
-        // isAnimationActive={false}
         animationDuration={400}
         cy="90%"
         outerRadius="140%"

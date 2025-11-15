@@ -18,6 +18,8 @@ import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
+  parseFilters,
+  parseFiltersFromUrl,
   rangeToCumulative,
   toVerboseTimeRange,
 } from "../util";
@@ -118,25 +120,50 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
-  // Reset filters when aggregateBy changes manually (not through drilldown)
+  // Load filters from URL on initial load or when URL changes
+  // Also validate that filters match the current aggregateBy level
   useEffect(() => {
-    // Only reset if aggregateBy changed and we're going back to a higher level
+    const currentSearchParams = new URLSearchParams(routerLocation.search);
+    const filterParam = currentSearchParams.get("filter");
     const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
     const currentIndex = hierarchy.indexOf(aggregateBy);
     
-    // If we're at namespace level, always reset filters
-    // Otherwise, reset if we're going back to a higher level
-    setFilters((prevFilters) => {
-      if (currentIndex === 0) {
-        return [];
+    if (filterParam) {
+      const urlFilters = parseFiltersFromUrl(filterParam);
+      
+      // Validate filters match current aggregateBy level
+      // If we're at namespace level, there should be no filters
+      if (currentIndex === 0 && urlFilters.length > 0) {
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        newSearchParams.delete("filter");
+        navigate({
+          search: `?${newSearchParams.toString()}`,
+        }, { replace: true });
+        setFilters([]);
+        return;
       }
-      // If current level index is less than number of filters, we went back
-      if (currentIndex < prevFilters.length) {
-        return [];
+      
+      // If current level index is less than number of filters, trim them
+      if (currentIndex >= 0 && currentIndex < urlFilters.length) {
+        const trimmedFilters = urlFilters.slice(0, currentIndex);
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        if (trimmedFilters.length > 0) {
+          newSearchParams.set("filter", parseFilters(trimmedFilters));
+        } else {
+          newSearchParams.delete("filter");
+        }
+        navigate({
+          search: `?${newSearchParams.toString()}`,
+        }, { replace: true });
+        setFilters(trimmedFilters);
+        return;
       }
-      return prevFilters;
-    });
-  }, [aggregateBy]);
+      
+      setFilters(urlFilters);
+    } else {
+      setFilters([]);
+    }
+  }, [routerLocation.search, aggregateBy]);
 
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
@@ -246,10 +273,16 @@ const ReportsPage = () => {
     const newFilters = [...filters, newFilter];
     setFilters(newFilters);
     
-    // Update URL parameters
-    searchParams.set("agg", nextAgg);
+    // Update URL parameters with new aggregateBy and filters
+    const newSearchParams = new URLSearchParams(routerLocation.search);
+    newSearchParams.set("agg", nextAgg);
+    if (newFilters.length > 0) {
+      newSearchParams.set("filter", parseFilters(newFilters));
+    } else {
+      newSearchParams.delete("filter");
+    }
     navigate({
-      search: `?${searchParams.toString()}`,
+      search: `?${newSearchParams.toString()}`,
     });
   }
 
@@ -289,9 +322,12 @@ const ReportsPage = () => {
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
             setAggregateBy={(agg) => {
-              searchParams.set("agg", agg);
+              const newSearchParams = new URLSearchParams(routerLocation.search);
+              newSearchParams.set("agg", agg);
+              // Reset filters when aggregateBy is changed manually
+              newSearchParams.delete("filter");
               navigate({
-                search: `?${searchParams.toString()}`,
+                search: `?${newSearchParams.toString()}`,
               });
             }}
             accumulateOptions={accumulateOptions}

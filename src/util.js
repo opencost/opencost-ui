@@ -446,6 +446,30 @@ export function parseFilters(filters) {
   );
 }
 
+// Parse filters from URL string format: namespace:"my-namespace"+controllerKind:"deployment"
+export function parseFiltersFromUrl(filterString) {
+  if (!filterString || typeof filterString !== "string") {
+    return [];
+  }
+  
+  const filters = [];
+  // Split by "+" but be careful with escaped quotes
+  const parts = filterString.split("+");
+  
+  for (const part of parts) {
+    // Match pattern: property:"value"
+    const match = part.match(/^([^:]+):"((?:[^"\\]|\\.)*)"$/);
+    if (match) {
+      const property = match[1].trim();
+      // Unescape the value: replace \" with "
+      const value = match[2].replace(/\\"/g, '"');
+      filters.push({ property, value });
+    }
+  }
+  
+  return filters;
+}
+
 export default {
   rangeToCumulative,
   cumulativeToTotals,

@@ -1,7 +1,11 @@
 import { parseFilters } from "../util";
 import client from "./api_client";
 
+// Flag to enable mock data - must be explicitly set via REACT_APP_USE_MOCK_DATA environment variable
+const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true";
+
 // Mock data for testing drilldown functionality when backend is not available
+// Only used when REACT_APP_USE_MOCK_DATA=true is explicitly set
 const getMockData = (aggregate, filters) => {
   const mockNamespaces = [
     { name: "default", totalCost: 150.50, cpuCost: 50.0, ramCost: 60.0, pvCost: 40.5, gpuCost: 0, totalEfficiency: 0.85 },
@@ -66,9 +70,10 @@ class AllocationService {
       });
       return result.data;
     } catch (error) {
-      // If backend is not available, return mock data for testing
-      if (error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
-        console.warn("Backend not available, using mock data for testing");
+      // Only use mock data if explicitly enabled via REACT_APP_USE_MOCK_DATA=true
+      // This prevents confusion for users who misconfigured their backend
+      if (USE_MOCK_DATA && error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
+        console.warn("Backend not available, using mock data (REACT_APP_USE_MOCK_DATA is enabled)");
         return getMockData(aggregate, filters);
       }
       throw error;

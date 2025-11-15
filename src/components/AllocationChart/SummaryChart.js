@@ -1,5 +1,5 @@
 import React from "react";
-import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
 
@@ -75,29 +75,29 @@ const SummaryChart = ({ top, other, idle, currency, height }) => {
   };
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <Pie
-          data={pieData}
-          dataKey="value"
-          nameKey="name"
-          label={renderLabel}
-          labelLine
-          // niko: if tooltips error, try disabling animation
-          // isAnimationActive={false}
-          animationDuration={400}
-          cy="90%"
-          outerRadius="140%"
-          innerRadius="60%"
-          startAngle={180}
-          endAngle={0}
-        >
-          {pieData.map((datum, i) => (
-            <Cell key={i} fill={datum.fill} />
-          ))}
-        </Pie>
-      </PieChart>
-    </ResponsiveContainer>
+    <PieChart
+      responsive
+      width="100%"
+      height={height}
+    >
+      <Pie
+        data={pieData}
+        dataKey="value"
+        nameKey="name"
+        label={renderLabel}
+        labelLine
+        animationDuration={400}
+        cy="90%"
+        outerRadius="140%"
+        innerRadius="60%"
+        startAngle={180}
+        endAngle={0}
+      >
+        {pieData.map((datum, i) => (
+          <Cell key={i} fill={datum.fill} />
+        ))}
+      </Pie>
+    </PieChart>
   );
 };
 

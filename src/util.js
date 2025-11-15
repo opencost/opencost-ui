@@ -435,11 +435,39 @@ export function parseFilters(filters) {
     return filters;
   }
   // remove dups (via context ) and format
+  // Use "+" directly, axios will handle URL encoding
+  // Escape quotes in values by replacing " with \"
   return (
-    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join(
-      encodeURIComponent("+"),
-    ) || ""
+    [...new Set(filters.map((f) => {
+      const escapedValue = String(f.value).replace(/"/g, '\\"');
+      return `${f.property}:"${escapedValue}"`;
+    }))].join("+") ||
+    ""
   );
+}
+
+// Parse filters from URL string format: namespace:"my-namespace"+controllerKind:"deployment"
+export function parseFiltersFromUrl(filterString) {
+  if (!filterString || typeof filterString !== "string") {
+    return [];
+  }
+  
+  const filters = [];
+  // Split by "+" but be careful with escaped quotes
+  const parts = filterString.split("+");
+  
+  for (const part of parts) {
+    // Match pattern: property:"value"
+    const match = part.match(/^([^:]+):"((?:[^"\\]|\\.)*)"$/);
+    if (match) {
+      const property = match[1].trim();
+      // Unescape the value: replace \" with "
+      const value = match[2].replace(/\\"/g, '"');
+      filters.push({ property, value });
+    }
+  }
+  
+  return filters;
 }
 
 export default {

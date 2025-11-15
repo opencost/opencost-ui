@@ -18,6 +18,8 @@ import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
+  parseFilters,
+  parseFiltersFromUrl,
   rangeToCumulative,
   toVerboseTimeRange,
 } from "../util";
@@ -92,6 +94,9 @@ const ReportsPage = () => {
   // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
+  
+  // Filters for drilldown
+  const [filters, setFilters] = useState([]);
 
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
@@ -115,10 +120,55 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
+  // Load filters from URL on initial load or when URL changes
+  // Also validate that filters match the current aggregateBy level
+  useEffect(() => {
+    const currentSearchParams = new URLSearchParams(routerLocation.search);
+    const filterParam = currentSearchParams.get("filter");
+    const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const currentIndex = hierarchy.indexOf(aggregateBy);
+    
+    if (filterParam) {
+      const urlFilters = parseFiltersFromUrl(filterParam);
+      
+      // Validate filters match current aggregateBy level
+      // If we're at namespace level, there should be no filters
+      if (currentIndex === 0 && urlFilters.length > 0) {
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        newSearchParams.delete("filter");
+        navigate({
+          search: `?${newSearchParams.toString()}`,
+        }, { replace: true });
+        setFilters([]);
+        return;
+      }
+      
+      // If current level index is less than number of filters, trim them
+      if (currentIndex >= 0 && currentIndex < urlFilters.length) {
+        const trimmedFilters = urlFilters.slice(0, currentIndex);
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        if (trimmedFilters.length > 0) {
+          newSearchParams.set("filter", parseFilters(trimmedFilters));
+        } else {
+          newSearchParams.delete("filter");
+        }
+        navigate({
+          search: `?${newSearchParams.toString()}`,
+        }, { replace: true });
+        setFilters(trimmedFilters);
+        return;
+      }
+      
+      setFilters(urlFilters);
+    } else {
+      setFilters([]);
+    }
+  }, [routerLocation.search, aggregateBy]);
+
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate]);
+  }, [win, aggregateBy, accumulate, filters]);
 
   async function fetchData() {
     setLoading(true);
@@ -127,6 +177,7 @@ const ReportsPage = () => {
     try {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
+        filters,
       });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -177,6 +228,64 @@ const ReportsPage = () => {
 
     setLoading(false);
   }
+
+  // Drilldown function to navigate to next level of aggregation
+  function drilldown(row) {
+    // Define the hierarchy for drilldown
+    const drilldownHierarchy = {
+      namespace: "controllerKind",
+      controllerKind: "controller",
+      controller: "pod",
+      pod: "container",
+    };
+
+    const nextAgg = drilldownHierarchy[aggregateBy];
+    
+    // If we're at the deepest level, don't allow further drilldown
+    if (!nextAgg) {
+      return;
+    }
+
+    // Create new filter for the current level
+    // Ensure value is not empty and is a string
+    if (!row.name || String(row.name).trim() === "") {
+      return;
+    }
+    
+    // Map aggregateBy to filter property name
+    // Backend uses "controllerName" instead of "controller"
+    const filterPropertyMap = {
+      namespace: "namespace",
+      controllerKind: "controllerKind",
+      controller: "controllerName", // Backend expects "controllerName", not "controller"
+      pod: "pod",
+      container: "container",
+    };
+    
+    const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
+    
+    const newFilter = {
+      property: filterProperty,
+      value: String(row.name).trim(),
+    };
+
+    // Add to existing filters and update aggregateBy
+    const newFilters = [...filters, newFilter];
+    setFilters(newFilters);
+    
+    // Update URL parameters with new aggregateBy and filters
+    const newSearchParams = new URLSearchParams(routerLocation.search);
+    newSearchParams.set("agg", nextAgg);
+    if (newFilters.length > 0) {
+      newSearchParams.set("filter", parseFilters(newFilters));
+    } else {
+      newSearchParams.delete("filter");
+    }
+    navigate({
+      search: `?${newSearchParams.toString()}`,
+    });
+  }
+
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
@@ -213,9 +322,12 @@ const ReportsPage = () => {
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
             setAggregateBy={(agg) => {
-              searchParams.set("agg", agg);
+              const newSearchParams = new URLSearchParams(routerLocation.search);
+              newSearchParams.set("agg", agg);
+              // Reset filters when aggregateBy is changed manually
+              newSearchParams.delete("filter");
               navigate({
-                search: `?${searchParams.toString()}`,
+                search: `?${newSearchParams.toString()}`,
               });
             }}
             accumulateOptions={accumulateOptions}
@@ -252,6 +364,8 @@ const ReportsPage = () => {
             cumulativeData={cumulativeData}
             totalData={totalData}
             currency={currency}
+            aggregateBy={aggregateBy}
+            drilldown={drilldown}
           />
         )}
       </Paper>

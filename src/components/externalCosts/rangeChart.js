@@ -5,7 +5,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
@@ -193,10 +192,12 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
   });
 
   return (
-    <ResponsiveContainer height={height} width={"100%"}>
       <BarChart
         data={orderedBars}
         margin={{ top: 30, right: 35, left: 30, bottom: 45 }}
+      responsive
+      height={height}
+      width="100%"
       >
         <CartesianGrid strokeDasharray={"3 3"} vertical={false} />
         <XAxis dataKey={"key"} />
@@ -218,7 +219,6 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
           </Bar>
         ))}
       </BarChart>
-    </ResponsiveContainer>
   );
 };
 

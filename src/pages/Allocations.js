@@ -264,13 +264,40 @@ const ReportsPage = () => {
     
     const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
     
+    let filterValue = String(row.name).trim();
+    let updatedFilters = [...filters];
+
+    // Controller names may come through as "<kind>:<name>" (e.g. "deployment:foo").
+    // Split these so controllerName filter matches backend expectations.
+    if (aggregateBy === "controller" && filterValue.includes(":")) {
+      const [maybeKind, ...nameParts] = filterValue.split(":");
+      const trimmedName = nameParts.join(":").trim();
+      if (trimmedName.length > 0) {
+        filterValue = trimmedName;
+      }
+
+      const normalizedKind = maybeKind.trim();
+      if (
+        normalizedKind.length > 0 &&
+        !updatedFilters.some((f) => f.property === "controllerKind")
+      ) {
+        updatedFilters = [
+          ...updatedFilters,
+          {
+            property: "controllerKind",
+            value: normalizedKind,
+          },
+        ];
+      }
+    }
+
     const newFilter = {
       property: filterProperty,
-      value: String(row.name).trim(),
+      value: filterValue,
     };
 
     // Add to existing filters and update aggregateBy
-    const newFilters = [...filters, newFilter];
+    const newFilters = [...updatedFilters, newFilter];
     setFilters(newFilters);
     
     // Update URL parameters with new aggregateBy and filters

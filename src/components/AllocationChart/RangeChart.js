@@ -6,6 +6,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
@@ -143,26 +144,25 @@ const RangeChart = ({ data, currency, height }) => {
   };
 
   return (
-    <BarChart
-      data={barData}
-      margin={{ top: 30, right: 30, left: 30, bottom: 12 }}
-      responsive
-      width="100%"
-      height={height}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="start" />
-      <YAxis />
-      <Tooltip content={<CustomTooltip />} />
-      {barLabels.map((barLabel, i) => (
-        <Bar
-          key={i}
-          dataKey={barLabel.dataKey}
-          stackId="a"
-          fill={barLabel.fill}
-        />
-      ))}
-    </BarChart>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={barData}
+        margin={{ top: 30, right: 30, left: 30, bottom: 12 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="start" />
+        <YAxis />
+        <Tooltip content={<CustomTooltip />} />
+        {barLabels.map((barLabel, i) => (
+          <Bar
+            key={i}
+            dataKey={barLabel.dataKey}
+            stackId="a"
+            fill={barLabel.fill}
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
 

@@ -11,7 +11,6 @@ import {
   Tooltip,
   BarChart,
   Bar,
-  ResponsiveContainer,
 } from "recharts";
 import { toCurrency } from "../../util";
 import cloudCostDayTotals from "../../services/cloudCostDayTotals";
@@ -140,11 +139,6 @@ const CloudCostDetails = ({
           )}
           {data && (
             <div style={{ display: "flex", marginTop: "2.5rem" }}>
-              <ResponsiveContainer
-                width="100%"
-                height={250}
-                id="cloud-cost-drilldown"
-              >
                 <BarChart
                   data={itemData}
                   margin={{
@@ -153,19 +147,22 @@ const CloudCostDetails = ({
                     left: 20,
                     right: 0,
                   }}
+                responsive
+                height={250}
+                width="100%"
+                id={"cloud-cost-drilldown"}
                 >
                   <CartesianGrid vertical={false} />
-                  <Legend verticalAlign="bottom" />
-                  <XAxis dataKey="time" />
+                  <Legend verticalAlign={"bottom"} />
+                  <XAxis dataKey={"time"} />
                   <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
-                  <Bar dataKey="cost" fill="#2196f3" name="Item Cost" />
+                  <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
                   <Tooltip
                     formatter={(value) =>
                       `${toCurrency(value ?? 0, currency, 4, true)}`
                     }
                   />
                 </BarChart>
-              </ResponsiveContainer>
             </div>
           )}
         </Paper>

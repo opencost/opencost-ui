@@ -40,7 +40,7 @@
     "@babel/preset-react": "^7.28.5",
     "buffer": "^6.0.3",
     "parcel": "^2.16.1",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.3",
     "process": "^0.11.10",
     "set-value": "4.1.0"
   },

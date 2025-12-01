@@ -195,9 +195,9 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
       <BarChart
         data={orderedBars}
         margin={{ top: 30, right: 35, left: 30, bottom: 45 }}
-      responsive
-      height={height}
-      width="100%"
+        responsive
+        height={height}
+        width="100%"
       >
         <CartesianGrid strokeDasharray={"3 3"} vertical={false} />
         <XAxis dataKey={"key"} />

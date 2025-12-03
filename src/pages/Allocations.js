@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
+import FilterBreadcrumb from "../components/FilterBreadcrumb";
 import Header from "../components/Header";
 import Page from "../components/Page";
 import Footer from "../components/Footer";
@@ -216,6 +217,67 @@ const ReportsPage = () => {
     setLoading(false);
   }
 
+  // Handle breadcrumb navigation - navigate back to a specific filter level
+  function handleBreadcrumbNavigate(level) {
+    const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const hierarchyToAgg = {
+      namespace: "namespace",
+      controllerKind: "controllerKind",
+      controllerName: "controller",
+      pod: "pod",
+      container: "container",
+    };
+
+    if (level === -1) {
+      // Navigate to "All Results" - namespace level with no filters
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.set("agg", "namespace");
+      newSearchParams.delete("filter");
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      });
+      return;
+    }
+
+    // Navigate to a specific filter level
+    const trimmedFilters = filters.slice(0, level + 1);
+    if (trimmedFilters.length === 0) {
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.set("agg", "namespace");
+      newSearchParams.delete("filter");
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      });
+      return;
+    }
+
+    // Determine the appropriate aggregateBy based on the last filter
+    const lastFilter = trimmedFilters[trimmedFilters.length - 1];
+    let targetAgg = "namespace";
+    
+    // Map filter property to aggregateBy
+    if (lastFilter.property === "namespace") {
+      targetAgg = "controllerKind";
+    } else if (lastFilter.property === "controllerKind") {
+      targetAgg = "controller";
+    } else if (lastFilter.property === "controllerName") {
+      targetAgg = "pod";
+    } else if (lastFilter.property === "pod") {
+      targetAgg = "container";
+    }
+
+    const newSearchParams = new URLSearchParams(routerLocation.search);
+    newSearchParams.set("agg", targetAgg);
+    if (trimmedFilters.length > 0) {
+      newSearchParams.set("filter", parseFilters(trimmedFilters));
+    } else {
+      newSearchParams.delete("filter");
+    }
+    navigate({
+      search: `?${newSearchParams.toString()}`,
+    });
+  }
+
   // Drilldown function to navigate to next level of aggregation
   function drilldown(row) {
     // Define the hierarchy for drilldown
@@ -320,6 +382,7 @@ const ReportsPage = () => {
         <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
           <div style={{ flexGrow: 1 }}>
             <Typography variant="h5">{title}</Typography>
+            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
 

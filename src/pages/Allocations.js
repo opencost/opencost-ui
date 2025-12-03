@@ -124,9 +124,23 @@ const ReportsPage = () => {
 
   // Validate and correct filters when URL or aggregateBy changes
   useEffect(() => {
-    const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
-    const currentIndex = hierarchy.indexOf(aggregateBy);
+    // Hierarchy for aggregateBy levels
+    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    // Hierarchy for filter properties (matches backend API - uses "controllerName" not "controller")
+    const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
+    
+    // Map aggregateBy to expected number of filters and expected filter properties
+    const aggregateToFilterCount = {
+      namespace: 0,
+      controllerKind: 1,
+      controller: 2,
+      pod: 3,
+      container: 4,
+    };
+    
+    const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
+    const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
     
     // If we're at namespace level, there should be no filters
     if (currentIndex === 0 && currentFilters.length > 0) {
@@ -138,9 +152,10 @@ const ReportsPage = () => {
       return;
     }
     
-    // If current level index is less than number of filters, trim them
-    if (currentIndex >= 0 && currentIndex < currentFilters.length) {
-      const trimmedFilters = currentFilters.slice(0, currentIndex);
+    // Validate that filter count matches expected level
+    if (currentFilters.length > expectedFilterCount) {
+      // Trim filters to match current aggregateBy level
+      const trimmedFilters = currentFilters.slice(0, expectedFilterCount);
       const newSearchParams = new URLSearchParams(routerLocation.search);
       if (trimmedFilters.length > 0) {
         newSearchParams.set("filter", parseFilters(trimmedFilters));
@@ -150,6 +165,27 @@ const ReportsPage = () => {
       navigate({
         search: `?${newSearchParams.toString()}`,
       }, { replace: true });
+      return;
+    }
+    
+    // Validate that filter properties match expected hierarchy
+    for (let i = 0; i < currentFilters.length; i++) {
+      const filter = currentFilters[i];
+      const expectedProperty = filterHierarchy[i];
+      if (filter.property !== expectedProperty) {
+        // Trim filters at the first mismatch
+        const trimmedFilters = currentFilters.slice(0, i);
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        if (trimmedFilters.length > 0) {
+          newSearchParams.set("filter", parseFilters(trimmedFilters));
+        } else {
+          newSearchParams.delete("filter");
+        }
+        navigate({
+          search: `?${newSearchParams.toString()}`,
+        }, { replace: true });
+        return;
+      }
     }
   }, [routerLocation.search, aggregateBy, filterParam, navigate]);
 
@@ -219,14 +255,8 @@ const ReportsPage = () => {
 
   // Handle breadcrumb navigation - navigate back to a specific filter level
   function handleBreadcrumbNavigate(level) {
-    const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
-    const hierarchyToAgg = {
-      namespace: "namespace",
-      controllerKind: "controllerKind",
-      controllerName: "controller",
-      pod: "pod",
-      container: "container",
-    };
+    // Hierarchy for aggregateBy levels
+    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
 
     if (level === -1) {
       // Navigate to "All Results" - namespace level with no filters
@@ -251,20 +281,10 @@ const ReportsPage = () => {
       return;
     }
 
-    // Determine the appropriate aggregateBy based on the last filter
-    const lastFilter = trimmedFilters[trimmedFilters.length - 1];
-    let targetAgg = "namespace";
-    
-    // Map filter property to aggregateBy
-    if (lastFilter.property === "namespace") {
-      targetAgg = "controllerKind";
-    } else if (lastFilter.property === "controllerKind") {
-      targetAgg = "controller";
-    } else if (lastFilter.property === "controllerName") {
-      targetAgg = "pod";
-    } else if (lastFilter.property === "pod") {
-      targetAgg = "container";
-    }
+    // Determine the appropriate aggregateBy based on the number of filters
+    // Number of filters corresponds to the next level in the hierarchy
+    // 0 filters -> namespace, 1 filter -> controllerKind, 2 filters -> controller, etc.
+    const targetAgg = aggregateHierarchy[trimmedFilters.length] || "namespace";
 
     const newSearchParams = new URLSearchParams(routerLocation.search);
     newSearchParams.set("agg", targetAgg);

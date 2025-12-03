@@ -56,10 +56,11 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
       sx={{ marginTop: 1, marginBottom: 1 }}
     >
       {breadcrumbItems.map((item, index) => {
+        const key = `${item.level}-${item.label}-${index}`;
         if (item.isClickable) {
           return (
             <Link
-              key={index}
+              key={key}
               component="button"
               variant="body2"
               onClick={(e) => handleClick(e, item)}
@@ -76,7 +77,7 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
           );
         } else {
           return (
-            <Typography key={index} variant="body2" color="text.primary">
+            <Typography key={key} variant="body2" color="text.primary">
               {item.label}
             </Typography>
           );

@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { find, get, sortBy, toArray } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
@@ -120,7 +120,9 @@ const ReportsPage = () => {
 
   // Derive filters directly from URL - URL is the single source of truth
   const filterParam = searchParams.get("filter");
-  const filters = filterParam ? parseFiltersFromUrl(filterParam) : [];
+  const filters = useMemo(() => {
+    return filterParam ? parseFiltersFromUrl(filterParam) : [];
+  }, [filterParam]);
 
   // Validate and correct filters when URL or aggregateBy changes
   useEffect(() => {
@@ -146,9 +148,10 @@ const ReportsPage = () => {
     if (currentIndex === 0 && currentFilters.length > 0) {
       const newSearchParams = new URLSearchParams(routerLocation.search);
       newSearchParams.delete("filter");
-      navigate({
-        search: `?${newSearchParams.toString()}`,
-      }, { replace: true });
+      const newSearch = `?${newSearchParams.toString()}`;
+      if (routerLocation.search !== newSearch) {
+        navigate({ search: newSearch }, { replace: true });
+      }
       return;
     }
     
@@ -162,9 +165,10 @@ const ReportsPage = () => {
       } else {
         newSearchParams.delete("filter");
       }
-      navigate({
-        search: `?${newSearchParams.toString()}`,
-      }, { replace: true });
+      const newSearch = `?${newSearchParams.toString()}`;
+      if (routerLocation.search !== newSearch) {
+        navigate({ search: newSearch }, { replace: true });
+      }
       return;
     }
     
@@ -181,13 +185,15 @@ const ReportsPage = () => {
         } else {
           newSearchParams.delete("filter");
         }
-        navigate({
-          search: `?${newSearchParams.toString()}`,
-        }, { replace: true });
+        const newSearch = `?${newSearchParams.toString()}`;
+        if (routerLocation.search !== newSearch) {
+          navigate({ search: newSearch }, { replace: true });
+        }
         return;
       }
     }
-  }, [routerLocation.search, aggregateBy, filterParam, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.search, aggregateBy]);
 
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {

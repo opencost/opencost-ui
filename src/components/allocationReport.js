@@ -180,9 +180,8 @@ const AllocationReport = ({
                 pod: "container",
               };
               const hasNextLevel = drilldownHierarchy[aggregateBy] !== undefined;
-              const isContainer = aggregateBy === "container";
-              // Only allow drilldown if there's a next level and we're not at container level
-              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && !isContainer && hasNextLevel && drilldown;
+              // Only allow drilldown if there's a next level (hasNextLevel implies !isContainer)
+              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && hasNextLevel && drilldown;
 
               const rowProps = canDrilldown
                 ? {

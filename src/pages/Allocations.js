@@ -94,9 +94,6 @@ const ReportsPage = () => {
   // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
-  
-  // Filters for drilldown
-  const [filters, setFilters] = useState([]);
 
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
@@ -120,50 +117,40 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
-  // Load filters from URL on initial load or when URL changes
-  // Also validate that filters match the current aggregateBy level
+  // Derive filters directly from URL - URL is the single source of truth
+  const filterParam = searchParams.get("filter");
+  const filters = filterParam ? parseFiltersFromUrl(filterParam) : [];
+
+  // Validate and correct filters when URL or aggregateBy changes
   useEffect(() => {
-    const currentSearchParams = new URLSearchParams(routerLocation.search);
-    const filterParam = currentSearchParams.get("filter");
     const hierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
     const currentIndex = hierarchy.indexOf(aggregateBy);
+    const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
     
-    if (filterParam) {
-      const urlFilters = parseFiltersFromUrl(filterParam);
-      
-      // Validate filters match current aggregateBy level
-      // If we're at namespace level, there should be no filters
-      if (currentIndex === 0 && urlFilters.length > 0) {
-        const newSearchParams = new URLSearchParams(routerLocation.search);
-        newSearchParams.delete("filter");
-        navigate({
-          search: `?${newSearchParams.toString()}`,
-        }, { replace: true });
-        setFilters([]);
-        return;
-      }
-      
-      // If current level index is less than number of filters, trim them
-      if (currentIndex >= 0 && currentIndex < urlFilters.length) {
-        const trimmedFilters = urlFilters.slice(0, currentIndex);
-        const newSearchParams = new URLSearchParams(routerLocation.search);
-        if (trimmedFilters.length > 0) {
-          newSearchParams.set("filter", parseFilters(trimmedFilters));
-        } else {
-          newSearchParams.delete("filter");
-        }
-        navigate({
-          search: `?${newSearchParams.toString()}`,
-        }, { replace: true });
-        setFilters(trimmedFilters);
-        return;
-      }
-      
-      setFilters(urlFilters);
-    } else {
-      setFilters([]);
+    // If we're at namespace level, there should be no filters
+    if (currentIndex === 0 && currentFilters.length > 0) {
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.delete("filter");
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      }, { replace: true });
+      return;
     }
-  }, [routerLocation.search, aggregateBy]);
+    
+    // If current level index is less than number of filters, trim them
+    if (currentIndex >= 0 && currentIndex < currentFilters.length) {
+      const trimmedFilters = currentFilters.slice(0, currentIndex);
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      if (trimmedFilters.length > 0) {
+        newSearchParams.set("filter", parseFilters(trimmedFilters));
+      } else {
+        newSearchParams.delete("filter");
+      }
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      }, { replace: true });
+    }
+  }, [routerLocation.search, aggregateBy, filterParam, navigate]);
 
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
@@ -298,7 +285,6 @@ const ReportsPage = () => {
 
     // Add to existing filters and update aggregateBy
     const newFilters = [...updatedFilters, newFilter];
-    setFilters(newFilters);
     
     // Update URL parameters with new aggregateBy and filters
     const newSearchParams = new URLSearchParams(routerLocation.search);

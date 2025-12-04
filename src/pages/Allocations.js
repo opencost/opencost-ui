@@ -4,11 +4,12 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { find, get, sortBy, toArray } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
+import FilterBreadcrumb from "../components/FilterBreadcrumb";
 import Header from "../components/Header";
 import Page from "../components/Page";
 import Footer from "../components/Footer";
@@ -18,6 +19,8 @@ import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
   cumulativeToTotals,
+  parseFilters,
+  parseFiltersFromUrl,
   rangeToCumulative,
   toVerboseTimeRange,
 } from "../util";
@@ -115,10 +118,87 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
+  // Derive filters directly from URL - URL is the single source of truth
+  const filterParam = searchParams.get("filter");
+  const filters = useMemo(() => {
+    return filterParam ? parseFiltersFromUrl(filterParam) : [];
+  }, [filterParam]);
+
+  // Validate and correct filters when URL or aggregateBy changes
+  useEffect(() => {
+    // Hierarchy for aggregateBy levels
+    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    // Hierarchy for filter properties (matches backend API - uses "controllerName" not "controller")
+    const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
+    
+    // Map aggregateBy to expected number of filters and expected filter properties
+    const aggregateToFilterCount = {
+      namespace: 0,
+      controllerKind: 1,
+      controller: 2,
+      pod: 3,
+      container: 4,
+    };
+    
+    const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
+    const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
+    const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
+    
+    // If we're at namespace level, there should be no filters
+    if (currentIndex === 0 && currentFilters.length > 0) {
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.delete("filter");
+      const newSearch = `?${newSearchParams.toString()}`;
+      if (routerLocation.search !== newSearch) {
+        navigate({ search: newSearch }, { replace: true });
+      }
+      return;
+    }
+    
+    // Validate that filter count matches expected level
+    if (currentFilters.length > expectedFilterCount) {
+      // Trim filters to match current aggregateBy level
+      const trimmedFilters = currentFilters.slice(0, expectedFilterCount);
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      if (trimmedFilters.length > 0) {
+        newSearchParams.set("filter", parseFilters(trimmedFilters));
+      } else {
+        newSearchParams.delete("filter");
+      }
+      const newSearch = `?${newSearchParams.toString()}`;
+      if (routerLocation.search !== newSearch) {
+        navigate({ search: newSearch }, { replace: true });
+      }
+      return;
+    }
+    
+    // Validate that filter properties match expected hierarchy
+    for (let i = 0; i < currentFilters.length; i++) {
+      const filter = currentFilters[i];
+      const expectedProperty = filterHierarchy[i];
+      if (filter.property !== expectedProperty) {
+        // Trim filters at the first mismatch
+        const trimmedFilters = currentFilters.slice(0, i);
+        const newSearchParams = new URLSearchParams(routerLocation.search);
+        if (trimmedFilters.length > 0) {
+          newSearchParams.set("filter", parseFilters(trimmedFilters));
+        } else {
+          newSearchParams.delete("filter");
+        }
+        const newSearch = `?${newSearchParams.toString()}`;
+        if (routerLocation.search !== newSearch) {
+          navigate({ search: newSearch }, { replace: true });
+        }
+        return;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.search, aggregateBy]);
+
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate]);
+  }, [win, aggregateBy, accumulate, filters]);
 
   async function fetchData() {
     setLoading(true);
@@ -127,6 +207,7 @@ const ReportsPage = () => {
     try {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
+        filters,
       });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -177,6 +258,135 @@ const ReportsPage = () => {
 
     setLoading(false);
   }
+
+  // Handle breadcrumb navigation - navigate back to a specific filter level
+  function handleBreadcrumbNavigate(level) {
+    // Hierarchy for aggregateBy levels
+    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+
+    if (level === -1) {
+      // Navigate to "All Results" - namespace level with no filters
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.set("agg", "namespace");
+      newSearchParams.delete("filter");
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      });
+      return;
+    }
+
+    // Navigate to a specific filter level
+    const trimmedFilters = filters.slice(0, level + 1);
+    if (trimmedFilters.length === 0) {
+      const newSearchParams = new URLSearchParams(routerLocation.search);
+      newSearchParams.set("agg", "namespace");
+      newSearchParams.delete("filter");
+      navigate({
+        search: `?${newSearchParams.toString()}`,
+      });
+      return;
+    }
+
+    // Determine the appropriate aggregateBy based on the number of filters
+    // Number of filters corresponds to the next level in the hierarchy
+    // 0 filters -> namespace, 1 filter -> controllerKind, 2 filters -> controller, etc.
+    const targetAgg = aggregateHierarchy[trimmedFilters.length] || "namespace";
+
+    const newSearchParams = new URLSearchParams(routerLocation.search);
+    newSearchParams.set("agg", targetAgg);
+    if (trimmedFilters.length > 0) {
+      newSearchParams.set("filter", parseFilters(trimmedFilters));
+    } else {
+      newSearchParams.delete("filter");
+    }
+    navigate({
+      search: `?${newSearchParams.toString()}`,
+    });
+  }
+
+  // Drilldown function to navigate to next level of aggregation
+  function drilldown(row) {
+    // Define the hierarchy for drilldown
+    const drilldownHierarchy = {
+      namespace: "controllerKind",
+      controllerKind: "controller",
+      controller: "pod",
+      pod: "container",
+    };
+
+    const nextAgg = drilldownHierarchy[aggregateBy];
+    
+    // If we're at the deepest level, don't allow further drilldown
+    if (!nextAgg) {
+      return;
+    }
+
+    // Create new filter for the current level
+    // Ensure value is not empty and is a string
+    if (!row.name || String(row.name).trim() === "") {
+      return;
+    }
+    
+    // Map aggregateBy to filter property name
+    // Backend uses "controllerName" instead of "controller"
+    const filterPropertyMap = {
+      namespace: "namespace",
+      controllerKind: "controllerKind",
+      controller: "controllerName", // Backend expects "controllerName", not "controller"
+      pod: "pod",
+      container: "container",
+    };
+    
+    const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
+    
+    let filterValue = String(row.name).trim();
+    let updatedFilters = [...filters];
+
+    // Controller names may come through as "<kind>:<name>" (e.g. "deployment:foo").
+    // Split these so controllerName filter matches backend expectations.
+    if (aggregateBy === "controller" && filterValue.includes(":")) {
+      const [maybeKind, ...nameParts] = filterValue.split(":");
+      const trimmedName = nameParts.join(":").trim();
+      if (trimmedName.length > 0) {
+        filterValue = trimmedName;
+      }
+
+      const normalizedKind = maybeKind.trim();
+      if (
+        normalizedKind.length > 0 &&
+        !updatedFilters.some((f) => f.property === "controllerKind")
+      ) {
+        updatedFilters = [
+          ...updatedFilters,
+          {
+            property: "controllerKind",
+            value: normalizedKind,
+          },
+        ];
+      }
+    }
+
+    const newFilter = {
+      property: filterProperty,
+      value: filterValue,
+    };
+
+    // Add to existing filters and update aggregateBy
+    const newFilters = [...updatedFilters, newFilter];
+    
+    // Update URL parameters with new aggregateBy and filters
+    const newSearchParams = new URLSearchParams(routerLocation.search);
+    newSearchParams.set("agg", nextAgg);
+    if (newFilters.length > 0) {
+      newSearchParams.set("filter", parseFilters(newFilters));
+    } else {
+      newSearchParams.delete("filter");
+    }
+    navigate({
+      search: `?${newSearchParams.toString()}`,
+    });
+  }
+
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
@@ -198,6 +408,7 @@ const ReportsPage = () => {
         <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
           <div style={{ flexGrow: 1 }}>
             <Typography variant="h5">{title}</Typography>
+            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
 
@@ -213,9 +424,12 @@ const ReportsPage = () => {
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
             setAggregateBy={(agg) => {
-              searchParams.set("agg", agg);
+              const newSearchParams = new URLSearchParams(routerLocation.search);
+              newSearchParams.set("agg", agg);
+              // Reset filters when aggregateBy is changed manually
+              newSearchParams.delete("filter");
               navigate({
-                search: `?${searchParams.toString()}`,
+                search: `?${newSearchParams.toString()}`,
               });
             }}
             accumulateOptions={accumulateOptions}
@@ -252,6 +466,8 @@ const ReportsPage = () => {
             cumulativeData={cumulativeData}
             totalData={totalData}
             currency={currency}
+            aggregateBy={aggregateBy}
+            drilldown={drilldown}
           />
         )}
       </Paper>

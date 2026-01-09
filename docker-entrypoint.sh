@@ -21,7 +21,7 @@ else
 fi
 
 if [[ ! -e /etc/nginx/conf.d/default.nginx.conf ]];then
-    envsubst '$API_PORT $API_SERVER $UI_PORT $UI_PATH $BASE_URL' \
+    envsubst '$API_PORT $API_SERVER $UI_PORT $UI_PATH $BASE_URL $PROXY_CONNECT_TIMEOUT $PROXY_SEND_TIMEOUT $PROXY_READ_TIMEOUT' \
         < /etc/nginx/conf.d/default.nginx.conf.template \
         > /etc/nginx/conf.d/default.nginx.conf
 fi

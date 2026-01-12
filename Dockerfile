@@ -30,6 +30,11 @@ ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
 ENV UI_PATH=${ui_path}
 
+# Nginx proxy timeout configuration (in seconds)
+ENV PROXY_CONNECT_TIMEOUT=180
+ENV PROXY_SEND_TIMEOUT=180
+ENV PROXY_READ_TIMEOUT=180
+
 COPY --from=builder /opt/ui/dist /opt/ui/dist
 RUN mkdir -p /var/www
 

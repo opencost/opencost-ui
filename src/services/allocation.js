@@ -11,7 +11,7 @@ class AllocationService {
     const params = {
       window: win,
       aggregate: aggregate,
-      includeIdle: true,
+      includeIdle: process.env.REACT_APP_INCLUDE_IDLE !== "false",
       step: "1d",
     };
     if (typeof accumulate === "boolean") {

@@ -7,11 +7,11 @@ const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true";
 
 class AllocationService {
   async fetchAllocation(win, aggregate, options) {
-    const { accumulate, filters } = options;
+    const { accumulate, filters, includeIdle = true } = options;
     const params = {
       window: win,
       aggregate: aggregate,
-      includeIdle: process.env.REACT_APP_INCLUDE_IDLE !== "false",
+      includeIdle,
       step: "1d",
     };
     if (typeof accumulate === "boolean") {

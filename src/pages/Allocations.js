@@ -95,6 +95,7 @@ const ReportsPage = () => {
   // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
+  const [includeIdle, setIncludeIdle] = useState(true);
 
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
@@ -208,6 +209,7 @@ const ReportsPage = () => {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
         filters,
+        includeIdle,
       });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
@@ -390,13 +392,23 @@ const ReportsPage = () => {
   return (
     <Page active="reports.html">
       <Header headerTitle="Cost Allocation">
-        <IconButton
-          aria-label="refresh"
-          onClick={() => fetchData()}
-          style={{ padding: 12 }}
-        >
-          <RefreshIcon />
-        </IconButton>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <input
+              type="checkbox"
+              checked={includeIdle}
+              onChange={(e) => setIncludeIdle(e.target.checked)}
+            />
+            Include idle costs
+          </label>
+          <IconButton
+            aria-label="refresh"
+            onClick={() => fetchData()}
+            style={{ padding: 12 }}
+          >
+            <RefreshIcon />
+          </IconButton>
+         </div>
       </Header>
 
       {!loading && errors.length > 0 && (

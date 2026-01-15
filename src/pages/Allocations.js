@@ -200,6 +200,18 @@ const ReportsPage = () => {
     fetchData();
   }, [win, aggregateBy, accumulate, filters]);
 
+  // Update currency warning whenever currency changes
+  useEffect(() => {
+    if (currency !== "USD") {
+      setErrors([{
+        primary: "Currency Conversion in Use",
+        secondary: "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill."
+      }]);
+    } else {
+      setErrors([]);
+    }
+  }, [currency]);
+
   async function fetchData() {
     setLoading(true);
     setErrors([]);

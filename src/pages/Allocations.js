@@ -95,7 +95,7 @@ const ReportsPage = () => {
   // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
-  const [includeIdle, setIncludeIdle] = useState(true);
+  const [includeIdle, setIncludeIdle] = useState();
 
   // When allocation data changes, create a cumulative version of it
   useEffect(() => {
@@ -199,7 +199,7 @@ const ReportsPage = () => {
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate, filters]);
+  }, [win, aggregateBy, accumulate, filters, includeIdle]);
 
   async function fetchData() {
     setLoading(true);
@@ -396,7 +396,7 @@ const ReportsPage = () => {
           <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <input
               type="checkbox"
-              checked={includeIdle}
+              checked={includeIdle ?? true}
               onChange={(e) => setIncludeIdle(e.target.checked)}
             />
             Include idle costs

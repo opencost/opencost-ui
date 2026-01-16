@@ -1,0 +1,42 @@
+{
+  "code": 200,
+  "status": "success",
+  "data": {
+    "node-1": {
+      "type": "Node",
+      "properties": {
+        "category": "Compute",
+        "provider": "AWS",
+        "service": "Kubernetes",
+        "name": "ip-192-168-1-1.ec2.internal"
+      },
+      "start": "2023-10-27T00:00:00Z",
+      "end": "2023-10-28T00:00:00Z",
+      "totalCost": 1.25
+    },
+    "disk-1": {
+      "type": "Disk",
+      "properties": {
+        "category": "Storage",
+        "provider": "AWS",
+        "service": "EBS",
+        "name": "pvc-5678-abcd"
+      },
+      "start": "2023-10-27T00:00:00Z",
+      "end": "2023-10-28T00:00:00Z",
+      "totalCost": 0.55
+    },
+    "lb-1": {
+      "type": "LoadBalancer",
+      "properties": {
+        "category": "Network",
+        "provider": "AWS",
+        "service": "ELB",
+        "name": "a1b2c3d4"
+      },
+      "start": "2023-10-27T00:00:00Z",
+      "end": "2023-10-28T00:00:00Z",
+      "totalCost": 15.00
+    }
+  }
+}

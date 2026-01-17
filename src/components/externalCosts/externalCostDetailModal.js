@@ -6,9 +6,10 @@ import {
   Table,
   TableBody,
 } from "@mui/material";
+import { toCurrency } from "../../util";
 
 // for now, we can assume that the "Name" is resourceType
-export const ExternalCostDetails = ({ row, onClose }) => (
+export const ExternalCostDetails = ({ row, onClose, currency = "USD" }) => (
   <div>
     <Modal
       open={true}
@@ -34,7 +35,7 @@ export const ExternalCostDetails = ({ row, onClose }) => (
               </TableRow>
               <TableRow>
                 <TableCell>cost</TableCell>
-                <TableCell>{row.cost}</TableCell>
+                <TableCell>{toCurrency(row.cost, currency)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>cost_source</TableCell>
@@ -58,7 +59,11 @@ export const ExternalCostDetails = ({ row, onClose }) => (
               </TableRow>
               <TableRow>
                 <TableCell>list_unit_price</TableCell>
-                <TableCell>{row.list_unit_price}</TableCell>
+                <TableCell>
+                  {row.list_unit_price
+                    ? toCurrency(row.list_unit_price, currency)
+                    : row.list_unit_price}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>provider_id</TableCell>

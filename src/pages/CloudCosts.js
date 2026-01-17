@@ -98,6 +98,7 @@ const CloudCosts = () => {
         aggregateBy,
         costMetric,
         filters,
+        currency,
       );
       if (resp) {
         setCloudCostData(resp);
@@ -189,7 +190,7 @@ const CloudCosts = () => {
   React.useEffect(() => {
     setFetch(!fetch);
     setTitle(generateTitle({ window, aggregateBy, costMetric }));
-  }, [window, aggregateBy, costMetric, filters]);
+  }, [window, aggregateBy, costMetric, filters, currency]);
 
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true // this is kind of hacky but something weird is happening

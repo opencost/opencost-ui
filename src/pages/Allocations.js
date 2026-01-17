@@ -198,7 +198,7 @@ const ReportsPage = () => {
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate, filters]);
+  }, [win, aggregateBy, accumulate, filters, currency]);
 
   async function fetchData() {
     setLoading(true);
@@ -208,6 +208,7 @@ const ReportsPage = () => {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
         filters,
+        currency,
       });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;

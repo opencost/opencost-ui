@@ -1,12 +1,36 @@
 @import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
 
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --border: #374151;
+  --text: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #00d4aa;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --accent: #0d9488;
+}
+
 body {
-  background-color: #f3f3f3;
+  background-color: var(--bg-primary);
   display: flex;
   flex-flow: column;
   font-family: "Roboto", sans-serif;
   margin: 0px;
   overflow-y: scroll;
+  transition: background-color 0.3s ease;
+  color: var(--text);
 }
 
 body .page-container {
@@ -17,4 +41,92 @@ body .page-container {
 
 .recharts-tooltip-wrapper {
   z-index: 1000;
+}
+
+/* MUI Paper */
+.MuiPaper-root {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text) !important;
+}
+
+/* MUI Tables */
+.MuiTableCell-root {
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+.MuiTableCell-head {
+  color: var(--text-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* MUI Typography */
+.MuiTypography-root {
+  color: var(--text) !important;
+}
+
+/* MUI Form Labels and Inputs */
+.MuiFormLabel-root,
+.MuiInputLabel-root {
+  color: var(--text-secondary) !important;
+}
+
+.MuiInputBase-root,
+.MuiInput-root,
+.MuiSelect-root,
+.MuiMenuItem-root {
+  color: var(--text) !important;
+}
+
+.MuiInput-underline:before {
+  border-bottom-color: var(--border) !important;
+}
+
+.MuiSelect-icon {
+  color: var(--text-secondary) !important;
+}
+
+/* MUI Buttons */
+.MuiButton-root {
+  color: var(--accent) !important;
+}
+
+.MuiIconButton-root {
+  color: var(--text-secondary) !important;
+}
+
+/* MUI Menu */
+.MuiMenu-paper {
+  background-color: var(--bg-secondary) !important;
+}
+
+.MuiMenuItem-root {
+  color: var(--text) !important;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+/* MUI Checkbox */
+.MuiCheckbox-root {
+  color: var(--text-secondary) !important;
+}
+
+/* MUI Alert */
+.MuiAlert-root {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text) !important;
+}
+
+/* MUI Pagination */
+.MuiTablePagination-root,
+.MuiTablePagination-selectLabel,
+.MuiTablePagination-displayedRows {
+  color: var(--text-secondary) !important;
+}
+
+/* Labels in forms */
+label {
+  color: var(--text);
 }

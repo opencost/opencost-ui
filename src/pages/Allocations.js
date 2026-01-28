@@ -1,21 +1,17 @@
 import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { find, get, sortBy, toArray } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { Grid, Column, Tile, Toggle, IconButton } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
 import FilterBreadcrumb from "../components/FilterBreadcrumb";
-import Header from "../components/Header";
-import Page from "../components/Page";
-import Footer from "../components/Footer";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import AllocationService from "../services/allocation";
+import CarbonShellLayout from "../components/carbon/CarbonShellLayout";
 import {
   checkCustomWindow,
   cumulativeToTotals,
@@ -390,101 +386,161 @@ const ReportsPage = () => {
   }
 
   return (
-    <Page active="reports.html">
-      <Header headerTitle="Cost Allocation">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <input
-              type="checkbox"
-              checked={includeIdle ?? true}
-              onChange={(e) => setIncludeIdle(e.target.checked)}
-            />
-            Include idle costs
-          </label>
-          <IconButton
-            aria-label="refresh"
-            onClick={() => fetchData()}
-            style={{ padding: 12 }}
-          >
-            <RefreshIcon />
-          </IconButton>
-         </div>
-      </Header>
+    <CarbonShellLayout>
+      <main style={{ padding: "2rem 0" }}>
+        <Grid fullWidth condensed>
+          <Column sm={4} md={8} lg={16}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <h2 style={{ margin: "0 0 0.5rem 0" }}>Cost Allocation</h2>
+                <div style={{ marginBottom: "0.5rem" }}>
+                  <FilterBreadcrumb
+                    filters={filters}
+                    onNavigate={handleBreadcrumbNavigate}
+                  />
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "var(--cds-text-secondary, #6f6f6f)",
+                  }}
+                >
+                  {title}
+                </p>
+                <Subtitle report={{ window: win, aggregateBy, accumulate }} />
+              </div>
 
-      {!loading && errors.length > 0 && (
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={errors} />
-        </div>
-      )}
-      <Paper id="report">
-        <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-          <div style={{ flexGrow: 1 }}>
-            <Typography variant="h5">{title}</Typography>
-            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
-            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
-          </div>
-
-          <Controls
-            windowOptions={windowOptions}
-            window={win}
-            setWindow={(win) => {
-              searchParams.set("window", win);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-            aggregationOptions={aggregationOptions}
-            aggregateBy={aggregateBy}
-            setAggregateBy={(agg) => {
-              const newSearchParams = new URLSearchParams(routerLocation.search);
-              newSearchParams.set("agg", agg);
-              // Reset filters when aggregateBy is changed manually
-              newSearchParams.delete("filter");
-              navigate({
-                search: `?${newSearchParams.toString()}`,
-              });
-            }}
-            accumulateOptions={accumulateOptions}
-            accumulate={accumulate}
-            setAccumulate={(acc) => {
-              searchParams.set("acc", acc);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-            title={title}
-            cumulativeData={cumulativeData}
-            currency={currency}
-            currencyOptions={currencyCodes}
-            setCurrency={(curr) => {
-              searchParams.set("currency", curr);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-          />
-        </div>
-
-        {loading && (
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-              <CircularProgress />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  flexWrap: "wrap",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Toggle
+                  id="include-idle-toggle"
+                  size="sm"
+                  labelText="Include idle costs"
+                  toggled={includeIdle ?? true}
+                  onToggle={(toggled) => setIncludeIdle(toggled)}
+                />
+                <IconButton
+                  kind="ghost"
+                  label="Refresh"
+                  align="bottom"
+                  onClick={() => fetchData()}
+                >
+                  <Renew />
+                </IconButton>
+              </div>
             </div>
-          </div>
-        )}
-        {!loading && (
-          <AllocationReport
-            allocationData={allocationData}
-            cumulativeData={cumulativeData}
-            totalData={totalData}
-            currency={currency}
-            aggregateBy={aggregateBy}
-            drilldown={drilldown}
-          />
-        )}
-      </Paper>
-      <Footer />
-    </Page>
+          </Column>
+
+          <Column sm={4} md={8} lg={16} style={{ marginTop: "1rem" }}>
+            {(!loading && errors.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <Warnings warnings={errors} />
+              </div>
+            )) ||
+              null}
+          </Column>
+
+          <Column sm={4} md={8} lg={16} style={{ marginTop: "0.5rem" }}>
+            <Tile>
+              <div style={{ display: "flex", flexFlow: "row", gap: "1.5rem" }}>
+                <div style={{ flexGrow: 1, minWidth: 280 }}>
+                  <h3 style={{ marginTop: 0, marginBottom: "0.25rem" }}>
+                    Report controls
+                  </h3>
+                  <p
+                    style={{
+                      marginTop: 0,
+                      marginBottom: "1rem",
+                      color: "var(--cds-text-secondary, #6f6f6f)",
+                    }}
+                  >
+                    Adjust window, breakdown, resolution, and currency.
+                  </p>
+                </div>
+
+                <Controls
+                  windowOptions={windowOptions}
+                  window={win}
+                  setWindow={(win) => {
+                    searchParams.set("window", win);
+                    navigate({
+                      search: `?${searchParams.toString()}`,
+                    });
+                  }}
+                  aggregationOptions={aggregationOptions}
+                  aggregateBy={aggregateBy}
+                  setAggregateBy={(agg) => {
+                    const newSearchParams = new URLSearchParams(
+                      routerLocation.search,
+                    );
+                    newSearchParams.set("agg", agg);
+                    // Reset filters when aggregateBy is changed manually
+                    newSearchParams.delete("filter");
+                    navigate({
+                      search: `?${newSearchParams.toString()}`,
+                    });
+                  }}
+                  accumulateOptions={accumulateOptions}
+                  accumulate={accumulate}
+                  setAccumulate={(acc) => {
+                    searchParams.set("acc", acc);
+                    navigate({
+                      search: `?${searchParams.toString()}`,
+                    });
+                  }}
+                  title={title}
+                  cumulativeData={cumulativeData}
+                  currency={currency}
+                  currencyOptions={currencyCodes}
+                  setCurrency={(curr) => {
+                    searchParams.set("currency", curr);
+                    navigate({
+                      search: `?${searchParams.toString()}`,
+                    });
+                  }}
+                />
+              </div>
+            </Tile>
+          </Column>
+
+          <Column sm={4} md={8} lg={16} style={{ marginTop: "1.5rem" }}>
+            <Tile>
+              {loading && (
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div style={{ paddingTop: 80, paddingBottom: 80 }}>
+                    <CircularProgress />
+                  </div>
+                </div>
+              )}
+              {!loading && (
+                <AllocationReport
+                  allocationData={allocationData}
+                  cumulativeData={cumulativeData}
+                  totalData={totalData}
+                  currency={currency}
+                  aggregateBy={aggregateBy}
+                  drilldown={drilldown}
+                />
+              )}
+            </Tile>
+          </Column>
+        </Grid>
+      </main>
+    </CarbonShellLayout>
   );
 };
 

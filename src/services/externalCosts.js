@@ -1,4 +1,5 @@
 import client from "./api_client";
+import { Logger } from "./logger";
 
 // API blows up when comma is encoded
 export function parseExternalCostFilters(filters) {
@@ -30,10 +31,21 @@ class ExternalCostsService {
       sortDirection,
     };
 
-    const result = await client.get(`/customCost/timeseries`, {
-      params,
-    });
-    return result.data.data;
+    try {
+      const result = await client.get(`/customCost/timeseries`, {
+        params,
+      });
+      return result.data.data;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404) {
+        Logger.warn(
+          "ExternalCostsService.fetchExternalGraphCosts: /customCost/timeseries not found (404). Returning empty dataset.",
+        );
+        return [];
+      }
+      throw error;
+    }
   }
 
   async fetchExternalTableCosts(
@@ -53,10 +65,21 @@ class ExternalCostsService {
       sortDirection,
     };
 
-    const result = await client.get(`/customCost/total`, {
-      params,
-    });
-    return result.data.data;
+    try {
+      const result = await client.get(`/customCost/total`, {
+        params,
+      });
+      return result.data.data;
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 404) {
+        Logger.warn(
+          "ExternalCostsService.fetchExternalTableCosts: /customCost/total not found (404). Returning empty dataset.",
+        );
+        return [];
+      }
+      throw error;
+    }
   }
 }
 

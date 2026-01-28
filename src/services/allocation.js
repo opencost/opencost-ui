@@ -27,10 +27,15 @@ class AllocationService {
       });
       return result.data;
     } catch (error) {
-      // Only use mock data if explicitly enabled via REACT_APP_USE_MOCK_DATA=true
-      // This prevents confusion for users who misconfigured their backend
-      if (USE_MOCK_DATA && error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
-        console.warn("Backend not available, using mock data (REACT_APP_USE_MOCK_DATA is enabled)");
+      const isNetworkError =
+        error?.message?.includes("Network Error") ||
+        error?.message?.includes("ECONNREFUSED");
+
+      // Prefer real data, but if the backend is unreachable, fall back to mock data
+      if ((USE_MOCK_DATA || isNetworkError) && getMockData) {
+        console.warn(
+          "Allocation backend not reachable; falling back to mock data so the UI can render.",
+        );
         return getMockData(aggregate, filters);
       }
       throw error;

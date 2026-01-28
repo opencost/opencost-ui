@@ -18,3 +18,27 @@ body .page-container {
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+
+.opencost-sidenav-link.cds--side-nav__link--current {
+  background-color: #e4f0eb;
+}
+
+.opencost-sidenav-link .cds--side-nav__link-text {
+  font-weight: 500;
+}
+
+.opencost-sidenav-link.cds--side-nav__link--current .cds--side-nav__link-text {
+  color: #013927;
+}
+
+/* Override Carbon default blue active bar on side nav links */
+.opencost-sidenav-link.cds--side-nav__link--current::before {
+  background-color: #013927;
+}
+
+/* Remove default blue focus ring from side nav links and use background instead */
+.opencost-sidenav-link:focus,
+.opencost-sidenav-link:focus-visible {
+  outline: none;
+  box-shadow: none;
+}

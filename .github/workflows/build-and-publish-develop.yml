@@ -43,7 +43,7 @@ jobs:
           image_tag: ${{ steps.tags.outputs.IMAGE_TAG }}
           release_version: develop-${{ steps.sha.outputs.OC_SHORTHASH }}
           registry: ${{ env.REGISTRY }}
-      
+
       - name: Install crane
         uses: imjasonh/setup-crane@v0.4
 
@@ -55,5 +55,3 @@ jobs:
           NEW_TAG="${REPO}:develop-latest"
           echo "Copying ${{ steps.tags.outputs.IMAGE_TAG }} to ${NEW_TAG}"
           crane copy "${{ steps.tags.outputs.IMAGE_TAG }}" "${NEW_TAG}"
-
-

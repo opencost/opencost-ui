@@ -3,7 +3,7 @@ name: Build and Publish Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       release_version:
@@ -63,13 +63,13 @@ jobs:
       - name: Checkout actions
         uses: actions/checkout@v6
         with:
-          repository: 'opencost/opencost-ui'
+          repository: "opencost/opencost-ui"
 
       - name: Checkout Repo
         uses: actions/checkout@v6
         with:
-          repository: 'opencost/opencost-ui'
-          ref: '${{ steps.branch.outputs.BRANCH_NAME }}'
+          repository: "opencost/opencost-ui"
+          ref: "${{ steps.branch.outputs.BRANCH_NAME }}"
           path: ./opencost-ui
 
       - name: Set SHA
@@ -94,10 +94,10 @@ jobs:
           image_tag: ${{ steps.tags.outputs.IMAGE_TAG_UI }}
           release_version: ${{ steps.version_number.outputs.RELEASE_VERSION }}
           registry: ${{ env.REGISTRY }}
-      
+
       - name: Install crane
         uses: imjasonh/setup-crane@v0.4
-      
+
       - name: Tag and push latest image
         run: |
           crane copy "${{ steps.tags.outputs.IMAGE_TAG_UI }}" "${{ steps.tags.outputs.IMAGE_TAG_UI_LATEST }}"

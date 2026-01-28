@@ -192,33 +192,33 @@ const RangeChart = ({ data, currency, height, aggregateBy }) => {
   });
 
   return (
-      <BarChart
-        data={orderedBars}
-        margin={{ top: 30, right: 35, left: 30, bottom: 45 }}
-        responsive
-        height={height}
-        width="100%"
-      >
-        <CartesianGrid strokeDasharray={"3 3"} vertical={false} />
-        <XAxis dataKey={"key"} />
-        <YAxis tickFormatter={(val) => toCurrency(val, currency, 2, true)} />
-        <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 1000 }} />
+    <BarChart
+      data={orderedBars}
+      margin={{ top: 30, right: 35, left: 30, bottom: 45 }}
+      responsive
+      height={height}
+      width="100%"
+    >
+      <CartesianGrid strokeDasharray={"3 3"} vertical={false} />
+      <XAxis dataKey={"key"} />
+      <YAxis tickFormatter={(val) => toCurrency(val, currency, 2, true)} />
+      <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 1000 }} />
 
-        {new Array(10).fill(0).map((item, idx) => (
-          <Bar
-            dataKey={(entry) => (entry.items[idx] ? entry.items[idx][1] : null)}
-            stackId="x"
-          >
-            {orderedBars.map((bar) =>
-              bar.items[idx] ? (
-                <Cell fill={keyToFill[bar.items[idx][0]]} />
-              ) : (
-                <Cell />
-              ),
-            )}
-          </Bar>
-        ))}
-      </BarChart>
+      {new Array(10).fill(0).map((item, idx) => (
+        <Bar
+          dataKey={(entry) => (entry.items[idx] ? entry.items[idx][1] : null)}
+          stackId="x"
+        >
+          {orderedBars.map((bar) =>
+            bar.items[idx] ? (
+              <Cell fill={keyToFill[bar.items[idx][0]]} />
+            ) : (
+              <Cell />
+            ),
+          )}
+        </Bar>
+      ))}
+    </BarChart>
   );
 };
 

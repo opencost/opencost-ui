@@ -1,8 +1,9 @@
 import * as React from "react";
 import { Drawer, List } from "@mui/material";
+import { BarChart, Cloud } from "@mui/icons-material";
+import StorageIcon from "@mui/icons-material/Storage";
 
 import { NavItem } from "./NavItem";
-import { BarChart, Cloud } from "@mui/icons-material";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
@@ -25,6 +26,9 @@ const SidebarNav = ({ active }) => {
     },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
+
+    // Assets page
+    { name: "Assets", href: "/assets", icon: <StorageIcon /> },
   ];
 
   return (

@@ -11,6 +11,7 @@ import {
   aggregationOptions,
   costTypeOptions,
 } from "../../components/externalCosts/tokens";
+import { currencyCodes } from "../../constants/currencyCodes";
 
 function ExternalCostsControls({
   window,
@@ -19,6 +20,8 @@ function ExternalCostsControls({
   setAggregateBy,
   costType,
   setCostType,
+  currency,
+  setCurrency,
 }) {
   return (
     <div style={{ display: "inline-flex" }}>
@@ -55,6 +58,20 @@ function ExternalCostsControls({
           {costTypeOptions.map((opt) => (
             <MenuItem key={opt.value} value={opt.value}>
               {opt.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
+        <InputLabel id="currency-label">Currency</InputLabel>
+        <Select
+          id="currency"
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+        >
+          {currencyCodes?.map((currency) => (
+            <MenuItem key={currency} value={currency}>
+              {currency}
             </MenuItem>
           ))}
         </Select>

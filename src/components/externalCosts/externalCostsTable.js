@@ -85,6 +85,7 @@ const ExternalCostsTable = ({
         cost={row.cost}
         key={row.usage_unit}
         costType={row.cost_type}
+        currency={currency}
         onClick={() =>
           // we don't want to allow drilldown on item without an empty name
           row[aggToKeyMapExternalCosts[aggregateBy]] ? drilldown(row) : {}

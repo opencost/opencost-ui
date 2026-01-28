@@ -28,7 +28,7 @@ jobs:
         id: tags
         run: |
           echo "IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/opencost-ui:develop-${{ steps.sha.outputs.OC_SHORTHASH }}" >> $GITHUB_OUTPUT
- 
+
   install-on-demo:
     needs: [prep-image-name]
     uses: opencost/opencost-infra/.github/workflows/promote-to-oc-demo.yaml@main

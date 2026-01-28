@@ -1,23 +1,23 @@
-name: 'Build Container'
-description: 'Build and publish OpenCost UI container image'
+name: "Build Container"
+description: "Build and publish OpenCost UI container image"
 
 inputs:
   actor:
-    description: 'GitHub actor'
+    description: "GitHub actor"
     required: true
   GITHUB_TOKEN:
-    description: 'GitHub token for authentication'
+    description: "GitHub token for authentication"
     required: true
   image_tag:
-    description: 'Full image tag to use for the container'
+    description: "Full image tag to use for the container"
     required: true
   release_version:
-    description: 'Release version for the container'
+    description: "Release version for the container"
     required: true
   registry:
-    description: 'Container registry to use'
+    description: "Container registry to use"
     required: true
-    default: 'ghcr.io'
+    default: "ghcr.io"
 
 runs:
   using: "composite"
@@ -56,4 +56,4 @@ runs:
         RELEASE_VERSION: ${{ inputs.release_version }}
       run: |
         just build "$IMAGE_TAG" "$RELEASE_VERSION"
-      shell: bash 
+      shell: bash

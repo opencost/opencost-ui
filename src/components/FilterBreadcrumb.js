@@ -9,7 +9,13 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
     return null;
   }
 
-  const hierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
+  const hierarchy = [
+    "namespace",
+    "controllerKind",
+    "controllerName",
+    "pod",
+    "container",
+  ];
   const hierarchyLabels = {
     namespace: "Namespace",
     controllerKind: "Controller Kind",
@@ -31,7 +37,7 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
     const property = filter.property;
     const value = filter.value;
     const level = hierarchy.indexOf(property);
-    
+
     if (level >= 0) {
       breadcrumbItems.push({
         label: value,
@@ -88,4 +94,3 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
 };
 
 export default React.memo(FilterBreadcrumb);
-

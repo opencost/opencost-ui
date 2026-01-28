@@ -128,10 +128,22 @@ const ReportsPage = () => {
   // Validate and correct filters when URL or aggregateBy changes
   useEffect(() => {
     // Hierarchy for aggregateBy levels
-    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const aggregateHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controller",
+      "pod",
+      "container",
+    ];
     // Hierarchy for filter properties (matches backend API - uses "controllerName" not "controller")
-    const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
-    
+    const filterHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controllerName",
+      "pod",
+      "container",
+    ];
+
     // Map aggregateBy to expected number of filters and expected filter properties
     const aggregateToFilterCount = {
       namespace: 0,
@@ -140,11 +152,11 @@ const ReportsPage = () => {
       pod: 3,
       container: 4,
     };
-    
+
     const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
     const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
-    
+
     // If we're at namespace level, there should be no filters
     if (currentIndex === 0 && currentFilters.length > 0) {
       const newSearchParams = new URLSearchParams(routerLocation.search);
@@ -155,7 +167,7 @@ const ReportsPage = () => {
       }
       return;
     }
-    
+
     // Validate that filter count matches expected level
     if (currentFilters.length > expectedFilterCount) {
       // Trim filters to match current aggregateBy level
@@ -172,7 +184,7 @@ const ReportsPage = () => {
       }
       return;
     }
-    
+
     // Validate that filter properties match expected hierarchy
     for (let i = 0; i < currentFilters.length; i++) {
       const filter = currentFilters[i];
@@ -264,7 +276,13 @@ const ReportsPage = () => {
   // Handle breadcrumb navigation - navigate back to a specific filter level
   function handleBreadcrumbNavigate(level) {
     // Hierarchy for aggregateBy levels
-    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const aggregateHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controller",
+      "pod",
+      "container",
+    ];
 
     if (level === -1) {
       // Navigate to "All Results" - namespace level with no filters
@@ -317,7 +335,7 @@ const ReportsPage = () => {
     };
 
     const nextAgg = drilldownHierarchy[aggregateBy];
-    
+
     // If we're at the deepest level, don't allow further drilldown
     if (!nextAgg) {
       return;
@@ -328,7 +346,7 @@ const ReportsPage = () => {
     if (!row.name || String(row.name).trim() === "") {
       return;
     }
-    
+
     // Map aggregateBy to filter property name
     // Backend uses "controllerName" instead of "controller"
     const filterPropertyMap = {
@@ -338,9 +356,9 @@ const ReportsPage = () => {
       pod: "pod",
       container: "container",
     };
-    
+
     const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
-    
+
     let filterValue = String(row.name).trim();
     let updatedFilters = [...filters];
 
@@ -375,7 +393,7 @@ const ReportsPage = () => {
 
     // Add to existing filters and update aggregateBy
     const newFilters = [...updatedFilters, newFilter];
-    
+
     // Update URL parameters with new aggregateBy and filters
     const newSearchParams = new URLSearchParams(routerLocation.search);
     newSearchParams.set("agg", nextAgg);
@@ -408,7 +426,7 @@ const ReportsPage = () => {
           >
             <RefreshIcon />
           </IconButton>
-         </div>
+        </div>
       </Header>
 
       {!loading && errors.length > 0 && (
@@ -420,7 +438,10 @@ const ReportsPage = () => {
         <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
           <div style={{ flexGrow: 1 }}>
             <Typography variant="h5">{title}</Typography>
-            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
+            <FilterBreadcrumb
+              filters={filters}
+              onNavigate={handleBreadcrumbNavigate}
+            />
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
 
@@ -436,7 +457,9 @@ const ReportsPage = () => {
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
             setAggregateBy={(agg) => {
-              const newSearchParams = new URLSearchParams(routerLocation.search);
+              const newSearchParams = new URLSearchParams(
+                routerLocation.search,
+              );
               newSearchParams.set("agg", agg);
               // Reset filters when aggregateBy is changed manually
               newSearchParams.delete("filter");

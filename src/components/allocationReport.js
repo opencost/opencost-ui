@@ -179,9 +179,15 @@ const AllocationReport = ({
                 controller: "pod",
                 pod: "container",
               };
-              const hasNextLevel = drilldownHierarchy[aggregateBy] !== undefined;
+              const hasNextLevel =
+                drilldownHierarchy[aggregateBy] !== undefined;
               // Only allow drilldown if there's a next level (hasNextLevel implies !isContainer)
-              const canDrilldown = !isIdle && !isUnallocated && !isUnmounted && hasNextLevel && drilldown;
+              const canDrilldown =
+                !isIdle &&
+                !isUnallocated &&
+                !isUnmounted &&
+                hasNextLevel &&
+                drilldown;
 
               const rowProps = canDrilldown
                 ? {

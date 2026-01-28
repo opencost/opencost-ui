@@ -17,15 +17,13 @@ jobs:
         with:
           path: ./
 
-      -
-        name: Install just
+      - name: Install just
         uses: extractions/setup-just@v3
 
-      -
-        name: Install node
+      - name: Install node
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -40,8 +38,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      -
-        name: Build
+      - name: Build
         working-directory: ./
         run: |
           just build-local

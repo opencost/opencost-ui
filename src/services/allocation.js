@@ -20,7 +20,7 @@ class AllocationService {
     if (filters && filters.length > 0) {
       params.filter = parseFilters(filters);
     }
-    
+
     try {
       const result = await client.get("/allocation/compute", {
         params,
@@ -29,8 +29,15 @@ class AllocationService {
     } catch (error) {
       // Only use mock data if explicitly enabled via REACT_APP_USE_MOCK_DATA=true
       // This prevents confusion for users who misconfigured their backend
-      if (USE_MOCK_DATA && error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
-        console.warn("Backend not available, using mock data (REACT_APP_USE_MOCK_DATA is enabled)");
+      if (
+        USE_MOCK_DATA &&
+        error.message &&
+        (error.message.includes("Network Error") ||
+          error.message.includes("ECONNREFUSED"))
+      ) {
+        console.warn(
+          "Backend not available, using mock data (REACT_APP_USE_MOCK_DATA is enabled)",
+        );
         return getMockData(aggregate, filters);
       }
       throw error;

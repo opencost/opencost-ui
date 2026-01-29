@@ -1,12 +1,5 @@
 import { reverse } from "lodash";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
 

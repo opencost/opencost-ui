@@ -139,30 +139,30 @@ const CloudCostDetails = ({
           )}
           {data && (
             <div style={{ display: "flex", marginTop: "2.5rem" }}>
-                <BarChart
-                  data={itemData}
-                  margin={{
-                    top: 0,
-                    bottom: 10,
-                    left: 20,
-                    right: 0,
-                  }}
+              <BarChart
+                data={itemData}
+                margin={{
+                  top: 0,
+                  bottom: 10,
+                  left: 20,
+                  right: 0,
+                }}
                 responsive
                 height={250}
                 width="100%"
                 id={"cloud-cost-drilldown"}
-                >
-                  <CartesianGrid vertical={false} />
-                  <Legend verticalAlign={"bottom"} />
-                  <XAxis dataKey={"time"} />
-                  <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
-                  <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
-                  <Tooltip
-                    formatter={(value) =>
-                      `${toCurrency(value ?? 0, currency, 4, true)}`
-                    }
-                  />
-                </BarChart>
+              >
+                <CartesianGrid vertical={false} />
+                <Legend verticalAlign={"bottom"} />
+                <XAxis dataKey={"time"} />
+                <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
+                <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
+                <Tooltip
+                  formatter={(value) =>
+                    `${toCurrency(value ?? 0, currency, 4, true)}`
+                  }
+                />
+              </BarChart>
             </div>
           )}
         </Paper>

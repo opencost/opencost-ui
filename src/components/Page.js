@@ -1,8 +1,10 @@
 import { useLocation } from "react-router";
 import { SidebarNav } from "./Nav/SidebarNav";
+import { useTheme } from "../context/ThemeContext";
 
 const Page = (props) => {
   const { pathname } = useLocation();
+  const { colors } = useTheme();
 
   return (
     <div
@@ -10,7 +12,7 @@ const Page = (props) => {
         display: "flex",
         overflowY: "scroll",
         margin: "0px",
-        backgroundColor: "f3f3f3",
+        backgroundColor: colors.background,
       }}
     >
       <SidebarNav active={pathname} />
@@ -19,6 +21,7 @@ const Page = (props) => {
           display: "flex",
           flexFlow: "column",
           flexGrow: 1,
+          backgroundColor: colors.background,
         }}
       >
         <div
@@ -28,8 +31,9 @@ const Page = (props) => {
             flexGrow: 1,
             overflowX: "auto",
             paddingLeft: "2rem",
-            paddingRight: "rem",
+            paddingRight: "1rem",
             paddingTop: "2.5rem",
+            backgroundColor: colors.background,
           }}
         >
           <div

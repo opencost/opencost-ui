@@ -24,6 +24,7 @@ import {
 import { currencyCodes } from "../constants/currencyCodes";
 import CloudCost from "../components/cloudCost/cloudCost";
 import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
+import ThemeToggle from "../components/ThemeToggle";
 
 const CloudCosts = () => {
   // Form state, which controls form elements, but not the report itself. On
@@ -194,7 +195,7 @@ const CloudCosts = () => {
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true // this is kind of hacky but something weird is happening
     : // when drilling down will address in a later PR - @jjarrett21
-      !!cloudCostData.cloudCostStatus?.length;
+    !!cloudCostData.cloudCostStatus?.length;
 
   const enabledWarnings = [
     {
@@ -216,9 +217,12 @@ const CloudCosts = () => {
   return (
     <Page active="cloud.html">
       <Header headerTitle="Cloud Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
-          <RefreshIcon />
-        </IconButton>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <ThemeToggle />
+          <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
+            <RefreshIcon />
+          </IconButton>
+        </div>
       </Header>
 
       {!loading && !hasCloudCostEnabled && (

@@ -9,6 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { useLocation, useNavigate } from "react-router";
 import Warnings from "../components/Warnings";
+import ThemeToggle from "../components/ThemeToggle";
 import ExternalCostsService from "../services/externalCosts";
 
 import {
@@ -225,13 +226,16 @@ const ExternalCosts = () => {
     <Page active="cloud.html">
       {/* figure out if we need */}
       <Header headerTitle="External Costs">
-        <IconButton
-          aria-label="refresh"
-          onClick={() => setFetch(true)}
-          style={{ padding: 12 }}
-        >
-          <RefreshIcon />
-        </IconButton>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <ThemeToggle />
+          <IconButton
+            aria-label="refresh"
+            onClick={() => setFetch(true)}
+            style={{ padding: 12 }}
+          >
+            <RefreshIcon />
+          </IconButton>
+        </div>
       </Header>
       {!loading && errors.length > 0 && (
         <div style={{ marginBottom: 20 }}>

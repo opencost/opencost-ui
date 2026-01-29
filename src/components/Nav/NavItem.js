@@ -1,16 +1,19 @@
 import { ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { Link } from "react-router";
+import { useTheme } from "@mui/material/styles";
 
 const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
+  const theme = useTheme();
+  
   const renderListItemCore = () => (
     <ListItem
       className={active ? "active" : ""}
       sx={{
         "&.MuiListItem-root:hover": {
-          backgroundColor: "#ebebeb",
+          backgroundColor: theme.palette.action.hover,
         },
         "&.MuiListItem-root.active": {
-          backgroundColor: "#e1e1e1",
+          backgroundColor: theme.palette.action.selected,
         },
       }}
       onClick={(e) => {
@@ -24,7 +27,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemIcon
         sx={{
           "&.MuiListItemIcon-root": {
-            color: active ? "#346ef2" : "#4e4e4e",
+            color: active ? theme.palette.primary.main : theme.palette.text.secondary,
             minWidth: 36,
           },
         }}
@@ -34,7 +37,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemText
         sx={{
           "& .MuiListItemText-primary": {
-            color: active ? "#346ef2" : "inherit",
+            color: active ? theme.palette.primary.main : "inherit",
           },
         }}
         primary={name}

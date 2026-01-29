@@ -21,6 +21,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.6",
+    "@mui/x-charts": "^8.26.0",
     "@mui/x-date-pickers": "^8.25.0",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
@@ -46,5 +47,8 @@
   },
   "resolutions": {
     "set-value": "4.1.0"
+  },
+  "alias": {
+    "@mui/x-charts-vendor/flatqueue": "./node_modules/@mui/x-charts-vendor/lib/flatqueue.js"
   }
 }

@@ -5,7 +5,17 @@ const Footer = () => {
   const content = '<div align="right"><br/>PLACEHOLDER_FOOTER_CONTENT</div>';
   const htmlToReactParser = new HtmlToReactParser();
   const parsedContent = htmlToReactParser.parse(content);
-  return parsedContent;
+
+  return (
+    <div
+      style={{
+        marginTop: "auto",
+        width: "100%",
+      }}
+    >
+      {parsedContent}
+    </div>
+  );
 };
 
 export default Footer;

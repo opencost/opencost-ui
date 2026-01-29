@@ -1,8 +1,10 @@
 import { useLocation } from "react-router";
+import { useTheme } from "@mui/material/styles";
 import { SidebarNav } from "./Nav/SidebarNav";
 
 const Page = (props) => {
   const { pathname } = useLocation();
+  const theme = useTheme();
 
   return (
     <div
@@ -10,7 +12,8 @@ const Page = (props) => {
         display: "flex",
         overflowY: "scroll",
         margin: "0px",
-        backgroundColor: "f3f3f3",
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
       }}
     >
       <SidebarNav active={pathname} />
@@ -24,12 +27,14 @@ const Page = (props) => {
         <div
           style={{
             position: "relative",
-            height: "100vh",
+            minHeight: "100vh",
+            display: "flex",
+            flexFlow: "column",
             flexGrow: 1,
             overflowX: "auto",
             paddingLeft: "2rem",
-            paddingRight: "rem",
-            paddingTop: "2.5rem",
+            paddingRight: "2rem",
+            paddingTop: "2rem",
           }}
         >
           <div

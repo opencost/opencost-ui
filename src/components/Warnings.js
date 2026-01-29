@@ -11,7 +11,7 @@ const Warnings = ({ warnings }) => {
   }
 
   return (
-    <Paper>
+    <Paper style={{ padding: "0 0.5rem" }}>
       <List>
         {warnings.map((warn, i) => (
           <ListItem key={i}>

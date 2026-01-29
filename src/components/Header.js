@@ -1,6 +1,4 @@
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
+import { Heading, Breadcrumb, BreadcrumbItem, Link  } from '@carbon/react';
 
 const Header = (props) => {
   const { title, breadcrumbs, headerTitle } = props;
@@ -15,22 +13,22 @@ const Header = (props) => {
         marginTop: "10px",
       }}
     >
-      <Typography variant="h3" style={{ marginBottom: "10px" }}>
+      <Heading style={{ marginBottom: "10px" }}>
         {headerTitle}
-      </Typography>
+      </Heading>
       <div style={{ flex: "1 0 auto" }}>
-        {title && <Typography variant="h4">{title}</Typography>}
+        {title}
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <Breadcrumbs aria-label="breadcrumb">
+          <Breadcrumb aria-label="breadcrumb">
             {breadcrumbs.slice(0, breadcrumbs.length - 1).map((b) => (
-              <Link color="inherit" href={b.href} key={b.name}>
-                {b.name}
-              </Link>
+              <BreadcrumbItem key={b.name}>
+                <Link href={b.href}>{b.name}</Link>
+              </BreadcrumbItem>
             ))}
-            <Typography color="textPrimary">
+            <BreadcrumbItem>
               {breadcrumbs[breadcrumbs.length - 1].name}
-            </Typography>
-          </Breadcrumbs>
+            </BreadcrumbItem>
+          </Breadcrumb>
         )}
       </div>
       <div style={{ flex: "0 0 auto" }}>{props.children}</div>

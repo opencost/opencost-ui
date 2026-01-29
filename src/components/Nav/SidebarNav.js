@@ -25,6 +25,7 @@ const SidebarNav = ({ active }) => {
     },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
+    { name: "Assets", href: "/assets", icon: <Cloud /> },
   ];
 
   return (

@@ -5,7 +5,7 @@ body {
   background-color: #f3f3f3;
   display: flex;
   flex-flow: column;
-  font-family: "Roboto", sans-serif;
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   margin: 0px;
   overflow-y: scroll;
 }

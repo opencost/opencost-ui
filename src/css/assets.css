@@ -1,0 +1,60 @@
+/* Assets Page Styles */
+
+/* Base container with subtle background */
+.assets-page-container {
+    padding: 2rem;
+    background-color: var(--cds-background, #f4f4f4);
+    min-height: 100vh;
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.assets-header {
+    margin-bottom: 2.5rem;
+}
+
+.assets-header h2 {
+    font-weight: 600;
+    color: var(--cds-text-01, #161616);
+}
+
+.assets-table-container {
+    margin-top: 2rem;
+    background-color: var(--cds-layer-01, #ffffff);
+    padding: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.assets-kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+/* KPI Tile Enhancements */
+.assets-kpi-container .cds--tile {
+    background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
+    border-left: 4px solid #0f62fe;
+    /* Carbon Blue */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.assets-kpi-container .cds--tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.assets-kpi-container h4 {
+    color: var(--cds-text-02, #525252);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.assets-kpi-container h2 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--cds-text-01, #161616);
+}

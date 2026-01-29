@@ -1,0 +1,8 @@
+{
+  "/model": {
+    "target": "http://localhost:9090"
+  },
+  "/allocation": {
+    "target": "http://localhost:9090"
+  }
+}

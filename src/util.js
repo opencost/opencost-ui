@@ -199,63 +199,51 @@ export function toVerboseTimeRange(window) {
 
   switch (window) {
     case "today":
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()}`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()}`;
     case "yesterday":
       start.setUTCDate(start.getUTCDate() - 1);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()}`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()}`;
     case "week":
       start.setUTCDate(start.getUTCDate() - start.getUTCDay());
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} until now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} until now`;
     case "month":
       start.setUTCDate(1);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} until now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} until now`;
     case "lastweek":
       start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 7));
       end.setUTCDate(end.getUTCDate() - (end.getUTCDay() + 1));
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${
-        months[end.getUTCMonth()]
-      } ${end.getUTCFullYear()}`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${months[end.getUTCMonth()]
+        } ${end.getUTCFullYear()}`;
     case "lastmonth":
       end.setUTCDate(1);
       end.setUTCDate(end.getUTCDate() - 1);
       start.setUTCDate(1);
       start.setUTCDate(start.getUTCDate() - 1);
       start.setUTCDate(1);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${
-        months[end.getUTCMonth()]
-      } ${end.getUTCFullYear()}`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${months[end.getUTCMonth()]
+        } ${end.getUTCFullYear()}`;
     case "6d":
       start.setUTCDate(start.getUTCDate() - 6);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through now`;
     case "29d":
       start.setUTCDate(start.getUTCDate() - 29);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through now`;
     case "59d":
       start.setUTCDate(start.getUTCDate() - 59);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through now`;
     case "89d":
       start.setUTCDate(start.getUTCDate() - 89);
-      return `${start.getUTCDate()} ${
-        months[start.getUTCMonth()]
-      } ${start.getUTCFullYear()} through now`;
+      return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+        } ${start.getUTCFullYear()} through now`;
   }
 
   const splitDates = window.split(",");
@@ -266,15 +254,12 @@ export function toVerboseTimeRange(window) {
       start.setUTCFullYear(s[0], s[1] - 1, s[2]);
       end.setUTCFullYear(e[0], e[1] - 1, e[2]);
       if (start === end) {
-        return `${start.getUTCDate()} ${
-          months[start.getUTCMonth()]
-        } ${start.getUTCFullYear()}`;
+        return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+          } ${start.getUTCFullYear()}`;
       } else {
-        return `${start.getUTCDate()} ${
-          months[start.getUTCMonth()]
-        } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${
-          months[end.getUTCMonth()]
-        } ${end.getUTCFullYear()}`;
+        return `${start.getUTCDate()} ${months[start.getUTCMonth()]
+          } ${start.getUTCFullYear()} through ${end.getUTCDate()} ${months[end.getUTCMonth()]
+          } ${end.getUTCFullYear()}`;
       }
     }
   }
@@ -312,6 +297,11 @@ export function bytesToString(bytes) {
 
 const currencyLocale = "en-US";
 
+let defaultCurrency = process.env.DEFAULT_CURRENCY || "{PLACEHOLDER_DEFAULT_CURRENCY}";
+if (defaultCurrency.includes("PLACEHOLDER_DEFAULT_CURRENCY")) {
+  defaultCurrency = "USD";
+}
+
 export function toCurrency(amount, currency, precision) {
   if (typeof amount !== "number") {
     console.warn(
@@ -321,7 +311,7 @@ export function toCurrency(amount, currency, precision) {
   }
 
   if (currency === undefined || currency === "") {
-    currency = "USD";
+    currency = defaultCurrency;
   }
 
   const opts = {

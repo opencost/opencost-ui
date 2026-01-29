@@ -19,6 +19,7 @@ const Page = (props) => {
           display: "flex",
           flexFlow: "column",
           flexGrow: 1,
+          marginLeft: 256,
         }}
       >
         <div

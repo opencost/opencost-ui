@@ -19,3 +19,18 @@ body .page-container {
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+
+.cds--side-nav {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.cds--side-nav__items {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+}
+
+.cds--side-nav__items > .cds--side-nav__item:last-child {
+  margin-top: auto !important;
+}

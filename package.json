@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npx parcel build src/index.html",
+    "build": "npx parcel build src/index.html && cp src/_redirects dist/_redirects",
     "serve": "npx parcel serve src/index.html --no-cache",
     "clean": "rm -rf dist/*",
     "test": "echo \"Error: no test specified\" && exit 1",

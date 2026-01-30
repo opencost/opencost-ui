@@ -1,4 +1,4 @@
-import { Heading, Breadcrumb, BreadcrumbItem, Link  } from '@carbon/react';
+import { Heading, Breadcrumb, BreadcrumbItem, Link } from "@carbon/react";
 
 const Header = (props) => {
   const { title, breadcrumbs, headerTitle } = props;
@@ -13,9 +13,7 @@ const Header = (props) => {
         marginTop: "10px",
       }}
     >
-      <Heading style={{ marginBottom: "10px" }}>
-        {headerTitle}
-      </Heading>
+      <Heading style={{ marginBottom: "10px" }}>{headerTitle}</Heading>
       <div style={{ flex: "1 0 auto" }}>
         {title}
         {breadcrumbs && breadcrumbs.length > 0 && (

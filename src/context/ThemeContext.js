@@ -14,6 +14,11 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    document.body.classList.remove("cds--g10", "cds--g100");
+    document.body.classList.add(`cds--${theme}`);
+  }, [theme]);
+
   const toggleTheme = () => {
     setTheme((prevTheme) => {
       const newTheme = prevTheme === "g10" ? "g100" : "g10";

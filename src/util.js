@@ -470,6 +470,21 @@ export function parseFiltersFromUrl(filterString) {
   return filters;
 }
 
+export function formatDuration(minutes) {
+  if (!minutes) return "0m";
+  const days = Math.floor(minutes / (24 * 60));
+  const remainingMinutesAfterDays = minutes % (24 * 60);
+  const hours = Math.floor(remainingMinutesAfterDays / 60);
+  const remainingMinutes = Math.floor(remainingMinutesAfterDays % 60);
+
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (remainingMinutes > 0) parts.push(`${remainingMinutes}m`);
+
+  return parts.length > 0 ? parts.join(", ") : "0m";
+}
+
 export default {
   rangeToCumulative,
   cumulativeToTotals,
@@ -477,4 +492,5 @@ export default {
   bytesToString,
   toCurrency,
   checkCustomWindow,
+  formatDuration,
 };

@@ -1,10 +1,29 @@
-@import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
+:root {
+  --opencost-background: #f4f4f4;
+  --opencost-background-secondary: #ffffff;
+  --opencost-text-primary: #161616;
+  --opencost-text-secondary: #525252;
+  --opencost-text-tertiary: #8d8d8d;
+  --opencost-border: #e0e0e0;
+  --opencost-border-subtle: #e5e5e5;
+  --opencost-surface: #ffffff;
+  --opencost-surface-hover: #f4f4f4;
+  --opencost-shadow: rgba(0, 0, 0, 0.1);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--opencost-background);
+  color: var(--opencost-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
 
 body {
-  background-color: #f3f3f3;
   display: flex;
   flex-flow: column;
-  font-family: "Roboto", sans-serif;
   margin: 0px;
   overflow-y: scroll;
 }
@@ -15,6 +34,50 @@ body .page-container {
   flex-grow: 1;
 }
 
-.recharts-tooltip-wrapper {
-  z-index: 1000;
+.cds--header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  transition: background-color 0.2s ease;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.cds--side-nav {
+  top: 3rem !important;
+  background-color: #ffffff;
+}
+
+.cds--side-nav__link-text {
+  transition: color 0.2s ease;
+  color: #161616;
+}
+
+.cds--side-nav__link:hover {
+  background-color: #f4f4f4;
+}
+
+.cds--side-nav__link--current,
+.cds--side-nav__link--current:hover {
+  background-color: #e5e5e5;
+  color: #161616;
+}
+
+.opencost-surface {
+  background-color: var(--opencost-surface);
+  color: var(--opencost-text-primary);
+  border-color: var(--opencost-border);
+}
+
+.opencost-text-primary {
+  color: var(--opencost-text-primary);
+}
+
+.opencost-text-secondary {
+  color: var(--opencost-text-secondary);
+}
+
+.opencost-border {
+  border-color: var(--opencost-border);
 }

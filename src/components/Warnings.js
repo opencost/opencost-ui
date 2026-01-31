@@ -1,9 +1,4 @@
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Paper from "@mui/material/Paper";
-import WarningIcon from "@mui/icons-material/Warning";
+import { InlineNotification, ActionableNotification } from "@carbon/react";
 
 const Warnings = ({ warnings }) => {
   if (!warnings || warnings.length === 0) {
@@ -11,18 +6,36 @@ const Warnings = ({ warnings }) => {
   }
 
   return (
-    <Paper>
-      <List>
-        {warnings.map((warn, i) => (
-          <ListItem key={i}>
-            <ListItemIcon>
-              <WarningIcon />
-            </ListItemIcon>
-            <ListItemText primary={warn.primary} secondary={warn.secondary} />
-          </ListItem>
-        ))}
-      </List>
-    </Paper>
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      {warnings.map((warn, i) => {
+        const hasInteractiveContent = typeof warn.secondary !== "string" && warn.secondary;
+        
+        if (hasInteractiveContent) {
+          return (
+            <ActionableNotification
+              key={i}
+              kind="warning"
+              title={warn.primary}
+              inline
+              lowContrast
+              hideCloseButton
+            >
+              {warn.secondary}
+            </ActionableNotification>
+          );
+        }
+        
+        return (
+          <InlineNotification
+            key={i}
+            kind="warning"
+            title={warn.primary}
+            subtitle={warn.secondary}
+            lowContrast
+          />
+        );
+      })}
+    </div>
   );
 };
 

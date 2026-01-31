@@ -1,59 +1,53 @@
 import * as React from "react";
-import { Drawer, List } from "@mui/material";
+import { SideNav, SideNavItems, SideNavLink } from "@carbon/react";
+import { ChartBar, Cloud, CloudServiceManagement, DataTable } from "@carbon/icons-react";
+import { useNavigate } from "react-router";
 
-import { NavItem } from "./NavItem";
-import { BarChart, Cloud } from "@mui/icons-material";
-
-const logo = new URL("../../images/logo.png", import.meta.url).href;
-
-const DRAWER_WIDTH = 200;
-
-const SidebarNav = ({ active }) => {
-  const [init, setInit] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!init) {
-      setInit(true);
-    }
-  }, [init]);
+const SidebarNav = ({ active, isSideNavExpanded, onSideNavToggle }) => {
+  const navigate = useNavigate();
 
   const top = [
     {
       name: "Cost Allocation",
       href: "/allocation",
-      icon: <BarChart />,
+      icon: ChartBar,
     },
-    { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
-    { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
+    { name: "Cloud Costs", href: "/cloud", icon: Cloud },
+    { name: "External Costs", href: "/external-costs", icon: CloudServiceManagement },
+    { name: "Assets", href: "/assets", icon: DataTable },
   ];
 
+  const handleNavClick = (href, e) => {
+    e.preventDefault();
+    navigate(href);
+  };
+
   return (
-    <Drawer
-      anchor={"left"}
-      open
-      sx={{
-        flexShrink: 0,
-        width: DRAWER_WIDTH,
-        "& .MuiDrawer-paper": {
-          backgroundColor: "inherit",
-          border: 0,
-          width: DRAWER_WIDTH,
-          paddingTop: "2.5rem",
-        },
-      }}
-      variant="permanent"
+    <SideNav
+      aria-label="Side navigation"
+      expanded={isSideNavExpanded}
+      isFixedNav
+      onOverlayClick={onSideNavToggle}
     >
-      <img
-        src={logo}
-        alt="OpenCost"
-        style={{ flexShrink: 1, padding: "1rem" }}
-      />
-      <List style={{ flexGrow: 1 }}>
-        {top.map((l) => (
-          <NavItem active={active === `${l.href}`} key={l.name} {...l} />
-        ))}
-      </List>
-    </Drawer>
+      <SideNavItems>
+        {top.map((item) => {
+          const IconComponent = item.icon;
+          const isActive = active === item.href;
+          
+          return (
+            <SideNavLink
+              key={item.name}
+              renderIcon={IconComponent}
+              href={item.href}
+              isActive={isActive}
+              onClick={(e) => handleNavClick(item.href, e)}
+            >
+              {item.name}
+            </SideNavLink>
+          );
+        })}
+      </SideNavItems>
+    </SideNav>
   );
 };
 

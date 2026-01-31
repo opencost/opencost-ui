@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Modal, Paper, Typography } from "@mui/material";
+import { Modal, InlineLoading } from "@carbon/react";
 import Warnings from "../../components/Warnings";
-import CircularProgress from "@mui/material/CircularProgress";
 
 import {
   CartesianGrid,
@@ -113,61 +112,60 @@ const CloudCostDetails = ({
   });
 
   return (
-    <div>
-      <Modal
-        open={true}
-        onClose={onClose}
-        title={`Costs over the last ${window}`}
-        style={{ margin: "10%" }}
-      >
-        <Paper style={{ padding: 20 }}>
-          <Typography style={{ marginTop: "1rem" }} variant="body1">
-            {selectedItem}
-          </Typography>
+    <Modal
+      open={true}
+      onRequestClose={onClose}
+      modalHeading={`Costs over the last ${window}`}
+      primaryButtonText="Close"
+      onRequestSubmit={onClose}
+    >
+      <div style={{ padding: "1rem 0" }}>
+        <p style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          {selectedItem}
+        </p>
 
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
-              </div>
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ paddingTop: 100, paddingBottom: 100 }}>
+              <InlineLoading description="Loading data..." status="active" />
             </div>
-          )}
-          {!loading && errors.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <Warnings warnings={errors} />
-            </div>
-          )}
-          {data && (
-            <div style={{ display: "flex", marginTop: "2.5rem" }}>
-                <BarChart
-                  data={itemData}
-                  margin={{
-                    top: 0,
-                    bottom: 10,
-                    left: 20,
-                    right: 0,
-                  }}
-                responsive
-                height={250}
-                width="100%"
-                id={"cloud-cost-drilldown"}
-                >
-                  <CartesianGrid vertical={false} />
-                  <Legend verticalAlign={"bottom"} />
-                  <XAxis dataKey={"time"} />
-                  <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
-                  <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
-                  <Tooltip
-                    formatter={(value) =>
-                      `${toCurrency(value ?? 0, currency, 4, true)}`
-                    }
-                  />
-                </BarChart>
-            </div>
-          )}
-        </Paper>
-      </Modal>
-    </div>
+          </div>
+        )}
+        {!loading && errors.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <Warnings warnings={errors} />
+          </div>
+        )}
+        {data && (
+          <div style={{ display: "flex", marginTop: "2.5rem" }}>
+            <BarChart
+              data={itemData}
+              margin={{
+                top: 0,
+                bottom: 10,
+                left: 20,
+                right: 0,
+              }}
+              responsive
+              height={250}
+              width="100%"
+              id={"cloud-cost-drilldown"}
+            >
+              <CartesianGrid vertical={false} />
+              <Legend verticalAlign={"bottom"} />
+              <XAxis dataKey={"time"} />
+              <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
+              <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
+              <Tooltip
+                formatter={(value) =>
+                  `${toCurrency(value ?? 0, currency, 4, true)}`
+                }
+              />
+            </BarChart>
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 };
 

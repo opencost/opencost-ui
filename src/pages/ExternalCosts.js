@@ -1,15 +1,16 @@
 import * as React from "react";
 import Page from "../components/Page";
-import Header from "../components/Header";
+import PageHeader from "../components/PageHeader";
 import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { Paper, Button } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Button as CarbonButton, Heading, InlineLoading } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
+import { get, find } from "lodash";
 
 import { useLocation, useNavigate } from "react-router";
+import { checkCustomWindow, toVerboseTimeRange } from "../util";
 import Warnings from "../components/Warnings";
 import ExternalCostsService from "../services/externalCosts";
+import Subtitle from "../components/Subtitle";
 
 import {
   windowOptions,
@@ -23,6 +24,7 @@ import { aggToKeyMapExternalCosts } from "../components/externalCosts/tokens";
 import { ExternalCostDetails } from "../components/externalCosts/externalCostDetailModal";
 
 const ExternalCosts = () => {
+  const [title, setTitle] = React.useState("External costs for last 7 days by domain");
   const [window, setWindow] = React.useState(windowOptions[0].value);
   const [costType, setCostType] = React.useState(costTypeOptions[0].value);
   const [sortBy, setSortBy] = React.useState("cost");
@@ -43,6 +45,28 @@ const ExternalCosts = () => {
   // data
   const [externalCostData, setExternalCostData] = React.useState([]);
   const [externalCostTableData, setExternalCostTableData] = React.useState([]);
+
+  function generateTitle({ window, aggregateBy }) {
+    let windowName = get(find(windowOptions, { value: window }), "name", "");
+    if (windowName === "") {
+      if (checkCustomWindow(window)) {
+        windowName = toVerboseTimeRange(window);
+      } else {
+        console.warn(`unknown window: ${window}`);
+      }
+    }
+
+    let aggregationName = get(
+      find(aggregationOptions, { value: aggregateBy }),
+      "name",
+      "",
+    ).toLowerCase();
+    if (aggregationName === "") {
+      console.warn(`unknown aggregation: ${aggregateBy}`);
+    }
+
+    return `External costs for ${windowName} by ${aggregationName}`;
+  }
 
   // parse any context information from the URL
   const routerLocation = useLocation();
@@ -219,29 +243,61 @@ const ExternalCosts = () => {
 
   React.useEffect(() => {
     setFetch(!fetch);
+    setTitle(generateTitle({ window, aggregateBy }));
   }, [window, aggregateBy, filters, costType, sortBy, sortDirection]);
 
   return (
     <Page active="cloud.html">
       {/* figure out if we need */}
-      <Header headerTitle="External Costs">
-        <IconButton
-          aria-label="refresh"
+      <PageHeader headerTitle="External Costs">
+        <CarbonButton
+          hasIconOnly
+          renderIcon={Renew}
+          iconDescription="Refresh"
           onClick={() => setFetch(true)}
-          style={{ padding: 12 }}
-        >
-          <RefreshIcon />
-        </IconButton>
-      </Header>
+          kind="ghost"
+          size="md"
+        />
+      </PageHeader>
       {!loading && errors.length > 0 && (
         <div style={{ marginBottom: 20 }}>
           <Warnings warnings={errors} />
         </div>
       )}
       {init && (
-        <Paper id="cloud-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-            <ExternalCostsControls
+        <div
+          id="cloud-cost"
+          style={{
+            backgroundColor: "var(--opencost-background)",
+            padding: "2rem",
+            minHeight: "calc(100vh - 200px)",
+          }}
+        >
+          <div style={{ padding: 0 }}>
+            <div
+              style={{
+                marginBottom: "1.5rem",
+                display: "flex",
+                flexFlow: "row",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "1rem",
+              }}
+            >
+              <div style={{ flexGrow: 1 }}>
+                <Heading
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: 600,
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {title}
+                </Heading>
+                <Subtitle report={{ window, aggregateBy }} />
+              </div>
+              <div style={{ flexShrink: 0 }}>
+                <ExternalCostsControls
               costType={costType}
               setCostType={(type) => {
                 searchParams.set("costType", type);
@@ -264,13 +320,15 @@ const ExternalCosts = () => {
                   search: `?${searchParams.toString()}`,
                 });
               }}
-            />
+                />
+              </div>
+            </div>
           </div>
 
           {loading && (
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+                <InlineLoading description="Loading external costs..." status="active" />
               </div>
             </div>
           )}
@@ -285,13 +343,13 @@ const ExternalCosts = () => {
               />
             </>
           )}
-          <Button
+          <CarbonButton
             style={{ margin: ".5em" }}
-            variant="outlined"
+            kind="secondary"
             onClick={() => setFilters([])}
           >
             Clear Filters
-          </Button>
+          </CarbonButton>
           {!loading && (
             <>
               <ExternalCostsTable
@@ -307,7 +365,7 @@ const ExternalCosts = () => {
               onClose={() => setShowModal(null)}
             />
           )}
-        </Paper>
+        </div>
       )}
       <Footer />
     </Page>

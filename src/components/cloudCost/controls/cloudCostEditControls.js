@@ -1,9 +1,5 @@
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-
 import * as React from "react";
+import { Dropdown } from "@carbon/react";
 
 import SelectWindow from "../../SelectWindow";
 
@@ -21,57 +17,77 @@ function EditCloudCostControls({
   currency,
   setCurrency,
 }) {
+  const breakdownItems = aggregationOptions.map((opt) => ({
+    id: opt.value,
+    text: opt.name,
+    value: opt.value,
+  }));
+
+  const costMetricItems = costMetricOptions.map((opt) => ({
+    id: opt.value,
+    text: opt.name,
+    value: opt.value,
+  }));
+
+  const currencyItems = currencyOptions?.map((curr) => ({
+    id: curr,
+    text: curr,
+    value: curr,
+  })) || [];
+
+  const selectedBreakdown = breakdownItems.find((item) => item.value === aggregateBy);
+  const selectedCostMetric = costMetricItems.find((item) => item.value === costMetric);
+  const selectedCurrency = currencyItems.find((item) => item.value === currency);
+
   return (
-    <div style={{ display: "inline-flex" }}>
+    <div style={{ display: "inline-flex", gap: "0.5rem", alignItems: "flex-end" }}>
       <SelectWindow
         windowOptions={windowOptions}
         window={window}
         setWindow={setWindow}
       />
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="aggregation-select-label">Breakdown</InputLabel>
-        <Select
-          id="aggregation-select"
-          value={aggregateBy}
-          onChange={(e) => {
-            setAggregateBy(e.target.value);
-          }}
-        >
-          {aggregationOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="costMetric-label">Cost Metric</InputLabel>
-        <Select
-          id="costMetric"
-          value={costMetric}
-          onChange={(e) => setCostMetric(e.target.value)}
-        >
-          {costMetricOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="currency-label">Currency</InputLabel>
-        <Select
-          id="currency"
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-        >
-          {currencyOptions?.map((currency) => (
-            <MenuItem key={currency} value={currency}>
-              {currency}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Dropdown
+        id="aggregation-select"
+        titleText="Breakdown"
+        label="Breakdown"
+        items={breakdownItems}
+        itemToString={(item) => (item ? item.text : "")}
+        selectedItem={selectedBreakdown}
+        onChange={({ selectedItem }) => {
+          if (selectedItem) {
+            setAggregateBy(selectedItem.value);
+          }
+        }}
+        style={{ minWidth: 120 }}
+      />
+      <Dropdown
+        id="costMetric"
+        titleText="Cost Metric"
+        label="Cost Metric"
+        items={costMetricItems}
+        itemToString={(item) => (item ? item.text : "")}
+        selectedItem={selectedCostMetric}
+        onChange={({ selectedItem }) => {
+          if (selectedItem) {
+            setCostMetric(selectedItem.value);
+          }
+        }}
+        style={{ minWidth: 120 }}
+      />
+      <Dropdown
+        id="currency"
+        titleText="Currency"
+        label="Currency"
+        items={currencyItems}
+        itemToString={(item) => (item ? item.text : "")}
+        selectedItem={selectedCurrency}
+        onChange={({ selectedItem }) => {
+          if (selectedItem) {
+            setCurrency(selectedItem.value);
+          }
+        }}
+        style={{ minWidth: 120 }}
+      />
     </div>
   );
 }

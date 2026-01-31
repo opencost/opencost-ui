@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { endOfDay, startOfDay } from "date-fns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
-import Popover from "@mui/material/Popover";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import { Button, Link, Popover, TextField } from "@mui/material";
 import { isValid } from "date-fns";
 import { find, get } from "lodash";
 
 const SelectWindow = ({ windowOptions, window, setWindow }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -19,12 +15,15 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
   const [startDateHelperText, setStartDateHelperText] = useState("");
   const [endDateHelperText, setEndDateHelperText] = useState("");
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleClick = (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setOpen(!open);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setOpen(false);
   };
 
   const handleStartDateChange = (date) => {
@@ -74,40 +73,45 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
     }
   }, [startDate, endDate]);
 
-  const open = Boolean(anchorEl);
-  const id = open ? "date-range-popover" : undefined;
+  const anchorRef = React.useRef(null);
+  const popoverContainerRef = React.useRef(null);
 
   return (
     <>
       <TextField
-        id="filled-read-only-input"
+        inputRef={anchorRef}
+        id="date-range-input"
         label="Date Range"
         value={get(find(windowOptions, { value: window }), "name", "Custom")}
-        onClick={(e) => handleClick(e)}
-        slotProps={{
-          htmlInput: {
-            readOnly: true,
-            style: { cursor: "pointer" },
-          },
-        }}
-        style={{ margin: 8, width: 120 }}
+        onClick={handleClick}
         variant="standard"
+        InputProps={{
+          readOnly: true,
+        }}
+        style={{ width: 120, cursor: "pointer" }}
       />
       <Popover
-        id={id}
         open={open}
-        anchorEl={anchorEl}
         onClose={handleClose}
+        anchorEl={anchorRef.current}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
         }}
         transformOrigin={{
           vertical: "top",
-          horizontal: "center",
+          horizontal: "left",
+        }}
+        slotProps={{
+          paper: {
+            onClick: (e) => {
+              e.stopPropagation();
+            },
+          },
         }}
       >
         <div
+          ref={popoverContainerRef}
           style={{
             paddingLeft: 18,
             paddingRight: 18,
@@ -115,6 +119,9 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
             paddingBottom: 18,
             display: "flex",
             flexFlow: "row",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
           }}
         >
           <div style={{ display: "flex", flexFlow: "column" }}>
@@ -143,6 +150,32 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
                   helperText: startDateHelperText,
                   variant: "standard",
                 },
+                popper: {
+                  placement: "bottom-start",
+                  container: document.body,
+                  modifiers: [
+                    {
+                      name: "preventOverflow",
+                      options: {
+                        boundary: "viewport",
+                        rootBoundary: "viewport",
+                        padding: 8,
+                      },
+                    },
+                    {
+                      name: "flip",
+                      options: {
+                        fallbackPlacements: ["bottom", "top", "top-start"],
+                      },
+                    },
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 8],
+                      },
+                    },
+                  ],
+                },
               }}
             />
             <DatePicker
@@ -170,14 +203,39 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
                   helperText: endDateHelperText,
                   variant: "standard",
                 },
+                popper: {
+                  placement: "bottom-start",
+                  container: document.body,
+                  modifiers: [
+                    {
+                      name: "preventOverflow",
+                      options: {
+                        boundary: "viewport",
+                        rootBoundary: "viewport",
+                        padding: 8,
+                      },
+                    },
+                    {
+                      name: "flip",
+                      options: {
+                        fallbackPlacements: ["bottom", "top", "top-start"],
+                      },
+                    },
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, 8],
+                      },
+                    },
+                  ],
+                },
               }}
             />
             <div>
               <Button
-                style={{ marginTop: 16 }}
                 variant="contained"
+                style={{ marginTop: 16 }}
                 onClick={handleSubmitCustomDates}
-                color="info"
               >
                 Apply
               </Button>
@@ -192,20 +250,28 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
             }}
           >
             {windowOptions.map((opt) => (
-              <Typography key={opt.value}>
-                <Link
-                  style={{ cursor: "pointer" }}
-                  key={opt.value}
-                  value={opt.value}
-                  onClick={() => handleSubmitPresetDates(opt.value)}
-                  sx={{
-                    textDecoration: "none",
-                    "&:hover": { textDecoration: "underline" },
-                  }}
-                >
-                  {opt.name}
-                </Link>
-              </Typography>
+              <Link
+                key={opt.value}
+                component="button"
+                variant="body2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSubmitPresetDates(opt.value);
+                }}
+                style={{
+                  cursor: "pointer",
+                  marginBottom: "0.5rem",
+                  textAlign: "left",
+                  display: "block",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  color: "inherit",
+                  textDecoration: "none",
+                }}
+              >
+                {opt.name}
+              </Link>
             ))}
           </div>
         </div>

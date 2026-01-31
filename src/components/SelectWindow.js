@@ -7,9 +7,6 @@ import {
   TextInput,
   Button,
   Link,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
   Stack,
   Form,
 } from "@carbon/react";
@@ -73,73 +70,99 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
   const displayValue = get(find(windowOptions, { value: window }), "name", "Custom");
 
   return (
-    <Popover open={isOpen} onRequestClose={() => setIsOpen(false)} align="bottom-left">
-      <PopoverTrigger>
-        <TextInput
-          id="date-range-input"
-          labelText="Date Range"
-          value={displayValue}
-          readOnly
-          onClick={() => setIsOpen(!isOpen)}
-          style={{ cursor: "pointer", width: "120px" }}
-        />
-      </PopoverTrigger>
-      <PopoverContent style={{ padding: "1rem" }}>
-        <Stack gap={4} orientation="horizontal">
-          <Form>
-            <Stack gap={3}>
-              <DatePicker
-                datePickerType="single"
-                value={startDate}
-                maxDate={new Date()}
-                onChange={handleStartDateChange}
-                dateFormat="m/d/Y"
-              >
-                <DatePickerInput
-                  id="date-picker-start"
-                  labelText="Start Date"
-                  placeholder="mm/dd/yyyy"
-                  invalid={!!startDateError}
-                  invalidText={startDateError}
-                />
-              </DatePicker>
-              <DatePicker
-                datePickerType="single"
-                value={endDate}
-                maxDate={new Date()}
-                onChange={handleEndDateChange}
-                dateFormat="m/d/Y"
-              >
-                <DatePickerInput
-                  id="date-picker-end"
-                  labelText="End Date"
-                  placeholder="mm/dd/yyyy"
-                  invalid={!!endDateError}
-                  invalidText={endDateError}
-                />
-              </DatePicker>
-              <Button onClick={handleSubmitCustomDates} kind="primary">
-                Apply
-              </Button>
+    <div style={{ position: "relative" }}>
+      <TextInput
+        id="date-range-input"
+        labelText="Date Range"
+        value={displayValue}
+        readOnly
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ cursor: "pointer", width: "150px" }}
+      />
+      {isOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            zIndex: 1000,
+            backgroundColor: "var(--cds-layer)",
+            border: "1px solid var(--cds-border-subtle)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+            padding: "1rem",
+            marginTop: "4px",
+            minWidth: "400px",
+          }}
+        >
+          <Stack gap={4} orientation="horizontal">
+            <Form>
+              <Stack gap={3}>
+                <DatePicker
+                  datePickerType="single"
+                  value={startDate}
+                  maxDate={new Date()}
+                  onChange={handleStartDateChange}
+                  dateFormat="m/d/Y"
+                >
+                  <DatePickerInput
+                    id="date-picker-start"
+                    labelText="Start Date"
+                    placeholder="mm/dd/yyyy"
+                    invalid={!!startDateError}
+                    invalidText={startDateError}
+                  />
+                </DatePicker>
+                <DatePicker
+                  datePickerType="single"
+                  value={endDate}
+                  maxDate={new Date()}
+                  onChange={handleEndDateChange}
+                  dateFormat="m/d/Y"
+                >
+                  <DatePickerInput
+                    id="date-picker-end"
+                    labelText="End Date"
+                    placeholder="mm/dd/yyyy"
+                    invalid={!!endDateError}
+                    invalidText={endDateError}
+                  />
+                </DatePicker>
+                <Button onClick={handleSubmitCustomDates} kind="primary">
+                  Apply
+                </Button>
+              </Stack>
+            </Form>
+            <Stack gap={2} style={{ paddingTop: "0.5rem", minWidth: "120px" }}>
+              {windowOptions.map((opt) => (
+                <Link
+                  key={opt.value}
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSubmitPresetDates(opt.value);
+                  }}
+                >
+                  {opt.name}
+                </Link>
+              ))}
             </Stack>
-          </Form>
-          <Stack gap={2} style={{ paddingTop: "0.5rem" }}>
-            {windowOptions.map((opt) => (
-              <Link
-                key={opt.value}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSubmitPresetDates(opt.value);
-                }}
-              >
-                {opt.name}
-              </Link>
-            ))}
           </Stack>
-        </Stack>
-      </PopoverContent>
-    </Popover>
+        </div>
+      )}
+      {isOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 999,
+          }}
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </div>
   );
 };
 

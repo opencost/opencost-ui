@@ -10,7 +10,7 @@ import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
 
 import { checkCustomWindow, toVerboseTimeRange } from "../util";
-import ExternalCostEditControls from "../components/externalCosts/controls/externalCostEditControls";
+import ExternalCostEditControls from "../components/externalCosts/externalCostsControls"
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import ExternalCostService from "../services/externalCosts";
@@ -21,7 +21,7 @@ import {
 } from "../components/externalCosts/tokens";
 
 import { currencyCodes } from "../constants/currencyCodes";
-import ExternalCost from "../components/externalCosts/externalCost";
+import { ExternalCost } from "../components/externalCosts/externalCost";
 
 const ExternalCosts = () => {
   const [title, setTitle] = React.useState(

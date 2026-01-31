@@ -1,12 +1,80 @@
 @import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Font families */
+  --font-heading: "Lexend", sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+}
 
 body {
   display: flex;
   flex-flow: column;
-  font-family: "Lexend", sans-serif;
+  font-family: var(--font-body);
   margin: 0px;
   overflow-y: scroll;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings use Lexend */
+h1, h2, h3, h4, h5, h6,
+.cds--heading,
+.bx--heading,
+[class*="Heading"],
+[class*="header-title"] {
+  font-family: var(--font-heading) !important;
+}
+
+/* Carbon specific heading overrides */
+.cds--header__name,
+.cds--data-table-header__title {
+  font-family: var(--font-heading) !important;
+}
+
+/* Sidebar styling */
+.cds--side-nav__link-text {
+  font-family: var(--font-heading) !important;
+  font-size: 16px !important;
+}
+
+.cds--side-nav__link {
+  font-size: 16px !important;
+}
+
+/* MUI heading overrides */
+.MuiTypography-h1,
+.MuiTypography-h2,
+.MuiTypography-h3,
+.MuiTypography-h4,
+.MuiTypography-h5,
+.MuiTypography-h6 {
+  font-family: var(--font-heading) !important;
+}
+
+/* Body text and UI elements use IBM Plex Sans */
+.cds--dropdown,
+.cds--list-box,
+.cds--text-input,
+.cds--select,
+.cds--btn,
+.cds--toast-notification,
+.cds--inline-notification,
+.cds--modal,
+.cds--tooltip,
+.cds--overflow-menu,
+.cds--data-table,
+.cds--pagination,
+.cds--breadcrumb,
+.MuiTableCell-root,
+.MuiMenuItem-root,
+.MuiButton-root,
+.MuiAlert-root,
+.MuiChip-root,
+.MuiSelect-root,
+.MuiInputBase-root {
+  font-family: var(--font-body) !important;
 }
 
 body .page-container {
@@ -17,4 +85,185 @@ body .page-container {
 
 .recharts-tooltip-wrapper {
   z-index: 1000;
+}
+
+/* Recharts text styling */
+.recharts-text {
+  font-family: var(--font-body) !important;
+}
+
+.recharts-legend-item-text {
+  font-family: var(--font-body) !important;
+}
+
+/* ============================================
+   Dark Mode Improvements
+   ============================================ */
+
+/* Ensure smooth theme transitions */
+body,
+.cds--content,
+.cds--header,
+.cds--side-nav,
+.MuiPaper-root {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Dark mode specific improvements */
+[data-carbon-theme="g100"] {
+  /* Consistent card/tile backgrounds */
+  --card-bg: #262626;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-hover: #333333;
+  
+  /* Chart colors that work well in dark mode */
+  --chart-grid: rgba(255, 255, 255, 0.1);
+  --chart-axis: #8d8d8d;
+  --chart-tooltip-bg: #393939;
+  --chart-tooltip-border: #525252;
+}
+
+[data-carbon-theme="white"] {
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.1);
+  --card-hover: #f4f4f4;
+  
+  --chart-grid: rgba(0, 0, 0, 0.1);
+  --chart-axis: #525252;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #e0e0e0;
+}
+
+/* MUI Paper styling for both themes */
+[data-carbon-theme="g100"] .MuiPaper-root {
+  background-color: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-carbon-theme="g100"] .MuiTableContainer-root {
+  background-color: #262626;
+}
+
+[data-carbon-theme="g100"] .MuiTableCell-root {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-carbon-theme="g100"] .MuiTableCell-head {
+  background-color: #1a1a1a;
+  color: #c6c6c6;
+}
+
+[data-carbon-theme="g100"] .MuiChip-root {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-carbon-theme="g100"] .MuiButton-outlined {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-carbon-theme="g100"] .MuiButton-outlined:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Carbon component dark mode refinements */
+[data-carbon-theme="g100"] .cds--dropdown {
+  background-color: #262626;
+  border-bottom-color: #525252;
+}
+
+[data-carbon-theme="g100"] .cds--dropdown:hover {
+  background-color: #333333;
+}
+
+[data-carbon-theme="g100"] .cds--list-box__menu {
+  background-color: #262626;
+  border-color: #525252;
+}
+
+[data-carbon-theme="g100"] .cds--list-box__menu-item:hover {
+  background-color: #393939;
+}
+
+[data-carbon-theme="g100"] .cds--btn--secondary {
+  background-color: #393939;
+  color: #f4f4f4;
+}
+
+[data-carbon-theme="g100"] .cds--btn--secondary:hover {
+  background-color: #4c4c4c;
+}
+
+[data-carbon-theme="g100"] .cds--btn--tertiary {
+  color: #78a9ff;
+  border-color: #78a9ff;
+}
+
+[data-carbon-theme="g100"] .cds--btn--tertiary:hover {
+  background-color: rgba(120, 169, 255, 0.1);
+}
+
+/* Recharts dark mode styling */
+[data-carbon-theme="g100"] .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+[data-carbon-theme="g100"] .recharts-cartesian-axis-tick-value {
+  fill: #c6c6c6;
+}
+
+[data-carbon-theme="g100"] .recharts-default-tooltip {
+  background-color: #393939 !important;
+  border-color: #525252 !important;
+}
+
+[data-carbon-theme="g100"] .recharts-tooltip-label {
+  color: #f4f4f4 !important;
+}
+
+[data-carbon-theme="g100"] .recharts-legend-item-text {
+  color: #c6c6c6 !important;
+}
+
+/* Summary cards styling */
+[data-carbon-theme="g100"] .summary-card,
+[data-carbon-theme="g100"] .MuiCard-root {
+  background-color: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-carbon-theme="g100"] .summary-card:hover {
+  background-color: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Scrollbar styling for dark mode */
+[data-carbon-theme="g100"] ::-webkit-scrollbar-thumb {
+  background-color: #525252;
+}
+
+[data-carbon-theme="g100"] ::-webkit-scrollbar-thumb:hover {
+  background-color: #6f6f6f;
+}
+
+[data-carbon-theme="g100"] ::-webkit-scrollbar-track {
+  background-color: #1a1a1a;
+}
+
+/* Focus states for accessibility */
+[data-carbon-theme="g100"] *:focus-visible {
+  outline-color: #78a9ff;
+}
+
+/* Link styling */
+[data-carbon-theme="g100"] a {
+  color: #78a9ff;
+}
+
+[data-carbon-theme="g100"] a:hover {
+  color: #a6c8ff;
+}
+
+[data-carbon-theme="g100"] a:visited {
+  color: #be95ff;
 }

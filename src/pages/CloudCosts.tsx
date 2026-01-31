@@ -35,7 +35,7 @@ const CloudCosts = () => {
   const [loading, setLoading] = React.useState(true);
   const [errors, setErrors] = React.useState([]);
 
-  const [cloudCostData, setCloudCostData] = React.useState([]);
+  const [cloudCostData, setCloudCostData] = React.useState<any>({});
 
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
@@ -83,10 +83,10 @@ const CloudCosts = () => {
         costMetric,
         filters,
       );
-      if (resp) {
+      if (resp && (resp.tableRows || resp.graphData)) {
         setCloudCostData(resp);
-      } else {
-        if (resp.message && resp.message.indexOf("boundary error") >= 0) {
+      } else if (resp && resp.message) {
+        if (resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
           if (match && match.length > 0) {
@@ -99,9 +99,12 @@ const CloudCosts = () => {
             },
           ]);
         }
-        setCloudCostData([]);
+        setCloudCostData({});
+      } else {
+        // No data returned
+        setCloudCostData({});
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err.message.indexOf("404") === 0) {
         setErrors([
           {
@@ -123,7 +126,7 @@ const CloudCosts = () => {
           },
         ]);
       }
-      setCloudCostData([]);
+      setCloudCostData({});
     }
     setLoading(false);
   }
@@ -176,7 +179,7 @@ const CloudCosts = () => {
 
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true
-    : !!cloudCostData.cloudCostStatus?.length;
+    : (cloudCostData?.cloudCostStatus?.length > 0 || cloudCostData?.tableRows?.length > 0 || errors.length > 0);
 
   const enabledWarnings = [
     {

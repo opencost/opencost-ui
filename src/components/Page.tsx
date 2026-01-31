@@ -1,8 +1,8 @@
-import * as React from "react";
+import React from "react";
 import AppHeader from "./AppHeader";
 import SidebarNav from "./Nav/SidebarNav";
 
-const PageLayout = ({ children }) => {
+const Page = ({ children }) => {
   const [isSideNavExpanded, setIsSideNavExpanded] = React.useState(true);
 
   const toggleSideNav = () => setIsSideNavExpanded((prev) => !prev);
@@ -32,7 +32,8 @@ const PageLayout = ({ children }) => {
             flexGrow: 1,
             marginLeft: isSideNavExpanded ? "16rem" : "0",
             transition: "margin-left 0.2s ease",
-            padding: "2rem",
+            paddingLeft: "2rem",
+            paddingRight: "2rem",
             backgroundColor: "var(--cds-background, #f4f4f4)",
           }}
         >
@@ -43,4 +44,4 @@ const PageLayout = ({ children }) => {
   );
 };
 
-export default PageLayout;
+export default Page;

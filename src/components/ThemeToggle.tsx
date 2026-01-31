@@ -1,4 +1,3 @@
-import React from "react";
 import { HeaderGlobalAction } from "@carbon/react";
 import { Light, Asleep } from "@carbon/icons-react";
 import { useColorMode } from "../contexts/ThemeContext";
@@ -10,7 +9,7 @@ const ThemeToggle = () => {
   return (
     <HeaderGlobalAction
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      tooltipAlignment="bottom"
+      tooltipAlignment="end"
       onClick={toggleColorMode}
     >
       {isDark ? <Light size={20} /> : <Asleep size={20} />}

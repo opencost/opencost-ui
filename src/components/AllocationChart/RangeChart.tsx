@@ -1,12 +1,5 @@
 import { reverse } from "lodash";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
 
@@ -122,7 +115,7 @@ const RangeChart = ({ data, currency, height }) => {
               padding: 0,
               color: "#000000",
             }}
-          >{`Total: ${toCurrency(total, currency)}`}</p>
+          >{`Total: ${toCurrency(total, currency, true)}`}</p>
           {reverse(payload).map((item, i) => (
             <p
               key={i}
@@ -133,7 +126,7 @@ const RangeChart = ({ data, currency, height }) => {
                 padding: 0,
                 color: item.fill,
               }}
-            >{`${item.name}: ${toCurrency(item.value, currency)}`}</p>
+            >{`${item.name}: ${toCurrency(item.value, currency, true)}`}</p>
           ))}
         </div>
       );

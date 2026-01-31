@@ -3,7 +3,15 @@ import { upperFirst } from "lodash";
 import { Breadcrumb, BreadcrumbItem } from "@carbon/react";
 import { toVerboseTimeRange } from "../util";
 
-const Subtitle = ({ report, onClick }) => {
+interface SubtitleProps {
+  report: {
+    aggregateBy?: string;
+    window: string;
+  };
+  onClick?: () => void;
+}
+
+const Subtitle: React.FC<SubtitleProps> = ({ report, onClick }) => {
   const { aggregateBy, window } = report;
 
   const subtitleText = aggregateBy && aggregateBy.length > 0 

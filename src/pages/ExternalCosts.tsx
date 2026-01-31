@@ -1,5 +1,5 @@
 import * as React from "react";
-import PageLayout from "../components/PageLayout";
+import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import IconButton from "@mui/material/IconButton";
@@ -137,7 +137,7 @@ const ExternalCosts = () => {
   }, [window, aggregateBy, filters]);
 
   return (
-    <PageLayout>
+    <Page>
       <Header headerTitle="External Costs">
         <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
           <RefreshIcon />
@@ -205,7 +205,7 @@ const ExternalCosts = () => {
         </Paper>
       )}
       <Footer />
-    </PageLayout>
+    </Page>
   );
 };
 

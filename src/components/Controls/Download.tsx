@@ -1,8 +1,7 @@
 import React from "react";
 import { get, forEach, reverse, round, sortBy } from "lodash";
-import ExportIcon from "@mui/icons-material/GetApp";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
+import { Button } from "@carbon/react";
+import { Download } from "@carbon/icons-react";
 
 const columns = [
   {
@@ -78,17 +77,29 @@ const DownloadControl = ({ cumulativeData, title }) => {
     a.setAttribute("download", `${filename}-${Date.now()}.csv`);
 
     // Click the link
+    a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    
+    // Cleanup after a short delay
+    setTimeout(() => {
+      if (a.parentNode) {
+        document.body.removeChild(a);
+      }
+      URL.revokeObjectURL(a.href);
+    }, 100);
   }
 
   return (
-    <Tooltip title="Download CSV">
-      <IconButton onClick={downloadReport} style={{ padding: 12 }}>
-        <ExportIcon />
-      </IconButton>
-    </Tooltip>
+    <Button
+      kind="ghost"
+      size="md"
+      renderIcon={Download}
+      iconDescription="Download CSV"
+      onClick={downloadReport}
+      hasIconOnly
+      tooltipPosition="bottom"
+    />
   );
 };
 

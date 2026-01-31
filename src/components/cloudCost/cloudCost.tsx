@@ -22,6 +22,23 @@ const CloudCost = ({
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
 
+  // Handle empty data case
+  if (!cumulativeData || cumulativeData.length === 0) {
+    return (
+      <div style={{ 
+        padding: "3rem", 
+        textAlign: "center",
+        color: "var(--cds-text-secondary)"
+      }}>
+        <p style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>No cloud cost data available</p>
+        <p style={{ fontSize: "0.875rem" }}>
+          This could be because no cloud cost data has been recorded yet, 
+          or cloud cost integrations have not been configured.
+        </p>
+      </div>
+    );
+  }
+
   const headers = [
     { key: "name", header: "Name" },
     { key: "amortizedNetCost", header: "Amortized Net Cost" },

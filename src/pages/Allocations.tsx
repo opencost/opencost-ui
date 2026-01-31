@@ -350,7 +350,7 @@ const ReportsPage = () => {
   return (
     <Page>
       <Header headerTitle="Cost Allocation">
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <Checkbox
             labelText="Include idle costs"
             checked={includeIdle}
@@ -359,7 +359,7 @@ const ReportsPage = () => {
           />
           <Button
             kind="ghost"
-            renderIcon={Renew}
+            renderIcon={() => <Renew size={24} />}
             iconDescription="Refresh"
             onClick={() => fetchData()}
             hasIconOnly

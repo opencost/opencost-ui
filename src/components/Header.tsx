@@ -27,8 +27,9 @@ const PageHeader = ({ headerTitle, breadcrumbItems = [], children }) => {
         )}
         <Heading
           style={{
-            fontSize: "1.75rem",
-            fontWeight: 400,
+            fontSize: "2.25rem",
+            fontWeight: 500,
+            fontFamily: '"Lexend", sans-serif',
             marginTop: "0.5rem",
             marginBottom: 0,
           }}

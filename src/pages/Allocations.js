@@ -1,8 +1,5 @@
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Button, Heading, InlineLoading, Toggle } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 import { find, get, sortBy, toArray } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
@@ -10,7 +7,7 @@ import { useLocation, useNavigate } from "react-router";
 import AllocationReport from "../components/allocationReport";
 import Controls from "../components/Controls";
 import FilterBreadcrumb from "../components/FilterBreadcrumb";
-import Header from "../components/Header";
+import PageHeader from "../components/PageHeader";
 import Page from "../components/Page";
 import Footer from "../components/Footer";
 import Subtitle from "../components/Subtitle";
@@ -391,40 +388,63 @@ const ReportsPage = () => {
 
   return (
     <Page active="reports.html">
-      <Header headerTitle="Cost Allocation">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <input
-              type="checkbox"
-              checked={includeIdle ?? true}
-              onChange={(e) => setIncludeIdle(e.target.checked)}
-            />
-            Include idle costs
-          </label>
-          <IconButton
-            aria-label="refresh"
-            onClick={() => fetchData()}
-            style={{ padding: 12 }}
-          >
-            <RefreshIcon />
-          </IconButton>
-         </div>
-      </Header>
+      <PageHeader headerTitle="Cost Allocation">
+        <Toggle
+          id="include-idle-toggle"
+          labelText="Include idle costs"
+          toggled={includeIdle ?? true}
+          onClick={(e) => setIncludeIdle(!(includeIdle ?? true))}
+          size="sm"
+        />
+        <Button
+          hasIconOnly
+          renderIcon={Renew}
+          iconDescription="Refresh"
+          onClick={() => fetchData()}
+          kind="ghost"
+          size="md"
+        />
+      </PageHeader>
 
       {!loading && errors.length > 0 && (
         <div style={{ marginBottom: 20 }}>
           <Warnings warnings={errors} />
         </div>
       )}
-      <Paper id="report">
-        <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-          <div style={{ flexGrow: 1 }}>
-            <Typography variant="h5">{title}</Typography>
-            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
-            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
-          </div>
-
-          <Controls
+      <div
+        id="report"
+        style={{
+          backgroundColor: "var(--opencost-background)",
+          padding: "2rem",
+          minHeight: "calc(100vh - 200px)",
+        }}
+      >
+        <div style={{ padding: 0 }}>
+          <div
+            style={{
+              marginBottom: "1.5rem",
+              display: "flex",
+              flexFlow: "row",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "1rem",
+            }}
+          >
+            <div style={{ flexGrow: 1 }}>
+              <Heading
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 600,
+                  marginBottom: "0.25rem",
+                }}
+              >
+                {title}
+              </Heading>
+              <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
+              <Subtitle report={{ window: win, aggregateBy, accumulate }} />
+            </div>
+            <div style={{ flexShrink: 0 }}>
+              <Controls
             windowOptions={windowOptions}
             window={win}
             setWindow={(win) => {
@@ -462,13 +482,15 @@ const ReportsPage = () => {
                 search: `?${searchParams.toString()}`,
               });
             }}
-          />
+              />
+            </div>
+          </div>
         </div>
 
         {loading && (
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-              <CircularProgress />
+              <InlineLoading description="Loading data..." status="active" />
             </div>
           </div>
         )}
@@ -482,7 +504,7 @@ const ReportsPage = () => {
             drilldown={drilldown}
           />
         )}
-      </Paper>
+      </div>
       <Footer />
     </Page>
   );

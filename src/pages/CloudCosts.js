@@ -1,11 +1,9 @@
 import * as React from "react";
 import Page from "../components/Page";
-import Header from "../components/Header";
+import PageHeader from "../components/PageHeader";
 import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { Link, Paper, Typography } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Button, Heading, InlineLoading, Link } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
 
@@ -215,11 +213,16 @@ const CloudCosts = () => {
 
   return (
     <Page active="cloud.html">
-      <Header headerTitle="Cloud Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
-          <RefreshIcon />
-        </IconButton>
-      </Header>
+      <PageHeader headerTitle="Cloud Costs">
+        <Button
+          hasIconOnly
+          renderIcon={Renew}
+          iconDescription="Refresh"
+          onClick={() => setFetch(true)}
+          kind="ghost"
+          size="md"
+        />
+      </PageHeader>
 
       {!loading && !hasCloudCostEnabled && (
         <div style={{ marginBottom: 20 }}>
@@ -234,13 +237,39 @@ const CloudCosts = () => {
       )}
 
       {init && hasCloudCostEnabled && (
-        <Paper id="cloud-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-            <div style={{ flexGrow: 1 }}>
-              <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy }} />
-            </div>
-            <CloudCostEditControls
+        <div
+          id="cloud-cost"
+          style={{
+            backgroundColor: "var(--opencost-background)",
+            padding: "2rem",
+            minHeight: "calc(100vh - 200px)",
+          }}
+        >
+          <div style={{ padding: 0 }}>
+            <div
+              style={{
+                marginBottom: "1.5rem",
+                display: "flex",
+                flexFlow: "row",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "1rem",
+              }}
+            >
+              <div style={{ flexGrow: 1 }}>
+                <Heading
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: 600,
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {title}
+                </Heading>
+                <Subtitle report={{ window, aggregateBy }} />
+              </div>
+              <div style={{ flexShrink: 0 }}>
+                <CloudCostEditControls
               windowOptions={windowOptions}
               window={window}
               setWindow={(win) => {
@@ -276,13 +305,15 @@ const CloudCosts = () => {
                   search: `?${searchParams.toString()}`,
                 });
               }}
-            />
+                />
+              </div>
+            </div>
           </div>
 
           {loading && (
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+                <InlineLoading description="Loading cloud costs..." status="active" />
               </div>
             </div>
           )}
@@ -312,7 +343,7 @@ const CloudCosts = () => {
               currency={currency}
             />
           )}
-        </Paper>
+        </div>
       )}
       <Footer />
     </Page>

@@ -1,20 +1,18 @@
 import * as React from "react";
-import { get } from "lodash";
 import {
-  Typography,
-  TableContainer,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
+  DataTable,
   Table,
   TableBody,
-} from "@mui/material";
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Pagination,
+} from "@carbon/react";
 
 import { toCurrency } from "../../util";
 import CloudCostChart from "./cloudCostChart";
-import { CloudCostRow } from "./cloudCostRow";
 
 const CloudCost = ({
   cumulativeData = [],
@@ -24,111 +22,86 @@ const CloudCost = ({
   drilldown,
   sampleData = false,
 }) => {
-  function descendingComparator(a, b, orderBy) {
-    if (get(b, orderBy) < get(a, orderBy)) {
-      return -1;
-    }
-    if (get(b, orderBy) > get(a, orderBy)) {
-      return 1;
-    }
-    return 0;
-  }
-
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
-
-  function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-  }
-
-  const headCells = [
+  const headers = [
+    { key: "name", header: "Name" },
+    { key: "kubernetesPercent", header: "K8s Utilization" },
     {
-      id: "name",
-      numeric: false,
-      label: "Name",
-      width: "auto",
+      key: "cost",
+      header: sampleData ? "Sum of Sample Data" : "Total cost",
     },
-    {
-      id: "kubernetesPercent",
-      numeric: true,
-      label: "K8s Utilization",
-      width: 160,
-    },
-    sampleData
-      ? {
-          id: "cost",
-          numeric: true,
-          label: "Sum of Sample Data",
-          width: 200,
-        }
-      : {
-          id: "cost",
-          numeric: true,
-          label: "Total cost",
-          width: 155,
-        },
   ];
 
-  const [order, setOrder] = React.useState("desc");
-  const [orderBy, setOrderBy] = React.useState("totalCost");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const numData = cumulativeData?.length;
-
-  const lastPage = Math.floor(numData / rowsPerPage);
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const orderedRows = stableSort(cumulativeData, getComparator(order, orderBy));
-  const pageRows = orderedRows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage,
-  );
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(25);
+  const numData = cumulativeData?.length || 0;
 
   React.useEffect(() => {
-    setPage(0);
+    setPage(1);
   }, [numData]);
+
+  const displayCurrencyAsLessThanPenny = (amount, currency) =>
+    amount > 0 && amount < 0.01
+      ? `<${toCurrency(0.01, currency)}`
+      : toCurrency(amount, currency);
+
+  const formatRows = React.useMemo(() => {
+    const suffix =
+      { hourly: "/hr", monthly: "/mo", daily: "/day" }["cumulative"] || "";
+    return cumulativeData.map((row, index) => {
+      const name =
+        sampleData && row.labelName ? row.labelName ?? "" : row.name ?? "";
+      const kubernetesPercent = sampleData
+        ? `${(row.kubernetesPercent * 100).toFixed(1)}%`
+        : `${Math.round(row.kubernetesPercent * 100)}%`;
+      return {
+        id: `row-${index}`,
+        name,
+        kubernetesPercent,
+        cost: `${displayCurrencyAsLessThanPenny(row.cost, currency)}${suffix}`,
+        _originalRow: row,
+      };
+    });
+  }, [cumulativeData, currency, sampleData]);
+
+  const sortedRows = React.useMemo(() => {
+    return [...formatRows].sort((a, b) => {
+      const aCost = a._originalRow.cost || 0;
+      const bCost = b._originalRow.cost || 0;
+      if (bCost < aCost) return -1;
+      if (bCost > aCost) return 1;
+      return 0;
+    });
+  }, [formatRows]);
+
+  const paginatedRows = React.useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return sortedRows.slice(startIndex, startIndex + pageSize);
+  }, [sortedRows, page, pageSize]);
+
+  const totalsRowData = {
+    id: "totals",
+    name: totalsRow?.name || "Totals",
+    kubernetesPercent: `${Math.round(totalsRow?.kubernetesPercent * 100)}%`,
+    cost: toCurrency(totalsRow?.cost || 0, currency),
+  };
 
   if (cumulativeData.length === 0) {
     return (
-      <Typography variant="body2" sx={{ padding: 24 }}>
+      <p style={{ padding: 24, color: "var(--opencost-text-secondary)" }}>
         No results
-      </Typography>
+      </p>
     );
   }
 
-  function dataToCloudCostRow(row) {
-    const suffix =
-      { hourly: "/hr", monthly: "/mo", daily: "/day" }["cumulative"] || "";
-    return (
-      <CloudCostRow
-        costSuffix={suffix}
-        cost={row.cost}
-        drilldown={drilldown}
-        key={row.name}
-        kubernetesPercent={row.kubernetesPercent}
-        name={
-          sampleData && row.labelName ? (row.labelName ?? "") : (row.name ?? "")
-        }
-        row={row}
-        sampleData={sampleData}
-      />
-    );
-  }
+  const allRows = [totalsRowData, ...paginatedRows];
+
+  const rowDataMap = React.useMemo(() => {
+    const map = new Map();
+    paginatedRows.forEach((row) => {
+      map.set(row.id, row);
+    });
+    return map;
+  }, [paginatedRows]);
 
   return (
     <div id="cloud-cost">
@@ -141,64 +114,105 @@ const CloudCost = ({
         />
       </div>
       <div id="cloud-cost-table">
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {headCells.map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    colSpan={cell.colspan}
-                    align={cell.numeric ? "right" : "left"}
-                    sortDirection={orderBy === cell.id ? order : false}
-                    style={{ width: cell.width }}
-                  >
-                    <TableSortLabel
-                      active={orderBy === cell.id}
-                      direction={orderBy === cell.id ? order : "asc"}
-                      onClick={() => {
-                        const isDesc = orderBy === cell.id && order === "desc";
-                        setOrder(isDesc ? "asc" : "desc");
-                        setOrderBy(cell.id);
-                      }}
-                    >
-                      {cell.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell align={"left"} style={{ fontWeight: 500 }}>
-                  {totalsRow?.name || "Totals"}
-                </TableCell>
-
-                <TableCell align={"right"} style={{ fontWeight: 500 }}>
-                  {Math.round(totalsRow?.kubernetesPercent * 100)}%
-                </TableCell>
-
-                <TableCell
-                  align={"right"}
-                  style={{ fontWeight: 500, paddingRight: "2em" }}
-                >
-                  {toCurrency(totalsRow?.cost || 0, currency)}
-                </TableCell>
-              </TableRow>
-              {pageRows.map(dataToCloudCostRow)}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          component="div"
-          count={numData}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[10, 25, 50]}
-          page={Math.min(page, lastPage)}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <DataTable rows={allRows} headers={headers} isSortable>
+          {({
+            rows,
+            headers,
+            getTableProps,
+            getHeaderProps,
+            getRowProps,
+            getCellProps,
+          }) => (
+            <TableContainer>
+              <Table {...getTableProps()}>
+                <TableHead>
+                  <TableRow>
+                    {headers.map((header) => (
+                      <TableHeader
+                        {...getHeaderProps({ header })}
+                        key={header.key}
+                      >
+                        {header.header}
+                      </TableHeader>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => {
+                    const isTotalsRow = row.id === "totals";
+                    const rowInfo = rowDataMap.get(row.id);
+                    return (
+                      <TableRow
+                        {...getRowProps({ row })}
+                        key={row.id}
+                        onClick={
+                          rowInfo && drilldown
+                            ? () => drilldown(rowInfo._originalRow)
+                            : undefined
+                        }
+                        style={{
+                          cursor: rowInfo && drilldown ? "pointer" : "default",
+                          fontWeight: isTotalsRow ? 600 : "normal",
+                          backgroundColor: isTotalsRow
+                            ? "var(--opencost-surface-hover)"
+                            : undefined,
+                        }}
+                      >
+                        {row.cells.map((cell) => (
+                          <TableCell
+                            {...getCellProps({ cell })}
+                            key={cell.id}
+                            style={{
+                              textAlign: "left",
+                              color:
+                                cell.info.header === "Name" &&
+                                rowInfo &&
+                                drilldown
+                                  ? "#0f62fe"
+                                  : undefined,
+                              padding:
+                                cell.info.header === "Name" ? "1rem" : undefined,
+                            }}
+                          >
+                            {cell.value}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DataTable>
       </div>
+      <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: "1rem",
+          }}
+        >
+          <div
+            style={{
+              color: "var(--opencost-text-secondary)",
+              fontSize: "0.875rem",
+            }}
+          >
+            {numData} {numData === 1 ? "item" : "items"}
+          </div>
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            pageSizes={[10, 25, 50]}
+            totalItems={numData}
+            onChange={({ page, pageSize }) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+          />
+        </div>
     </div>
   );
 };

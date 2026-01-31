@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Header,
   HeaderMenuButton,
@@ -7,6 +8,7 @@ import {
 } from "@carbon/react";
 import { Notification } from "@carbon/icons-react";
 import { useNavigate } from "react-router";
+import ThemeToggle from "./ThemeToggle";
 
 const logo = new URL("../images/logo.png", import.meta.url).href;
 
@@ -31,6 +33,7 @@ const AppHeader = ({ isSideNavExpanded, onToggleSideNav }) => {
         <img src={logo} alt="OpenCost" style={{ height: "20px" }} />
       </HeaderName>
       <HeaderGlobalBar>
+        <ThemeToggle />
         <HeaderGlobalAction
           aria-label="Notifications"
           tooltipAlignment="end"

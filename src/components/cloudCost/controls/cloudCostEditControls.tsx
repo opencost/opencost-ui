@@ -1,11 +1,5 @@
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-
 import * as React from "react";
-
-import SelectWindow from "../../SelectWindow";
+import { Dropdown } from "@carbon/react";
 
 function EditCloudCostControls({
   windowOptions,
@@ -21,57 +15,62 @@ function EditCloudCostControls({
   currency,
   setCurrency,
 }) {
+  const currencyItems = currencyOptions?.map((c) => ({ id: c, name: c })) || [];
+
   return (
-    <div style={{ display: "inline-flex" }}>
-      <SelectWindow
-        windowOptions={windowOptions}
-        window={window}
-        setWindow={setWindow}
-      />
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="aggregation-select-label">Breakdown</InputLabel>
-        <Select
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+      <div style={{ minWidth: "140px" }}>
+        <Dropdown
+          id="date-range"
+          titleText="Date Range"
+          size="sm"
+          items={windowOptions}
+          itemToString={(item) => (item ? item.name : "")}
+          selectedItem={windowOptions.find((o) => o.value === window) || windowOptions[0] || null}
+          onChange={({ selectedItem }) =>
+            setWindow(selectedItem?.value || window)
+          }
+        />
+      </div>
+      <div style={{ minWidth: "140px" }}>
+        <Dropdown
           id="aggregation-select"
-          value={aggregateBy}
-          onChange={(e) => {
-            setAggregateBy(e.target.value);
-          }}
-        >
-          {aggregationOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="costMetric-label">Cost Metric</InputLabel>
-        <Select
+          titleText="Breakdown"
+          size="sm"
+          items={aggregationOptions}
+          itemToString={(item) => (item ? item.name : "")}
+          selectedItem={aggregationOptions.find((o) => o.value === aggregateBy) || aggregationOptions[0] || null}
+          onChange={({ selectedItem }) =>
+            setAggregateBy(selectedItem?.value || aggregateBy)
+          }
+        />
+      </div>
+      <div style={{ minWidth: "140px" }}>
+        <Dropdown
           id="costMetric"
-          value={costMetric}
-          onChange={(e) => setCostMetric(e.target.value)}
-        >
-          {costMetricOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl style={{ margin: 8, minWidth: 120 }} variant="standard">
-        <InputLabel id="currency-label">Currency</InputLabel>
-        <Select
+          titleText="Cost Metric"
+          size="sm"
+          items={costMetricOptions}
+          itemToString={(item) => (item ? item.name : "")}
+          selectedItem={costMetricOptions.find((o) => o.value === costMetric) || costMetricOptions[0] || null}
+          onChange={({ selectedItem }) =>
+            setCostMetric(selectedItem?.value || costMetric)
+          }
+        />
+      </div>
+      <div style={{ minWidth: "100px" }}>
+        <Dropdown
           id="currency"
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value)}
-        >
-          {currencyOptions?.map((currency) => (
-            <MenuItem key={currency} value={currency}>
-              {currency}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          titleText="Currency"
+          size="sm"
+          items={currencyItems}
+          itemToString={(item) => (item ? item.name : "")}
+          selectedItem={currencyItems.find((o) => o.id === currency) || currencyItems[0] || null}
+          onChange={({ selectedItem }) =>
+            setCurrency(selectedItem?.id || currency)
+          }
+        />
+      </div>
     </div>
   );
 }

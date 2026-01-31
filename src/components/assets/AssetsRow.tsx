@@ -1,7 +1,5 @@
 import React from "react";
-import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
-import Chip from "@mui/material/Chip";
+import { TableRow, TableCell, Tag } from "@carbon/react";
 import { toCurrency } from "../../util";
 
 interface AssetData {
@@ -21,15 +19,15 @@ interface AssetsRowProps {
 }
 
 // Type badge colors
-const getTypeColor = (type: string): "primary" | "secondary" | "success" | "warning" | "info" | "default" => {
-  const typeColors: Record<string, "primary" | "secondary" | "success" | "warning" | "info" | "default"> = {
-    Node: "primary",
-    Disk: "secondary",
-    ClusterManagement: "warning",
-    Network: "info",
-    LoadBalancer: "success",
+const getTypeColor = (type: string): "blue" | "purple" | "green" | "magenta" | "cyan" | "gray" => {
+  const typeColors: Record<string, "blue" | "purple" | "green" | "magenta" | "cyan" | "gray"> = {
+    Node: "blue",
+    Disk: "purple",
+    ClusterManagement: "magenta",
+    Network: "cyan",
+    LoadBalancer: "green",
   };
-  return typeColors[type] || "default";
+  return typeColors[type] || "gray";
 };
 
 const AssetsRow: React.FC<AssetsRowProps> = ({ row, currency = "USD", drilldown }) => {
@@ -41,27 +39,16 @@ const AssetsRow: React.FC<AssetsRowProps> = ({ row, currency = "USD", drilldown 
 
   return (
     <TableRow
-      hover
       onClick={handleClick}
-      sx={{
+      style={{
         cursor: drilldown ? "pointer" : "default",
-        "&:nth-of-type(odd)": {
-          backgroundColor: "var(--cds-layer-01, #fff)",
-        },
-        "&:nth-of-type(even)": {
-          backgroundColor: "var(--cds-layer-02, #f9f9f9)",
-        },
-        "&:hover": {
-          backgroundColor: "var(--cds-layer-hover-01, #e8e8e8) !important",
-        },
-        transition: "background-color 0.15s ease",
       }}
     >
       <TableCell
-        sx={{
+        style={{
           fontWeight: 500,
           color: "var(--cds-text-primary)",
-          maxWidth: 300,
+          maxWidth: "300px",
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
@@ -71,28 +58,24 @@ const AssetsRow: React.FC<AssetsRowProps> = ({ row, currency = "USD", drilldown 
       </TableCell>
       <TableCell>
         {row.type ? (
-          <Chip
-            label={row.type}
-            size="small"
-            color={getTypeColor(row.type)}
-            variant="outlined"
-            sx={{ fontSize: "0.75rem" }}
-          />
+          <Tag type={getTypeColor(row.type)} size="sm">
+            {row.type}
+          </Tag>
         ) : (
           "—"
         )}
       </TableCell>
-      <TableCell align="right">{toCurrency(row.cpuCost || 0, currency, 2)}</TableCell>
-      <TableCell align="right">{toCurrency(row.gpuCost || 0, currency, 2)}</TableCell>
-      <TableCell align="right">{toCurrency(row.ramCost || 0, currency, 2)}</TableCell>
-      <TableCell align="right">
+      <TableCell style={{ textAlign: "right" }}>{toCurrency(row.cpuCost || 0, currency, 2)}</TableCell>
+      <TableCell style={{ textAlign: "right" }}>{toCurrency(row.gpuCost || 0, currency, 2)}</TableCell>
+      <TableCell style={{ textAlign: "right" }}>{toCurrency(row.ramCost || 0, currency, 2)}</TableCell>
+      <TableCell style={{ textAlign: "right" }}>
         {row.adjustment ? toCurrency(row.adjustment, currency, 2) : "—"}
       </TableCell>
       <TableCell
-        align="right"
-        sx={{
+        style={{
           fontWeight: 600,
           color: "var(--cds-text-primary)",
+          textAlign: "right",
         }}
       >
         {toCurrency(row.totalCost || 0, currency, 2)}

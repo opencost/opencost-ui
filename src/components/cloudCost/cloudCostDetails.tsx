@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Modal, Paper, Typography } from "@mui/material";
+import { Modal, Tile, Loading } from "@carbon/react";
 import Warnings from "../../components/Warnings";
-import CircularProgress from "@mui/material/CircularProgress";
 
 import {
   CartesianGrid,
@@ -116,19 +115,20 @@ const CloudCostDetails = ({
     <div>
       <Modal
         open={true}
-        onClose={onClose}
-        title={`Costs over the last ${window}`}
-        style={{ margin: "10%" }}
+        onRequestClose={onClose}
+        modalHeading={`Costs over the last ${window}`}
+        passiveModal
+        size="lg"
       >
-        <Paper style={{ padding: 20 }}>
-          <Typography style={{ marginTop: "1rem" }} variant="body1">
+        <Tile style={{ padding: 20 }}>
+          <p style={{ marginTop: "1rem", fontSize: "1rem" }}>
             {selectedItem}
-          </Typography>
+          </p>
 
           {loading && (
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+                <Loading description="Loading..." withOverlay={false} />
               </div>
             </div>
           )}
@@ -165,7 +165,7 @@ const CloudCostDetails = ({
                 </BarChart>
             </div>
           )}
-        </Paper>
+        </Tile>
       </Modal>
     </div>
   );

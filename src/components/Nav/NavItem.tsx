@@ -1,21 +1,33 @@
-import { ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { Link } from "react-router";
-import { useTheme } from "@mui/material/styles";
+import { SideNavLink, SideNavMenuItem } from "@carbon/react";
+import { Link as RouterLink } from "react-router";
 
 const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
-  const theme = useTheme();
+  const Icon = icon;
   
-  const renderListItemCore = () => (
-    <ListItem
-      className={active ? "active" : ""}
-      sx={{
-        "&.MuiListItem-root:hover": {
-          backgroundColor: theme.palette.action.hover,
-        },
-        "&.MuiListItem-root.active": {
-          backgroundColor: theme.palette.action.selected,
-        },
-      }}
+  if (href && !active) {
+    return (
+      <RouterLink to={href} style={{ textDecoration: "none" }}>
+        <SideNavLink
+          renderIcon={Icon ? () => Icon : undefined}
+          isActive={active}
+          onClick={(e) => {
+            if (onClick) {
+              onClick();
+              e.stopPropagation();
+            }
+          }}
+          title={title}
+        >
+          {name}
+        </SideNavLink>
+      </RouterLink>
+    );
+  }
+
+  return (
+    <SideNavLink
+      renderIcon={Icon ? () => Icon : undefined}
+      isActive={active}
       onClick={(e) => {
         if (onClick) {
           onClick();
@@ -24,34 +36,8 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       }}
       title={title}
     >
-      <ListItemIcon
-        sx={{
-          "&.MuiListItemIcon-root": {
-            color: active ? theme.palette.primary.main : theme.palette.text.secondary,
-            minWidth: 36,
-          },
-        }}
-      >
-        {icon}
-      </ListItemIcon>
-      <ListItemText
-        sx={{
-          "& .MuiListItemText-primary": {
-            color: active ? theme.palette.primary.main : "inherit",
-          },
-        }}
-        primary={name}
-        secondary={secondary}
-      />
-    </ListItem>
-  );
-
-  return href && !active ? (
-    <Link style={{ textDecoration: "none", color: "inherit" }} to={`${href}`}>
-      {renderListItemCore()}
-    </Link>
-  ) : (
-    renderListItemCore()
+      {name}
+    </SideNavLink>
   );
 };
 

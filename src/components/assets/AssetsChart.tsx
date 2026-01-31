@@ -224,18 +224,20 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "2rem",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "1rem",
           alignItems: "center",
+          width: "100%",
+          overflow: "hidden",
         }}
       >
         {/* Bar Chart */}
-        <div style={{ width: "100%", height: height }}>
+        <div style={{ width: "100%", height: height, minWidth: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={sortedData}
               layout="vertical"
-              margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+              margin={{ top: 5, right: 20, left: 80, bottom: 5 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -270,19 +272,19 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
         </div>
 
         {/* Pie Chart */}
-        <div style={{ width: "100%", height: height }}>
+        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center" }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
+                innerRadius={50}
+                outerRadius={80}
                 paddingAngle={2}
                 dataKey="value"
                 label={({ name, percent }) =>
-                  `${name.length > 12 ? name.slice(0, 12) + "..." : name} (${(percent * 100).toFixed(0)}%)`
+                  `${name.length > 10 ? name.slice(0, 10) + "..." : name} (${(percent * 100).toFixed(0)}%)`
                 }
                 labelLine={{ stroke: "var(--cds-text-secondary)", strokeWidth: 1 }}
               >

@@ -1,157 +1,60 @@
-import { createTheme } from "@mui/material/styles";
+// Theme configuration for Carbon Design System
+// This file provides theme tokens and typography configuration
 
-const headingFont = '"Lexend", "Helvetica", "Arial", sans-serif';
-const bodyFont = '"IBM Plex Sans", "Helvetica Neue", "Arial", sans-serif';
+export const headingFont = '"Lexend", "Helvetica", "Arial", sans-serif';
+export const bodyFont = '"IBM Plex Sans", "Helvetica Neue", "Arial", sans-serif';
 
-const commonSettings = {
-  typography: {
-    fontFamily: bodyFont,
-    h1: {
-      fontFamily: headingFont,
-      fontSize: "3rem",
-      fontWeight: 500,
-    },
-    h2: {
-      fontFamily: headingFont,
-      fontSize: "2.5rem",
-      fontWeight: 500,
-    },
-    h3: {
-      fontFamily: headingFont,
-      fontSize: "2rem",
-      fontWeight: 500,
-    },
-    h4: {
-      fontFamily: headingFont,
-      fontSize: "1.5rem",
-      fontWeight: 500,
-    },
-    h5: {
-      fontFamily: headingFont,
-      fontSize: "1.25rem",
-      fontWeight: 500,
-    },
-    h6: {
-      fontFamily: headingFont,
-      fontSize: "1rem",
-      fontWeight: 600,
-    },
-    subtitle1: {
-      fontFamily: headingFont,
-      fontSize: "1rem",
-      fontWeight: 500,
-    },
-    subtitle2: {
-      fontFamily: headingFont,
-      fontSize: "0.875rem",
-      fontWeight: 500,
-    },
-    body1: {
-      fontFamily: bodyFont,
-      fontSize: "1rem",
-    },
-    body2: {
-      fontFamily: bodyFont,
-      fontSize: "0.875rem",
-    },
-    button: {
-      fontFamily: bodyFont,
-      textTransform: "none" as const,
-    },
-    caption: {
-      fontFamily: bodyFont,
-      fontSize: "0.75rem",
-    },
-    overline: {
-      fontFamily: bodyFont,
-      fontSize: "0.75rem",
-    },
+// Typography configuration (can be used for inline styles when needed)
+export const typography = {
+  fontFamily: bodyFont,
+  h1: {
+    fontFamily: headingFont,
+    fontSize: "3rem",
+    fontWeight: 500,
   },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none" as const,
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: "none",
-        },
-      },
-    },
-    MuiTableCell: {
-      styleOverrides: {
-        root: {
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiAlert: {
-      styleOverrides: {
-        root: {
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiTooltip: {
-      styleOverrides: {
-        tooltip: {
-          fontFamily: bodyFont,
-        },
-      },
-    },
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          fontFamily: bodyFont,
-          scrollbarColor: "#999 transparent",
-          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-            backgroundColor: "transparent",
-            width: "8px",
-            height: "8px",
-          },
-          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
-            borderRadius: 8,
-            backgroundColor: "#999",
-            minHeight: 24,
-            border: "2px solid transparent",
-            backgroundClip: "content-box",
-          },
-          "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus":
-            {
-              backgroundColor: "#777",
-            },
-          "&::-webkit-scrollbar-corner, & *::-webkit-scrollbar-corner": {
-            backgroundColor: "transparent",
-          },
-        },
-      },
-    },
+  h2: {
+    fontFamily: headingFont,
+    fontSize: "2.5rem",
+    fontWeight: 500,
+  },
+  h3: {
+    fontFamily: headingFont,
+    fontSize: "2rem",
+    fontWeight: 500,
+  },
+  h4: {
+    fontFamily: headingFont,
+    fontSize: "1.5rem",
+    fontWeight: 500,
+  },
+  h5: {
+    fontFamily: headingFont,
+    fontSize: "1.25rem",
+    fontWeight: 500,
+  },
+  h6: {
+    fontFamily: headingFont,
+    fontSize: "1rem",
+    fontWeight: 600,
+  },
+  body1: {
+    fontFamily: bodyFont,
+    fontSize: "1rem",
+  },
+  body2: {
+    fontFamily: bodyFont,
+    fontSize: "0.875rem",
+  },
+  caption: {
+    fontFamily: bodyFont,
+    fontSize: "0.75rem",
   },
 };
 
-export const lightTheme = createTheme({
-  ...commonSettings,
-  palette: {
-    mode: "light",
+// Light theme color tokens (matching Carbon's g10 theme)
+export const lightTheme = {
+  mode: "light" as const,
+  colors: {
     primary: {
       main: "#0f62fe",
       light: "#4589ff",
@@ -192,17 +95,13 @@ export const lightTheme = createTheme({
       light: "#4589ff",
       dark: "#002d9c",
     },
-    action: {
-      hover: "rgba(0, 0, 0, 0.04)",
-      selected: "rgba(0, 0, 0, 0.08)",
-    },
   },
-});
+};
 
-export const darkTheme = createTheme({
-  ...commonSettings,
-  palette: {
-    mode: "dark",
+// Dark theme color tokens (matching Carbon's g100 theme)
+export const darkTheme = {
+  mode: "dark" as const,
+  colors: {
     primary: {
       main: "#78a9ff",
       light: "#a6c8ff",
@@ -243,9 +142,5 @@ export const darkTheme = createTheme({
       light: "#78a9ff",
       dark: "#0f62fe",
     },
-    action: {
-      hover: "rgba(244, 244, 244, 0.08)",
-      selected: "rgba(244, 244, 244, 0.16)",
-    },
   },
-});
+};

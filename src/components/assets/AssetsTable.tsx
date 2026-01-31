@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { get } from "lodash";
 import {
+  DataTable,
+  TableContainer,
   Table,
+  TableHead,
+  TableRow,
+  TableHeader,
   TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Paper,
-  Typography,
-  Box,
-  Chip,
-} from "@mui/material";
+  Pagination,
+  Tag,
+} from "@carbon/react";
 import { toCurrency } from "../../util";
 
 type Order = "asc" | "desc";
@@ -26,7 +24,7 @@ interface HeadCell {
 }
 
 const headCells: HeadCell[] = [
-  { id: "name", numeric: false, label: "Name", width: "auto" },
+  { id: "name", numeric: false, label: "Name", width: 200 },
   { id: "type", numeric: false, label: "Type", width: 120 },
   { id: "cpuCost", numeric: true, label: "CPU Cost", width: 110 },
   { id: "gpuCost", numeric: true, label: "GPU Cost", width: 110 },
@@ -85,15 +83,15 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T[] {
 }
 
 // Type badge colors
-const getTypeColor = (type: string): "primary" | "secondary" | "success" | "warning" | "info" | "default" => {
-  const typeColors: Record<string, "primary" | "secondary" | "success" | "warning" | "info" | "default"> = {
-    Node: "primary",
-    Disk: "secondary",
-    ClusterManagement: "warning",
-    Network: "info",
-    LoadBalancer: "success",
+const getTypeColor = (type: string): "blue" | "purple" | "green" | "magenta" | "cyan" | "gray" => {
+  const typeColors: Record<string, "blue" | "purple" | "green" | "magenta" | "cyan" | "gray"> = {
+    Node: "blue",
+    Disk: "purple",
+    ClusterManagement: "magenta",
+    Network: "cyan",
+    LoadBalancer: "green",
   };
-  return typeColors[type] || "default";
+  return typeColors[type] || "gray";
 };
 
 const AssetsTable: React.FC<AssetsTableProps> = ({
@@ -114,38 +112,22 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
 
   if (assetData.length === 0) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: 200,
+          minHeight: "200px",
           backgroundColor: "var(--cds-layer-01, #f4f4f4)",
-          borderRadius: 1,
+          borderRadius: "4px",
         }}
       >
-        <Typography variant="body1" color="text.secondary">
+        <p style={{ color: "var(--cds-text-secondary)" }}>
           No assets data available
-        </Typography>
-      </Box>
+        </p>
+      </div>
     );
   }
-
-  const handleChangePage = (_event: unknown, newPage: number) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const createSortHandler = (property: string) => (_event: React.MouseEvent) => {
-    const isDesc = orderBy === property && order === "desc";
-    setOrder(isDesc ? "asc" : "desc");
-    setOrderBy(property);
-  };
-
-  const orderedRows = stableSort(assetData, getComparator(order, orderBy as keyof AssetData));
-  const pageRows = orderedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleRowClick = (row: AssetData) => {
     if (drilldown) {
@@ -153,197 +135,175 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
     }
   };
 
+  const headers = headCells.map((cell) => ({
+    key: cell.id,
+    header: cell.label,
+  }));
+
+  const orderedRows = stableSort(assetData, getComparator(order, orderBy as keyof AssetData));
+  const pageRows = orderedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  const rows = pageRows.map((row, index) => ({
+    id: row.name || String(index),
+    ...row,
+  }));
+
   return (
-    <Box sx={{ width: "100%" }}>
+    <div style={{ width: "100%" }}>
       {/* Section Title */}
-      <Typography
-        variant="h6"
-        sx={{
-          mb: 2,
+      <h4
+        style={{
+          marginBottom: "1rem",
           fontWeight: 600,
           textAlign: "center",
           color: "var(--cds-text-primary)",
         }}
       >
         Asset Details
-      </Typography>
+      </h4>
 
-      <Paper
-        elevation={0}
-        sx={{
-          border: "1px solid var(--cds-border-subtle-01, #e0e0e0)",
-          borderRadius: 1,
-          overflow: "hidden",
-        }}
-      >
-        <TableContainer>
-          <Table size="medium">
-            <TableHead>
-              <TableRow
-                sx={{
-                  backgroundColor: "var(--cds-layer-accent-01, #e0e0e0)",
-                }}
-              >
-                {headCells.map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    align={cell.numeric ? "right" : "left"}
-                    sortDirection={orderBy === cell.id ? order : false}
-                    sx={{
-                      width: cell.width,
-                      fontWeight: 600,
-                      color: "var(--cds-text-primary)",
-                      borderBottom: "2px solid var(--cds-border-strong-01, #8d8d8d)",
-                      py: 1.5,
-                    }}
-                  >
-                    <TableSortLabel
-                      active={orderBy === cell.id}
-                      direction={orderBy === cell.id ? order : "asc"}
-                      onClick={createSortHandler(cell.id)}
-                      sx={{
-                        "&.Mui-active": {
-                          color: "var(--cds-text-primary)",
-                        },
-                      }}
-                    >
-                      {cell.label}
-                    </TableSortLabel>
+      <DataTable rows={rows} headers={headers} isSortable>
+        {({ rows: tableRows, headers: tableHeaders, getTableProps, getHeaderProps, getRowProps }) => (
+          <TableContainer>
+            <Table {...getTableProps()} size="lg">
+              <TableHead>
+                <TableRow>
+                  {tableHeaders.map((header) => {
+                    const cell = headCells.find((c) => c.id === header.key);
+                    return (
+                      <TableHeader
+                        {...getHeaderProps({ header })}
+                        key={header.key}
+                        onClick={() => {
+                          const isDesc = orderBy === header.key && order === "desc";
+                          setOrder(isDesc ? "asc" : "desc");
+                          setOrderBy(header.key);
+                        }}
+                        isSortHeader={orderBy === header.key}
+                        sortDirection={orderBy === header.key ? (order === "asc" ? "ASC" : "DESC") : "NONE"}
+                        style={{ width: cell?.width, textAlign: "center" }}
+                      >
+                        {header.header}
+                      </TableHeader>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {/* Totals row */}
+                <TableRow key="totals-row" style={{ backgroundColor: "var(--cds-layer-02, #f4f4f4)" }}>
+                  <TableCell key="totals-name" style={{ fontWeight: 700, fontSize: "0.95rem", textAlign: "center" }}>
+                    Total
                   </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {/* Totals row */}
-              <TableRow
-                sx={{
-                  backgroundColor: "var(--cds-layer-02, #f4f4f4)",
-                  "&:hover": {
-                    backgroundColor: "var(--cds-layer-02, #f4f4f4)",
-                  },
-                }}
-              >
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
-                  Total
-                </TableCell>
-                <TableCell>
-                  <Chip label="All Types" size="small" variant="outlined" />
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
-                  {toCurrency(totalData.cpuCost || 0, currency, 2)}
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
-                  {toCurrency(totalData.gpuCost || 0, currency, 2)}
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
-                  {toCurrency(totalData.ramCost || 0, currency, 2)}
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
-                  {totalData.adjustment
-                    ? toCurrency(totalData.adjustment, currency, 2)
-                    : "—"}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: "0.95rem",
-                    color: "var(--cds-text-primary)",
-                  }}
-                >
-                  {toCurrency(totalData.totalCost || 0, currency, 2)}
-                </TableCell>
-              </TableRow>
-
-              {/* Data rows */}
-              {pageRows.map((row, index) => (
-                <TableRow
-                  key={row.name || index}
-                  hover
-                  onClick={() => handleRowClick(row)}
-                  sx={{
-                    cursor: drilldown ? "pointer" : "default",
-                    "&:nth-of-type(odd)": {
-                      backgroundColor: "var(--cds-layer-01, #fff)",
-                    },
-                    "&:nth-of-type(even)": {
-                      backgroundColor: "var(--cds-layer-02, #f9f9f9)",
-                    },
-                    "&:hover": {
-                      backgroundColor: "var(--cds-layer-hover-01, #e8e8e8) !important",
-                    },
-                    transition: "background-color 0.15s ease",
-                  }}
-                >
-                  <TableCell
-                    sx={{
-                      fontWeight: 500,
-                      color: "var(--cds-text-primary)",
-                      maxWidth: 300,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {row.name || "Unknown"}
+                  <TableCell key="totals-type" style={{ textAlign: "center" }}>
+                    <Tag type="gray" size="sm">All Types</Tag>
                   </TableCell>
-                  <TableCell>
-                    {row.type ? (
-                      <Chip
-                        label={row.type}
-                        size="small"
-                        color={getTypeColor(row.type)}
-                        variant="outlined"
-                        sx={{ fontSize: "0.75rem" }}
-                      />
-                    ) : (
-                      "—"
-                    )}
+                  <TableCell key="totals-cpu" style={{ fontWeight: 600, textAlign: "center" }}>
+                    {toCurrency(totalData.cpuCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell align="right">
-                    {toCurrency(row.cpuCost || 0, currency, 2)}
+                  <TableCell key="totals-gpu" style={{ fontWeight: 600, textAlign: "center" }}>
+                    {toCurrency(totalData.gpuCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell align="right">
-                    {toCurrency(row.gpuCost || 0, currency, 2)}
+                  <TableCell key="totals-ram" style={{ fontWeight: 600, textAlign: "center" }}>
+                    {toCurrency(totalData.ramCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell align="right">
-                    {toCurrency(row.ramCost || 0, currency, 2)}
-                  </TableCell>
-                  <TableCell align="right">
-                    {row.adjustment ? toCurrency(row.adjustment, currency, 2) : "—"}
+                  <TableCell key="totals-adj" style={{ fontWeight: 600, textAlign: "center" }}>
+                    {totalData.adjustment
+                      ? toCurrency(totalData.adjustment, currency, 2)
+                      : "—"}
                   </TableCell>
                   <TableCell
-                    align="right"
-                    sx={{
-                      fontWeight: 600,
+                    key="totals-total"
+                    style={{
+                      fontWeight: 700,
+                      fontSize: "0.95rem",
                       color: "var(--cds-text-primary)",
+                      textAlign: "center",
                     }}
                   >
-                    {toCurrency(row.totalCost || 0, currency, 2)}
+                    {toCurrency(totalData.totalCost || 0, currency, 2)}
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
 
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
-          count={numData}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          sx={{
-            borderTop: "1px solid var(--cds-border-subtle-01, #e0e0e0)",
-            ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows": {
-              marginBottom: 0,
-            },
-          }}
-        />
-      </Paper>
-    </Box>
+                {/* Data rows */}
+                {tableRows.map((row) => {
+                  const originalRow = pageRows.find((r) => r.name === row.id) || pageRows[0];
+                  return (
+                    <TableRow
+                      {...getRowProps({ row })}
+                      key={row.id}
+                      onClick={() => handleRowClick(originalRow)}
+                      style={{
+                        cursor: drilldown ? "pointer" : "default",
+                      }}
+                    >
+                      <TableCell
+                        key={`${row.id}-name`}
+                        style={{
+                          fontWeight: 500,
+                          color: "var(--cds-text-primary)",
+                          maxWidth: "300px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          textAlign: "center",
+                        }}
+                      >
+                        {originalRow.name || "Unknown"}
+                      </TableCell>
+                      <TableCell key={`${row.id}-type`} style={{ textAlign: "center" }}>
+                        {originalRow.type ? (
+                          <Tag type={getTypeColor(originalRow.type)} size="sm">
+                            {originalRow.type}
+                          </Tag>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell key={`${row.id}-cpu`} style={{ textAlign: "center" }}>
+                        {toCurrency(originalRow.cpuCost || 0, currency, 2)}
+                      </TableCell>
+                      <TableCell key={`${row.id}-gpu`} style={{ textAlign: "center" }}>
+                        {toCurrency(originalRow.gpuCost || 0, currency, 2)}
+                      </TableCell>
+                      <TableCell key={`${row.id}-ram`} style={{ textAlign: "center" }}>
+                        {toCurrency(originalRow.ramCost || 0, currency, 2)}
+                      </TableCell>
+                      <TableCell key={`${row.id}-adj`} style={{ textAlign: "center" }}>
+                        {originalRow.adjustment
+                          ? toCurrency(originalRow.adjustment, currency, 2)
+                          : "—"}
+                      </TableCell>
+                      <TableCell
+                        key={`${row.id}-total`}
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--cds-text-primary)",
+                          textAlign: "center",
+                        }}
+                      >
+                        {toCurrency(originalRow.totalCost || 0, currency, 2)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </DataTable>
+
+      <Pagination
+        totalItems={numData}
+        pageSize={rowsPerPage}
+        pageSizes={[10, 25, 50, 100]}
+        page={page + 1}
+        onChange={({ page: newPage, pageSize }) => {
+          setPage(newPage - 1);
+          setRowsPerPage(pageSize);
+        }}
+      />
+    </div>
   );
 };
 

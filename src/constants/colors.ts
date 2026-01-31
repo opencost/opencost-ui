@@ -1,36 +1,28 @@
-import blue from "@mui/material/colors/blue";
-import brown from "@mui/material/colors/brown";
-import cyan from "@mui/material/colors/cyan";
-import deepOrange from "@mui/material/colors/deepOrange";
-import deepPurple from "@mui/material/colors/deepPurple";
-import green from "@mui/material/colors/green";
-import grey from "@mui/material/colors/grey";
-import indigo from "@mui/material/colors/indigo";
-import orange from "@mui/material/colors/orange";
-import red from "@mui/material/colors/red";
-import teal from "@mui/material/colors/teal";
-import yellow from "@mui/material/colors/yellow";
+// Carbon-compatible color palette
 
+// Primary colors for charts and data visualization
 export const primary = [
-  blue[500],
-  red[500],
-  green[500],
-  yellow[500],
-  cyan[500],
-  orange[500],
-  teal[500],
-  indigo[500],
-  deepOrange[500],
-  deepPurple[500],
+  "#0f62fe", // Blue
+  "#da1e28", // Red
+  "#24a148", // Green
+  "#f1c21b", // Yellow
+  "#00bab6", // Cyan
+  "#ff832b", // Orange
+  "#009d9a", // Teal
+  "#6929c4", // Indigo/Purple
+  "#ff8389", // Deep Orange (light red)
+  "#8a3ffc", // Deep Purple
 ];
 
+// Greyscale for secondary elements
 export const greyscale = [
-  grey[300],
-  grey[400],
-  grey[200],
-  grey[500],
-  grey[100],
-  grey[600],
+  "#c6c6c6", // Grey 300
+  "#a8a8a8", // Grey 400
+  "#e0e0e0", // Grey 200
+  "#8d8d8d", // Grey 500
+  "#f4f4f4", // Grey 100
+  "#6f6f6f", // Grey 600
 ];
 
-export const browns = [brown[500]];
+// Browns for specific use cases
+export const browns = ["#8e6a00"];

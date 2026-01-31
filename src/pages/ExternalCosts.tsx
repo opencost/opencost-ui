@@ -2,15 +2,13 @@ import * as React from "react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { Paper, Typography } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Button, Loading, Tile, Heading } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
 
 import { checkCustomWindow, toVerboseTimeRange } from "../util";
-import ExternalCostEditControls from "../components/externalCosts/externalCostsControls"
+import ExternalCostEditControls from "../components/externalCosts/externalCostsControls";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import ExternalCostService from "../services/externalCosts";
@@ -139,70 +137,74 @@ const ExternalCosts = () => {
   return (
     <Page>
       <Header headerTitle="External Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
-          <RefreshIcon />
-        </IconButton>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <ExternalCostEditControls
+            windowOptions={windowOptions}
+            window={window}
+            setWindow={(win) => {
+              searchParams.set("window", win);
+              navigate({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            aggregationOptions={aggregationOptions}
+            aggregateBy={aggregateBy}
+            setAggregateBy={(agg) => {
+              setFilters([]);
+              searchParams.set("agg", agg);
+              navigate({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+            title={title}
+            currency={currency}
+            currencyOptions={currencyCodes}
+            setCurrency={(curr) => {
+              searchParams.set("currency", curr);
+              navigate({
+                search: `?${searchParams.toString()}`,
+              });
+            }}
+          />
+          <Button
+            kind="ghost"
+            renderIcon={() => <Renew size={24} />}
+            iconDescription="Refresh"
+            onClick={() => setFetch(true)}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+        </div>
       </Header>
 
+      <Subtitle report={{ window, aggregateBy }} />
+
       {!loading && errors.length > 0 && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: "1rem" }}>
           <Warnings warnings={errors} />
         </div>
       )}
 
       {init && (
-        <Paper id="external-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-            <div style={{ flexGrow: 1 }}>
-              <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy }} />
-            </div>
-            <ExternalCostEditControls
-              windowOptions={windowOptions}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              aggregationOptions={aggregationOptions}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                setFilters([]);
-                searchParams.set("agg", agg);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              title={title}
-              currency={currency}
-              currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
-                searchParams.set("currency", curr);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
-          </div>
+        <Tile style={{ marginTop: "1.5rem" }}>
+          <div style={{ padding: "1.5rem" }}>
+            <Heading style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>{title}</Heading>
 
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+            {loading && (
+              <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+                <Loading description="Loading external costs..." withOverlay={false} />
               </div>
-            </div>
-          )}
+            )}
 
-          {!loading && (
-            <ExternalCost
-              data={externalCostData}
-              currency={currency}
-              drilldown={drilldown}
-            />
-          )}
-        </Paper>
+            {!loading && (
+              <ExternalCost
+                data={externalCostData}
+                currency={currency}
+                drilldown={drilldown}
+              />
+            )}
+          </div>
+        </Tile>
       )}
       <Footer />
     </Page>

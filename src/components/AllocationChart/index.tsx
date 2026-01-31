@@ -1,8 +1,6 @@
 import React from "react";
 import { isArray, filter, map, reduce, reverse, sortBy } from "lodash";
 
-import Typography from "@mui/material/Typography";
-
 import RangeChart from "./RangeChart";
 import SummaryChart from "./SummaryChart";
 
@@ -70,7 +68,7 @@ function top(n, by) {
 
 const AllocationChart = ({ allocationRange, currency, n, height }) => {
   if (allocationRange.length === 0) {
-    return <Typography variant="body2">No data</Typography>;
+    return <p style={{ fontSize: "0.875rem", color: "var(--cds-text-secondary)" }}>No data</p>;
   }
 
   if (allocationRange.length === 1) {

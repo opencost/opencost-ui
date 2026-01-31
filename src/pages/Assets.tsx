@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
 import { Loading, Button, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
-import { Box, Typography, Divider } from "@mui/material";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -295,152 +294,117 @@ const Assets: React.FC = () => {
       {errors.length > 0 && <Warnings warnings={errors} />}
 
       {/* Main Content */}
-      <Box sx={{ mt: 3 }}>
+      <div style={{ marginTop: "1.5rem" }}>
         {loading ? (
           <Tile>
-            <Box
-              sx={{
+            <div
+              style={{
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                minHeight: 400,
-                gap: 2,
+                minHeight: "400px",
+                gap: "1rem",
               }}
             >
               <Loading
                 description="Loading assets data..."
                 withOverlay={false}
               />
-              <Typography variant="body2" color="text.secondary">
+              <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem" }}>
                 Fetching asset information...
-              </Typography>
-            </Box>
+              </p>
+            </div>
           </Tile>
         ) : (
           <>
             {/* Summary Cards */}
-            <Box
-              sx={{
+            <div
+              style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: 2,
-                mb: 3,
+                gap: "1rem",
+                marginBottom: "1.5rem",
               }}
             >
               <Tile>
-                <Box sx={{ textAlign: "center", py: 1 }}>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontWeight: 600, color: "var(--cds-text-primary)" }}
-                  >
+                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                  <h4 style={{ fontWeight: 600, color: "var(--cds-text-primary)", margin: 0 }}>
                     {toCurrency(totalData.totalCost, currency, 2)}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  </h4>
+                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
                     Total Cost
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
               </Tile>
               <Tile>
-                <Box sx={{ textAlign: "center", py: 1 }}>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontWeight: 600, color: "#0f62fe" }}
-                  >
+                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                  <h4 style={{ fontWeight: 600, color: "#0f62fe", margin: 0 }}>
                     {toCurrency(totalData.cpuCost, currency, 2)}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  </h4>
+                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
                     CPU Cost
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
               </Tile>
               <Tile>
-                <Box sx={{ textAlign: "center", py: 1 }}>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontWeight: 600, color: "#8a3ffc" }}
-                  >
+                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                  <h4 style={{ fontWeight: 600, color: "#8a3ffc", margin: 0 }}>
                     {toCurrency(totalData.ramCost, currency, 2)}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  </h4>
+                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
                     RAM Cost
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
               </Tile>
               <Tile>
-                <Box sx={{ textAlign: "center", py: 1 }}>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontWeight: 600, color: "#009d9a" }}
-                  >
+                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                  <h4 style={{ fontWeight: 600, color: "#009d9a", margin: 0 }}>
                     {toCurrency(totalData.gpuCost, currency, 2)}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  </h4>
+                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
                     GPU Cost
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
               </Tile>
               <Tile>
-                <Box sx={{ textAlign: "center", py: 1 }}>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontWeight: 600, color: "var(--cds-text-primary)" }}
-                  >
+                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                  <h4 style={{ fontWeight: 600, color: "var(--cds-text-primary)", margin: 0 }}>
                     {assetData.length}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  </h4>
+                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
                     Total Assets
-                  </Typography>
-                </Box>
+                  </p>
+                </div>
               </Tile>
-            </Box>
+            </div>
 
             {/* Chart Section */}
             <Tile style={{ marginBottom: "1.5rem" }}>
-              <Box sx={{ p: 2 }}>
+              <div style={{ padding: "1rem" }}>
                 <AssetsChart
                   assetData={assetData}
                   currency={currency}
                   height={350}
                   n={10}
                 />
-              </Box>
+              </div>
             </Tile>
 
             {/* Table Section */}
             <Tile>
-              <Box sx={{ p: 2 }}>
+              <div style={{ padding: "1rem" }}>
                 <AssetsTable
                   assetData={assetData}
                   totalData={totalData}
                   currency={currency}
                   drilldown={drilldown}
                 />
-              </Box>
+              </div>
             </Tile>
           </>
         )}
-      </Box>
+      </div>
 
       <Footer />
     </Page>

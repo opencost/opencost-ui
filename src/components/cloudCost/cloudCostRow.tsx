@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from "@mui/material";
+import { TableRow, TableCell } from "@carbon/react";
 
 import { toCurrency } from "../../util";
 
@@ -28,14 +28,13 @@ const CloudCostRow = ({
   return (
     <TableRow onClick={() => drilldown(row)}>
       <TableCell
-        align={"left"}
-        style={{ cursor: "pointer", color: "#346ef2", padding: "1rem" }}
+        style={{ cursor: "pointer", color: "#0f62fe", padding: "1rem" }}
       >
         {name}
       </TableCell>
-      <TableCell align={"right"}>{whichPercent}</TableCell>
+      <TableCell style={{ textAlign: "right" }}>{whichPercent}</TableCell>
       {/* total cost */}
-      <TableCell align={"right"} style={{ paddingRight: "2em" }}>
+      <TableCell style={{ textAlign: "right", paddingRight: "2em" }}>
         {`${displayCurrencyAsLessThanPenny(cost, currency)}${costSuffix}`}
       </TableCell>
     </TableRow>

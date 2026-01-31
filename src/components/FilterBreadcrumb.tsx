@@ -1,8 +1,5 @@
 import * as React from "react";
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { Breadcrumb, BreadcrumbItem } from "@carbon/react";
 
 const FilterBreadcrumb = ({ filters, onNavigate }) => {
   if (!filters || filters.length === 0) {
@@ -50,40 +47,32 @@ const FilterBreadcrumb = ({ filters, onNavigate }) => {
   };
 
   return (
-    <Breadcrumbs
-      separator={<NavigateNextIcon fontSize="small" />}
-      aria-label="filter breadcrumb"
-      sx={{ marginTop: 1, marginBottom: 1 }}
-    >
+    <Breadcrumb noTrailingSlash style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }}>
       {breadcrumbItems.map((item, index) => {
         const key = `${item.level}-${item.label}-${index}`;
-        if (item.isClickable) {
-          return (
-            <Link
-              key={key}
-              component="button"
-              variant="body2"
-              onClick={(e) => handleClick(e, item)}
-              sx={{
-                cursor: "pointer",
-                textDecoration: "none",
-                "&:hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
-              {item.label}
-            </Link>
-          );
-        } else {
-          return (
-            <Typography key={key} variant="body2" color="text.primary">
-              {item.label}
-            </Typography>
-          );
-        }
+        const isCurrentPage = index === breadcrumbItems.length - 1;
+        
+        return (
+          <BreadcrumbItem
+            key={key}
+            href="#"
+            isCurrentPage={isCurrentPage}
+            onClick={(e) => {
+              if (item.isClickable) {
+                handleClick(e, item);
+              } else {
+                e.preventDefault();
+              }
+            }}
+            style={{
+              cursor: item.isClickable ? "pointer" : "default",
+            }}
+          >
+            {item.label}
+          </BreadcrumbItem>
+        );
       })}
-    </Breadcrumbs>
+    </Breadcrumb>
   );
 };
 

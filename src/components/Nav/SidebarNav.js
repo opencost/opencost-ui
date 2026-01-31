@@ -1,66 +1,58 @@
-import * as React from "react";
-import { Drawer, List } from "@mui/material";
+import React from "react";
+import {
+  SideNav,
+  SideNavItems,
+  SideNavLink,
+} from "@carbon/react";
+import {
+  ChartBar,
+  Cloud,
+  CloudServiceManagement,
+  DataTable,
+} from "@carbon/icons-react";
+import { useLocation, useNavigate } from "react-router";
 
-import { NavItem } from "./NavItem";
-import { BarChart, Cloud, Storage, AttachMoney } from "@mui/icons-material";
+const links = [
+  { name: "Cost Allocation", href: "/allocation", icon: ChartBar },
+  { name: "Cloud Costs", href: "/cloud", icon: Cloud },
+  { name: "External Costs", href: "/external-costs", icon: CloudServiceManagement },
+  { name: "Assets", href: "/assets", icon: DataTable },
+];
 
-const logo = new URL("../../images/logo.png", import.meta.url).href;
-
-export const DRAWER_WIDTH = 200;
-
-const SidebarNav = ({ active }) => {
-  const [init, setInit] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!init) {
-      setInit(true);
-    }
-  }, [init]);
-
-  const top = [
-    {
-      name: "Cost Allocation",
-      href: "/allocation",
-      icon: <BarChart />,
-    },
-    {
-      name: "Assets",
-      href: "/assets",
-      icon: <Storage />,
-    },
-    { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
-    { name: "External Costs", href: "/external-costs", icon: <AttachMoney /> },
-  ];
+const SidebarNav = ({ isSideNavExpanded, onToggleSideNav }) => {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   return (
-    <Drawer
-      anchor={"left"}
-      open
-      sx={{
-        flexShrink: 0,
-        width: DRAWER_WIDTH,
-        "& .MuiDrawer-paper": {
-          backgroundColor: (theme) => theme.palette.background.default,
-          color: (theme) => theme.palette.text.primary,
-          border: 0,
-          width: DRAWER_WIDTH,
-          paddingTop: "2.5rem",
-        }
-      }}
-      variant="permanent"
+    <SideNav
+      aria-label="Side navigation"
+      expanded={isSideNavExpanded}
+      isFixedNav
+      onOverlayClick={onToggleSideNav}
     >
-      <img
-        src={logo}
-        alt="OpenCost"
-        style={{ flexShrink: 1, padding: "1rem" }}
-      />
-      <List style={{ flexGrow: 1 }}>
-        {top.map((l) => (
-          <NavItem active={active === `${l.href}`} key={l.name} {...l} />
-        ))}
-      </List>
-    </Drawer>
+      <SideNavItems>
+        {links.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <SideNavLink
+              key={item.name}
+              href={item.href}
+              isActive={active}
+              renderIcon={Icon}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(item.href);
+              }}
+              large
+            >
+              {item.name}
+            </SideNavLink>
+          );
+        })}
+      </SideNavItems>
+    </SideNav>
   );
 };
 
-export { SidebarNav };
+export default SidebarNav;

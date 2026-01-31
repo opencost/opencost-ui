@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Loading, Button, Tile, Stack } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -45,7 +43,6 @@ function generateTitle({ window, aggregateBy, accumulate }) {
 }
 
 // Process assets response into array format
-// OpenCost assets API returns: { code: 200, data: [ { "key": { name, type, cpuCost, ... }, ... } ] }
 function processAssetsData(response) {
   console.log("Processing assets response:", response);
 
@@ -54,10 +51,7 @@ function processAssetsData(response) {
     return { assets: [], totals: {} };
   }
 
-  // Handle the OpenCost API response format
-  // response = { code: 200, data: [...] } or just the data array
   let data = response.data || response;
-
   let assets = [];
   let totals = {
     cpuCost: 0,
@@ -67,14 +61,11 @@ function processAssetsData(response) {
     adjustment: 0,
   };
 
-  // Handle different response formats
   if (Array.isArray(data)) {
-    // Each element in the array is a time period with assets as key-value pairs
     data.forEach((period) => {
       if (period && typeof period === "object") {
         Object.entries(period).forEach(([key, asset]) => {
           if (asset && typeof asset === "object") {
-            // Use the key as name if name not present
             const assetWithName = {
               ...asset,
               name: asset.name || key.split("/").pop() || key,
@@ -90,7 +81,6 @@ function processAssetsData(response) {
       }
     });
   } else if (typeof data === "object" && data !== null) {
-    // Single period or accumulated data as object
     Object.entries(data).forEach(([key, asset]) => {
       if (asset && typeof asset === "object") {
         const assetWithName = {
@@ -215,7 +205,6 @@ const Assets = () => {
 
   // Drilldown handler
   const drilldown = (row) => {
-    // Navigate to more specific aggregation based on current
     const drilldownMap = {
       cluster: "node",
       category: "type",
@@ -227,7 +216,6 @@ const Assets = () => {
     const nextAgg = drilldownMap[aggregateBy];
     if (nextAgg) {
       searchParams.set("agg", nextAgg);
-      // Could add filter here based on row.name
       navigate({ search: searchParams.toString() }, { replace: true });
     }
   };
@@ -235,34 +223,34 @@ const Assets = () => {
   return (
     <Page>
       <Header headerTitle="Assets">
-        <AssetsControls
-          window={win}
-          setWindow={setWindow}
-          aggregateBy={aggregateBy}
-          setAggregateBy={setAggregateBy}
-          accumulate={accumulate}
-          setAccumulate={setAccumulate}
-          currency={currency}
-          setCurrency={setCurrency}
-        />
-        <IconButton onClick={fetchData} aria-label="refresh">
-          <RefreshIcon />
-        </IconButton>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <AssetsControls
+            window={win}
+            setWindow={setWindow}
+            aggregateBy={aggregateBy}
+            setAggregateBy={setAggregateBy}
+            accumulate={accumulate}
+            setAccumulate={setAccumulate}
+            currency={currency}
+            setCurrency={setCurrency}
+          />
+          <Button
+            kind="ghost"
+            renderIcon={Renew}
+            iconDescription="Refresh"
+            onClick={fetchData}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+        </div>
       </Header>
 
-        <Subtitle report={{ window: win, aggregateBy }} />
+      <Subtitle report={{ window: win, aggregateBy }} />
 
-        {errors.length > 0 && <Warnings warnings={errors} />}
+      {errors.length > 0 && <Warnings warnings={errors} />}
 
-        <Paper
-          elevation={2}
-          sx={{
-            marginTop: 2,
-            padding: 2,
-            display: "flex",
-            flexFlow: "column",
-          }}
-        >
+      <Tile style={{ marginTop: "1rem" }}>
+        <Stack gap={5}>
           {loading ? (
             <div
               style={{
@@ -272,7 +260,7 @@ const Assets = () => {
                 minHeight: 400,
               }}
             >
-              <CircularProgress />
+              <Loading description="Loading assets data..." withOverlay={false} />
             </div>
           ) : (
             <>
@@ -290,9 +278,10 @@ const Assets = () => {
               />
             </>
           )}
-        </Paper>
+        </Stack>
+      </Tile>
 
-        <Footer />
+      <Footer />
     </Page>
   );
 };

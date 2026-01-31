@@ -1,43 +1,22 @@
 import * as React from "react";
-// import { makeStyles } from "@material-ui/styles";
 import { upperFirst } from "lodash";
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import Typography from "@mui/material/Typography";
+import { Breadcrumb, BreadcrumbItem } from "@carbon/react";
 import { toVerboseTimeRange } from "../util";
 
-// const useStyles = makeStyles({
-//   root: {
-//     "& > * + *": {
-//       marginTop: 2,
-//     },
-//   },
-//   link: {
-//     cursor: "pointer",
-//   },
-// });
-
 const Subtitle = ({ report, onClick }) => {
-  // const classes = useStyles();
-  const classes = {};
-
   const { aggregateBy, window } = report;
 
+  const subtitleText = aggregateBy && aggregateBy.length > 0 
+    ? `${toVerboseTimeRange(window)} by ${upperFirst(aggregateBy)}`
+    : toVerboseTimeRange(window);
+
   return (
-    <div className={classes.root}>
-      <Breadcrumbs
-        separator={<NavigateNextIcon fontSize="small" />}
-        aria-label="breadcrumb"
-        onClick={onClick}
-      >
-        {aggregateBy && aggregateBy.length > 0 ? (
-          <Typography>
-            {toVerboseTimeRange(window)} by {upperFirst(aggregateBy)}
-          </Typography>
-        ) : (
-          <Typography>{toVerboseTimeRange(window)}</Typography>
-        )}
-      </Breadcrumbs>
+    <div style={{ marginTop: "0.5rem" }}>
+      <Breadcrumb noTrailingSlash onClick={onClick}>
+        <BreadcrumbItem href="#" isCurrentPage>
+          {subtitleText}
+        </BreadcrumbItem>
+      </Breadcrumb>
     </div>
   );
 };

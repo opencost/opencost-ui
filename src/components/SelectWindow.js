@@ -1,41 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { endOfDay, startOfDay } from "date-fns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
-import Popover from "@mui/material/Popover";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import { isValid } from "date-fns";
+import { endOfDay, startOfDay, isValid } from "date-fns";
 import { find, get } from "lodash";
+import {
+  DatePicker,
+  DatePickerInput,
+  TextInput,
+  Button,
+  Link,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Stack,
+  Form,
+} from "@carbon/react";
 
 const SelectWindow = ({ windowOptions, window, setWindow }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-
+  const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [intervalString, setIntervalString] = useState(null);
+  const [startDateError, setStartDateError] = useState("");
+  const [endDateError, setEndDateError] = useState("");
 
-  const [startDateHelperText, setStartDateHelperText] = useState("");
-  const [endDateHelperText, setEndDateHelperText] = useState("");
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleStartDateChange = (date) => {
-    setStartDateHelperText("");
+  const handleStartDateChange = (dates) => {
+    const date = dates[0];
+    setStartDateError("");
     if (isValid(date)) {
       setStartDate(startOfDay(date));
     }
   };
 
-  const handleEndDateChange = (date) => {
-    setEndDateHelperText("");
+  const handleEndDateChange = (dates) => {
+    const date = dates[0];
+    setEndDateError("");
     if (isValid(date)) {
       setEndDate(endOfDay(date));
     }
@@ -45,19 +42,18 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
     setWindow(dateString);
     setStartDate(null);
     setEndDate(null);
-    handleClose();
+    setIsOpen(false);
   };
 
   const handleSubmitCustomDates = () => {
     if (intervalString !== null) {
       setWindow(intervalString);
-      handleClose();
+      setIsOpen(false);
     }
   };
 
   useEffect(() => {
     if (startDate !== null && endDate !== null) {
-      // Note: getTimezoneOffset() is calculated based on current system locale, NOT date object
       let adjustedStartDate = new Date(
         startDate - startDate.getTimezoneOffset() * 60000,
       );
@@ -74,143 +70,76 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
     }
   }, [startDate, endDate]);
 
-  const open = Boolean(anchorEl);
-  const id = open ? "date-range-popover" : undefined;
+  const displayValue = get(find(windowOptions, { value: window }), "name", "Custom");
 
   return (
-    <>
-      <TextField
-        id="filled-read-only-input"
-        label="Date Range"
-        value={get(find(windowOptions, { value: window }), "name", "Custom")}
-        onClick={(e) => handleClick(e)}
-        slotProps={{
-          htmlInput: {
-            readOnly: true,
-            style: { cursor: "pointer" },
-          },
-        }}
-        style={{ margin: 8, width: 120 }}
-        variant="standard"
-      />
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
-        <div
-          style={{
-            paddingLeft: 18,
-            paddingRight: 18,
-            paddingTop: 6,
-            paddingBottom: 18,
-            display: "flex",
-            flexFlow: "row",
-          }}
-        >
-          <div style={{ display: "flex", flexFlow: "column" }}>
-            <DatePicker
-              style={{ width: "144px" }}
-              autoOk={true}
-              disableToolbar
-              format="MM/dd/yyyy"
-              margin="normal"
-              id="date-picker-start"
-              label="Start Date"
-              value={startDate}
-              maxDate={new Date()}
-              maxDateMessage="Date should not be after today."
-              onChange={handleStartDateChange}
-              onError={(error, value) => {
-                if (error === "maxDate") {
-                  setStartDateHelperText("Date should not be after today.");
-                }
-              }}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-              slotProps={{
-                field: {
-                  helperText: startDateHelperText,
-                  variant: "standard",
-                },
-              }}
-            />
-            <DatePicker
-              style={{ width: "144px" }}
-              autoOk={true}
-              disableToolbar
-              format="MM/dd/yyyy"
-              margin="normal"
-              id="date-picker-end"
-              label="End Date"
-              value={endDate}
-              maxDate={new Date()}
-              maxDateMessage="Date should not be after today."
-              onChange={handleEndDateChange}
-              onError={(error, value) => {
-                if (error === "maxDate") {
-                  setEndDateHelperText("Date should not be after today.");
-                }
-              }}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-              slotProps={{
-                field: {
-                  helperText: endDateHelperText,
-                  variant: "standard",
-                },
-              }}
-            />
-            <div>
-              <Button
-                style={{ marginTop: 16 }}
-                variant="contained"
-                onClick={handleSubmitCustomDates}
-                color="info"
+    <Popover open={isOpen} onRequestClose={() => setIsOpen(false)} align="bottom-left">
+      <PopoverTrigger>
+        <TextInput
+          id="date-range-input"
+          labelText="Date Range"
+          value={displayValue}
+          readOnly
+          onClick={() => setIsOpen(!isOpen)}
+          style={{ cursor: "pointer", width: "120px" }}
+        />
+      </PopoverTrigger>
+      <PopoverContent style={{ padding: "1rem" }}>
+        <Stack gap={4} orientation="horizontal">
+          <Form>
+            <Stack gap={3}>
+              <DatePicker
+                datePickerType="single"
+                value={startDate}
+                maxDate={new Date()}
+                onChange={handleStartDateChange}
+                dateFormat="m/d/Y"
               >
+                <DatePickerInput
+                  id="date-picker-start"
+                  labelText="Start Date"
+                  placeholder="mm/dd/yyyy"
+                  invalid={!!startDateError}
+                  invalidText={startDateError}
+                />
+              </DatePicker>
+              <DatePicker
+                datePickerType="single"
+                value={endDate}
+                maxDate={new Date()}
+                onChange={handleEndDateChange}
+                dateFormat="m/d/Y"
+              >
+                <DatePickerInput
+                  id="date-picker-end"
+                  labelText="End Date"
+                  placeholder="mm/dd/yyyy"
+                  invalid={!!endDateError}
+                  invalidText={endDateError}
+                />
+              </DatePicker>
+              <Button onClick={handleSubmitCustomDates} kind="primary">
                 Apply
               </Button>
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column",
-              paddingTop: 12,
-              marginLeft: 18,
-            }}
-          >
+            </Stack>
+          </Form>
+          <Stack gap={2} style={{ paddingTop: "0.5rem" }}>
             {windowOptions.map((opt) => (
-              <Typography key={opt.value}>
-                <Link
-                  style={{ cursor: "pointer" }}
-                  key={opt.value}
-                  value={opt.value}
-                  onClick={() => handleSubmitPresetDates(opt.value)}
-                  sx={{
-                    textDecoration: "none",
-                    "&:hover": { textDecoration: "underline" },
-                  }}
-                >
-                  {opt.name}
-                </Link>
-              </Typography>
+              <Link
+                key={opt.value}
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSubmitPresetDates(opt.value);
+                }}
+              >
+                {opt.name}
+              </Link>
             ))}
-          </div>
-        </div>
-      </Popover>
-    </>
+          </Stack>
+        </Stack>
+      </PopoverContent>
+    </Popover>
   );
 };
 

@@ -1,56 +1,45 @@
 import * as React from "react";
+import { useLocation, useNavigate } from "react-router";
+import { get, find } from "lodash";
+import { Button, Link, Loading, Tile } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
+
 import Page from "../components/Page";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { Link, Paper, Typography } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import { get, find } from "lodash";
-import { useLocation, useNavigate } from "react-router";
-
-import { checkCustomWindow, toVerboseTimeRange } from "../util";
-import CloudCostEditControls from "../components/cloudCost/controls/cloudCostEditControls";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
+import CloudCostEditControls from "../components/cloudCost/controls/cloudCostEditControls";
 import CloudCostTopService from "../services/cloudCostTop";
-
+import CloudCost from "../components/cloudCost/cloudCost";
+import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
+import { checkCustomWindow, toVerboseTimeRange } from "../util";
+import { currencyCodes } from "../constants/currencyCodes";
 import {
   windowOptions,
   costMetricOptions,
   aggregationOptions,
 } from "../components/cloudCost/tokens";
 
-import { currencyCodes } from "../constants/currencyCodes";
-import CloudCost from "../components/cloudCost/cloudCost";
-import { CloudCostDetails } from "../components/cloudCost/cloudCostDetails";
-
 const CloudCosts = () => {
-  // Form state, which controls form elements, but not the report itself. On
-  // certain actions, the form state may flow into the report state.
-  const [title, setTitle] = React.useState(
-    "Cumulative cost for last 7 days by account",
-  );
+  const [title, setTitle] = React.useState("Cumulative cost for last 7 days by account");
   const [window, setWindow] = React.useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = React.useState(
-    aggregationOptions[0].value,
-  );
-  const [costMetric, setCostMetric] = React.useState(
-    costMetricOptions[0].value,
-  );
+  const [aggregateBy, setAggregateBy] = React.useState(aggregationOptions[0].value);
+  const [costMetric, setCostMetric] = React.useState(costMetricOptions[0].value);
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
   const [selectedProviderId, setSelectedProviderId] = React.useState("");
-  const [selectedItemName, setselectedItemName] = React.useState("");
+  const [selectedItemName, setSelectedItemName] = React.useState("");
   const sampleData = aggregateBy.includes("item");
-  // page and settings state
   const [init, setInit] = React.useState(false);
   const [fetch, setFetch] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [errors, setErrors] = React.useState([]);
 
-  // data
   const [cloudCostData, setCloudCostData] = React.useState([]);
+
+  const routerLocation = useLocation();
+  const searchParams = new URLSearchParams(routerLocation.search);
+  const navigate = useNavigate();
 
   function generateTitle({ window, aggregateBy, costMetric }) {
     let windowName = get(find(windowOptions, { value: window }), "name", "");
@@ -80,11 +69,6 @@ const CloudCosts = () => {
     return str;
   }
 
-  // parse any context information from the URL
-  const routerLocation = useLocation();
-  const searchParams = new URLSearchParams(routerLocation.search);
-  const navigate = useNavigate();
-
   async function initialize() {
     setInit(true);
   }
@@ -105,7 +89,7 @@ const CloudCosts = () => {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
-          if (match.length > 0) {
+          if (match && match.length > 0) {
             secondary = `${match[1]}. ${secondary}`;
           }
           setErrors([
@@ -148,9 +132,9 @@ const CloudCosts = () => {
     if (aggregateBy.includes("item")) {
       try {
         setSelectedProviderId(row.providerID);
-        setselectedItemName(row.labelName ?? row.name);
+        setSelectedItemName(row.labelName ?? row.name);
       } catch (e) {
-        logger.error(e);
+        console.error(e);
       }
 
       return;
@@ -176,7 +160,6 @@ const CloudCosts = () => {
     setCurrency(searchParams.get("currency") || "USD");
   }, [routerLocation]);
 
-  // Initialize once, then fetch report each time setFetch(true) is called
   React.useEffect(() => {
     if (!init) {
       initialize();
@@ -192,9 +175,8 @@ const CloudCosts = () => {
   }, [window, aggregateBy, costMetric, filters]);
 
   const hasCloudCostEnabled = aggregateBy.includes("item")
-    ? true // this is kind of hacky but something weird is happening
-    : // when drilling down will address in a later PR - @jjarrett21
-      !!cloudCostData.cloudCostStatus?.length;
+    ? true
+    : !!cloudCostData.cloudCostStatus?.length;
 
   const enabledWarnings = [
     {
@@ -202,10 +184,7 @@ const CloudCosts = () => {
       secondary: (
         <>
           Learn more about setting up Cloud Costs{" "}
-          <Link
-            href={"https://www.opencost.io/docs/configuration/#cloud-costs"}
-            target="_blank"
-          >
+          <Link href="https://www.opencost.io/docs/configuration/#cloud-costs">
             here
           </Link>
         </>
@@ -214,30 +193,35 @@ const CloudCosts = () => {
   ];
 
   return (
-    <Page active="cloud.html">
+    <Page>
       <Header headerTitle="Cloud Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
-          <RefreshIcon />
-        </IconButton>
+        <Button
+          kind="ghost"
+          renderIcon={Renew}
+          iconDescription="Refresh"
+          onClick={() => setFetch(true)}
+          hasIconOnly
+          tooltipPosition="bottom"
+        />
       </Header>
 
       {!loading && !hasCloudCostEnabled && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: "1rem" }}>
           <Warnings warnings={enabledWarnings} />
         </div>
       )}
 
       {!loading && errors.length > 0 && hasCloudCostEnabled && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: "1rem" }}>
           <Warnings warnings={errors} />
         </div>
       )}
 
       {init && hasCloudCostEnabled && (
-        <Paper id="cloud-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
+        <Tile>
+          <div style={{ display: "flex", flexFlow: "row", padding: "1.5rem" }}>
             <div style={{ flexGrow: 1 }}>
-              <Typography variant="h5">{title}</Typography>
+              <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{title}</h3>
               <Subtitle report={{ window, aggregateBy }} />
             </div>
             <CloudCostEditControls
@@ -267,7 +251,6 @@ const CloudCosts = () => {
                 });
               }}
               title={title}
-              // cumulativeData={cumulativeData}
               currency={currency}
               currencyOptions={currencyCodes}
               setCurrency={(curr) => {
@@ -280,10 +263,8 @@ const CloudCosts = () => {
           </div>
 
           {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
-              </div>
+            <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+              <Loading description="Loading cloud cost data..." withOverlay={false} />
             </div>
           )}
 
@@ -297,11 +278,12 @@ const CloudCosts = () => {
               sampleData={sampleData}
             />
           )}
+
           {selectedProviderId && selectedItemName && (
             <CloudCostDetails
               onClose={() => {
                 setSelectedProviderId("");
-                setselectedItemName("");
+                setSelectedItemName("");
               }}
               selectedProviderId={selectedProviderId}
               selectedItem={selectedItemName}
@@ -312,9 +294,8 @@ const CloudCosts = () => {
               currency={currency}
             />
           )}
-        </Paper>
+        </Tile>
       )}
-      <Footer />
     </Page>
   );
 };

@@ -1,20 +1,16 @@
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import { find, get, sortBy, toArray } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { find, get, sortBy, toArray } from "lodash";
+import { Button, Checkbox, Loading, Tile } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 
-import AllocationReport from "../components/allocationReport";
+import Page from "../components/Page";
+import Header from "../components/Header";
 import Controls from "../components/Controls";
 import FilterBreadcrumb from "../components/FilterBreadcrumb";
-import Header from "../components/Header";
-import Page from "../components/Page";
-import Footer from "../components/Footer";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
+import AllocationReport from "../components/allocationReport";
 import AllocationService from "../services/allocation";
 import {
   checkCustomWindow,
@@ -57,7 +53,6 @@ const accumulateOptions = [
   { name: "Daily", value: false },
 ];
 
-// generateTitle generates a string title from a report object
 function generateTitle({ window, aggregateBy, accumulate }) {
   let windowName = get(find(windowOptions, { value: window }), "name", "");
   if (windowName === "") {
@@ -87,26 +82,20 @@ function generateTitle({ window, aggregateBy, accumulate }) {
 }
 
 const ReportsPage = () => {
-  // Allocation data state
   const [allocationData, setAllocationData] = useState([]);
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
 
-  // Data fetching in-progress / error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState([]);
-  const [includeIdle, setIncludeIdle] = useState();
+  const [includeIdle, setIncludeIdle] = useState(true);
 
-  // When allocation data changes, create a cumulative version of it
   useEffect(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
     setCumulativeData(toArray(cumulative));
     setTotalData(cumulativeToTotals(cumulative));
   }, [allocationData]);
 
-  // State of controls on the page is generally derived from query parameters in the url.
-  // Updates to these controls are pushed through the router using `searchParams.set()`.
-  // Defaults are supplied in case of the absence of a query parameter.
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
@@ -119,20 +108,15 @@ const ReportsPage = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
-  // Derive filters directly from URL - URL is the single source of truth
   const filterParam = searchParams.get("filter");
   const filters = useMemo(() => {
     return filterParam ? parseFiltersFromUrl(filterParam) : [];
   }, [filterParam]);
 
-  // Validate and correct filters when URL or aggregateBy changes
   useEffect(() => {
-    // Hierarchy for aggregateBy levels
     const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
-    // Hierarchy for filter properties (matches backend API - uses "controllerName" not "controller")
     const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
     
-    // Map aggregateBy to expected number of filters and expected filter properties
     const aggregateToFilterCount = {
       namespace: 0,
       controllerKind: 1,
@@ -145,7 +129,6 @@ const ReportsPage = () => {
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
     const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
     
-    // If we're at namespace level, there should be no filters
     if (currentIndex === 0 && currentFilters.length > 0) {
       const newSearchParams = new URLSearchParams(routerLocation.search);
       newSearchParams.delete("filter");
@@ -156,11 +139,9 @@ const ReportsPage = () => {
       return;
     }
     
-    // Validate that filter count matches expected level
     if (currentFilters.length > expectedFilterCount) {
-      // Trim filters to match current aggregateBy level
       const trimmedFilters = currentFilters.slice(0, expectedFilterCount);
-      const newSearchParams = new URLSearchParams(routerLocation.search);
+      const newSearchParams = new URLSearchParams(outerLocation.search);
       if (trimmedFilters.length > 0) {
         newSearchParams.set("filter", parseFilters(trimmedFilters));
       } else {
@@ -173,12 +154,10 @@ const ReportsPage = () => {
       return;
     }
     
-    // Validate that filter properties match expected hierarchy
     for (let i = 0; i < currentFilters.length; i++) {
       const filter = currentFilters[i];
       const expectedProperty = filterHierarchy[i];
       if (filter.property !== expectedProperty) {
-        // Trim filters at the first mismatch
         const trimmedFilters = currentFilters.slice(0, i);
         const newSearchParams = new URLSearchParams(routerLocation.search);
         if (trimmedFilters.length > 0) {
@@ -193,10 +172,8 @@ const ReportsPage = () => {
         return;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routerLocation.search, aggregateBy]);
 
-  // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
   }, [win, aggregateBy, accumulate, filters, includeIdle]);
@@ -214,7 +191,6 @@ const ReportsPage = () => {
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
         for (const i in allocationRange) {
-          // update cluster aggregations to use clusterName/clusterId names
           allocationRange[i] = sortBy(allocationRange[i], (a) => a.totalCost);
         }
         setAllocationData(allocationRange);
@@ -222,7 +198,7 @@ const ReportsPage = () => {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
-          if (match.length > 0) {
+          if (match && match.length > 0) {
             secondary = `${match[1]}. ${secondary}`;
           }
           setErrors([
@@ -261,13 +237,10 @@ const ReportsPage = () => {
     setLoading(false);
   }
 
-  // Handle breadcrumb navigation - navigate back to a specific filter level
   function handleBreadcrumbNavigate(level) {
-    // Hierarchy for aggregateBy levels
     const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
 
     if (level === -1) {
-      // Navigate to "All Results" - namespace level with no filters
       const newSearchParams = new URLSearchParams(routerLocation.search);
       newSearchParams.set("agg", "namespace");
       newSearchParams.delete("filter");
@@ -277,7 +250,6 @@ const ReportsPage = () => {
       return;
     }
 
-    // Navigate to a specific filter level
     const trimmedFilters = filters.slice(0, level + 1);
     if (trimmedFilters.length === 0) {
       const newSearchParams = new URLSearchParams(routerLocation.search);
@@ -289,9 +261,6 @@ const ReportsPage = () => {
       return;
     }
 
-    // Determine the appropriate aggregateBy based on the number of filters
-    // Number of filters corresponds to the next level in the hierarchy
-    // 0 filters -> namespace, 1 filter -> controllerKind, 2 filters -> controller, etc.
     const targetAgg = aggregateHierarchy[trimmedFilters.length] || "namespace";
 
     const newSearchParams = new URLSearchParams(routerLocation.search);
@@ -306,9 +275,7 @@ const ReportsPage = () => {
     });
   }
 
-  // Drilldown function to navigate to next level of aggregation
   function drilldown(row) {
-    // Define the hierarchy for drilldown
     const drilldownHierarchy = {
       namespace: "controllerKind",
       controllerKind: "controller",
@@ -318,23 +285,18 @@ const ReportsPage = () => {
 
     const nextAgg = drilldownHierarchy[aggregateBy];
     
-    // If we're at the deepest level, don't allow further drilldown
     if (!nextAgg) {
       return;
     }
 
-    // Create new filter for the current level
-    // Ensure value is not empty and is a string
     if (!row.name || String(row.name).trim() === "") {
       return;
     }
     
-    // Map aggregateBy to filter property name
-    // Backend uses "controllerName" instead of "controller"
     const filterPropertyMap = {
       namespace: "namespace",
       controllerKind: "controllerKind",
-      controller: "controllerName", // Backend expects "controllerName", not "controller"
+      controller: "controllerName",
       pod: "pod",
       container: "container",
     };
@@ -344,8 +306,6 @@ const ReportsPage = () => {
     let filterValue = String(row.name).trim();
     let updatedFilters = [...filters];
 
-    // Controller names may come through as "<kind>:<name>" (e.g. "deployment:foo").
-    // Split these so controllerName filter matches backend expectations.
     if (aggregateBy === "controller" && filterValue.includes(":")) {
       const [maybeKind, ...nameParts] = filterValue.split(":");
       const trimmedName = nameParts.join(":").trim();
@@ -373,10 +333,8 @@ const ReportsPage = () => {
       value: filterValue,
     };
 
-    // Add to existing filters and update aggregateBy
     const newFilters = [...updatedFilters, newFilter];
     
-    // Update URL parameters with new aggregateBy and filters
     const newSearchParams = new URLSearchParams(routerLocation.search);
     newSearchParams.set("agg", nextAgg);
     if (newFilters.length > 0) {
@@ -390,36 +348,36 @@ const ReportsPage = () => {
   }
 
   return (
-    <Page active="reports.html">
+    <Page>
       <Header headerTitle="Cost Allocation">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <input
-              type="checkbox"
-              checked={includeIdle ?? true}
-              onChange={(e) => setIncludeIdle(e.target.checked)}
-            />
-            Include idle costs
-          </label>
-          <IconButton
-            aria-label="refresh"
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Checkbox
+            labelText="Include idle costs"
+            checked={includeIdle}
+            onChange={(e, { checked }) => setIncludeIdle(checked)}
+            id="include-idle"
+          />
+          <Button
+            kind="ghost"
+            renderIcon={Renew}
+            iconDescription="Refresh"
             onClick={() => fetchData()}
-            style={{ padding: 12 }}
-          >
-            <RefreshIcon />
-          </IconButton>
-         </div>
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+        </div>
       </Header>
 
       {!loading && errors.length > 0 && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: "1rem" }}>
           <Warnings warnings={errors} />
         </div>
       )}
-      <Paper id="report">
-        <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
+
+      <Tile>
+        <div style={{ display: "flex", flexFlow: "row", padding: "1.5rem" }}>
           <div style={{ flexGrow: 1 }}>
-            <Typography variant="h5">{title}</Typography>
+            <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{title}</h3>
             <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
@@ -438,7 +396,6 @@ const ReportsPage = () => {
             setAggregateBy={(agg) => {
               const newSearchParams = new URLSearchParams(routerLocation.search);
               newSearchParams.set("agg", agg);
-              // Reset filters when aggregateBy is changed manually
               newSearchParams.delete("filter");
               navigate({
                 search: `?${newSearchParams.toString()}`,
@@ -466,12 +423,11 @@ const ReportsPage = () => {
         </div>
 
         {loading && (
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-              <CircularProgress />
-            </div>
+          <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
+            <Loading description="Loading allocation data..." withOverlay={false} />
           </div>
         )}
+
         {!loading && (
           <AllocationReport
             allocationData={allocationData}
@@ -482,8 +438,7 @@ const ReportsPage = () => {
             drilldown={drilldown}
           />
         )}
-      </Paper>
-      <Footer />
+      </Tile>
     </Page>
   );
 };

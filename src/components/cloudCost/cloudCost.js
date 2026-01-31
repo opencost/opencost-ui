@@ -1,206 +1,122 @@
-import * as React from "react";
-import { get } from "lodash";
+import React from "react";
 import {
-  Typography,
-  TableContainer,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
+  DataTable,
   Table,
+  TableHead,
+  TableRow,
+  TableHeader,
   TableBody,
-} from "@mui/material";
-
-import { toCurrency } from "../../util";
-import CloudCostChart from "./cloudCostChart";
-import { CloudCostRow } from "./cloudCostRow";
+  TableCell,
+  Pagination,
+  Link,
+} from "@carbon/react";
+import { ArrowRight } from "@carbon/icons-react";
 
 const CloudCost = ({
-  cumulativeData = [],
-  totalData: totalsRow = {},
-  graphData = [],
-  currency = "USD",
+  cumulativeData,
+  currency,
+  totalData,
   drilldown,
-  sampleData = false,
+  sampleData,
 }) => {
-  function descendingComparator(a, b, orderBy) {
-    if (get(b, orderBy) < get(a, orderBy)) {
-      return -1;
-    }
-    if (get(b, orderBy) > get(a, orderBy)) {
-      return 1;
-    }
-    return 0;
-  }
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
 
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
-
-  function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-  }
-
-  const headCells = [
-    {
-      id: "name",
-      numeric: false,
-      label: "Name",
-      width: "auto",
-    },
-    {
-      id: "kubernetesPercent",
-      numeric: true,
-      label: "K8s Utilization",
-      width: 160,
-    },
-    sampleData
-      ? {
-          id: "cost",
-          numeric: true,
-          label: "Sum of Sample Data",
-          width: 200,
-        }
-      : {
-          id: "cost",
-          numeric: true,
-          label: "Total cost",
-          width: 155,
-        },
+  const headers = [
+    { key: "name", header: "Name" },
+    { key: "amortizedNetCost", header: "Amortized Net Cost" },
+    { key: "amortizedListCost", header: "Amortized List Cost" },
+    { key: "amortizedInlineDiscount", header: "Amortized Inline Discount" },
+    { key: "netCost", header: "Net Cost" },
+    { key: "listCost", header: "List Cost" },
+    { key: "invoiceCost", header: "Invoice Cost" },
   ];
 
-  const [order, setOrder] = React.useState("desc");
-  const [orderBy, setOrderBy] = React.useState("totalCost");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const numData = cumulativeData?.length;
-
-  const lastPage = Math.floor(numData / rowsPerPage);
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const formatCurrency = (value) => {
+    if (value === undefined || value === null) return "-";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 2,
+    }).format(value);
   };
 
-  const orderedRows = stableSort(cumulativeData, getComparator(order, orderBy));
-  const pageRows = orderedRows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage,
-  );
+  const rows = (cumulativeData || []).map((item, index) => ({
+    id: String(index),
+    name: item.name,
+    amortizedNetCost: formatCurrency(item.amortizedNetCost),
+    amortizedListCost: formatCurrency(item.amortizedListCost),
+    amortizedInlineDiscount: formatCurrency(item.amortizedInlineDiscount),
+    netCost: formatCurrency(item.netCost),
+    listCost: formatCurrency(item.listCost),
+    invoiceCost: formatCurrency(item.invoiceCost),
+    rawData: item,
+  }));
 
-  React.useEffect(() => {
-    setPage(0);
-  }, [numData]);
-
-  if (cumulativeData.length === 0) {
-    return (
-      <Typography variant="body2" sx={{ padding: 24 }}>
-        No results
-      </Typography>
-    );
-  }
-
-  function dataToCloudCostRow(row) {
-    const suffix =
-      { hourly: "/hr", monthly: "/mo", daily: "/day" }["cumulative"] || "";
-    return (
-      <CloudCostRow
-        costSuffix={suffix}
-        cost={row.cost}
-        drilldown={drilldown}
-        key={row.name}
-        kubernetesPercent={row.kubernetesPercent}
-        name={
-          sampleData && row.labelName ? (row.labelName ?? "") : (row.name ?? "")
-        }
-        row={row}
-        sampleData={sampleData}
-      />
-    );
-  }
+  const paginatedRows = rows.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div id="cloud-cost">
-      <div id="cloud-graph-">
-        <CloudCostChart
-          currency={currency}
-          graphData={graphData}
-          height={300}
-          n={10}
-        />
-      </div>
-      <div id="cloud-cost-table">
-        <TableContainer>
-          <Table>
+    <DataTable rows={paginatedRows} headers={headers}>
+      {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
+        <div>
+          <Table {...getTableProps()}>
             <TableHead>
               <TableRow>
-                {headCells.map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    colSpan={cell.colspan}
-                    align={cell.numeric ? "right" : "left"}
-                    sortDirection={orderBy === cell.id ? order : false}
-                    style={{ width: cell.width }}
-                  >
-                    <TableSortLabel
-                      active={orderBy === cell.id}
-                      direction={orderBy === cell.id ? order : "asc"}
-                      onClick={() => {
-                        const isDesc = orderBy === cell.id && order === "desc";
-                        setOrder(isDesc ? "asc" : "desc");
-                        setOrderBy(cell.id);
-                      }}
-                    >
-                      {cell.label}
-                    </TableSortLabel>
-                  </TableCell>
+                {headers.map((header) => (
+                  <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                    {header.header}
+                  </TableHeader>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell align={"left"} style={{ fontWeight: 500 }}>
-                  {totalsRow?.name || "Totals"}
-                </TableCell>
-
-                <TableCell align={"right"} style={{ fontWeight: 500 }}>
-                  {Math.round(totalsRow?.kubernetesPercent * 100)}%
-                </TableCell>
-
-                <TableCell
-                  align={"right"}
-                  style={{ fontWeight: 500, paddingRight: "2em" }}
-                >
-                  {toCurrency(totalsRow?.cost || 0, currency)}
-                </TableCell>
-              </TableRow>
-              {pageRows.map(dataToCloudCostRow)}
+              {rows.map((row) => (
+                <TableRow {...getRowProps({ row })} key={row.id}>
+                  {row.cells.map((cell) => {
+                    if (cell.info.header === "name") {
+                      const rawItem = paginatedRows.find((r) => r.id === row.id)?.rawData;
+                      return (
+                        <TableCell key={cell.id}>
+                          {!sampleData && (
+                            <Link
+                              href="#"
+                              renderIcon={ArrowRight}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                drilldown(rawItem);
+                              }}
+                            >
+                              {cell.value}
+                            </Link>
+                          )}
+                          {sampleData && cell.value}
+                        </TableCell>
+                      );
+                    }
+                    return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                  })}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
-        </TableContainer>
-        <TablePagination
-          component="div"
-          count={numData}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[10, 25, 50]}
-          page={Math.min(page, lastPage)}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </div>
-    </div>
+          <Pagination
+            backwardText="Previous page"
+            forwardText="Next page"
+            itemsPerPageText="Items per page:"
+            page={page}
+            pageNumberText="Page Number"
+            pageSize={pageSize}
+            pageSizes={[10, 20, 30, 40, 50]}
+            totalItems={rows.length}
+            onChange={({ page, pageSize }) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+          />
+        </div>
+      )}
+    </DataTable>
   );
 };
 
-export default React.memo(CloudCost);
+export default CloudCost;

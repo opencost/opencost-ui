@@ -1,54 +1,46 @@
-import { useLocation } from "react-router";
-import { useTheme } from "@mui/material/styles";
-import { SidebarNav } from "./Nav/SidebarNav";
+import React from "react";
+import AppHeader from "./AppHeader";
+import SidebarNav from "./Nav/SidebarNav";
 
-const Page = (props) => {
-  const { pathname } = useLocation();
-  const theme = useTheme();
+const Page = ({ children }) => {
+  const [isSideNavExpanded, setIsSideNavExpanded] = React.useState(true);
+
+  const toggleSideNav = () => setIsSideNavExpanded((prev) => !prev);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        overflowY: "scroll",
-        margin: "0px",
-        backgroundColor: theme.palette.background.default,
-        color: theme.palette.text.primary,
-      }}
-    >
-      <SidebarNav active={pathname} />
+    <>
+      <AppHeader
+        isSideNavExpanded={isSideNavExpanded}
+        onToggleSideNav={toggleSideNav}
+      />
       <div
         style={{
           display: "flex",
-          flexFlow: "column",
-          flexGrow: 1,
+          minHeight: "calc(100vh - 3rem)",
+          paddingTop: "3rem",
+          backgroundColor: "var(--cds-background, #f4f4f4)",
         }}
       >
-        <div
+        <SidebarNav
+          isSideNavExpanded={isSideNavExpanded}
+          onToggleSideNav={toggleSideNav}
+        />
+        <main
           style={{
-            position: "relative",
-            minHeight: "100vh",
             display: "flex",
-            flexFlow: "column",
+            flexDirection: "column",
             flexGrow: 1,
+            marginLeft: isSideNavExpanded ? "16rem" : "0",
+            transition: "margin-left 0.2s ease",
+            padding: "2rem",
+            backgroundColor: "var(--cds-background, #f4f4f4)",
             overflowX: "auto",
-            paddingLeft: "2rem",
-            paddingRight: "2rem",
-            paddingTop: "2rem",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              flexFlow: "column",
-              flexGrow: 1,
-            }}
-          >
-            {props.children}
-          </div>
-        </div>
+          {children}
+        </main>
       </div>
-    </div>
+    </>
   );
 };
 

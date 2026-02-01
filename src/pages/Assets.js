@@ -180,7 +180,12 @@ const Assets = () => {
                     label="Select time range"
                     items={windowOptions}
                     selectedItem={windowOptions.find((o) => o.id === window)}
-                    onChange={({ selectedItem }) => setWindow(selectedItem.id)}
+                    itemToString={(item) => (item ? item.text : "")}
+                    onChange={({ selectedItem }) => {
+                        if (selectedItem) {
+                            setWindow(selectedItem.id);
+                        }
+                    }}
                 />
                 <Dropdown
                     id="aggregate-dropdown"
@@ -188,7 +193,12 @@ const Assets = () => {
                     label="Select grouping"
                     items={aggregateOptions}
                     selectedItem={aggregateOptions.find((o) => o.id === aggregateBy)}
-                    onChange={({ selectedItem }) => setAggregateBy(selectedItem.id)}
+                    itemToString={(item) => (item ? item.text : "")}
+                    onChange={({ selectedItem }) => {
+                        if (selectedItem) {
+                            setAggregateBy(selectedItem.id);
+                        }
+                    }}
                 />
             </div>
 
@@ -213,55 +223,59 @@ const Assets = () => {
 
             {/* Chart */}
             {!loading && assetsData.length > 0 && (
-                <AssetsChart data={chartData} />
+                <div style={{ marginBottom: "3rem" }}>
+                    <AssetsChart data={chartData} />
+                </div>
             )}
 
             {/* Data Table */}
             {!loading && (
-                <DataTable rows={assetsData} headers={headers}>
-                    {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
-                        <TableContainer title="Asset Details">
-                            <TableToolbar>
-                                <TableToolbarContent>
-                                    <TableToolbarSearch
-                                        placeholder="Search assets..."
-                                        onChange={() => {}}
-                                    />
-                                </TableToolbarContent>
-                            </TableToolbar>
-                            <Table {...getTableProps()}>
-                                <TableHead>
-                                    <TableRow>
-                                        {headers.map((header) => (
-                                            <TableHeader {...getHeaderProps({ header })} key={header.key}>
-                                                {header.header}
-                                            </TableHeader>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {rows.map((row) => (
-                                        <TableRow {...getRowProps({ row })} key={row.id}>
-                                            {row.cells.map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {cell.info.header === "type" ? (
-                                                        <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
-                                                    ) : ["cpuCost", "ramCost", "gpuCost", "totalCost"].includes(
-                                                        cell.info.header
-                                                    ) ? (
-                                                        toCurrency(cell.value)
-                                                    ) : (
-                                                        cell.value
-                                                    )}
-                                                </TableCell>
+                <div style={{ marginTop: "2rem" }}>
+                    <DataTable rows={assetsData} headers={headers}>
+                        {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
+                            <TableContainer title="Asset Details">
+                                <TableToolbar>
+                                    <TableToolbarContent>
+                                        <TableToolbarSearch
+                                            placeholder="Search assets..."
+                                            onChange={() => {}}
+                                        />
+                                    </TableToolbarContent>
+                                </TableToolbar>
+                                <Table {...getTableProps()}>
+                                    <TableHead>
+                                        <TableRow>
+                                            {headers.map((header) => (
+                                                <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                                                    {header.header}
+                                                </TableHeader>
                                             ))}
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </DataTable>
+                                    </TableHead>
+                                    <TableBody>
+                                        {rows.map((row) => (
+                                            <TableRow {...getRowProps({ row })} key={row.id}>
+                                                {row.cells.map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {cell.info.header === "type" ? (
+                                                            <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
+                                                        ) : ["cpuCost", "ramCost", "gpuCost", "totalCost"].includes(
+                                                            cell.info.header
+                                                        ) ? (
+                                                            toCurrency(cell.value)
+                                                        ) : (
+                                                            cell.value
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        )}
+                    </DataTable>
+                </div>
             )}
 
             <Footer />

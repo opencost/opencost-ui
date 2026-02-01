@@ -241,8 +241,23 @@ export function toVerboseTimeRange(window) {
       return `${start.getUTCDate()} ${
         months[start.getUTCMonth()]
       } ${start.getUTCFullYear()} through now`;
+    case "7d":
+      start.setUTCDate(start.getUTCDate() - 7);
+      return `${start.getUTCDate()} ${
+        months[start.getUTCMonth()]
+      } ${start.getUTCFullYear()} through now`;
+    case "14d":
+      start.setUTCDate(start.getUTCDate() - 14);
+      return `${start.getUTCDate()} ${
+        months[start.getUTCMonth()]
+      } ${start.getUTCFullYear()} through now`;
     case "29d":
       start.setUTCDate(start.getUTCDate() - 29);
+      return `${start.getUTCDate()} ${
+        months[start.getUTCMonth()]
+      } ${start.getUTCFullYear()} through now`;
+    case "30d":
+      start.setUTCDate(start.getUTCDate() - 30);
       return `${start.getUTCDate()} ${
         months[start.getUTCMonth()]
       } ${start.getUTCFullYear()} through now`;
@@ -251,8 +266,18 @@ export function toVerboseTimeRange(window) {
       return `${start.getUTCDate()} ${
         months[start.getUTCMonth()]
       } ${start.getUTCFullYear()} through now`;
+    case "60d":
+      start.setUTCDate(start.getUTCDate() - 60);
+      return `${start.getUTCDate()} ${
+        months[start.getUTCMonth()]
+      } ${start.getUTCFullYear()} through now`;
     case "89d":
       start.setUTCDate(start.getUTCDate() - 89);
+      return `${start.getUTCDate()} ${
+        months[start.getUTCMonth()]
+      } ${start.getUTCFullYear()} through now`;
+    case "90d":
+      start.setUTCDate(start.getUTCDate() - 90);
       return `${start.getUTCDate()} ${
         months[start.getUTCMonth()]
       } ${start.getUTCFullYear()} through now`;
@@ -278,7 +303,8 @@ export function toVerboseTimeRange(window) {
       }
     }
   }
-  return null;
+  // Fallback: return the window value itself instead of null
+  return window || "";
 }
 
 export function bytesToString(bytes) {

@@ -2,10 +2,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
+*, *::before, *::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 :root {
-  /* Font families */
   --font-heading: "Lexend", sans-serif;
   --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
 }
 
 body {
@@ -18,7 +26,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headings use Lexend */
 h1, h2, h3, h4, h5, h6,
 .cds--heading,
 .bx--heading,
@@ -27,13 +34,11 @@ h1, h2, h3, h4, h5, h6,
   font-family: var(--font-heading) !important;
 }
 
-/* Carbon specific heading overrides */
 .cds--header__name,
 .cds--data-table-header__title {
   font-family: var(--font-heading) !important;
 }
 
-/* Sidebar styling */
 .cds--side-nav__link-text {
   font-family: var(--font-heading) !important;
   font-size: 16px !important;
@@ -43,7 +48,6 @@ h1, h2, h3, h4, h5, h6,
   font-size: 16px !important;
 }
 
-/* MUI heading overrides */
 .MuiTypography-h1,
 .MuiTypography-h2,
 .MuiTypography-h3,
@@ -53,7 +57,6 @@ h1, h2, h3, h4, h5, h6,
   font-family: var(--font-heading) !important;
 }
 
-/* Body text and UI elements use IBM Plex Sans */
 .cds--dropdown,
 .cds--list-box,
 .cds--text-input,
@@ -87,7 +90,6 @@ body .page-container {
   z-index: 1000;
 }
 
-/* Recharts text styling */
 .recharts-text {
   font-family: var(--font-body) !important;
 }
@@ -96,11 +98,81 @@ body .page-container {
   font-family: var(--font-body) !important;
 }
 
-/* ============================================
-   Dark Mode Improvements
-   ============================================ */
+.cds--tile,
+.cds--tile--clickable,
+.cds--tile--selectable,
+.cds--tile--expandable {
+  border-radius: var(--radius-xs);
+}
 
-/* Ensure smooth theme transitions */
+.cds--btn {
+  border-radius: var(--radius-xs);
+}
+
+.cds--dropdown,
+.cds--list-box,
+.cds--list-box__menu,
+.cds--multi-select,
+.cds--combo-box {
+  border-radius: var(--radius-xs);
+}
+
+.cds--text-input,
+.cds--search-input,
+.cds--number input,
+.cds--date-picker__input {
+  border-radius: var(--radius-xs);
+}
+
+.cds--modal-container {
+  border-radius: var(--radius-sm);
+}
+
+.cds--data-table-content {
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.cds--data-table thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-xs);
+}
+
+.cds--data-table thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-xs);
+}
+
+.cds--data-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-xs);
+}
+
+.cds--data-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-xs);
+}
+
+.cds--tag {
+  border-radius: var(--radius-xs);
+}
+
+.cds--tooltip-content {
+  border-radius: var(--radius-xs);
+}
+
+.cds--inline-notification,
+.cds--toast-notification {
+  border-radius: var(--radius-xs);
+}
+
+/* Overflow menu */
+.cds--overflow-menu-options {
+  border-radius: var(--radius-xs);
+}
+
+/* Recharts tooltips */
+.recharts-default-tooltip {
+  border-radius: var(--radius-xs) !important;
+}
+
+
 body,
 .cds--content,
 .cds--header,

@@ -13,6 +13,8 @@ import {
   Pie,
 } from "recharts";
 import { toCurrency } from "../../util";
+import { AssetsChartProps } from '../../types/assets';
+
 
 // Cost breakdown colors
 const COLORS = {
@@ -34,22 +36,6 @@ const PIE_COLORS = [
   "#be95ff",
   "#82cfff",
 ];
-
-interface AssetData {
-  name?: string;
-  cpuCost?: number;
-  ramCost?: number;
-  gpuCost?: number;
-  totalCost?: number;
-  type?: string;
-}
-
-interface AssetsChartProps {
-  assetData?: AssetData[];
-  currency?: string;
-  height?: number;
-  n?: number;
-}
 
 const CustomTooltip = ({ active, payload, label, currency }: any) => {
   if (active && payload && payload.length) {
@@ -208,17 +194,17 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
   return (
     <div style={{ width: "100%" }}>
       {/* Section Title */}
-      <h4
+      <h3
         style={{
           margin: "0 0 1.5rem 0",
-          fontSize: "1rem",
+          fontSize: "1.5rem",
           fontWeight: 600,
           color: "var(--cds-text-primary)",
           textAlign: "center",
         }}
       >
         Cost Breakdown by Resource
-      </h4>
+      </h3>
 
       {/* Charts Container */}
       <div
@@ -232,12 +218,12 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
         }}
       >
         {/* Bar Chart */}
-        <div style={{ width: "100%", height: height, minWidth: 0 }}>
+        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center" }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={sortedData}
               layout="vertical"
-              margin={{ top: 5, right: 20, left: 80, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 30, bottom: 5 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"

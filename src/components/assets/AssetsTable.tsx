@@ -13,15 +13,9 @@ import {
   Tag,
 } from "@carbon/react";
 import { toCurrency } from "../../util";
+import { AssetData, AssetsTableProps, HeadCell } from "../../types/assets";
 
 type Order = "asc" | "desc";
-
-interface HeadCell {
-  id: string;
-  numeric: boolean;
-  label: string;
-  width: number | string;
-}
 
 const headCells: HeadCell[] = [
   { id: "name", numeric: false, label: "Name", width: 200 },
@@ -33,31 +27,6 @@ const headCells: HeadCell[] = [
   { id: "totalCost", numeric: true, label: "Total Cost", width: 130 },
 ];
 
-interface AssetData {
-  name?: string;
-  type?: string;
-  cpuCost?: number;
-  gpuCost?: number;
-  ramCost?: number;
-  adjustment?: number;
-  totalCost?: number;
-}
-
-interface TotalData {
-  cpuCost?: number;
-  gpuCost?: number;
-  ramCost?: number;
-  adjustment?: number;
-  totalCost?: number;
-}
-
-interface AssetsTableProps {
-  assetData?: AssetData[];
-  totalData?: TotalData;
-  currency?: string;
-  drilldown?: (row: AssetData) => void;
-}
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T): number {
   const aVal = get(a, orderBy) ?? 0;
   const bVal = get(b, orderBy) ?? 0;
@@ -66,7 +35,10 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T): number {
   return 0;
 }
 
-function getComparator<T>(order: Order, orderBy: keyof T): (a: T, b: T) => number {
+function getComparator<T>(
+  order: Order,
+  orderBy: keyof T,
+): (a: T, b: T) => number {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -83,8 +55,13 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T[] {
 }
 
 // Type badge colors
-const getTypeColor = (type: string): "blue" | "purple" | "green" | "magenta" | "cyan" | "gray" => {
-  const typeColors: Record<string, "blue" | "purple" | "green" | "magenta" | "cyan" | "gray"> = {
+const getTypeColor = (
+  type: string,
+): "blue" | "purple" | "green" | "magenta" | "cyan" | "gray" => {
+  const typeColors: Record<
+    string,
+    "blue" | "purple" | "green" | "magenta" | "cyan" | "gray"
+  > = {
     Node: "blue",
     Disk: "purple",
     ClusterManagement: "magenta",
@@ -140,8 +117,14 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
     header: cell.label,
   }));
 
-  const orderedRows = stableSort(assetData, getComparator(order, orderBy as keyof AssetData));
-  const pageRows = orderedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const orderedRows = stableSort(
+    assetData,
+    getComparator(order, orderBy as keyof AssetData),
+  );
+  const pageRows = orderedRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
 
   const rows = pageRows.map((row, index) => ({
     id: row.name || String(index),
@@ -151,7 +134,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
   return (
     <div style={{ width: "100%" }}>
       {/* Section Title */}
-      <h4
+      <h3
         style={{
           marginBottom: "1rem",
           fontWeight: 600,
@@ -160,10 +143,16 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
         }}
       >
         Asset Details
-      </h4>
+      </h3>
 
       <DataTable rows={rows} headers={headers} isSortable>
-        {({ rows: tableRows, headers: tableHeaders, getTableProps, getHeaderProps, getRowProps }) => (
+        {({
+          rows: tableRows,
+          headers: tableHeaders,
+          getTableProps,
+          getHeaderProps,
+          getRowProps,
+        }) => (
           <TableContainer>
             <Table {...getTableProps()} size="lg">
               <TableHead>
@@ -175,13 +164,20 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                         {...getHeaderProps({ header })}
                         key={header.key}
                         onClick={() => {
-                          const isDesc = orderBy === header.key && order === "desc";
+                          const isDesc =
+                            orderBy === header.key && order === "desc";
                           setOrder(isDesc ? "asc" : "desc");
                           setOrderBy(header.key);
                         }}
                         isSortHeader={orderBy === header.key}
-                        sortDirection={orderBy === header.key ? (order === "asc" ? "ASC" : "DESC") : "NONE"}
-                        style={{ width: cell?.width, textAlign: "center" }}
+                        sortDirection={
+                          orderBy === header.key
+                            ? order === "asc"
+                              ? "ASC"
+                              : "DESC"
+                            : "NONE"
+                        }
+                        style={{ width: cell?.width }}
                       >
                         {header.header}
                       </TableHeader>
@@ -191,23 +187,31 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
               </TableHead>
               <TableBody>
                 {/* Totals row */}
-                <TableRow key="totals-row" style={{ backgroundColor: "var(--cds-layer-02, #f4f4f4)" }}>
-                  <TableCell key="totals-name" style={{ fontWeight: 700, fontSize: "0.95rem", textAlign: "center" }}>
+                <TableRow
+                  key="totals-row"
+                  style={{ backgroundColor: "var(--cds-layer-02, #f4f4f4)" }}
+                >
+                  <TableCell
+                    key="totals-name"
+                    style={{ fontWeight: 700, fontSize: "0.95rem" }}
+                  >
                     Total
                   </TableCell>
-                  <TableCell key="totals-type" style={{ textAlign: "center" }}>
-                    <Tag type="gray" size="sm">All Types</Tag>
+                  <TableCell key="totals-type">
+                    <Tag type="gray" size="sm">
+                      All Types
+                    </Tag>
                   </TableCell>
-                  <TableCell key="totals-cpu" style={{ fontWeight: 600, textAlign: "center" }}>
+                  <TableCell key="totals-cpu" style={{ fontWeight: 600 }}>
                     {toCurrency(totalData.cpuCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell key="totals-gpu" style={{ fontWeight: 600, textAlign: "center" }}>
+                  <TableCell key="totals-gpu" style={{ fontWeight: 600 }}>
                     {toCurrency(totalData.gpuCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell key="totals-ram" style={{ fontWeight: 600, textAlign: "center" }}>
+                  <TableCell key="totals-ram" style={{ fontWeight: 600 }}>
                     {toCurrency(totalData.ramCost || 0, currency, 2)}
                   </TableCell>
-                  <TableCell key="totals-adj" style={{ fontWeight: 600, textAlign: "center" }}>
+                  <TableCell key="totals-adj" style={{ fontWeight: 600 }}>
                     {totalData.adjustment
                       ? toCurrency(totalData.adjustment, currency, 2)
                       : "—"}
@@ -218,7 +222,6 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                       fontWeight: 700,
                       fontSize: "0.95rem",
                       color: "var(--cds-text-primary)",
-                      textAlign: "center",
                     }}
                   >
                     {toCurrency(totalData.totalCost || 0, currency, 2)}
@@ -227,7 +230,8 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
 
                 {/* Data rows */}
                 {tableRows.map((row) => {
-                  const originalRow = pageRows.find((r) => r.name === row.id) || pageRows[0];
+                  const originalRow =
+                    pageRows.find((r) => r.name === row.id) || pageRows[0];
                   return (
                     <TableRow
                       {...getRowProps({ row })}
@@ -246,12 +250,11 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
-                          textAlign: "center",
                         }}
                       >
                         {originalRow.name || "Unknown"}
                       </TableCell>
-                      <TableCell key={`${row.id}-type`} style={{ textAlign: "center" }}>
+                      <TableCell key={`${row.id}-type`}>
                         {originalRow.type ? (
                           <Tag type={getTypeColor(originalRow.type)} size="sm">
                             {originalRow.type}
@@ -260,16 +263,16 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                           "—"
                         )}
                       </TableCell>
-                      <TableCell key={`${row.id}-cpu`} style={{ textAlign: "center" }}>
+                      <TableCell key={`${row.id}-cpu`}>
                         {toCurrency(originalRow.cpuCost || 0, currency, 2)}
                       </TableCell>
-                      <TableCell key={`${row.id}-gpu`} style={{ textAlign: "center" }}>
+                      <TableCell key={`${row.id}-gpu`}>
                         {toCurrency(originalRow.gpuCost || 0, currency, 2)}
                       </TableCell>
-                      <TableCell key={`${row.id}-ram`} style={{ textAlign: "center" }}>
+                      <TableCell key={`${row.id}-ram`}>
                         {toCurrency(originalRow.ramCost || 0, currency, 2)}
                       </TableCell>
-                      <TableCell key={`${row.id}-adj`} style={{ textAlign: "center" }}>
+                      <TableCell key={`${row.id}-adj`}>
                         {originalRow.adjustment
                           ? toCurrency(originalRow.adjustment, currency, 2)
                           : "—"}
@@ -279,7 +282,6 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                         style={{
                           fontWeight: 600,
                           color: "var(--cds-text-primary)",
-                          textAlign: "center",
                         }}
                       >
                         {toCurrency(originalRow.totalCost || 0, currency, 2)}

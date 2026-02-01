@@ -1,8 +1,10 @@
+import React from "react";
 import { Dropdown } from "@carbon/react";
 import { windowOptions, aggregationOptions, accumulateOptions } from "./tokens";
 import { currencyCodes } from "../../constants/currencyCodes";
+import { AssetsControlsProps } from "../../types/assets";
 
-const AssetsControls = ({
+const AssetsControls: React.FC<AssetsControlsProps> = ({
   window,
   setWindow,
   aggregateBy,

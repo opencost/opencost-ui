@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
-import { Loading, Button, Tile } from "@carbon/react";
+import {
+  Loading,
+  Button,
+  Tile,
+  InlineNotification,
+  Toggle,
+} from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 import Page from "../components/Page";
 import Header from "../components/Header";
@@ -14,31 +20,8 @@ import AssetsTable from "../components/assets/AssetsTable";
 import AssetsControls from "../components/assets/AssetsControls";
 import { windowOptions, aggregationOptions } from "../components/assets/tokens";
 import { checkCustomWindow, toVerboseTimeRange, toCurrency } from "../util";
+import { AssetData, TotalData, ErrorItem } from "../types/assets";
 
-interface AssetData {
-  name?: string;
-  type?: string;
-  cpuCost?: number;
-  gpuCost?: number;
-  ramCost?: number;
-  adjustment?: number;
-  totalCost?: number;
-}
-
-interface TotalData {
-  cpuCost: number;
-  gpuCost: number;
-  ramCost: number;
-  totalCost: number;
-  adjustment: number;
-}
-
-interface ErrorItem {
-  primary: string;
-  secondary: string;
-}
-
-// Generate title from report parameters
 function generateTitle({
   window,
   aggregateBy,
@@ -73,10 +56,10 @@ function generateTitle({
   return str;
 }
 
-// Process assets response into array format
 function processAssetsData(response: any): {
   assets: AssetData[];
   totals: TotalData;
+  isMock: boolean;
 } {
   console.log("Processing assets response:", response);
 
@@ -91,9 +74,11 @@ function processAssetsData(response: any): {
         totalCost: 0,
         adjustment: 0,
       },
+      isMock: false,
     };
   }
 
+  const isMock = response.isMock || false;
   const data = response.data || response;
   const assets: AssetData[] = [];
   const totals: TotalData = {
@@ -132,11 +117,10 @@ function processAssetsData(response: any): {
   }
 
   console.log("Processed assets:", assets.length, "items, totals:", totals);
-  return { assets, totals };
+  return { assets, totals, isMock };
 }
 
 const Assets: React.FC = () => {
-  // Data state
   const [assetData, setAssetData] = useState<AssetData[]>([]);
   const [totalData, setTotalData] = useState<TotalData>({
     cpuCost: 0,
@@ -146,9 +130,10 @@ const Assets: React.FC = () => {
     adjustment: 0,
   });
 
-  // Loading/error states
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<ErrorItem[]>([]);
+  const [isMockData, setIsMockData] = useState(false);
+  const [showVisualizations, setShowVisualizations] = useState(true);
 
   // URL-based state
   const routerLocation = useLocation();
@@ -163,7 +148,6 @@ const Assets: React.FC = () => {
     searchParams.get("title") ||
     generateTitle({ window: win, aggregateBy, accumulate });
 
-  // Update URL params
   const setWindow = (value: string) => {
     searchParams.set("window", value);
     navigate({ search: searchParams.toString() }, { replace: true });
@@ -184,10 +168,10 @@ const Assets: React.FC = () => {
     navigate({ search: searchParams.toString() }, { replace: true });
   };
 
-  // Fetch data
   const fetchData = async () => {
     setLoading(true);
     setErrors([]);
+    setIsMockData(false);
 
     try {
       const response = await AssetsService.fetchAssets(win, aggregateBy, {
@@ -195,9 +179,10 @@ const Assets: React.FC = () => {
         filters: [],
       });
 
-      const { assets, totals } = processAssetsData(response);
+      const { assets, totals, isMock } = processAssetsData(response);
       setAssetData(assets);
       setTotalData(totals);
+      setIsMockData(isMock || false);
 
       if (assets.length === 0) {
         setErrors([
@@ -244,12 +229,10 @@ const Assets: React.FC = () => {
     setLoading(false);
   };
 
-  // Fetch on mount and when params change
   useEffect(() => {
     fetchData();
   }, [win, aggregateBy, accumulate]);
 
-  // Drilldown handler
   const drilldown = (row: AssetData) => {
     const drilldownMap: Record<string, string> = {
       cluster: "node",
@@ -269,32 +252,121 @@ const Assets: React.FC = () => {
   return (
     <Page>
       <Header headerTitle="Assets">
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <AssetsControls
-            window={win}
-            setWindow={setWindow}
-            aggregateBy={aggregateBy}
-            setAggregateBy={setAggregateBy}
-            accumulate={accumulate}
-            setAccumulate={setAccumulate}
-            currency={currency}
-            setCurrency={setCurrency}
-          />
-          <Button
-            kind="ghost"
-            renderIcon={() => <Renew size={24} />}
-            iconDescription="Refresh"
-            onClick={fetchData}
-            hasIconOnly
-            tooltipPosition="bottom"
-          />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginTop: "0.5rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              height: "100%",
+              cursor: "pointer",
+              padding: "0.75rem 0.75rem",
+              borderRadius: "var(--radius-xs)",
+              transition: "background-color 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.08)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+            onClick={() => setShowVisualizations(!showVisualizations)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowVisualizations(!showVisualizations);
+              }
+            }}
+          >
+            <span
+              style={{
+                fontSize: "1rem",
+                marginBottom: "0.25rem",
+                paddingLeft: "0.25rem",
+              }}
+            >
+              {" "}
+              Visualization
+            </span>
+            <Toggle
+              id="show-visualizations-toggle"
+              size="sm"
+              labelA="Charts Off"
+              labelB="Charts On"
+              toggled={showVisualizations}
+              onToggle={(checked) => {
+                setShowVisualizations(checked);
+              }}
+              hideLabel
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: "90%",
+            }}
+          >
+            <Button
+              kind="ghost"
+              renderIcon={() => <Renew size={20} />}
+              iconDescription="Refresh"
+              onClick={fetchData}
+              hasIconOnly
+              tooltipPosition="bottom"
+            />
+          </div>
         </div>
       </Header>
 
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div>
+          <h3 style={{ fontSize: "1.25rem", margin: 0 }}>{title}</h3>
+          <Subtitle report={{ window: win, aggregateBy }} />
+        </div>
+        <AssetsControls
+          window={win}
+          setWindow={setWindow}
+          aggregateBy={aggregateBy}
+          setAggregateBy={setAggregateBy}
+          accumulate={accumulate}
+          setAccumulate={setAccumulate}
+          currency={currency}
+          setCurrency={setCurrency}
+        />
+      </div>
+
       {errors.length > 0 && <Warnings warnings={errors} />}
 
-      {/* Main Content */}
-      <div style={{ marginTop: "1.5rem" }}>
+      {isMockData && (
+        <InlineNotification
+          kind="info"
+          title="Demo Mode"
+          subtitle="Displaying sample data. The OpenCost backend is unavailable or returned an error."
+          lowContrast
+          hideCloseButton
+          style={{ marginBottom: "1rem" }}
+        />
+      )}
+
+      <div style={{}}>
         {loading ? (
           <Tile>
             <div
@@ -311,89 +383,148 @@ const Assets: React.FC = () => {
                 description="Loading assets data..."
                 withOverlay={false}
               />
-              <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem" }}>
+              <p
+                style={{
+                  color: "var(--cds-text-secondary)",
+                  fontSize: "1rem",
+                }}
+              >
                 Fetching asset information...
               </p>
             </div>
           </Tile>
         ) : (
           <>
-            {/* Summary Cards */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "1rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <Tile>
-                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                  <h4 style={{ fontWeight: 600, color: "var(--cds-text-primary)", margin: 0 }}>
-                    {toCurrency(totalData.totalCost, currency, 2)}
-                  </h4>
-                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                    Total Cost
-                  </p>
+            {showVisualizations && (
+              <>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "1rem",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  <Tile>
+                    <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                      <h3
+                        style={{
+                          fontWeight: 700,
+                          color: "var(--cds-text-primary)",
+                          margin: 0,
+                        }}
+                      >
+                        {toCurrency(totalData.totalCost, currency, 2)}
+                      </h3>
+                      <p
+                        style={{
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "1rem",
+                          fontWeight: 600,
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        Total Cost
+                      </p>
+                    </div>
+                  </Tile>
+                  <Tile>
+                    <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                      <h3
+                        style={{ fontWeight: 700, color: "#0f62fe", margin: 0 }}
+                      >
+                        {toCurrency(totalData.cpuCost, currency, 2)}
+                      </h3>
+                      <p
+                        style={{
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "1rem",
+                          marginTop: "0.25rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        CPU Cost
+                      </p>
+                    </div>
+                  </Tile>
+                  <Tile>
+                    <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                      <h3
+                        style={{ fontWeight: 700, color: "#8a3ffc", margin: 0 }}
+                      >
+                        {toCurrency(totalData.ramCost, currency, 2)}
+                      </h3>
+                      <p
+                        style={{
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "1rem",
+                          marginTop: "0.25rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        RAM Cost
+                      </p>
+                    </div>
+                  </Tile>
+                  <Tile>
+                    <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                      <h3
+                        style={{ fontWeight: 700, color: "#009d9a", margin: 0 }}
+                      >
+                        {toCurrency(totalData.gpuCost, currency, 2)}
+                      </h3>
+                      <p
+                        style={{
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "1rem",
+                          marginTop: "0.25rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        GPU Cost
+                      </p>
+                    </div>
+                  </Tile>
+                  <Tile>
+                    <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
+                      <h3
+                        style={{
+                          fontWeight: 700,
+                          color: "var(--cds-text-primary)",
+                          margin: 0,
+                        }}
+                      >
+                        {assetData.length}
+                      </h3>
+                      <p
+                        style={{
+                          color: "var(--cds-text-secondary)",
+                          fontSize: "1rem",
+                          marginTop: "0.25rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Total Assets
+                      </p>
+                    </div>
+                  </Tile>
                 </div>
-              </Tile>
-              <Tile>
-                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                  <h4 style={{ fontWeight: 600, color: "#0f62fe", margin: 0 }}>
-                    {toCurrency(totalData.cpuCost, currency, 2)}
-                  </h4>
-                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                    CPU Cost
-                  </p>
-                </div>
-              </Tile>
-              <Tile>
-                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                  <h4 style={{ fontWeight: 600, color: "#8a3ffc", margin: 0 }}>
-                    {toCurrency(totalData.ramCost, currency, 2)}
-                  </h4>
-                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                    RAM Cost
-                  </p>
-                </div>
-              </Tile>
-              <Tile>
-                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                  <h4 style={{ fontWeight: 600, color: "#009d9a", margin: 0 }}>
-                    {toCurrency(totalData.gpuCost, currency, 2)}
-                  </h4>
-                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                    GPU Cost
-                  </p>
-                </div>
-              </Tile>
-              <Tile>
-                <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                  <h4 style={{ fontWeight: 600, color: "var(--cds-text-primary)", margin: 0 }}>
-                    {assetData.length}
-                  </h4>
-                  <p style={{ color: "var(--cds-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                    Total Assets
-                  </p>
-                </div>
-              </Tile>
-            </div>
 
-            {/* Chart Section */}
-            <Tile style={{ marginBottom: "1.5rem" }}>
-              <div style={{ padding: "1rem" }}>
-                <AssetsChart
-                  assetData={assetData}
-                  currency={currency}
-                  height={350}
-                  n={10}
-                />
-              </div>
-            </Tile>
+                <Tile style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ padding: "1rem" }}>
+                    <AssetsChart
+                      assetData={assetData}
+                      currency={currency}
+                      height={350}
+                      n={10}
+                    />
+                  </div>
+                </Tile>
+              </>
+            )}
 
-            {/* Table Section */}
             <Tile>
-              <div style={{ padding: "1rem" }}>
+              <div style={{ padding: "0.5rem" }}>
                 <AssetsTable
                   assetData={assetData}
                   totalData={totalData}

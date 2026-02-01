@@ -4,6 +4,7 @@ import client from "./api_client";
 // Mock data for when backend is unavailable
 const MOCK_ASSETS_DATA = {
   code: 200,
+  isMock: true,
   data: [
     {
       "cluster-one/Node/node-1": {
@@ -88,12 +89,13 @@ class AssetsService {
       console.log("Assets API response:", result.data);
       return result.data;
     } catch (error) {
-      console.warn("Failed to fetch assets (using mock data):", error);
-
-      console.warn("Using mock assets data due to error:", error.message);
-      return MOCK_ASSETS_DATA;
-      
-    }throw error;
+      console.warn("Failed to fetch assets:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn("Using mock assets data due to error:", error.message);
+        return MOCK_ASSETS_DATA;
+      }
+      throw error;
+    }
   }
 }
 

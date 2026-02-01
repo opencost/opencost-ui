@@ -2,7 +2,7 @@ import * as React from "react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Button, Loading, Tile, Heading } from "@carbon/react";
+import { Button, Loading, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
@@ -137,47 +137,15 @@ const ExternalCosts = () => {
   return (
     <Page>
       <Header headerTitle="External Costs">
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <ExternalCostEditControls
-            windowOptions={windowOptions}
-            window={window}
-            setWindow={(win) => {
-              searchParams.set("window", win);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-            aggregationOptions={aggregationOptions}
-            aggregateBy={aggregateBy}
-            setAggregateBy={(agg) => {
-              setFilters([]);
-              searchParams.set("agg", agg);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-            title={title}
-            currency={currency}
-            currencyOptions={currencyCodes}
-            setCurrency={(curr) => {
-              searchParams.set("currency", curr);
-              navigate({
-                search: `?${searchParams.toString()}`,
-              });
-            }}
-          />
-          <Button
-            kind="ghost"
-            renderIcon={() => <Renew size={24} />}
-            iconDescription="Refresh"
-            onClick={() => setFetch(true)}
-            hasIconOnly
-            tooltipPosition="bottom"
-          />
-        </div>
+        <Button
+          kind="ghost"
+          renderIcon={() => <Renew size={24} />}
+          iconDescription="Refresh"
+          onClick={() => setFetch(true)}
+          hasIconOnly
+          tooltipPosition="bottom"
+        />
       </Header>
-
-      <Subtitle report={{ window, aggregateBy }} />
 
       {!loading && errors.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
@@ -186,24 +154,66 @@ const ExternalCosts = () => {
       )}
 
       {init && (
-        <Tile style={{ marginTop: "1.5rem" }}>
-          <div style={{ padding: "1.5rem" }}>
-            <Heading style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>{title}</Heading>
+        <Tile>
+          <div style={{ display: "flex", flexFlow: "row", padding: "1.5rem" }}>
+            <div style={{ flexGrow: 1 }}>
+              <h3 style={{ fontSize: "1.25rem", margin: 0 }}>{title}</h3>
+              <Subtitle report={{ window, aggregateBy }} />
+            </div>
+            <ExternalCostEditControls
+              windowOptions={windowOptions}
+              window={window}
+              setWindow={(win) => {
+                searchParams.set("window", win);
+                navigate({
+                  search: `?${searchParams.toString()}`,
+                });
+              }}
+              aggregationOptions={aggregationOptions}
+              aggregateBy={aggregateBy}
+              setAggregateBy={(agg) => {
+                setFilters([]);
+                searchParams.set("agg", agg);
+                navigate({
+                  search: `?${searchParams.toString()}`,
+                });
+              }}
+              title={title}
+              currency={currency}
+              currencyOptions={currencyCodes}
+              setCurrency={(curr) => {
+                searchParams.set("currency", curr);
+                navigate({
+                  search: `?${searchParams.toString()}`,
+                });
+              }}
+            />
+          </div>
 
-            {loading && (
-              <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
-                <Loading description="Loading external costs..." withOverlay={false} />
-              </div>
-            )}
+          {loading && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "4rem",
+              }}
+            >
+              <Loading
+                description="Loading external costs..."
+                withOverlay={false}
+              />
+            </div>
+          )}
 
-            {!loading && (
+          {!loading && (
+            <div style={{ padding: "0 1.5rem 1.5rem 1.5rem" }}>
               <ExternalCost
                 data={externalCostData}
                 currency={currency}
                 drilldown={drilldown}
               />
-            )}
-          </div>
+            </div>
+          )}
         </Tile>
       )}
       <Footer />

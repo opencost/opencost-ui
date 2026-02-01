@@ -1,6 +1,3 @@
-// Theme configuration for Carbon Design System
-// This file provides theme tokens and typography configuration
-
 export const headingFont = '"Lexend", "Helvetica", "Arial", sans-serif';
 export const bodyFont = '"IBM Plex Sans", "Helvetica Neue", "Arial", sans-serif';
 

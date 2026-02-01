@@ -379,7 +379,7 @@ const ReportsPage = () => {
           <div style={{ flexGrow: 1 }}>
             <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{title}</h3>
             <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
-            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
+            <Subtitle report={{ window: win, aggregateBy }} />
           </div>
 
           <Controls

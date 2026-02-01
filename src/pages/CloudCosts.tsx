@@ -21,10 +21,16 @@ import {
 } from "../components/cloudCost/tokens";
 
 const CloudCosts = () => {
-  const [title, setTitle] = React.useState("Cumulative cost for last 7 days by account");
+  const [title, setTitle] = React.useState(
+    "Cumulative cost for last 7 days by account",
+  );
   const [window, setWindow] = React.useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = React.useState(aggregationOptions[0].value);
-  const [costMetric, setCostMetric] = React.useState(costMetricOptions[0].value);
+  const [aggregateBy, setAggregateBy] = React.useState(
+    aggregationOptions[0].value,
+  );
+  const [costMetric, setCostMetric] = React.useState(
+    costMetricOptions[0].value,
+  );
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
   const [selectedProviderId, setSelectedProviderId] = React.useState("");
@@ -179,7 +185,9 @@ const CloudCosts = () => {
 
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true
-    : (cloudCostData?.cloudCostStatus?.length > 0 || cloudCostData?.tableRows?.length > 0 || errors.length > 0);
+    : cloudCostData?.cloudCostStatus?.length > 0 ||
+      cloudCostData?.tableRows?.length > 0 ||
+      errors.length > 0;
 
   const enabledWarnings = [
     {
@@ -198,14 +206,16 @@ const CloudCosts = () => {
   return (
     <Page>
       <Header headerTitle="Cloud Costs">
-        <Button
-          kind="ghost"
-          renderIcon={Renew}
-          iconDescription="Refresh"
-          onClick={() => setFetch(true)}
-          hasIconOnly
-          tooltipPosition="bottom"
-        />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Button
+            kind="ghost"
+            renderIcon={() => <Renew size={24} />}
+            iconDescription="Refresh"
+            onClick={() => setFetch(true)}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+        </div>
       </Header>
 
       {!loading && !hasCloudCostEnabled && (
@@ -224,50 +234,25 @@ const CloudCosts = () => {
         <Tile>
           <div style={{ display: "flex", flexFlow: "row", padding: "1.5rem" }}>
             <div style={{ flexGrow: 1 }}>
-              <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>{title}</h3>
+              <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+                {title}
+              </h3>
               <Subtitle report={{ window, aggregateBy }} />
             </div>
-            <CloudCostEditControls
-              windowOptions={windowOptions}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              aggregationOptions={aggregationOptions}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                setFilters([]);
-                searchParams.set("agg", agg);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              costMetricOptions={costMetricOptions}
-              costMetric={costMetric}
-              setCostMetric={(c) => {
-                searchParams.set("costMetric", c);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              title={title}
-              currency={currency}
-              currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
-                searchParams.set("currency", curr);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
           </div>
 
           {loading && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
-              <Loading description="Loading cloud cost data..." withOverlay={false} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "4rem",
+              }}
+            >
+              <Loading
+                description="Loading cloud cost data..."
+                withOverlay={false}
+              />
             </div>
           )}
 

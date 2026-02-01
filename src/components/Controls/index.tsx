@@ -1,6 +1,7 @@
 import React from "react";
 import { Dropdown } from "@carbon/react";
 import DownloadControl from "./Download";
+import { AllocationData } from "../../types/allocation";
 
 interface ControlsProps {
   windowOptions: Array<{ name: string; value: string }>;
@@ -13,7 +14,7 @@ interface ControlsProps {
   accumulate: boolean;
   setAccumulate: (value: boolean) => void;
   title: string;
-  cumulativeData: any[];
+  cumulativeData: AllocationData[];
   currency: string;
   currencyOptions: string[];
   setCurrency: (value: string) => void;
@@ -43,6 +44,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Dropdown
           id="date-range"
           titleText="Date Range"
+          label="Select date range"
           size="sm"
           items={windowOptions}
           itemToString={(item) => (item ? item.name : "")}
@@ -57,6 +59,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Dropdown
           id="aggregate-by"
           titleText="Aggregate By"
+          label="Select aggregation"
           size="sm"
           items={aggregationOptions}
           itemToString={(item) => (item ? item.name : "")}
@@ -71,6 +74,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Dropdown
           id="accumulate"
           titleText="Accumulate"
+          label="Select accumulation"
           size="sm"
           items={accumulateOptions}
           itemToString={(item) => (item ? item.name : "")}
@@ -85,6 +89,7 @@ const Controls: React.FC<ControlsProps> = ({
         <Dropdown
           id="currency"
           titleText="Currency"
+          label="Select currency"
           size="sm"
           items={currencyItems}
           itemToString={(item) => (item ? item.name : "")}

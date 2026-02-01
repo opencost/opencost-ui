@@ -27,8 +27,6 @@ class AllocationService {
       });
       return result.data;
     } catch (error) {
-      // Only use mock data if explicitly enabled via REACT_APP_USE_MOCK_DATA=true
-      // This prevents confusion for users who misconfigured their backend
       if (USE_MOCK_DATA && error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
         console.warn("Backend not available, using mock data (REACT_APP_USE_MOCK_DATA is enabled)");
         return getMockData(aggregate, filters);

@@ -19,8 +19,15 @@ import {
   costMetricOptions,
   aggregationOptions,
 } from "../components/cloudCost/tokens";
+import {
+  CloudCostData,
+  CloudCostFilter,
+  CloudCostErrorItem,
+  TableRowItem,
+  TitleParams,
+} from "../types/cloudCost";
 
-const CloudCosts = () => {
+const CloudCosts: React.FC = () => {
   const [title, setTitle] = React.useState(
     "Cumulative cost for last 7 days by account",
   );
@@ -31,23 +38,23 @@ const CloudCosts = () => {
   const [costMetric, setCostMetric] = React.useState(
     costMetricOptions[0].value,
   );
-  const [filters, setFilters] = React.useState([]);
-  const [currency, setCurrency] = React.useState("USD");
-  const [selectedProviderId, setSelectedProviderId] = React.useState("");
-  const [selectedItemName, setSelectedItemName] = React.useState("");
+  const [filters, setFilters] = React.useState<CloudCostFilter[]>([]);
+  const [currency, setCurrency] = React.useState<string>("USD");
+  const [selectedProviderId, setSelectedProviderId] = React.useState<string>("");
+  const [selectedItemName, setSelectedItemName] = React.useState<string>("");
   const sampleData = aggregateBy.includes("item");
-  const [init, setInit] = React.useState(false);
-  const [fetch, setFetch] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
-  const [errors, setErrors] = React.useState([]);
+  const [init, setInit] = React.useState<boolean>(false);
+  const [fetch, setFetch] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [errors, setErrors] = React.useState<CloudCostErrorItem[]>([]);
 
-  const [cloudCostData, setCloudCostData] = React.useState<any>({});
+  const [cloudCostData, setCloudCostData] = React.useState<CloudCostData>({});
 
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
 
-  function generateTitle({ window, aggregateBy, costMetric }) {
+  function generateTitle({ window, aggregateBy, costMetric }: TitleParams): string {
     let windowName = get(find(windowOptions, { value: window }), "name", "");
     if (windowName === "") {
       if (checkCustomWindow(window)) {
@@ -110,8 +117,9 @@ const CloudCosts = () => {
         // No data returned
         setCloudCostData({});
       }
-    } catch (err: any) {
-      if (err.message.indexOf("404") === 0) {
+    } catch (err: unknown) {
+      const error = err as Error;
+      if (error.message?.indexOf("404") === 0) {
         setErrors([
           {
             primary: "Failed to load report data",
@@ -122,8 +130,8 @@ const CloudCosts = () => {
       } else {
         let secondary =
           "Please open an Issue with OpenCost if problems persist.";
-        if (err.message.length > 0) {
-          secondary = err.message;
+        if (error.message && error.message.length > 0) {
+          secondary = error.message;
         }
         setErrors([
           {
@@ -137,7 +145,7 @@ const CloudCosts = () => {
     setLoading(false);
   }
 
-  function drilldown(row) {
+  function drilldown(row: TableRowItem): void {
     if (aggregateBy.includes("item")) {
       try {
         setSelectedProviderId(row.providerID);
@@ -260,7 +268,6 @@ const CloudCosts = () => {
             <CloudCost
               cumulativeData={cloudCostData.tableRows}
               currency={currency}
-              graphData={cloudCostData.graphData}
               totalData={cloudCostData.tableTotal}
               drilldown={drilldown}
               sampleData={sampleData}

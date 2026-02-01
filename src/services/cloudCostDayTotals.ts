@@ -25,7 +25,7 @@ class CloudCostDayTotalsService {
       const costMetricProp = costMetricToPropName[costMetric];
 
       const result_2 = await resp.data;
-      return { data: formatItemsForCost(result_2, costMetricProp) };
+      return { data: formatItemsForCost({ data: result_2, costType: costMetricProp }) };
     }
 
     return [];

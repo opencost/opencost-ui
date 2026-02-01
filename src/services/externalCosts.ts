@@ -58,6 +58,19 @@ class ExternalCostsService {
     });
     return result.data.data;
   }
+
+  async fetchExternalCostData(win, aggregate, filters) {
+    const params = {
+      window: win,
+      aggregate: aggregate,
+      filter: parseExternalCostFilters(filters),
+    };
+
+    const result = await client.get(`/customCost/total`, {
+      params,
+    });
+    return result.data.data;
+  }
 }
 
 export default new ExternalCostsService();

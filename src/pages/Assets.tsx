@@ -22,6 +22,15 @@ import { windowOptions, aggregationOptions } from "../components/assets/tokens";
 import { checkCustomWindow, toVerboseTimeRange, toCurrency } from "../util";
 import { AssetData, TotalData, ErrorItem } from "../types/assets";
 
+interface AssetsAPIResponse {
+  data?: AssetRecord[] | AssetRecord;
+  isMock?: boolean;
+}
+
+interface AssetRecord {
+  [key: string]: AssetData;
+}
+
 function generateTitle({
   window,
   aggregateBy,
@@ -56,15 +65,13 @@ function generateTitle({
   return str;
 }
 
-function processAssetsData(response: any): {
+function processAssetsData(response: AssetsAPIResponse | AssetRecord[] | null): {
   assets: AssetData[];
   totals: TotalData;
   isMock: boolean;
 } {
-  console.log("Processing assets response:", response);
 
   if (!response) {
-    console.warn("No response received");
     return {
       assets: [],
       totals: {
@@ -78,8 +85,8 @@ function processAssetsData(response: any): {
     };
   }
 
-  const isMock = response.isMock || false;
-  const data = response.data || response;
+  const isMock = (response as AssetsAPIResponse).isMock || false;
+  const data = (response as AssetsAPIResponse).data || response;
   const assets: AssetData[] = [];
   const totals: TotalData = {
     cpuCost: 0,
@@ -89,7 +96,7 @@ function processAssetsData(response: any): {
     adjustment: 0,
   };
 
-  const processAsset = (key: string, asset: any) => {
+  const processAsset = (key: string, asset: AssetData) => {
     if (asset && typeof asset === "object") {
       const assetWithName: AssetData = {
         ...asset,
@@ -105,7 +112,7 @@ function processAssetsData(response: any): {
   };
 
   if (Array.isArray(data)) {
-    data.forEach((period: any) => {
+    (data as AssetRecord[]).forEach((period: AssetRecord) => {
       if (period && typeof period === "object") {
         Object.entries(period).forEach(([key, asset]) =>
           processAsset(key, asset),
@@ -116,7 +123,6 @@ function processAssetsData(response: any): {
     Object.entries(data).forEach(([key, asset]) => processAsset(key, asset));
   }
 
-  console.log("Processed assets:", assets.length, "items, totals:", totals);
   return { assets, totals, isMock };
 }
 
@@ -193,20 +199,21 @@ const Assets: React.FC = () => {
           },
         ]);
       }
-    } catch (err: any) {
-      console.error("Failed to fetch assets:", err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error("Failed to fetch assets:", error);
 
       let errorMessage =
         "Please open an Issue with OpenCost if problems persist.";
-      if (err.message) {
-        if (err.message.includes("404")) {
+      if (error.message) {
+        if (error.message.includes("404")) {
           errorMessage =
             "Assets data is not available. Please check your OpenCost configuration.";
-        } else if (err.message.includes("Network Error")) {
+        } else if (error.message.includes("Network Error")) {
           errorMessage =
             "Unable to connect to OpenCost backend. Please check your connection.";
         } else {
-          errorMessage = err.message;
+          errorMessage = error.message;
         }
       }
 
@@ -292,6 +299,7 @@ const Assets: React.FC = () => {
                 fontSize: "1rem",
                 marginBottom: "0.25rem",
                 paddingLeft: "0.25rem",
+                userSelect: "none",
               }}
             >
               {" "}

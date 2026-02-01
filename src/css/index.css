@@ -339,3 +339,64 @@ body,
 [data-carbon-theme="g100"] a:visited {
   color: #be95ff;
 }
+
+[data-carbon-theme="g100"] .app-logo,
+[data-carbon-theme="g100"] .app-header-logo {
+  filter: grayscale(1) invert(1) brightness(0.89);
+}
+
+/* Warnings component dark mode */
+[data-carbon-theme="g100"] .cds--inline-notification {
+  background-color: #262626;
+  border-left-color: #0f62fe;
+}
+
+[data-carbon-theme="g100"] .cds--inline-notification__details {
+  color: #f4f4f4;
+}
+
+[data-carbon-theme="g100"] .cds--inline-notification--info__icon {
+  color: #78a9ff;
+}
+
+[data-carbon-theme="g100"] .cds--inline-notification--warning__icon {
+  color: #f1c21b;
+}
+
+[data-carbon-theme="g100"] .cds--inline-notification--error__icon {
+  color: #ff8389;
+}
+
+/* Data table headers dark mode */
+[data-carbon-theme="g100"] .cds--data-table thead th,
+[data-carbon-theme="g100"] .cds--data-table th[scope="col"],
+[data-carbon-theme="g100"] th.cds--table-sort,
+[data-carbon-theme="g100"] .cds--table-sort {
+  background-color: #1a1a1a !important;
+  color: #f4f4f4 !important;
+  border-bottom-color: #525252 !important;
+}
+
+/* Sort button hover - light grey in dark mode */
+[data-carbon-theme="g100"] .cds--table-sort__button:hover {
+  background-color: #605f5f !important;
+}
+
+/* Sort icon hover */
+[data-carbon-theme="g100"] .cds--table-sort__icon:hover {
+  color: #78a9ff !important;
+}
+
+[data-carbon-theme="g100"] .cds--data-table thead,
+[data-carbon-theme="g100"] .cds--data-table-header {
+  background-color: #1a1a1a !important;
+}
+
+[data-carbon-theme="g100"] .cds--data-table tbody td {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: #f4f4f4;
+}
+
+[data-carbon-theme="g100"] .cds--data-table tbody tr:hover {
+  background-color: #262626;
+}

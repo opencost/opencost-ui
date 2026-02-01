@@ -20,11 +20,11 @@ type Order = "asc" | "desc";
 const headCells: HeadCell[] = [
   { id: "name", numeric: false, label: "Name", width: 200 },
   { id: "type", numeric: false, label: "Type", width: 120 },
-  { id: "cpuCost", numeric: true, label: "CPU Cost", width: 110 },
-  { id: "gpuCost", numeric: true, label: "GPU Cost", width: 110 },
-  { id: "ramCost", numeric: true, label: "RAM Cost", width: 110 },
-  { id: "adjustment", numeric: true, label: "Adjustment", width: 110 },
-  { id: "totalCost", numeric: true, label: "Total Cost", width: 130 },
+  { id: "cpuCost", numeric: true, label: "CPU Cost", width: 120 },
+  { id: "gpuCost", numeric: true, label: "GPU Cost", width: 120 },
+  { id: "ramCost", numeric: true, label: "RAM Cost", width: 120 },
+  { id: "adjustment", numeric: true, label: "Adjustment", width: 120 },
+  { id: "totalCost", numeric: true, label: "Total Cost", width: 120 },
 ];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T): number {

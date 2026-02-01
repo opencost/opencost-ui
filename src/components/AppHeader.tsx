@@ -29,7 +29,7 @@ const AppHeader = ({ isSideNavExpanded, onToggleSideNav }) => {
           navigate("/");
         }}
       >
-        <img src={logo} alt="OpenCost" style={{ height: "20px" }} />
+        <img src={logo} alt="OpenCost" className="app-header-logo" style={{ height: "20px" }} />
       </HeaderName>
       <HeaderGlobalBar>
         <ThemeToggle />

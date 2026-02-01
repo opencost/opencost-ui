@@ -21,6 +21,7 @@ import {
   toVerboseTimeRange,
 } from "../util";
 import { currencyCodes } from "../constants/currencyCodes";
+import { AllocationData } from "../types/allocation";
 
 const windowOptions = [
   { name: "Today", value: "today" },
@@ -83,7 +84,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
 
 const ReportsPage = () => {
   const [allocationData, setAllocationData] = useState([]);
-  const [cumulativeData, setCumulativeData] = useState({});
+  const [cumulativeData, setCumulativeData] = useState<AllocationData[]>([]);
   const [totalData, setTotalData] = useState({});
 
   const [loading, setLoading] = useState(true);
@@ -141,7 +142,7 @@ const ReportsPage = () => {
     
     if (currentFilters.length > expectedFilterCount) {
       const trimmedFilters = currentFilters.slice(0, expectedFilterCount);
-      const newSearchParams = new URLSearchParams(outerLocation.search);
+      const newSearchParams = new URLSearchParams(routerLocation.search);
       if (trimmedFilters.length > 0) {
         newSearchParams.set("filter", parseFilters(trimmedFilters));
       } else {
@@ -404,7 +405,7 @@ const ReportsPage = () => {
             accumulateOptions={accumulateOptions}
             accumulate={accumulate}
             setAccumulate={(acc) => {
-              searchParams.set("acc", acc);
+              searchParams.set("acc", String(acc));
               navigate({
                 search: `?${searchParams.toString()}`,
               });

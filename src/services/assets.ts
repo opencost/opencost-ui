@@ -1,7 +1,6 @@
 import { parseFilters } from "../util";
 import client from "./api_client";
 
-// Mock data for when backend is unavailable
 const MOCK_ASSETS_DATA = {
   code: 200,
   isMock: true,
@@ -71,9 +70,9 @@ const MOCK_ASSETS_DATA = {
 const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true";
 
 class AssetsService {
-  async fetchAssets(win, aggregate, options = {}) {
+  async fetchAssets(win: string, aggregate: string, options: { accumulate?: boolean; filters?: string[] } = {}) {
     const { accumulate = true, filters = [] } = options;
-    const params = {
+    const params: { window: string; aggregate: string; accumulate: boolean; filter?: string } = {
       window: win,
       aggregate: aggregate,
       accumulate,
@@ -84,14 +83,11 @@ class AssetsService {
     }
 
     try {
-      console.log("Fetching assets with params:", params);
       const result = await client.get("/assets", { params });
-      console.log("Assets API response:", result.data);
       return result.data;
     } catch (error) {
-      console.warn("Failed to fetch assets:", error);
       if (process.env.NODE_ENV === 'development') {
-        console.warn("Using mock assets data due to error:", error.message);
+        console.warn("Using mock assets data due to error:", (error as Error).message);
         return MOCK_ASSETS_DATA;
       }
       throw error;

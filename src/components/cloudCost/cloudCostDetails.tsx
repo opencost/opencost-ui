@@ -65,8 +65,8 @@ const CloudCostDetails = ({
         setData([]);
       }
     } catch (err) {
-      console.log(err);
-      if (err.message.indexOf("404") === 0) {
+      const error = err as Error;
+      if (error.message?.indexOf("404") === 0) {
         setErrors([
           {
             primary: "Failed to load report data",
@@ -76,8 +76,8 @@ const CloudCostDetails = ({
         ]);
       } else {
         let secondary = "Please open an Issue on GitHub if problems persist.";
-        if (err.message.length > 0) {
-          secondary = err.message;
+        if (error.message && error.message.length > 0) {
+          secondary = error.message;
         }
         setErrors([
           {

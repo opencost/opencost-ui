@@ -15,6 +15,35 @@ import {
 import { toCurrency } from "../../util";
 import { AssetsChartProps } from '../../types/assets';
 
+interface TooltipPayloadEntry {
+  name: string;
+  value: number;
+  color: string;
+  dataKey: string;
+  payload: Record<string, unknown>;
+}
+
+interface PieTooltipPayloadEntry {
+  name: string;
+  value: number;
+  percent: number;
+  payload: {
+    fill: string;
+  };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadEntry[];
+  label?: string;
+  currency: string;
+}
+
+interface PieTooltipProps {
+  active?: boolean;
+  payload?: PieTooltipPayloadEntry[];
+  currency: string;
+}
 
 // Cost breakdown colors
 const COLORS = {
@@ -37,7 +66,7 @@ const PIE_COLORS = [
   "#82cfff",
 ];
 
-const CustomTooltip = ({ active, payload, label, currency }: any) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, currency }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -58,7 +87,7 @@ const CustomTooltip = ({ active, payload, label, currency }: any) => {
         >
           {label}
         </p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry: TooltipPayloadEntry, index: number) => (
           <p
             key={index}
             style={{
@@ -81,7 +110,7 @@ const CustomTooltip = ({ active, payload, label, currency }: any) => {
         >
           Total:{" "}
           {toCurrency(
-            payload.reduce((sum: number, p: any) => sum + (p.value || 0), 0),
+            payload.reduce((sum: number, p: TooltipPayloadEntry) => sum + (p.value || 0), 0),
             currency,
             2
           )}
@@ -92,7 +121,7 @@ const CustomTooltip = ({ active, payload, label, currency }: any) => {
   return null;
 };
 
-const PieTooltip = ({ active, payload, currency }: any) => {
+const PieTooltip: React.FC<PieTooltipProps> = ({ active, payload, currency }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     return (

@@ -1,8 +1,18 @@
 import { formatSampleItemsForGraph, parseFilters } from "../util";
 import client from "./api_client";
+import {
+  CloudCostFilter,
+  CloudCostResponse,
+  SampleDataResponse,
+} from "../types/cloudCost";
 
 class CloudCostTopService {
-  async fetchCloudCostData(window, aggregate, costMetric, filters) {
+  async fetchCloudCostData(
+    window: string,
+    aggregate: string,
+    costMetric: string,
+    filters: CloudCostFilter[]
+  ): Promise<CloudCostResponse | SampleDataResponse> {
     const params = {
       window,
       aggregate,
@@ -19,7 +29,7 @@ class CloudCostTopService {
       );
       const result_2 = await resp.data;
 
-      return formatSampleItemsForGraph(result_2, costMetric);
+      return formatSampleItemsForGraph({ data: result_2, costMetric }) as SampleDataResponse;
     }
 
     const tableView = await client.get(`/cloudCost/view/table`, {
@@ -44,3 +54,4 @@ class CloudCostTopService {
 }
 
 export default new CloudCostTopService();
+

@@ -2,8 +2,20 @@ import React from "react";
 import { get, forEach, reverse, round, sortBy } from "lodash";
 import { Button } from "@carbon/react";
 import { Download } from "@carbon/icons-react";
+import { AllocationData } from "../../types/allocation";
 
-const columns = [
+interface DownloadControlProps {
+  cumulativeData: AllocationData[];
+  title: string;
+}
+
+interface Column {
+  head: string;
+  prop: keyof AllocationData | string;
+  currency: boolean;
+}
+
+const columns: Column[] = [
   {
     head: "Name",
     prop: "name",
@@ -46,8 +58,8 @@ const columns = [
   },
 ];
 
-const toCSVLine = (datum) => {
-  let cols = [];
+const toCSVLine = (datum: AllocationData): string => {
+  const cols: (string | number)[] = [];
 
   forEach(columns, (c) => {
     if (c.currency) {
@@ -60,7 +72,7 @@ const toCSVLine = (datum) => {
   return cols.join(",");
 };
 
-const DownloadControl = ({ cumulativeData, title }) => {
+const DownloadControl: React.FC<DownloadControlProps> = ({ cumulativeData, title }) => {
   // downloadReport downloads a CSV of the cumulative allocation data
   function downloadReport() {
     // Build CSV

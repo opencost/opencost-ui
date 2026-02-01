@@ -1,5 +1,4 @@
-import  react, { useEffect, useState, useMemo } from 'react';
-
+import React, { useEffect, useState, useMemo } from "react";
 import {
     DataTable,
     Table,
@@ -22,30 +21,29 @@ import {
 } from "@carbon/react";
 
 import { Renew } from "@carbon/icons-react";
-import '@carbon/react/css/index.css';
 
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AssetsService from "../services/assets";
 import AssetsChart from "../components/assets/AssetsChart";
-import assets from "../services/assets";
 
-// options for filters
+// Options for filters
 const windowOptions = [
     { id: "today", text: "Today" },
     { id: "yesterday", text: "Yesterday" },
     { id: "7d", text: "Last 7 days" },
     { id: "30d", text: "Last 30 days" },
-]
+];
 
 const aggregateOptions = [
     { id: "type", text: "Asset Type" },
     { id: "provider", text: "Provider" },
     { id: "cluster", text: "Cluster" },
     { id: "node", text: "Node" },
-]
+];
 
+// Table column headers
 const headers = [
     { key: "name", header: "Name" },
     { key: "type", header: "Type" },
@@ -57,38 +55,39 @@ const headers = [
     { key: "totalCost", header: "Total Cost" },
 ];
 
-// Helper: format currency
-const  toCurrency  = (value, currency = "USD") => {
-    if (value === undefined || value === null) return "Not Provided";
-    return  new Intl.NumberFormat("en-US", {
+// Helper: Format currency
+const toCurrency = (value, currency = "USD") => {
+    if (value === undefined || value === null) return " Not Provided ";
+    return new Intl.NumberFormat("en-US", {
         style: "currency",
         currency,
     }).format(value);
 };
 
 const Assets = () => {
-    // state
-    const [loading, setLoading] = useState(false);
-    const [error, setErrors] = useState([]);
+    // State
+    const [loading, setLoading] = useState(true);
+    const [errors, setErrors] = useState([]);
     const [assetsData, setAssetsData] = useState([]);
 
-    // filter
-    const [window, setwindow] = useState("7d");
-    const [aggregate, setAggregate] = useState("type");
+    // Filters
+    const [window, setWindow] = useState("7d");
+    const [aggregateBy, setAggregateBy] = useState("type");
 
-    useEffect(() =>{
+    // Fetch data on mount and when filters change
+    useEffect(() => {
         fetchData();
-    },[window, aggregate]);
+    }, [window, aggregateBy]);
 
-    async function fetchData(){
+    async function fetchData() {
         setLoading(true);
         setErrors([]);
 
         try {
-            const  response = await AssetsService.fetchAssets(window, aggregate);
+            const response = await AssetsService.fetchAssets(window, aggregateBy);
 
-            if(response.data && response.data.length > 0){
-                // convert response data to array format for table
+            if (response.data && response.data.length > 0) {
+                // Transform API response to table format
                 const assets = Object.entries(response.data[0]).map(([name, asset]) => ({
                     id: name,
                     name: name,
@@ -112,7 +111,7 @@ const Assets = () => {
         setLoading(false);
     }
 
-    // calculate totals for summary tiles
+    // Calculate totals for summary tiles
     const totals = useMemo(() => {
         return assetsData.reduce(
             (acc, asset) => ({

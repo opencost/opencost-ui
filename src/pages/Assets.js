@@ -16,7 +16,9 @@ import {
   TableBatchAction,
   InlineNotification,
   Loading,
-  Button
+  Button,
+  Tile, // Add tile
+  Layer // Add layer
 } from '@carbon/react';
 import { TrashCan, Download, Renew } from '@carbon/icons-react';
 
@@ -58,6 +60,12 @@ const Assets = () => {
     fetchAssets();
   }, []);
 
+  // Define totalCost logic so the Tile has data to display
+  const totalCost = data.reduce((acc, item) => {
+    const numericValue = parseFloat(item.cost.replace(/[^0-9.-]+/g, ""));
+    return acc + (isNaN(numericValue) ? 0 : numericValue);
+  }, 0);
+
   const headers = [
     { key: 'name', header: 'Asset Name' },
     { key: 'type', header: 'Type' },
@@ -69,6 +77,20 @@ const Assets = () => {
 
   return (
     <Content>
+      {/* 1. Add the Summary Tile at the top */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+        <Tile id="total-cost-tile" style={{ flex: '1', minWidth: '200px' }}>
+          <h4 style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>Total Asset Spend</h4>
+          <h2 style={{ fontWeight: '600' }}>${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>
+        </Tile>
+        
+        {/* Optional: Extra Tile for Asset Count */}
+        <Tile id="asset-count-tile" style={{ flex: '1', minWidth: '200px' }}>
+          <h4 style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>Active Assets</h4>
+          <h2 style={{ fontWeight: '600' }}>{data.length}</h2>
+        </Tile>
+      </div>
+
       {error && (
         <InlineNotification
           kind="info"

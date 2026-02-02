@@ -13,6 +13,7 @@ import {
   Pie,
 } from "recharts";
 import { toCurrency } from "../../util";
+import EmptyState from "../EmptyState";
 import { AssetsChartProps } from '../../types/assets';
 
 interface TooltipPayloadEntry {
@@ -45,14 +46,12 @@ interface PieTooltipProps {
   currency: string;
 }
 
-// Cost breakdown colors
 const COLORS = {
   cpu: "#0f62fe",
   ram: "#8a3ffc",
   gpu: "#009d9a",
 };
 
-// Pie chart colors for distribution
 const PIE_COLORS = [
   "#0f62fe",
   "#8a3ffc",
@@ -72,10 +71,10 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, c
       <div
         style={{
           backgroundColor: "var(--cds-layer-01, #fff)",
-          border: "1px solid var(--cds-border-subtle-01, #e0e0e0)",
+          border: "none",
           borderRadius: "4px",
           padding: "12px 16px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
       >
         <p
@@ -128,10 +127,10 @@ const PieTooltip: React.FC<PieTooltipProps> = ({ active, payload, currency }) =>
       <div
         style={{
           backgroundColor: "var(--cds-layer-01, #fff)",
-          border: "1px solid var(--cds-border-subtle-01, #e0e0e0)",
+          border: "none",
           borderRadius: "4px",
           padding: "12px 16px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
       >
         <p
@@ -163,17 +162,11 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
 }) => {
   if (!assetData || assetData.length === 0) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: 200,
-          color: "var(--cds-text-secondary)",
-        }}
-      >
-        No chart data available
-      </div>
+      <EmptyState
+        icon="chart"
+        title="No asset data available"
+        description="There are no assets to display for the selected filters. Try adjusting your time range or filters."
+      />
     );
   }
 
@@ -222,11 +215,10 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
 
   return (
     <div style={{ width: "100%" }}>
-      {/* Section Title */}
       <h3
         style={{
           margin: "0 0 1.5rem 0",
-          fontSize: "1.5rem",
+          fontSize: "1.75rem",
           fontWeight: 600,
           color: "var(--cds-text-primary)",
           textAlign: "center",
@@ -235,18 +227,16 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
         Cost Breakdown by Resource
       </h3>
 
-      {/* Charts Container */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "1rem",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "2rem",
           alignItems: "center",
           width: "100%",
           overflow: "hidden",
         }}
       >
-        {/* Bar Chart */}
         <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center" }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -286,8 +276,7 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
           </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart */}
-        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -296,15 +285,16 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                 cy="50%"
                 innerRadius={50}
                 outerRadius={80}
-                paddingAngle={2}
+                paddingAngle={1}
                 dataKey="value"
+                stroke="none"
                 label={({ name, percent }) =>
                   `${name.length > 10 ? name.slice(0, 10) + "..." : name} (${(percent * 100).toFixed(0)}%)`
                 }
                 labelLine={{ stroke: "var(--cds-text-secondary)", strokeWidth: 1 }}
               >
                 {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                  <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
                 ))}
               </Pie>
               <Tooltip content={<PieTooltip currency={currency} />} />

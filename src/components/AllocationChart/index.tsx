@@ -3,6 +3,7 @@ import { isArray, filter, map, reduce, reverse, sortBy } from "lodash";
 
 import RangeChart from "./RangeChart";
 import SummaryChart from "./SummaryChart";
+import EmptyState from "../EmptyState";
 
 // TODO niko/etl
 // sum allocationSet to single allocation
@@ -68,7 +69,13 @@ function top(n, by) {
 
 const AllocationChart = ({ allocationRange, currency, n, height }) => {
   if (allocationRange.length === 0) {
-    return <p style={{ fontSize: "0.875rem", color: "var(--cds-text-secondary)" }}>No data</p>;
+    return (
+      <EmptyState
+        icon="chart"
+        title="No allocation data"
+        description="There's no cost data for the selected time range. Try selecting a different window."
+      />
+    );
   }
 
   if (allocationRange.length === 1) {

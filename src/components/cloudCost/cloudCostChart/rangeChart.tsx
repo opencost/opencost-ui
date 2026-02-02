@@ -212,9 +212,8 @@ const RangeChart = ({ data, currency, height }) => {
                       marginBottom: 4,
                       padding: 0,
                     }}
-                  >{`${
-                    item.payload.items[i][0]
-                  }: ${toCurrency(item.value, currency)}`}</p>
+                  >{`${item.payload.items[i][0]
+                    }: ${toCurrency(item.value, currency)}`}</p>
                 </div>
               </div>
             ))

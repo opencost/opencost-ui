@@ -1,4 +1,3 @@
-@import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -41,11 +40,16 @@ h1, h2, h3, h4, h5, h6,
 
 .cds--side-nav__link-text {
   font-family: var(--font-heading) !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
 
 .cds--side-nav__link {
   font-size: 16px !important;
+}
+
+.cds--side-nav__icon > svg {
+  width: 20px !important;
+  height: 20px !important;
 }
 
 .MuiTypography-h1,
@@ -71,12 +75,7 @@ h1, h2, h3, h4, h5, h6,
 .cds--pagination,
 .cds--breadcrumb,
 .MuiTableCell-root,
-.MuiMenuItem-root,
-.MuiButton-root,
-.MuiAlert-root,
-.MuiChip-root,
-.MuiSelect-root,
-.MuiInputBase-root {
+.MuiButton-root {
   font-family: var(--font-body) !important;
 }
 
@@ -157,17 +156,24 @@ body .page-container {
   border-radius: var(--radius-xs);
 }
 
+[data-carbon-theme="g100"] .cds--tooltip-content {
+  background-color: #393939 !important;
+  color: #f4f4f4 !important;
+}
+
+[data-carbon-theme="g100"] .cds--popover-caret {
+  background-color: #393939 !important;
+}
+
 .cds--inline-notification,
 .cds--toast-notification {
   border-radius: var(--radius-xs);
 }
 
-/* Overflow menu */
 .cds--overflow-menu-options {
   border-radius: var(--radius-xs);
 }
 
-/* Recharts tooltips */
 .recharts-default-tooltip {
   border-radius: var(--radius-xs) !important;
 }
@@ -181,14 +187,11 @@ body,
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Dark mode specific improvements */
 [data-carbon-theme="g100"] {
-  /* Consistent card/tile backgrounds */
   --card-bg: #262626;
   --card-border: rgba(255, 255, 255, 0.1);
   --card-hover: #333333;
   
-  /* Chart colors that work well in dark mode */
   --chart-grid: rgba(255, 255, 255, 0.1);
   --chart-axis: #8d8d8d;
   --chart-tooltip-bg: #393939;
@@ -225,20 +228,6 @@ body,
   color: #c6c6c6;
 }
 
-[data-carbon-theme="g100"] .MuiChip-root {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-[data-carbon-theme="g100"] .MuiButton-outlined {
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-[data-carbon-theme="g100"] .MuiButton-outlined:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-/* Carbon component dark mode refinements */
 [data-carbon-theme="g100"] .cds--dropdown {
   background-color: #262626;
   border-bottom-color: #525252;
@@ -275,7 +264,6 @@ body,
   background-color: rgba(120, 169, 255, 0.1);
 }
 
-/* Recharts dark mode styling */
 [data-carbon-theme="g100"] .recharts-cartesian-grid line {
   stroke: rgba(255, 255, 255, 0.1);
 }
@@ -285,11 +273,21 @@ body,
 }
 
 [data-carbon-theme="g100"] .recharts-default-tooltip {
-  background-color: #393939 !important;
+  background-color: #262626 !important;
   border-color: #525252 !important;
+  color: #f4f4f4 !important;
 }
 
 [data-carbon-theme="g100"] .recharts-tooltip-label {
+  color: #f4f4f4 !important;
+}
+
+[data-carbon-theme="g100"] .recharts-tooltip-item {
+  color: #c6c6c6 !important;
+}
+
+[data-carbon-theme="g100"] .recharts-tooltip-item-name,
+[data-carbon-theme="g100"] .recharts-tooltip-item-value {
   color: #f4f4f4 !important;
 }
 
@@ -297,7 +295,15 @@ body,
   color: #c6c6c6 !important;
 }
 
-/* Summary cards styling */
+[data-carbon-theme="g100"] .recharts-bar-rectangle:hover,
+[data-carbon-theme="g100"] .recharts-active-bar {
+  filter: brightness(0.85);
+}
+
+[data-carbon-theme="g100"] .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.1) !important;
+}
+
 [data-carbon-theme="g100"] .summary-card,
 [data-carbon-theme="g100"] .MuiCard-root {
   background-color: #262626;
@@ -307,6 +313,18 @@ body,
 [data-carbon-theme="g100"] .summary-card:hover {
   background-color: #2d2d2d;
   border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-carbon-theme="g100"] .cds--tile {
+  background-color: #262626;
+  border: none;
+  box-shadow: none;
+}
+
+[data-carbon-theme="g100"] .chart-tile,
+[data-carbon-theme="g100"] .cds--tile:has(.recharts-wrapper) {
+  background-color: transparent;
+  border: none;
 }
 
 /* Scrollbar styling for dark mode */
@@ -322,12 +340,10 @@ body,
   background-color: #1a1a1a;
 }
 
-/* Focus states for accessibility */
 [data-carbon-theme="g100"] *:focus-visible {
   outline-color: #78a9ff;
 }
 
-/* Link styling */
 [data-carbon-theme="g100"] a {
   color: #78a9ff;
 }
@@ -345,7 +361,6 @@ body,
   filter: grayscale(1) invert(1) brightness(0.89);
 }
 
-/* Warnings component dark mode */
 [data-carbon-theme="g100"] .cds--inline-notification {
   background-color: #262626;
   border-left-color: #0f62fe;
@@ -367,7 +382,6 @@ body,
   color: #ff8389;
 }
 
-/* Data table headers dark mode */
 [data-carbon-theme="g100"] .cds--data-table thead th,
 [data-carbon-theme="g100"] .cds--data-table th[scope="col"],
 [data-carbon-theme="g100"] th.cds--table-sort,
@@ -377,12 +391,10 @@ body,
   border-bottom-color: #525252 !important;
 }
 
-/* Sort button hover - light grey in dark mode */
 [data-carbon-theme="g100"] .cds--table-sort__button:hover {
   background-color: #605f5f !important;
 }
 
-/* Sort icon hover */
 [data-carbon-theme="g100"] .cds--table-sort__icon:hover {
   color: #78a9ff !important;
 }
@@ -399,4 +411,8 @@ body,
 
 [data-carbon-theme="g100"] .cds--data-table tbody tr:hover {
   background-color: #262626;
+}
+
+.keyboard-shortcuts-modal .cds--modal-content {
+  padding-bottom: 1rem !important;
 }

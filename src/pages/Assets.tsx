@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
-import {
-  Loading,
-  Button,
-  Tile,
-  InlineNotification,
-  Toggle,
-} from "@carbon/react";
-import { Renew } from "@carbon/icons-react";
+import { Button, Tile, InlineNotification, Toggle, Dropdown } from "@carbon/react";
+import { Renew, Download } from "@carbon/icons-react";
 import Page from "../components/Page";
+import PageSkeleton from "../components/PageSkeleton";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Subtitle from "../components/Subtitle";
@@ -20,6 +15,7 @@ import AssetsTable from "../components/assets/AssetsTable";
 import AssetsControls from "../components/assets/AssetsControls";
 import { windowOptions, aggregationOptions } from "../components/assets/tokens";
 import { checkCustomWindow, toVerboseTimeRange, toCurrency } from "../util";
+import { useGlobalEvent } from "../services/eventBus";
 import { AssetData, TotalData, ErrorItem } from "../types/assets";
 
 interface AssetsAPIResponse {
@@ -52,7 +48,7 @@ function generateTitle({
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    "",
+    ""
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -70,7 +66,6 @@ function processAssetsData(response: AssetsAPIResponse | AssetRecord[] | null): 
   totals: TotalData;
   isMock: boolean;
 } {
-
   if (!response) {
     return {
       assets: [],
@@ -114,9 +109,7 @@ function processAssetsData(response: AssetsAPIResponse | AssetRecord[] | null): 
   if (Array.isArray(data)) {
     (data as AssetRecord[]).forEach((period: AssetRecord) => {
       if (period && typeof period === "object") {
-        Object.entries(period).forEach(([key, asset]) =>
-          processAsset(key, asset),
-        );
+        Object.entries(period).forEach(([key, asset]) => processAsset(key, asset));
       }
     });
   } else if (typeof data === "object" && data !== null) {
@@ -151,8 +144,7 @@ const Assets: React.FC = () => {
   const accumulate = searchParams.get("acc") !== "false";
   const currency = searchParams.get("currency") || "USD";
   const title =
-    searchParams.get("title") ||
-    generateTitle({ window: win, aggregateBy, accumulate });
+    searchParams.get("title") || generateTitle({ window: win, aggregateBy, accumulate });
 
   const setWindow = (value: string) => {
     searchParams.set("window", value);
@@ -203,15 +195,12 @@ const Assets: React.FC = () => {
       const error = err as Error;
       console.error("Failed to fetch assets:", error);
 
-      let errorMessage =
-        "Please open an Issue with OpenCost if problems persist.";
+      let errorMessage = "Please open an Issue with OpenCost if problems persist.";
       if (error.message) {
         if (error.message.includes("404")) {
-          errorMessage =
-            "Assets data is not available. Please check your OpenCost configuration.";
+          errorMessage = "Assets data is not available. Please check your OpenCost configuration.";
         } else if (error.message.includes("Network Error")) {
-          errorMessage =
-            "Unable to connect to OpenCost backend. Please check your connection.";
+          errorMessage = "Unable to connect to OpenCost backend. Please check your connection.";
         } else {
           errorMessage = error.message;
         }
@@ -240,6 +229,8 @@ const Assets: React.FC = () => {
     fetchData();
   }, [win, aggregateBy, accumulate]);
 
+  useGlobalEvent("refresh", fetchData);
+
   const drilldown = (row: AssetData) => {
     const drilldownMap: Record<string, string> = {
       cluster: "node",
@@ -256,6 +247,26 @@ const Assets: React.FC = () => {
     }
   };
 
+  const exportToCSV = () => {
+    const headers = ["Name", "Type", "CPU Cost", "GPU Cost", "RAM Cost", "Total Cost"];
+    const rows = assetData.map((asset) => [
+      asset.name || "",
+      asset.type || "",
+      asset.cpuCost || 0,
+      asset.gpuCost || 0,
+      asset.ramCost || 0,
+      asset.totalCost || 0,
+    ]);
+
+    const csv = [headers, ...rows].map((row) => row.join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    const today = new Date().toISOString().split("T")[0];
+    link.download = `assets_${aggregateBy}_${win}_${today}.csv`;
+    link.click();
+  };
+
   return (
     <Page>
       <Header headerTitle="Assets">
@@ -264,7 +275,7 @@ const Assets: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
-            marginTop: "0.5rem",
+            marginTop: "1rem",
           }}
         >
           <div
@@ -274,7 +285,7 @@ const Assets: React.FC = () => {
               gap: "1rem",
               height: "100%",
               cursor: "pointer",
-              padding: "0.75rem 0.75rem",
+              padding: "0.5rem 0.5rem",
               borderRadius: "var(--radius-xs)",
               transition: "background-color 0.2s ease",
             }}
@@ -297,7 +308,6 @@ const Assets: React.FC = () => {
             <span
               style={{
                 fontSize: "1rem",
-                marginBottom: "0.25rem",
                 paddingLeft: "0.25rem",
                 userSelect: "none",
               }}
@@ -305,35 +315,39 @@ const Assets: React.FC = () => {
               {" "}
               Visualization
             </span>
-            <Toggle
-              id="show-visualizations-toggle"
-              size="sm"
-              labelA="Charts Off"
-              labelB="Charts On"
-              toggled={showVisualizations}
-              onToggle={(checked) => {
-                setShowVisualizations(checked);
-              }}
-              hideLabel
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div style={{ marginTop: "0.25rem" }}>
+              <Toggle
+                id="show-visualizations-toggle"
+                size="sm"
+                labelA="Charts Off"
+                labelB="Charts On"
+                toggled={showVisualizations}
+                onToggle={(checked) => {
+                  setShowVisualizations(checked);
+                }}
+                hideLabel
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: "90%",
-            }}
-          >
-            <Button
-              kind="ghost"
-              renderIcon={() => <Renew size={20} />}
-              iconDescription="Refresh"
-              onClick={fetchData}
-              hasIconOnly
-              tooltipPosition="bottom"
-            />
-          </div>
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={() => <Download size={20} />}
+            iconDescription="Export as CSV"
+            onClick={exportToCSV}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={() => <Renew size={20} />}
+            iconDescription="Refresh (R)"
+            onClick={fetchData}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
         </div>
       </Header>
 
@@ -376,31 +390,7 @@ const Assets: React.FC = () => {
 
       <div style={{}}>
         {loading ? (
-          <Tile>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "400px",
-                gap: "1rem",
-              }}
-            >
-              <Loading
-                description="Loading assets data..."
-                withOverlay={false}
-              />
-              <p
-                style={{
-                  color: "var(--cds-text-secondary)",
-                  fontSize: "1rem",
-                }}
-              >
-                Fetching asset information...
-              </p>
-            </div>
-          </Tile>
+          <PageSkeleton type="dashboard" rows={8} />
         ) : (
           <>
             {showVisualizations && (
@@ -438,9 +428,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3
-                        style={{ fontWeight: 700, color: "#0f62fe", margin: 0 }}
-                      >
+                      <h3 style={{ fontWeight: 700, color: "#0f62fe", margin: 0 }}>
                         {toCurrency(totalData.cpuCost, currency, 2)}
                       </h3>
                       <p
@@ -457,9 +445,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3
-                        style={{ fontWeight: 700, color: "#8a3ffc", margin: 0 }}
-                      >
+                      <h3 style={{ fontWeight: 700, color: "#8a3ffc", margin: 0 }}>
                         {toCurrency(totalData.ramCost, currency, 2)}
                       </h3>
                       <p
@@ -476,9 +462,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3
-                        style={{ fontWeight: 700, color: "#009d9a", margin: 0 }}
-                      >
+                      <h3 style={{ fontWeight: 700, color: "#009d9a", margin: 0 }}>
                         {toCurrency(totalData.gpuCost, currency, 2)}
                       </h3>
                       <p
@@ -520,12 +504,7 @@ const Assets: React.FC = () => {
 
                 <Tile style={{ marginBottom: "1.5rem" }}>
                   <div style={{ padding: "1rem" }}>
-                    <AssetsChart
-                      assetData={assetData}
-                      currency={currency}
-                      height={350}
-                      n={10}
-                    />
+                    <AssetsChart assetData={assetData} currency={currency} height={350} n={10} />
                   </div>
                 </Tile>
               </>

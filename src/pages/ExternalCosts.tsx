@@ -1,8 +1,10 @@
-import * as React from "react";
+import React, { useEffect } from "react";
+import { useGlobalEvent } from "../services/eventBus";
 import Page from "../components/Page";
+import PageSkeleton from "../components/PageSkeleton";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Button, Loading, Tile } from "@carbon/react";
+import { Button, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
@@ -13,22 +15,15 @@ import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import ExternalCostService from "../services/externalCosts";
 
-import {
-  windowOptions,
-  aggregationOptions,
-} from "../components/externalCosts/tokens";
+import { windowOptions, aggregationOptions } from "../components/externalCosts/tokens";
 
 import { currencyCodes } from "../constants/currencyCodes";
 import { ExternalCost } from "../components/externalCosts/externalCost";
 
 const ExternalCosts = () => {
-  const [title, setTitle] = React.useState(
-    "External Costs for last 7 days by category",
-  );
+  const [title, setTitle] = React.useState("External Costs for last 7 days by category");
   const [window, setWindow] = React.useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = React.useState(
-    aggregationOptions[0].value,
-  );
+  const [aggregateBy, setAggregateBy] = React.useState(aggregationOptions[0].value);
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
   const [init, setInit] = React.useState(false);
@@ -51,7 +46,7 @@ const ExternalCosts = () => {
     let aggregationName = get(
       find(aggregationOptions, { value: aggregateBy }),
       "name",
-      "",
+      ""
     ).toLowerCase();
     if (aggregationName === "") {
       console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -72,11 +67,7 @@ const ExternalCosts = () => {
     setLoading(true);
     setErrors([]);
     try {
-      const resp = await ExternalCostService.fetchExternalCostData(
-        window,
-        aggregateBy,
-        filters,
-      );
+      const resp = await ExternalCostService.fetchExternalCostData(window, aggregateBy, filters);
       if (resp) {
         setExternalCostData(resp);
       } else {
@@ -120,7 +111,7 @@ const ExternalCosts = () => {
     setCurrency(searchParams.get("currency") || "USD");
   }, [routerLocation]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!init) {
       initialize();
     }
@@ -134,17 +125,22 @@ const ExternalCosts = () => {
     setTitle(generateTitle({ window, aggregateBy }));
   }, [window, aggregateBy, filters]);
 
+  useGlobalEvent("refresh", fetchData);
+
   return (
     <Page>
       <Header headerTitle="External Costs">
-        <Button
-          kind="ghost"
-          renderIcon={() => <Renew size={24} />}
-          iconDescription="Refresh"
-          onClick={() => setFetch(true)}
-          hasIconOnly
-          tooltipPosition="bottom"
-        />
+        <div style={{ marginTop: "1rem" }}>
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={() => <Renew size={20} />}
+            iconDescription="Refresh (R)"
+            onClick={() => setFetch(true)}
+            hasIconOnly
+            tooltipPosition="bottom"
+          />
+        </div>
       </Header>
 
       {!loading && errors.length > 0 && (
@@ -191,27 +187,14 @@ const ExternalCosts = () => {
           </div>
 
           {loading && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "4rem",
-              }}
-            >
-              <Loading
-                description="Loading external costs..."
-                withOverlay={false}
-              />
+            <div style={{ padding: "1rem" }}>
+              <PageSkeleton type="chart" rows={6} />
             </div>
           )}
 
           {!loading && (
             <div style={{ padding: "0 1.5rem 1.5rem 1.5rem" }}>
-              <ExternalCost
-                data={externalCostData}
-                currency={currency}
-                drilldown={drilldown}
-              />
+              <ExternalCost data={externalCostData} currency={currency} drilldown={drilldown} />
             </div>
           )}
         </Tile>

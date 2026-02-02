@@ -1,10 +1,12 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
-import { Button, Link, Loading, Tile } from "@carbon/react";
+import { useGlobalEvent } from "../services/eventBus";
+import { Button, Link, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 
 import Page from "../components/Page";
+import PageSkeleton from "../components/PageSkeleton";
 import Header from "../components/Header";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
@@ -177,7 +179,7 @@ const CloudCosts: React.FC = () => {
     setCurrency(searchParams.get("currency") || "USD");
   }, [routerLocation]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!init) {
       initialize();
     }
@@ -185,6 +187,8 @@ const CloudCosts: React.FC = () => {
       fetchData();
     }
   }, [init, fetch]);
+
+  useGlobalEvent("refresh", fetchData);
 
   React.useEffect(() => {
     setFetch(!fetch);
@@ -194,8 +198,8 @@ const CloudCosts: React.FC = () => {
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true
     : cloudCostData?.cloudCostStatus?.length > 0 ||
-      cloudCostData?.tableRows?.length > 0 ||
-      errors.length > 0;
+    cloudCostData?.tableRows?.length > 0 ||
+    errors.length > 0;
 
   const enabledWarnings = [
     {
@@ -214,11 +218,12 @@ const CloudCosts: React.FC = () => {
   return (
     <Page>
       <Header headerTitle="Cloud Costs">
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", marginTop: "1rem" }}>
           <Button
             kind="ghost"
-            renderIcon={() => <Renew size={24} />}
-            iconDescription="Refresh"
+            size="sm"
+            renderIcon={() => <Renew size={20} />}
+            iconDescription="Refresh (R)"
             onClick={() => setFetch(true)}
             hasIconOnly
             tooltipPosition="bottom"
@@ -250,17 +255,8 @@ const CloudCosts: React.FC = () => {
           </div>
 
           {loading && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "4rem",
-              }}
-            >
-              <Loading
-                description="Loading cloud cost data..."
-                withOverlay={false}
-              />
+            <div style={{ padding: "1rem" }}>
+              <PageSkeleton type="chart" rows={6} />
             </div>
           )}
 

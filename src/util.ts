@@ -1,8 +1,6 @@
 import { forEach, get, round } from "lodash";
 import { costMetricToPropName } from "./components/cloudCost/tokens";
 
-// rangeToCumulative takes an AllocationSetRange (type: array[AllocationSet])
-// and accumulates the values into a single AllocationSet (type: object)
 export function rangeToCumulative(allocationSetRange, aggregateBy) {
   if (allocationSetRange.length === 0) {
     return null;

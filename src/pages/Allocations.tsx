@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { find, get, sortBy, toArray } from "lodash";
-import { Button, Checkbox, Loading, Tile } from "@carbon/react";
+import { Button, Checkbox, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 
 import Page from "../components/Page";
+import PageSkeleton from "../components/PageSkeleton";
 import Header from "../components/Header";
 import Controls from "../components/Controls";
 import FilterBreadcrumb from "../components/FilterBreadcrumb";
@@ -20,6 +21,7 @@ import {
   rangeToCumulative,
   toVerboseTimeRange,
 } from "../util";
+import { useGlobalEvent } from "../services/eventBus";
 import { currencyCodes } from "../constants/currencyCodes";
 import { AllocationData } from "../types/allocation";
 
@@ -67,7 +69,7 @@ function generateTitle({ window, aggregateBy, accumulate }) {
   let aggregationName = get(
     find(aggregationOptions, { value: aggregateBy }),
     "name",
-    "",
+    ""
   ).toLowerCase();
   if (aggregationName === "") {
     console.warn(`unknown aggregation: ${aggregateBy}`);
@@ -106,8 +108,7 @@ const ReportsPage = () => {
   const accumulate = searchParams.get("acc") === "true";
   const currency = searchParams.get("currency") || "USD";
   const title =
-    searchParams.get("title") ||
-    generateTitle({ window: win, aggregateBy, accumulate });
+    searchParams.get("title") || generateTitle({ window: win, aggregateBy, accumulate });
 
   const filterParam = searchParams.get("filter");
   const filters = useMemo(() => {
@@ -117,7 +118,7 @@ const ReportsPage = () => {
   useEffect(() => {
     const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
     const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
-    
+
     const aggregateToFilterCount = {
       namespace: 0,
       controllerKind: 1,
@@ -125,11 +126,11 @@ const ReportsPage = () => {
       pod: 3,
       container: 4,
     };
-    
+
     const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
     const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
-    
+
     if (currentIndex === 0 && currentFilters.length > 0) {
       const newSearchParams = new URLSearchParams(routerLocation.search);
       newSearchParams.delete("filter");
@@ -139,7 +140,7 @@ const ReportsPage = () => {
       }
       return;
     }
-    
+
     if (currentFilters.length > expectedFilterCount) {
       const trimmedFilters = currentFilters.slice(0, expectedFilterCount);
       const newSearchParams = new URLSearchParams(routerLocation.search);
@@ -154,7 +155,7 @@ const ReportsPage = () => {
       }
       return;
     }
-    
+
     for (let i = 0; i < currentFilters.length; i++) {
       const filter = currentFilters[i];
       const expectedProperty = filterHierarchy[i];
@@ -178,6 +179,8 @@ const ReportsPage = () => {
   useEffect(() => {
     fetchData();
   }, [win, aggregateBy, accumulate, filters, includeIdle]);
+
+  useGlobalEvent("refresh", fetchData);
 
   async function fetchData() {
     setLoading(true);
@@ -285,7 +288,7 @@ const ReportsPage = () => {
     };
 
     const nextAgg = drilldownHierarchy[aggregateBy];
-    
+
     if (!nextAgg) {
       return;
     }
@@ -293,7 +296,7 @@ const ReportsPage = () => {
     if (!row.name || String(row.name).trim() === "") {
       return;
     }
-    
+
     const filterPropertyMap = {
       namespace: "namespace",
       controllerKind: "controllerKind",
@@ -301,9 +304,9 @@ const ReportsPage = () => {
       pod: "pod",
       container: "container",
     };
-    
+
     const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
-    
+
     let filterValue = String(row.name).trim();
     let updatedFilters = [...filters];
 
@@ -335,7 +338,7 @@ const ReportsPage = () => {
     };
 
     const newFilters = [...updatedFilters, newFilter];
-    
+
     const newSearchParams = new URLSearchParams(routerLocation.search);
     newSearchParams.set("agg", nextAgg);
     if (newFilters.length > 0) {
@@ -351,7 +354,7 @@ const ReportsPage = () => {
   return (
     <Page>
       <Header headerTitle="Cost Allocation">
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
           <Checkbox
             labelText="Include idle costs"
             checked={includeIdle}
@@ -360,8 +363,9 @@ const ReportsPage = () => {
           />
           <Button
             kind="ghost"
-            renderIcon={() => <Renew size={24} />}
-            iconDescription="Refresh"
+            size="sm"
+            renderIcon={() => <Renew size={20} />}
+            iconDescription="Refresh (R)"
             onClick={() => fetchData()}
             hasIconOnly
             tooltipPosition="bottom"
@@ -424,8 +428,8 @@ const ReportsPage = () => {
         </div>
 
         {loading && (
-          <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}>
-            <Loading description="Loading allocation data..." withOverlay={false} />
+          <div style={{ padding: "1rem" }}>
+            <PageSkeleton type="chart" rows={6} />
           </div>
         )}
 

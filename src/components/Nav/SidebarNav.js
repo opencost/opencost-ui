@@ -29,9 +29,9 @@ const SidebarNav = ({ active }) => {
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
     // ADD NEW ITEM:
   {
-    name: "Assets",
-    path: "/assets",
-    icon: <Inventory />,
+      name: "Assets",
+      href: "/assets", // Changed 'path' to 'href'
+      icon: <Inventory />,
   },
   ];
 

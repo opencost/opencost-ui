@@ -10,6 +10,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
+import { Tile } from "@carbon/react";
 import {
   getTotalCost,
   getTotalWastedCost,
@@ -36,25 +37,25 @@ const KPICards = ({ assets }) => {
   return (
     <div className="kpi-cards-container">
       {/* Total Cost Card */}
-      <div className="kpi-card">
+      <Tile className="kpi-card">
         <div className="kpi-icon">💰</div>
         <div className="kpi-label">Total Storage Cost</div>
         <div className="kpi-value">{formatCurrency(totalCost)}</div>
         <div className="kpi-subtitle">Monthly (30 days)</div>
-      </div>
+      </Tile>
 
       {/* Wasted Cost Card */}
-      <div className="kpi-card kpi-waste">
+      <Tile className="kpi-card kpi-waste">
         <div className="kpi-icon">⚠️</div>
         <div className="kpi-label">Wasted Cost</div>
         <div className="kpi-value" style={{ color: "#da1e28" }}>
           {formatCurrency(wastedCost)}
         </div>
         <div className="kpi-subtitle">From idle storage</div>
-      </div>
+      </Tile>
 
       {/* Efficiency Score Card */}
-      <div className="kpi-card">
+      <Tile className="kpi-card">
         <div className="kpi-icon">📊</div>
         <div className="kpi-label">Efficiency Score</div>
         <div
@@ -70,33 +71,33 @@ const KPICards = ({ assets }) => {
             ? "Good"
             : "Needs Review"}
         </div>
-      </div>
+      </Tile>
 
       {/* Total Provisioned Card */}
-      <div className="kpi-card">
+      <Tile className="kpi-card">
         <div className="kpi-icon">📦</div>
         <div className="kpi-label">Total Provisioned</div>
         <div className="kpi-value">{totalProvisioned.toFixed(1)} GB</div>
         <div className="kpi-subtitle">Allocated storage</div>
-      </div>
+      </Tile>
 
       {/* Asset Count Card */}
-      <div className="kpi-card">
+      <Tile className="kpi-card">
         <div className="kpi-icon">🗂️</div>
         <div className="kpi-label">Total Assets</div>
         <div className="kpi-value">{assetCount}</div>
         <div className="kpi-subtitle">Nodes & PVCs</div>
-      </div>
+      </Tile>
 
       {/* Savings Potential Card */}
-      <div className="kpi-card kpi-savings">
+      <Tile className="kpi-card kpi-savings">
         <div className="kpi-icon">💵</div>
         <div className="kpi-label">Potential Savings</div>
         <div className="kpi-value" style={{ color: "#24a148" }}>
           {formatCurrency(wastedCost)}
         </div>
         <div className="kpi-subtitle">If optimized</div>
-      </div>
+      </Tile>
     </div>
   );
 };

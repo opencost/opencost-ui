@@ -1,213 +1,255 @@
 /**
- * AssetTable - Searchable, sortable, paginated table of assets
+ * AssetTable - Carbon DataTable for assets
  *
- * Features:
+ * Uses Carbon Design System DataTable component with:
  * - Sortable columns
  * - Pagination
  * - Status indicators
- * - Trend indicators
- * - Cost information
+ * - Search functionality
  */
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
+import {
+  DataTable,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableToolbar,
+  TableToolbarContent,
+  TableToolbarSearch,
+  Pagination,
+  Tag,
+} from "@carbon/react";
 import {
   calculateUsage,
   getAssetStatus,
   formatCurrency,
 } from "./../../utils/assetCalculations";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE_OPTIONS = [10, 20, 50];
 
 const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
-  const [sortColumn, setSortColumn] = useState("totalCost");
-  const [sortDirection, setSortDirection] = useState("DESC");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  /**
-   * Sort assets by column
-   */
-  const sortedAssets = useMemo(() => {
-    const sorted = [...assets];
+  // Define table headers
+  const headers = [
+    { key: "name", header: "Asset Name" },
+    { key: "cluster", header: "Cluster" },
+    { key: "assetType", header: "Type" },
+    { key: "storageClass", header: "Storage Class" },
+    { key: "cost", header: "Monthly Cost" },
+    { key: "usage", header: "Usage" },
+    { key: "status", header: "Status" },
+  ];
 
-    sorted.sort((a, b) => {
-      let aVal = a[sortColumn];
-      let bVal = b[sortColumn];
+  // Transform assets into rows for DataTable
+  const rows = useMemo(() => {
+    return assets.map((asset) => {
+      const usage = calculateUsage(asset);
+      const status = getAssetStatus(asset);
 
-      // Handle numeric columns
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortDirection === "DESC" ? bVal - aVal : aVal - bVal;
-      }
-
-      // Handle string columns
-      const aStr = String(aVal || "").toLowerCase();
-      const bStr = String(bVal || "").toLowerCase();
-
-      if (sortDirection === "DESC") {
-        return bStr.localeCompare(aStr);
-      } else {
-        return aStr.localeCompare(bStr);
-      }
+      return {
+        id: asset.id,
+        name: asset.name,
+        cluster: asset.cluster,
+        assetType: asset.assetType,
+        storageClass: asset.storageClass || "-",
+        cost: asset.totalCost || 0,
+        costFormatted: formatCurrency(asset.totalCost || 0),
+        usage: parseFloat(usage.usedPercentage),
+        usageFormatted: `${usage.usedPercentage}%`,
+        status: status.label,
+        statusType: status.type,
+        namespace: asset.claimNamespace,
+        // Store original asset for detailed rendering
+        _asset: asset,
+      };
     });
+  }, [assets]);
 
-    return sorted;
-  }, [assets, sortColumn, sortDirection]);
+  // Filter rows by search term
+  const filteredRows = useMemo(() => {
+    if (!searchTerm) return rows;
+    const term = searchTerm.toLowerCase();
+    return rows.filter(
+      (row) =>
+        row.name.toLowerCase().includes(term) ||
+        row.cluster.toLowerCase().includes(term) ||
+        (row.namespace && row.namespace.toLowerCase().includes(term))
+    );
+  }, [rows, searchTerm]);
 
-  /**
-   * Paginate sorted assets
-   */
-  const paginatedAssets = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return sortedAssets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [sortedAssets, currentPage]);
+  // Paginate rows
+  const paginatedRows = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredRows.slice(startIndex, startIndex + pageSize);
+  }, [filteredRows, currentPage, pageSize]);
 
-  /**
-   * Handle column sort
-   */
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Toggle direction if same column
-      setSortDirection(sortDirection === "ASC" ? "DESC" : "ASC");
-    } else {
-      // New column, default to DESC
-      setSortColumn(column);
-      setSortDirection("DESC");
-    }
-    // Reset to first page
-    setCurrentPage(1);
+  // Handle pagination change
+  const handlePaginationChange = ({ page, pageSize: newPageSize }) => {
+    setCurrentPage(page);
+    setPageSize(newPageSize);
   };
-
-  /**
-   * Get trend indicator for cost
-   */
-  const getTrendIndicator = (asset) => {
-    const idle = (asset.breakdown?.idle || 0) * 100;
-    if (idle > 70) return "↑ High Idle";
-    if (idle > 40) return "→ Medium Idle";
-    return "↓ Low Idle";
-  };
-
-  const totalPages = Math.ceil(sortedAssets.length / ITEMS_PER_PAGE);
 
   return (
-    <div className="asset-table-container">
-      <div className="table-header">
-        <h3>Asset Details</h3>
-        <div className="table-info">
-          Showing {paginatedAssets.length} of {filteredAssets} assets
-          {totalAssets > filteredAssets && ` (filtered from ${totalAssets})`}
-        </div>
-      </div>
+    <div className="asset-table-carbon">
+      <DataTable rows={paginatedRows} headers={headers} isSortable>
+        {({
+          rows,
+          headers,
+          getHeaderProps,
+          getRowProps,
+          getTableProps,
+          getTableContainerProps,
+        }) => (
+          <TableContainer
+            title="Asset Details"
+            description={`Showing ${paginatedRows.length} of ${filteredRows.length} assets${
+              totalAssets > filteredAssets ? ` (filtered from ${totalAssets})` : ""
+            }`}
+            {...getTableContainerProps()}
+          >
+            <TableToolbar>
+              <TableToolbarContent>
+                <TableToolbarSearch
+                  placeholder="Search assets..."
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTerm}
+                />
+              </TableToolbarContent>
+            </TableToolbar>
 
-      {paginatedAssets.length === 0 ? (
-        <div className="table-empty">
-          <p>No assets to display</p>
-        </div>
-      ) : (
-        <>
-          <div className="table-wrapper">
-            <table className="asset-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort("name")} className="sortable">
-                    Name {sortColumn === "name" && (sortDirection === "ASC" ? "↑" : "↓")}
-                  </th>
-                  <th onClick={() => handleSort("cluster")} className="sortable">
-                    Cluster {sortColumn === "cluster" && (sortDirection === "ASC" ? "↑" : "↓")}
-                  </th>
-                  <th onClick={() => handleSort("assetType")} className="sortable">
-                    Type {sortColumn === "assetType" && (sortDirection === "ASC" ? "↑" : "↓")}
-                  </th>
-                  <th>Storage Class</th>
-                  <th onClick={() => handleSort("totalCost")} className="sortable">
-                    Cost {sortColumn === "totalCost" && (sortDirection === "ASC" ? "↑" : "↓")}
-                  </th>
-                  <th>Usage</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedAssets.map((asset) => {
-                  const usage = calculateUsage(asset);
-                  const status = getAssetStatus(asset);
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => {
+                    const { key, ...headerProps } = getHeaderProps({ header });
+                    return (
+                      <TableHeader
+                        key={header.key}
+                        {...headerProps}
+                        isSortable
+                      >
+                        {header.header}
+                      </TableHeader>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => {
+                  const rowData = paginatedRows.find((r) => r.id === row.id);
+                  if (!rowData) return null;
 
+                  const { key, ...rowProps } = getRowProps({ row });
                   return (
-                    <tr key={asset.id} className={`status-${status.type}`}>
-                      <td className="name-cell">
-                        <strong>{asset.name}</strong>
-                        {asset.claimNamespace && (
-                          <div className="namespace">ns: {asset.claimNamespace}</div>
-                        )}
-                      </td>
-                      <td>{asset.cluster}</td>
-                      <td>
-                        <span className="asset-type-badge">
-                          {asset.assetType}
-                        </span>
-                      </td>
-                      <td>{asset.storageClass || "-"}</td>
-                      <td className="cost-cell">
-                        <div className="cost-value">
-                          {formatCurrency(asset.totalCost || 0)}
-                        </div>
-                        <div className="cost-trend">
-                          {getTrendIndicator(asset)}
-                        </div>
-                      </td>
-                      <td className="usage-cell">
-                        <div className="usage-bar">
-                          <div
-                            className="usage-filled"
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                (parseFloat(usage.usedPercentage) || 0)
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                        <div className="usage-text">
-                          {usage.usedPercentage}% used
-                        </div>
-                      </td>
-                      <td className="status-cell">
-                        <span className={`status-badge status-${status.type}`}>
-                          {status.label}
-                        </span>
-                      </td>
-                    </tr>
+                    <TableRow key={row.id} {...rowProps}>
+                      {row.cells.map((cell) => {
+                        // Custom rendering for specific columns
+                        if (cell.info.header === "name") {
+                          return (
+                            <TableCell key={cell.id}>
+                              <div>
+                                <strong>{rowData.name}</strong>
+                                {rowData.namespace && (
+                                  <div style={{ fontSize: "0.75rem", color: "#525252" }}>
+                                    ns: {rowData.namespace}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                          );
+                        }
+
+                        if (cell.info.header === "assetType") {
+                          return (
+                            <TableCell key={cell.id}>
+                              <Tag type="blue" size="sm">
+                                {rowData.assetType}
+                              </Tag>
+                            </TableCell>
+                          );
+                        }
+
+                        if (cell.info.header === "cost") {
+                          return (
+                            <TableCell key={cell.id}>
+                              <div style={{ textAlign: "right" }}>
+                                <strong>{rowData.costFormatted}</strong>
+                              </div>
+                            </TableCell>
+                          );
+                        }
+
+                        if (cell.info.header === "usage") {
+                          return (
+                            <TableCell key={cell.id}>
+                              <div style={{ minWidth: "150px" }}>
+                                <div
+                                  style={{
+                                    height: "8px",
+                                    backgroundColor: "#e0e0e0",
+                                    borderRadius: "4px",
+                                    overflow: "hidden",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      height: "100%",
+                                      width: `${Math.min(100, rowData.usage)}%`,
+                                      backgroundColor: "#0f62fe",
+                                      transition: "width 0.3s",
+                                    }}
+                                  />
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "#525252" }}>
+                                  {rowData.usageFormatted} used
+                                </div>
+                              </div>
+                            </TableCell>
+                          );
+                        }
+
+                        if (cell.info.header === "status") {
+                          return (
+                            <TableCell key={cell.id}>
+                              <Tag
+                                type={rowData.statusType}
+                                size="sm"
+                              >
+                                {rowData.status}
+                              </Tag>
+                            </TableCell>
+                          );
+                        }
+
+                        // Default rendering
+                        return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                      })}
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="table-pagination">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="btn-pagination"
-              >
-                ← Previous
-              </button>
-
-              <div className="pagination-info">
-                Page {currentPage} of {totalPages}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="btn-pagination"
-              >
-                Next →
-              </button>
-            </div>
-          )}
-        </>
-      )}
+            <Pagination
+              page={currentPage}
+              pageSize={pageSize}
+              pageSizes={ITEMS_PER_PAGE_OPTIONS}
+              totalItems={filteredRows.length}
+              onChange={handlePaginationChange}
+            />
+          </TableContainer>
+        )}
+      </DataTable>
     </div>
   );
 };

@@ -9,8 +9,17 @@
  * - Search term
  */
 
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
+import {
+  Checkbox,
+  Search,
+  Button,
+  Toggle,
+  Accordion,
+  AccordionItem,
+} from "@carbon/react";
+import { Filter } from "@carbon/icons-react";
 
 const FilterPanel = ({
   filters,
@@ -19,7 +28,6 @@ const FilterPanel = ({
   useMockData,
   onMockDataToggle,
 }) => {
-  const [expanded, setExpanded] = useState(false);
 
   const handleStatusChange = (status) => {
     const updated = filters.status.includes(status)
@@ -71,130 +79,108 @@ const FilterPanel = ({
     (filters.search ? 1 : 0);
 
   return (
-    <div className="filter-panel">
-      <div className="filter-header">
-        <h3>Filters</h3>
-        <button
-          className="filter-toggle"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? "▼" : "▶"} Advanced Filters
-          {activeFilterCount > 0 && (
-            <span className="filter-badge">{activeFilterCount}</span>
-          )}
-        </button>
-      </div>
-
+    <div className="filter-panel-carbon">
       {/* Search Bar */}
-      <div className="filter-group">
-        <input
-          type="text"
-          className="filter-search"
+      <div style={{ marginBottom: "1rem" }}>
+        <Search
+          size="lg"
           placeholder="Search by name, namespace, or cluster..."
+          labelText="Search assets"
           value={filters.search}
-          onChange={handleSearchChange}
+          onChange={(e) => handleSearchChange(e)}
         />
       </div>
 
-      {/* Expanded Filters */}
-      {expanded && (
-        <div className="filter-options">
-          {/* Status Filter */}
-          <div className="filter-group">
-            <label className="filter-label">Status</label>
-            <div className="filter-checkbox-group">
+      {/* Advanced Filters Accordion */}
+      <Accordion>
+        <AccordionItem title={`Filters ${activeFilterCount > 0 ? `(${activeFilterCount})` : ""}`}>
+          <div className="filter-options">
+            {/* Status Filter */}
+            <fieldset className="filter-group">
+              <legend className="filter-label">Status</legend>
               {["ok", "review", "waste"].map((status) => (
-                <label key={status} className="checkbox">
-                  <input
-                    type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={() => handleStatusChange(status)}
-                  />
-                  <span className="checkbox-label">
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </span>
-                </label>
+                <Checkbox
+                  key={status}
+                  id={`status-${status}`}
+                  labelText={status.charAt(0).toUpperCase() + status.slice(1)}
+                  checked={filters.status.includes(status)}
+                  onChange={() => handleStatusChange(status)}
+                />
               ))}
-            </div>
-          </div>
+            </fieldset>
 
-          {/* Asset Type Filter */}
-          {filterOptions.assetTypes && filterOptions.assetTypes.length > 0 && (
-            <div className="filter-group">
-              <label className="filter-label">Asset Type</label>
-              <div className="filter-checkbox-group">
+            {/* Asset Type Filter */}
+            {filterOptions.assetTypes && filterOptions.assetTypes.length > 0 && (
+              <fieldset className="filter-group">
+                <legend className="filter-label">Asset Type</legend>
                 {filterOptions.assetTypes.map((type) => (
-                  <label key={type} className="checkbox">
-                    <input
-                      type="checkbox"
-                      checked={filters.assetType.includes(type)}
-                      onChange={() => handleAssetTypeChange(type)}
-                    />
-                    <span className="checkbox-label">{type}</span>
-                  </label>
+                  <Checkbox
+                    key={type}
+                    id={`assetType-${type}`}
+                    labelText={type}
+                    checked={filters.assetType.includes(type)}
+                    onChange={() => handleAssetTypeChange(type)}
+                  />
                 ))}
-              </div>
-            </div>
-          )}
+              </fieldset>
+            )}
 
-          {/* Storage Class Filter */}
-          {filterOptions.storageClasses && filterOptions.storageClasses.length > 0 && (
-            <div className="filter-group">
-              <label className="filter-label">Storage Class</label>
-              <div className="filter-checkbox-group">
+            {/* Storage Class Filter */}
+            {filterOptions.storageClasses && filterOptions.storageClasses.length > 0 && (
+              <fieldset className="filter-group">
+                <legend className="filter-label">Storage Class</legend>
                 {filterOptions.storageClasses.map((sc) => (
-                  <label key={sc} className="checkbox">
-                    <input
-                      type="checkbox"
-                      checked={filters.storageClass.includes(sc)}
-                      onChange={() => handleStorageClassChange(sc)}
-                    />
-                    <span className="checkbox-label">{sc || "Unspecified"}</span>
-                  </label>
+                  <Checkbox
+                    key={sc}
+                    id={`storageClass-${sc}`}
+                    labelText={sc || "Unspecified"}
+                    checked={filters.storageClass.includes(sc)}
+                    onChange={() => handleStorageClassChange(sc)}
+                  />
                 ))}
-              </div>
-            </div>
-          )}
+              </fieldset>
+            )}
 
-          {/* Cluster Filter */}
-          {filterOptions.clusters && filterOptions.clusters.length > 0 && (
-            <div className="filter-group">
-              <label className="filter-label">Cluster</label>
-              <div className="filter-checkbox-group">
+            {/* Cluster Filter */}
+            {filterOptions.clusters && filterOptions.clusters.length > 0 && (
+              <fieldset className="filter-group">
+                <legend className="filter-label">Cluster</legend>
                 {filterOptions.clusters.map((cluster) => (
-                  <label key={cluster} className="checkbox">
-                    <input
-                      type="checkbox"
-                      checked={filters.cluster.includes(cluster)}
-                      onChange={() => handleClusterChange(cluster)}
-                    />
-                    <span className="checkbox-label">{cluster}</span>
-                  </label>
+                  <Checkbox
+                    key={cluster}
+                    id={`cluster-${cluster}`}
+                    labelText={cluster}
+                    checked={filters.cluster.includes(cluster)}
+                    onChange={() => handleClusterChange(cluster)}
+                  />
                 ))}
-              </div>
-            </div>
-          )}
+              </fieldset>
+            )}
 
-          {/* Mock Data Toggle */}
-          <div className="filter-group">
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={useMockData}
-                onChange={(e) => onMockDataToggle(e.target.checked)}
+            {/* Mock Data Toggle */}
+            <div className="filter-group">
+              <Toggle
+                id="mock-data-toggle"
+                labelText="Use Mock Data (Dev Mode)"
+                toggled={useMockData}
+                onToggle={(checked) => onMockDataToggle(checked)}
               />
-              <span className="checkbox-label">Use Mock Data (Dev Mode)</span>
-            </label>
-          </div>
+            </div>
 
-          {/* Clear Filters Button */}
-          {activeFilterCount > 0 && (
-            <button className="btn-clear-filters" onClick={handleClearFilters}>
-              Clear All Filters
-            </button>
-          )}
-        </div>
-      )}
+            {/* Clear Filters Button */}
+            {activeFilterCount > 0 && (
+              <Button
+                kind="secondary"
+                size="sm"
+                onClick={handleClearFilters}
+                style={{ marginTop: "1rem" }}
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };

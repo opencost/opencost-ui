@@ -9,6 +9,7 @@
 
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
+import { Tile } from "@carbon/react";
 
 /**
  * Calculate cost aggregation
@@ -68,7 +69,7 @@ const CostBreakdownChart = ({ assets }) => {
 
   return (
     <div className="cost-breakdown-container">
-      <div className="cost-breakdown-chart">
+      <Tile className="cost-breakdown-chart">
         <h3>Cost by Cluster</h3>
         <div className="chart-wrapper">
           {clusterCosts.length > 0 ? (
@@ -93,9 +94,9 @@ const CostBreakdownChart = ({ assets }) => {
             <p className="no-data">No cluster data</p>
           )}
         </div>
-      </div>
+      </Tile>
 
-      <div className="cost-breakdown-chart">
+      <Tile className="cost-breakdown-chart">
         <h3>Cost by Asset Type</h3>
         <div className="chart-wrapper">
           {assetTypeCosts.length > 0 ? (
@@ -120,9 +121,9 @@ const CostBreakdownChart = ({ assets }) => {
             <p className="no-data">No asset type data</p>
           )}
         </div>
-      </div>
+      </Tile>
 
-      <div className="cost-breakdown-chart">
+      <Tile className="cost-breakdown-chart">
         <h3>Cost by Storage Class</h3>
         <div className="chart-wrapper">
           {storageClassCosts.length > 0 ? (
@@ -147,7 +148,7 @@ const CostBreakdownChart = ({ assets }) => {
             <p className="no-data">No storage class data</p>
           )}
         </div>
-      </div>
+      </Tile>
     </div>
   );
 };

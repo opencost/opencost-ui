@@ -9,6 +9,7 @@
 
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
+import { Tile, Button, Tag } from "@carbon/react";
 import { generateInsights } from "./../../utils/assetInsights";
 import { formatCurrency } from "./../../utils/assetCalculations";
 
@@ -22,9 +23,9 @@ const InsightsPanel = ({ assets }) => {
     return (
       <div className="insights-panel">
         <h3>Actionable Insights</h3>
-        <div className="insights-empty">
+        <Tile className="insights-empty">
           <p>✓ All assets are optimized. No recommendations at this time.</p>
-        </div>
+        </Tile>
       </div>
     );
   }
@@ -38,9 +39,11 @@ const InsightsPanel = ({ assets }) => {
 
       <div className="insights-list">
         {insights.map((insight, index) => (
-          <div key={insight.id} className={`insight-card insight-${insight.severity}`}>
+          <Tile key={insight.id} className={`insight-card insight-${insight.severity}`}>
             <div className="insight-header">
-              <div className="insight-rank">#{index + 1}</div>
+              <Tag type="blue" size="sm" className="insight-rank">
+                #{index + 1}
+              </Tag>
               <div className="insight-title">{insight.title}</div>
               <div className="insight-savings">
                 Save {formatCurrency(insight.savings)}/month
@@ -62,9 +65,11 @@ const InsightsPanel = ({ assets }) => {
                   <strong>{insight.confidence}%</strong> confidence
                 </span>
               </div>
-              <button className="btn-action">{insight.action}</button>
+              <Button kind="primary" size="sm" className="btn-action">
+                {insight.action}
+              </Button>
             </div>
-          </div>
+          </Tile>
         ))}
       </div>
     </div>

@@ -9,6 +9,26 @@
  * - Table section
  */
 
+/* Carbon Design System Adjustments */
+.cds--tile {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cds--tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cds--btn--primary {
+  background-color: #0f62fe;
+}
+
+.cds--btn--secondary {
+  background-color: transparent;
+  border-color: #0f62fe;
+  color: #0f62fe;
+}
+
 /* Dashboard Container */
 .assets-dashboard {
   padding: 2rem;
@@ -355,12 +375,22 @@ section {
 }
 
 /* Filter Panel */
-.filter-panel {
+.filter-panel,
+.filter-panel-carbon {
   background: white;
   padding: 1.5rem;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+}
+
+/* Carbon Filter Panel specific adjustments */
+.filter-panel-carbon .cds--accordion__item {
+  border-top: none;
+}
+
+.filter-panel-carbon .filter-options {
+  padding: 1rem 0;
 }
 
 .filter-header {
@@ -460,11 +490,22 @@ section {
 }
 
 /* Asset Table */
-.asset-table-container {
+.asset-table-container,
+.asset-table-carbon {
   background: white;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+/* Carbon DataTable adjustments */
+.asset-table-carbon .cds--data-table-container {
+  background: white;
+}
+
+.asset-table-carbon .cds--table-toolbar {
+  background: #f4f4f4;
 }
 
 .table-header {

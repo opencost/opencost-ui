@@ -161,9 +161,8 @@ const AssetsDashboard = () => {
       let result;
 
       if (useMockData) {
-        console.log("Using mock data for development");
         result = AssetsService.getMockData();
-        // Simulate network delay
+        // Simulate network delay for realistic UX
         await new Promise((resolve) => setTimeout(resolve, 500));
       } else {
         result = await AssetsService.fetchAssets("30d");

@@ -8,7 +8,8 @@ const Page = (props) => {
     <div
       style={{
         display: "flex",
-        overflowY: "scroll",
+        height: "100vh",
+        overflow: "hidden",
         margin: "0px",
         backgroundColor: "f3f3f3",
       }}
@@ -24,11 +25,11 @@ const Page = (props) => {
         <div
           style={{
             position: "relative",
-            height: "100vh",
+            height: "100%", // Fit parent
             flexGrow: 1,
-            overflowX: "auto",
+            overflowY: "auto", // Main content scrolls here
             paddingLeft: "2rem",
-            paddingRight: "rem",
+            paddingRight: "2rem", // Fixed typo "rem" -> "2rem"
             paddingTop: "2.5rem",
           }}
         >

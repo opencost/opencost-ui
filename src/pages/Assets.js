@@ -327,9 +327,9 @@ const Assets = () => {
           <section className="efficiency-section" style={{ marginBottom: "2rem" }}>
             <Grid>
                <Column lg={8} md={8} sm={4}>
-                  <Tile style={{ padding: "16px" }}>
+                  <Tile style={{ padding: "16px", backgroundColor: "#161616", color: "#ffffff" }}>
                     <h4 style={{ marginBottom: "1rem" }}>Cluster Efficiency Gauge</h4>
-                     <p style={{ color: "#525252", fontSize: "0.875rem", marginBottom: "1rem" }}>Actual vs Idle resources</p>
+                     <p style={{ color: "#c6c6c6", fontSize: "0.875rem", marginBottom: "1rem" }}>Actual vs Idle resources</p>
                     <div style={{ height: "250px", width: "100%", position: "relative" }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -347,13 +347,13 @@ const Assets = () => {
                             cornerRadius={40}
                           >
                             <Cell key="cell-used" fill="#0f62fe" />
-                            <Cell key="cell-idle" fill="#e0e0e0" />
+                            <Cell key="cell-idle" fill="#393939" />
                           </Pie>
                         </PieChart>
                       </ResponsiveContainer>
                       <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" }}>
                          <h2 style={{ fontSize: "2.5rem", fontWeight: "600", marginBottom: 0, lineHeight: 1 }}>76%</h2>
-                         <span style={{ color: "#525252", fontSize: "1rem" }}>Efficiency</span>
+                         <span style={{ color: "#c6c6c6", fontSize: "1rem" }}>Efficiency</span>
                       </div>
                     </div>
                   </Tile>

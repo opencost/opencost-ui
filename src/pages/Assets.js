@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Loading, InlineNotification, ContentSwitcher, Switch } from "@carbon/react";
 import Page from "../components/Page";
 import Header from "../components/Header";

@@ -3,15 +3,8 @@ import client from "./api_client";
 const AssetsService = {
   fetchAssets: async (timeWindow = "30d", options = {}) => {
     try {
-      const params = new URLSearchParams({
-        window: timeWindow,
-        aggregate: "type",
-        accumulate: true,
-        ...options,
-      });
-
-      const response = await client.get(`/model/assets?${params}`, {
-        headers: { "Content-Type": "application/json" },
+      const response = await client.get("/assets", {
+        params: { window: timeWindow, aggregate: "type", accumulate: true, ...options },
       });
 
       const days = parseInt(timeWindow) || 30;

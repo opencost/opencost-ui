@@ -1,12 +1,3 @@
-/**
- * Jest Configuration for OpenCost UI
- *
- * Configures testing environment for:
- * - React components
- * - Utility functions
- * - CSS modules
- */
-
 module.exports = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.js"],
@@ -18,7 +9,7 @@ module.exports = {
     "^.+\\.(js|jsx)$": "babel-jest",
   },
   testMatch: [
-    "<rootDir>/src/**/__tests__/**/*.{js,jsx}",
+    "<rootDir>/src/**/__tests__/**/*.test.{js,jsx}",
     "<rootDir>/src/**/*.{spec,test}.{js,jsx}",
   ],
   collectCoverageFrom: [

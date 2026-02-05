@@ -1,7 +1,3 @@
-/**
- * Tests for FilterPanel component
- */
-
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterPanel from "../FilterPanel";
@@ -92,7 +88,7 @@ describe("FilterPanel", () => {
       />
     );
 
-    const clearButton = screen.getByText(/Clear Filters/i);
+    const clearButton = screen.getByText(/Clear All Filters/i);
     await user.click(clearButton);
 
     expect(mockOnFiltersChange).toHaveBeenCalled();

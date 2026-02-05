@@ -1,13 +1,3 @@
-/**
- * AssetTable - Carbon DataTable for assets
- *
- * Uses Carbon Design System DataTable component with:
- * - Sortable columns
- * - Pagination
- * - Status indicators
- * - Search functionality
- */
-
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import {
@@ -29,27 +19,25 @@ import {
   calculateUsage,
   getAssetStatus,
   formatCurrency,
-} from "./../../utils/assetCalculations";
+} from "../../utils/assetCalculations";
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 20, 50];
+
+const headers = [
+  { key: "name", header: "Asset Name" },
+  { key: "cluster", header: "Cluster" },
+  { key: "assetType", header: "Type" },
+  { key: "storageClass", header: "Storage Class" },
+  { key: "cost", header: "Monthly Cost" },
+  { key: "usage", header: "Usage" },
+  { key: "status", header: "Status" },
+];
 
 const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Define table headers
-  const headers = [
-    { key: "name", header: "Asset Name" },
-    { key: "cluster", header: "Cluster" },
-    { key: "assetType", header: "Type" },
-    { key: "storageClass", header: "Storage Class" },
-    { key: "cost", header: "Monthly Cost" },
-    { key: "usage", header: "Usage" },
-    { key: "status", header: "Status" },
-  ];
-
-  // Transform assets into rows for DataTable
   const rows = useMemo(() => {
     return assets.map((asset) => {
       const usage = calculateUsage(asset);
@@ -68,13 +56,11 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
         status: status.label,
         statusType: status.type,
         namespace: asset.claimNamespace,
-        // Store original asset for detailed rendering
         _asset: asset,
       };
     });
   }, [assets]);
 
-  // Filter rows by search term
   const filteredRows = useMemo(() => {
     if (!searchTerm) return rows;
     const term = searchTerm.toLowerCase();
@@ -86,13 +72,11 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
     );
   }, [rows, searchTerm]);
 
-  // Paginate rows
   const paginatedRows = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     return filteredRows.slice(startIndex, startIndex + pageSize);
   }, [filteredRows, currentPage, pageSize]);
 
-  // Handle pagination change
   const handlePaginationChange = ({ page, pageSize: newPageSize }) => {
     setCurrentPage(page);
     setPageSize(newPageSize);
@@ -152,7 +136,6 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
                   return (
                     <TableRow key={row.id} {...rowProps}>
                       {row.cells.map((cell) => {
-                        // Custom rendering for specific columns
                         if (cell.info.header === "name") {
                           return (
                             <TableCell key={cell.id}>
@@ -221,17 +204,13 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
                         if (cell.info.header === "status") {
                           return (
                             <TableCell key={cell.id}>
-                              <Tag
-                                type={rowData.statusType}
-                                size="sm"
-                              >
+                              <Tag type={rowData.statusType} size="sm">
                                 {rowData.status}
                               </Tag>
                             </TableCell>
                           );
                         }
 
-                        // Default rendering
                         return <TableCell key={cell.id}>{cell.value}</TableCell>;
                       })}
                     </TableRow>
@@ -274,12 +253,6 @@ AssetTable.propTypes = {
   ).isRequired,
   totalAssets: PropTypes.number,
   filteredAssets: PropTypes.number,
-};
-
-AssetTable.defaultProps = {
-  assets: [],
-  totalAssets: 0,
-  filteredAssets: 0,
 };
 
 export default AssetTable;

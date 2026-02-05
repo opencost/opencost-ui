@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Loading, InlineNotification } from "@carbon/react";
+import { Loading, InlineNotification, ContentSwitcher, Switch } from "@carbon/react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -98,6 +98,8 @@ function applyFilters(assets, filters) {
   return filtered;
 }
 
+const TIME_WINDOWS = ["7d", "14d", "30d", "60d", "90d"];
+
 const INITIAL_FILTERS = {
   status: [],
   assetType: [],
@@ -112,6 +114,7 @@ const AssetsDashboard = () => {
   const [assets, setAssets] = useState([]);
   const [useMockData, setUseMockData] = useState(false);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [timeWindow, setTimeWindow] = useState("30d");
 
   const fetchAssets = async () => {
     try {
@@ -123,7 +126,7 @@ const AssetsDashboard = () => {
         result = AssetsService.getMockData();
         await new Promise((r) => setTimeout(r, 500));
       } else {
-        result = await AssetsService.fetchAssets("30d");
+        result = await AssetsService.fetchAssets(timeWindow);
       }
 
       if (result?.data) {
@@ -145,7 +148,7 @@ const AssetsDashboard = () => {
 
   useEffect(() => {
     fetchAssets();
-  }, [useMockData]);
+  }, [useMockData, timeWindow]);
 
   const filteredAssets = useMemo(
     () => applyFilters(assets, filters),
@@ -219,6 +222,15 @@ const AssetsDashboard = () => {
       <Header headerTitle="Storage Assets">
         <div className="header-actions">
           {useMockData && <span className="mock-data-badge">Mock Data</span>}
+          <ContentSwitcher
+            size="sm"
+            selectedIndex={TIME_WINDOWS.indexOf(timeWindow)}
+            onChange={(e) => setTimeWindow(TIME_WINDOWS[e.index])}
+          >
+            {TIME_WINDOWS.map((w) => (
+              <Switch key={w} name={w} text={w} />
+            ))}
+          </ContentSwitcher>
           <button onClick={fetchAssets} className="btn-refresh" title="Refresh">
             ↻
           </button>
@@ -227,7 +239,7 @@ const AssetsDashboard = () => {
 
       <div className="assets-dashboard">
         <section className="kpi-section">
-          <KPICards assets={filteredAssets} />
+          <KPICards assets={filteredAssets} timeWindow={timeWindow} />
         </section>
 
         <section className="charts-section">

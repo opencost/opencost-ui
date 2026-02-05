@@ -1,14 +1,3 @@
-/**
- * FilterPanel - Multi-filter system for assets
- *
- * Allows filtering by:
- * - Status (OK, Review, Waste)
- * - Asset Type (Nodes, PVCs)
- * - Storage Class
- * - Cluster
- * - Search term
- */
-
 import React from "react";
 import PropTypes from "prop-types";
 import {
@@ -19,7 +8,6 @@ import {
   Accordion,
   AccordionItem,
 } from "@carbon/react";
-import { Filter } from "@carbon/icons-react";
 
 const FilterPanel = ({
   filters,
@@ -80,7 +68,6 @@ const FilterPanel = ({
 
   return (
     <div className="filter-panel-carbon">
-      {/* Search Bar */}
       <div style={{ marginBottom: "1rem" }}>
         <Search
           size="lg"
@@ -91,11 +78,9 @@ const FilterPanel = ({
         />
       </div>
 
-      {/* Advanced Filters Accordion */}
       <Accordion>
         <AccordionItem title={`Filters ${activeFilterCount > 0 ? `(${activeFilterCount})` : ""}`}>
           <div className="filter-options">
-            {/* Status Filter */}
             <fieldset className="filter-group">
               <legend className="filter-label">Status</legend>
               {["ok", "review", "waste"].map((status) => (
@@ -109,7 +94,6 @@ const FilterPanel = ({
               ))}
             </fieldset>
 
-            {/* Asset Type Filter */}
             {filterOptions.assetTypes && filterOptions.assetTypes.length > 0 && (
               <fieldset className="filter-group">
                 <legend className="filter-label">Asset Type</legend>
@@ -125,7 +109,6 @@ const FilterPanel = ({
               </fieldset>
             )}
 
-            {/* Storage Class Filter */}
             {filterOptions.storageClasses && filterOptions.storageClasses.length > 0 && (
               <fieldset className="filter-group">
                 <legend className="filter-label">Storage Class</legend>
@@ -141,7 +124,6 @@ const FilterPanel = ({
               </fieldset>
             )}
 
-            {/* Cluster Filter */}
             {filterOptions.clusters && filterOptions.clusters.length > 0 && (
               <fieldset className="filter-group">
                 <legend className="filter-label">Cluster</legend>
@@ -157,7 +139,6 @@ const FilterPanel = ({
               </fieldset>
             )}
 
-            {/* Mock Data Toggle */}
             <div className="filter-group">
               <Toggle
                 id="mock-data-toggle"
@@ -167,7 +148,6 @@ const FilterPanel = ({
               />
             </div>
 
-            {/* Clear Filters Button */}
             {activeFilterCount > 0 && (
               <Button
                 kind="secondary"
@@ -201,11 +181,6 @@ FilterPanel.propTypes = {
   }).isRequired,
   useMockData: PropTypes.bool,
   onMockDataToggle: PropTypes.func,
-};
-
-FilterPanel.defaultProps = {
-  useMockData: false,
-  onMockDataToggle: () => {},
 };
 
 export default FilterPanel;

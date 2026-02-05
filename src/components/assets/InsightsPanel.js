@@ -1,30 +1,18 @@
-/**
- * InsightsPanel - Display actionable recommendations
- *
- * Shows:
- * - Ranked insights by potential savings
- * - Action items for cost optimization
- * - Confidence levels for each recommendation
- */
-
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, Button, Tag } from "@carbon/react";
-import { generateInsights } from "./../../utils/assetInsights";
-import { formatCurrency } from "./../../utils/assetCalculations";
+import { generateInsights } from "../../utils/assetInsights";
+import { formatCurrency } from "../../utils/assetCalculations";
 
 const InsightsPanel = ({ assets }) => {
-  // Generate insights
-  const insights = useMemo(() => {
-    return generateInsights(assets);
-  }, [assets]);
+  const insights = useMemo(() => generateInsights(assets), [assets]);
 
   if (insights.length === 0) {
     return (
       <div className="insights-panel">
         <h3>Actionable Insights</h3>
         <Tile className="insights-empty">
-          <p>✓ All assets are optimized. No recommendations at this time.</p>
+          <p>All assets are optimized. No recommendations at this time.</p>
         </Tile>
       </div>
     );
@@ -89,10 +77,6 @@ InsightsPanel.propTypes = {
       local: PropTypes.number,
     })
   ).isRequired,
-};
-
-InsightsPanel.defaultProps = {
-  assets: [],
 };
 
 export default InsightsPanel;

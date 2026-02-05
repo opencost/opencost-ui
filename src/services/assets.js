@@ -1,22 +1,6 @@
-/**
- * AssetsService - Handles API calls to fetch asset data and provides mock data fallback
- *
- * Usage:
- *   const data = await AssetsService.fetchAssets("30d");
- *   const mockData = AssetsService.getMockData();
- */
-
 import client from "./api_client";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:9003";
-
 const AssetsService = {
-  /**
-   * Fetch assets from OpenCost backend API
-   * @param {string} timeWindow - Time window (e.g., "7d", "30d", "120d")
-   * @param {object} options - Additional query parameters
-   * @returns {Promise<object>} - Asset data with window information
-   */
   fetchAssets: async (timeWindow = "30d", options = {}) => {
     try {
       const params = new URLSearchParams({
@@ -27,18 +11,17 @@ const AssetsService = {
       });
 
       const response = await client.get(`/model/assets?${params}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
-      // Transform API response
+      const days = parseInt(timeWindow) || 30;
+
       return {
         data: response.data || {},
         window: {
-          start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          start: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
           end: new Date().toISOString(),
-          days: 30,
+          days,
         },
       };
     } catch (error) {
@@ -47,11 +30,6 @@ const AssetsService = {
     }
   },
 
-  /**
-   * Get mock data for development/testing
-   * Simulates real asset data structure
-   * @returns {object} - Mock asset data with window information
-   */
   getMockData: () => {
     const now = new Date();
     const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);

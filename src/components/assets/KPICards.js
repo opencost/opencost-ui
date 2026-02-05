@@ -1,13 +1,3 @@
-/**
- * KPICards - Display key performance indicators for asset costs
- *
- * Shows:
- * - Total Storage Cost
- * - Wasted Cost (idle storage)
- * - Efficiency Score
- * - Asset Count
- */
-
 import React from "react";
 import PropTypes from "prop-types";
 import { Tile } from "@carbon/react";
@@ -17,34 +7,41 @@ import {
   calculateEfficiencyScore,
   formatCurrency,
   getTotalProvisioned,
-} from "./../../utils/assetCalculations";
+} from "../../utils/assetCalculations";
 
-const KPICards = ({ assets }) => {
-  // Calculate KPI values
+function windowLabel(timeWindow) {
+  const days = parseInt(timeWindow) || 30;
+  if (days <= 7) return "Last 7 days";
+  if (days <= 14) return "Last 14 days";
+  if (days <= 30) return "Last 30 days";
+  if (days <= 60) return "Last 60 days";
+  return `Last ${days} days`;
+}
+
+const KPICards = ({ assets, timeWindow }) => {
   const totalCost = getTotalCost(assets);
   const wastedCost = getTotalWastedCost(assets);
   const efficiencyScore = calculateEfficiencyScore(assets);
   const totalProvisioned = getTotalProvisioned(assets);
   const assetCount = assets.length;
 
-  // Get efficiency status color
   const getEfficiencyColor = (score) => {
-    if (score >= 80) return "#24a148"; // Green
-    if (score >= 50) return "#ff832b"; // Orange
-    return "#da1e28"; // Red
+    if (score >= 80) return "#24a148";
+    if (score >= 50) return "#ff832b";
+    return "#da1e28";
   };
+
+  const period = windowLabel(timeWindow);
 
   return (
     <div className="kpi-cards-container">
-      {/* Total Cost Card */}
       <Tile className="kpi-card">
         <div className="kpi-icon">💰</div>
         <div className="kpi-label">Total Storage Cost</div>
         <div className="kpi-value">{formatCurrency(totalCost)}</div>
-        <div className="kpi-subtitle">Monthly (30 days)</div>
+        <div className="kpi-subtitle">{period}</div>
       </Tile>
 
-      {/* Wasted Cost Card */}
       <Tile className="kpi-card kpi-waste">
         <div className="kpi-icon">⚠️</div>
         <div className="kpi-label">Wasted Cost</div>
@@ -54,7 +51,6 @@ const KPICards = ({ assets }) => {
         <div className="kpi-subtitle">From idle storage</div>
       </Tile>
 
-      {/* Efficiency Score Card */}
       <Tile className="kpi-card">
         <div className="kpi-icon">📊</div>
         <div className="kpi-label">Efficiency Score</div>
@@ -73,7 +69,6 @@ const KPICards = ({ assets }) => {
         </div>
       </Tile>
 
-      {/* Total Provisioned Card */}
       <Tile className="kpi-card">
         <div className="kpi-icon">📦</div>
         <div className="kpi-label">Total Provisioned</div>
@@ -81,7 +76,6 @@ const KPICards = ({ assets }) => {
         <div className="kpi-subtitle">Allocated storage</div>
       </Tile>
 
-      {/* Asset Count Card */}
       <Tile className="kpi-card">
         <div className="kpi-icon">🗂️</div>
         <div className="kpi-label">Total Assets</div>
@@ -89,7 +83,6 @@ const KPICards = ({ assets }) => {
         <div className="kpi-subtitle">Nodes & PVCs</div>
       </Tile>
 
-      {/* Savings Potential Card */}
       <Tile className="kpi-card kpi-savings">
         <div className="kpi-icon">💵</div>
         <div className="kpi-label">Potential Savings</div>
@@ -116,10 +109,7 @@ KPICards.propTypes = {
       }),
     })
   ).isRequired,
-};
-
-KPICards.defaultProps = {
-  assets: [],
+  timeWindow: PropTypes.string,
 };
 
 export default KPICards;

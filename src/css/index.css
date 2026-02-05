@@ -1,12 +1,141 @@
 @import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
+@import "../../node_modules/@carbon/styles/css/styles.css";
+@import "../../node_modules/@carbon/charts/styles.css";
+
+/* ============================================
+   THEME SYSTEM - CSS Custom Properties
+   ============================================ */
+
+/* Light theme (default) */
+:root,
+[data-theme="light"] {
+  /* Background colors */
+  --bg-primary: #f3f3f3;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e0e0e0;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  
+  /* Text colors */
+  --text-primary: #161616;
+  --text-secondary: #525252;
+  --text-tertiary: #6f6f6f;
+  --text-inverse: #ffffff;
+  
+  /* Border colors */
+  --border-subtle: #e0e0e0;
+  --border-strong: #8d8d8d;
+  
+  /* Brand/accent colors */
+  --color-primary: #0f62fe;
+  --color-primary-hover: #0353e9;
+  --color-success: #24a148;
+  --color-warning: #f1c21b;
+  --color-error: #da1e28;
+  
+  /* Chart colors */
+  --color-total: #00539a;
+  --color-cpu: #8a3ffc;
+  --color-ram: #007d79;
+  --color-gpu: #ee5396;
+  --color-other: #6929c4;
+  
+  /* Sidebar - Light theme */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #161616;
+  --sidebar-hover: #e8e8e8;
+  --sidebar-active: #0f62fe;
+  
+  /* Cards/Tiles */
+  --card-bg: #ffffff;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  
+  /* Table */
+  --table-header-bg: #e0e0e0;
+  --table-row-hover: #e8e8e8;
+  --table-border: #e0e0e0;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  /* Background colors */
+  --bg-primary: #161616;
+  --bg-secondary: #262626;
+  --bg-tertiary: #393939;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  
+  /* Text colors */
+  --text-primary: #f4f4f4;
+  --text-secondary: #c6c6c6;
+  --text-tertiary: #8d8d8d;
+  --text-inverse: #161616;
+  
+  /* Border colors */
+  --border-subtle: #393939;
+  --border-strong: #6f6f6f;
+  
+  /* Brand/accent colors */
+  --color-primary: #78a9ff;
+  --color-primary-hover: #a6c8ff;
+  --color-success: #42be65;
+  --color-warning: #f1c21b;
+  --color-error: #fa4d56;
+  
+  /* Chart colors - vibrant neon colors for dark mode */
+  --color-total: #6fdc8c;
+  --color-cpu: #d4bbff;
+  --color-ram: #3ddbd9;
+  --color-gpu: #ff7eb6;
+  --color-other: #d2a106;
+  
+  /* Chart type colors for pie/donut */
+  --chart-node: #33b1ff;
+  --chart-disk: #ff7eb6;
+  --chart-loadbalancer: #42be65;
+  --chart-cluster: #be95ff;
+  --chart-network: #fa4d56;
+  --chart-shared: #8a8a8a;
+  
+  /* Sidebar */
+  --sidebar-bg: #0d0d0d;
+  --sidebar-text: #f4f4f4;
+  --sidebar-hover: #353535;
+  --sidebar-active: #78a9ff;
+  
+  /* Cards/Tiles */
+  --card-bg: #262626;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  
+  /* Table */
+  --table-header-bg: #333333;
+  --table-row-hover: #353535;
+  --table-border: #393939;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 
 body {
-  background-color: #f3f3f3;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   display: flex;
   flex-flow: column;
   font-family: "Roboto", sans-serif;
   margin: 0px;
   overflow-y: scroll;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Scope Carbon styles to assets page to avoid breaking existing MUI pages */
+.assets-page {
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.assets-page .cds--dropdown,
+.assets-page .cds--btn,
+.assets-page .cds--data-table,
+.assets-page .cds--tile {
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
 body .page-container {
@@ -18,3 +147,455 @@ body .page-container {
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+
+/* ============================================
+   DARK MODE COMPONENT OVERRIDES
+   ============================================ */
+
+/* MUI Typography */
+[data-theme="dark"] .MuiTypography-root {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .MuiTypography-colorTextPrimary {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .MuiTypography-colorTextSecondary {
+  color: var(--text-secondary);
+}
+
+/* MUI Paper/Cards */
+[data-theme="dark"] .MuiPaper-root {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+/* MUI Tables */
+[data-theme="dark"] .MuiTableCell-root {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .MuiTableHead-root .MuiTableCell-root {
+  background-color: var(--table-header-bg);
+}
+
+[data-theme="dark"] .MuiTableRow-root:hover {
+  background-color: var(--table-row-hover);
+}
+
+/* MUI Select/Input */
+[data-theme="dark"] .MuiSelect-root,
+[data-theme="dark"] .MuiInputBase-root {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .MuiOutlinedInput-notchedOutline {
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .MuiInputLabel-root {
+  color: var(--text-secondary);
+}
+
+/* MUI Buttons */
+[data-theme="dark"] .MuiButton-root {
+  color: var(--text-primary);
+}
+
+/* MUI Links */
+[data-theme="dark"] .MuiLink-root {
+  color: var(--color-primary);
+}
+
+/* MUI Breadcrumbs */
+[data-theme="dark"] .MuiBreadcrumbs-root {
+  color: var(--text-secondary);
+}
+
+/* MUI Checkbox */
+[data-theme="dark"] .MuiCheckbox-root {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .MuiCheckbox-root.Mui-checked {
+  color: var(--color-primary);
+}
+
+/* MUI FormControlLabel */
+[data-theme="dark"] .MuiFormControlLabel-label {
+  color: var(--text-primary);
+}
+
+/* Sidebar dark mode */
+.MuiDrawer-paper {
+  background-color: var(--sidebar-bg) !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Carbon components dark mode for Assets page */
+[data-theme="dark"] .assets-page .cds--tile {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .assets-page .cds--data-table {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .assets-page .cds--data-table th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .assets-page .cds--data-table td {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-top-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .assets-page .cds--dropdown {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .assets-page .cds--list-box__label {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .assets-page .cds--list-box__menu {
+  background-color: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .assets-page .cds--list-box__menu-item {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .assets-page .cds--list-box__menu-item:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Recharts dark mode */
+[data-theme="dark"] .recharts-text {
+  fill: var(--text-primary);
+}
+
+[data-theme="dark"] .recharts-cartesian-axis-line,
+[data-theme="dark"] .recharts-cartesian-axis-tick-line {
+  stroke: var(--border-subtle);
+}
+
+[data-theme="dark"] .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary);
+}
+
+/* Allocation report card styles */
+[data-theme="dark"] .allocation-report {
+  background-color: var(--card-bg);
+}
+
+/* ============================================
+   CARBON CHARTS DARK MODE
+   ============================================ */
+
+/* Carbon Charts - Global container backgrounds */
+[data-theme="dark"] .cds--cc--chart-wrapper,
+[data-theme="dark"] .cds--cc--donut,
+[data-theme="dark"] .cds--cc--pie,
+[data-theme="dark"] .chart-holder,
+[data-theme="dark"] .cds--chart-holder,
+[data-theme="dark"] .bx--cc--chart-wrapper,
+[data-theme="dark"] .bx--chart-holder,
+[data-theme="dark"] [class*="chart-wrapper"],
+[data-theme="dark"] [class*="chart-holder"] {
+  background-color: var(--card-bg) !important;
+}
+
+/* Force all chart SVG backgrounds */
+[data-theme="dark"] .cds--cc--chart-wrapper svg,
+[data-theme="dark"] .bx--cc--chart-wrapper svg {
+  background-color: transparent !important;
+}
+
+/* Carbon Charts - Title and legend text */
+[data-theme="dark"] .cds--cc--title,
+[data-theme="dark"] .cds--cc--title p,
+[data-theme="dark"] .cds--cc--legend text,
+[data-theme="dark"] .cds--cc--legend .legend-item text,
+[data-theme="dark"] .cds--cc--tooltip,
+[data-theme="dark"] .cds--cc--legend-item text,
+[data-theme="dark"] .bx--cc--title,
+[data-theme="dark"] .bx--cc--legend text {
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+/* Carbon Charts - Axis text */
+[data-theme="dark"] .cds--cc--axes text,
+[data-theme="dark"] .cds--cc--axis text,
+[data-theme="dark"] .tick text,
+[data-theme="dark"] .bx--cc--axes text {
+  fill: var(--text-secondary) !important;
+}
+
+/* Carbon Charts - Center label for donut */
+[data-theme="dark"] .cds--cc--pie-chart .center-label,
+[data-theme="dark"] .cds--cc--donut .center text,
+[data-theme="dark"] .center text,
+[data-theme="dark"] text.donut-figure,
+[data-theme="dark"] text.donut-title {
+  fill: var(--text-primary) !important;
+}
+
+/* Carbon Charts - Tooltip */
+[data-theme="dark"] .cds--cc--tooltip,
+[data-theme="dark"] .bx--cc--tooltip,
+[data-theme="dark"] [class*="cc--tooltip"] {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Carbon Charts - Legend */
+[data-theme="dark"] .cds--cc--legend,
+[data-theme="dark"] .bx--cc--legend {
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .cds--cc--legend-item,
+[data-theme="dark"] .bx--cc--legend-item,
+[data-theme="dark"] .legend-item {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .legend-item text {
+  fill: var(--text-primary) !important;
+}
+
+/* Force chart wrapper div backgrounds */
+[data-theme="dark"] .assets-page > div > div {
+  background-color: transparent;
+}
+
+/* Charts container cards */
+[data-theme="dark"] .assets-page div[style*="background"] {
+  background-color: var(--card-bg) !important;
+}
+
+/* ============================================
+   CARBON DATA TABLE DARK MODE (GLOBAL)
+   ============================================ */
+
+[data-theme="dark"] .cds--data-table-container {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .cds--data-table {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .cds--data-table thead,
+[data-theme="dark"] .cds--data-table th,
+[data-theme="dark"] .cds--data-table-header {
+  background-color: #333333 !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .cds--table-sort {
+  background-color: #333333 !important;
+}
+
+[data-theme="dark"] .cds--table-sort:hover {
+  background-color: #444444 !important;
+}
+
+[data-theme="dark"] .cds--data-table tbody tr {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .cds--data-table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+[data-theme="dark"] .cds--data-table td {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-top-color: var(--border-subtle) !important;
+  border-bottom-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .cds--table-header-label {
+  color: var(--text-primary) !important;
+}
+
+/* Carbon Table Container Title */
+[data-theme="dark"] .cds--data-table-header,
+[data-theme="dark"] .cds--data-table-header__title {
+  background-color: var(--card-bg);
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   CARBON TILE DARK MODE (GLOBAL)
+   ============================================ */
+
+[data-theme="dark"] .cds--tile {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   CARBON DROPDOWN DARK MODE (GLOBAL)
+   ============================================ */
+
+[data-theme="dark"] .cds--dropdown,
+[data-theme="dark"] .cds--list-box {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .cds--list-box__label,
+[data-theme="dark"] .cds--list-box__field {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .cds--list-box__menu {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .cds--list-box__menu-item {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .cds--list-box__menu-item:hover,
+[data-theme="dark"] .cds--list-box__menu-item--active {
+  background-color: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .cds--list-box__menu-icon svg {
+  fill: var(--text-primary) !important;
+}
+
+/* ============================================
+   CARBON BUTTON DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .cds--btn--tertiary {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] .cds--btn--ghost {
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   CARBON TAG DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .cds--tag {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Specific tag colors for better visibility in dark mode */
+[data-theme="dark"] .cds--tag--blue {
+  background-color: #0043ce;
+  color: #d0e2ff;
+}
+
+[data-theme="dark"] .cds--tag--purple {
+  background-color: #6929c4;
+  color: #e8daff;
+}
+
+[data-theme="dark"] .cds--tag--magenta {
+  background-color: #9f1853;
+  color: #ffd6e8;
+}
+
+[data-theme="dark"] .cds--tag--teal {
+  background-color: #005d5d;
+  color: #9ef0f0;
+}
+
+[data-theme="dark"] .cds--tag--cyan {
+  background-color: #00539a;
+  color: #bae6ff;
+}
+
+[data-theme="dark"] .cds--tag--gray {
+  background-color: #525252;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .cds--tag--green {
+  background-color: #0e6027;
+  color: #a7f0ba;
+}
+
+[data-theme="dark"] .cds--tag--red {
+  background-color: #a2191f;
+  color: #ffd7d9;
+}
+
+/* ============================================
+   MUI TABLE CONTAINER DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .MuiTableContainer-root {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .MuiTable-root {
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .MuiTablePagination-root {
+  color: var(--text-primary);
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .MuiTablePagination-selectIcon {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .MuiIconButton-root {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .MuiIconButton-root.Mui-disabled {
+  color: var(--text-tertiary);
+}
+
+/* ============================================
+   RECHARTS DARK MODE (ENHANCED)
+   ============================================ */
+
+[data-theme="dark"] .recharts-wrapper {
+  background-color: transparent;
+}
+
+[data-theme="dark"] .recharts-surface {
+  background-color: transparent;
+}
+
+[data-theme="dark"] .recharts-legend-item-text {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .recharts-cartesian-grid line {
+  stroke: var(--border-subtle);
+}
+
+/* Report container */
+[data-theme="dark"] #report {
+  background-color: var(--card-bg);
+  border-radius: 4px;
+}
+

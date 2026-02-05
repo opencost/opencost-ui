@@ -22,7 +22,7 @@ class AllocationService {
     }
     
     try {
-      const result = await client.get("/allocation/compute", {
+      const result = await client.get("/model/allocation", {
         params,
       });
       return result.data;

@@ -15,6 +15,11 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+    "@carbon/charts": "^1.22.1",
+    "@carbon/charts-react": "^1.22.1",
+    "@carbon/icons-react": "^11.52.0",
+    "@carbon/react": "^1.71.0",
+    "@carbon/styles": "^1.71.0",
     "@date-io/core": "^3.2.0",
     "@date-io/date-fns": "^3.2.1",
     "@emotion/react": "^11.14.0",

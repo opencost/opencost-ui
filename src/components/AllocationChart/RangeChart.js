@@ -7,22 +7,27 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { primary, greyscale, browns } from "../../constants/colors";
+import { primary, primaryDark, greyscale, greyscaleDark, browns, brownsDark } from "../../constants/colors";
 import { toCurrency } from "../../util";
+import { useTheme } from "../../contexts/ThemeContext";
 
-function toBarLabels(allocationRange) {
+function toBarLabels(allocationRange, isDarkMode) {
   let keyToFill = {};
   let p = 0;
   let g = 0;
   let b = 0;
+
+  const primaryColors = isDarkMode ? primaryDark : primary;
+  const greyColors = isDarkMode ? greyscaleDark : greyscale;
+  const brownColors = isDarkMode ? brownsDark : browns;
 
   for (const { idle } of allocationRange) {
     for (const allocation of idle) {
       const key = allocation.name;
       if (keyToFill[key] === undefined) {
         // idle allocations are assigned grey
-        keyToFill[key] = greyscale[g];
-        g = (g + 1) % greyscale.length;
+        keyToFill[key] = greyColors[g];
+        g = (g + 1) % greyColors.length;
       }
     }
   }
@@ -32,12 +37,12 @@ function toBarLabels(allocationRange) {
       const key = allocation.name;
       if (keyToFill[key] === undefined) {
         if (key === "__unallocated__") {
-          // unallocated gets black (clean up)
-          keyToFill[key] = "#212121";
+          // unallocated gets dark color
+          keyToFill[key] = isDarkMode ? "#525252" : "#212121";
         } else {
           // non-idle allocations get the next available color
-          keyToFill[key] = primary[p];
-          p = (p + 1) % primary.length;
+          keyToFill[key] = primaryColors[p];
+          p = (p + 1) % primaryColors.length;
         }
       }
     }
@@ -48,8 +53,8 @@ function toBarLabels(allocationRange) {
       const key = allocation.name;
       if (keyToFill[key] === undefined) {
         // idle allocations are assigned grey
-        keyToFill[key] = browns[b];
-        b = (b + 1) % browns.length;
+        keyToFill[key] = brownColors[b];
+        b = (b + 1) % brownColors.length;
       }
     }
   }
@@ -94,8 +99,9 @@ function toBar(datum) {
 }
 
 const RangeChart = ({ data, currency, height }) => {
+  const { isDarkMode } = useTheme();
   const barData = data.map(toBar);
-  const barLabels = toBarLabels(data);
+  const barLabels = toBarLabels(data, isDarkMode);
 
   const CustomTooltip = (params) => {
     const { active, payload } = params;
@@ -110,7 +116,7 @@ const RangeChart = ({ data, currency, height }) => {
         <div
           style={{
             borderRadius: 2,
-            background: "rgba(255, 255, 255, 0.95)",
+            background: isDarkMode ? "rgba(38, 38, 38, 0.95)" : "rgba(255, 255, 255, 0.95)",
             padding: 12,
           }}
         >
@@ -120,7 +126,7 @@ const RangeChart = ({ data, currency, height }) => {
               margin: 0,
               marginBottom: 4,
               padding: 0,
-              color: "#000000",
+              color: isDarkMode ? "#f4f4f4" : "#000000",
             }}
           >{`Total: ${toCurrency(total, currency)}`}</p>
           {reverse(payload).map((item, i) => (
@@ -150,9 +156,9 @@ const RangeChart = ({ data, currency, height }) => {
       width="100%"
       height={height}
     >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="start" />
-      <YAxis />
+      <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#525252" : "#ccc"} />
+      <XAxis dataKey="start" tick={{ fill: isDarkMode ? "#c6c6c6" : "#333" }} />
+      <YAxis tick={{ fill: isDarkMode ? "#c6c6c6" : "#333" }} />
       <Tooltip content={<CustomTooltip />} />
       {barLabels.map((barLabel, i) => (
         <Bar

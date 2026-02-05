@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Drawer, List } from "@mui/material";
+import { Drawer, List, Box } from "@mui/material";
 
 import { NavItem } from "./NavItem";
-import { BarChart, Cloud } from "@mui/icons-material";
+import { BarChart, Cloud, Storage } from "@mui/icons-material";
+import ThemeToggle from "../ThemeToggle";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
@@ -22,6 +23,11 @@ const SidebarNav = ({ active }) => {
       name: "Cost Allocation",
       href: "/allocation",
       icon: <BarChart />,
+    },
+    {
+      name: "Assets",
+      href: "/assets",
+      icon: <Storage />,
     },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
@@ -53,6 +59,9 @@ const SidebarNav = ({ active }) => {
           <NavItem active={active === `${l.href}`} key={l.name} {...l} />
         ))}
       </List>
+      <Box sx={{ padding: '1rem', display: 'flex', justifyContent: 'center' }}>
+        <ThemeToggle />
+      </Box>
     </Drawer>
   );
 };

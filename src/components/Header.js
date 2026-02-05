@@ -15,19 +15,19 @@ const Header = (props) => {
         marginTop: "10px",
       }}
     >
-      <Typography variant="h3" style={{ marginBottom: "10px" }}>
+      <Typography variant="h3" style={{ marginBottom: "10px", color: "var(--text-primary)" }}>
         {headerTitle}
       </Typography>
       <div style={{ flex: "1 0 auto" }}>
-        {title && <Typography variant="h4">{title}</Typography>}
+        {title && <Typography variant="h4" style={{ color: "var(--text-primary)" }}>{title}</Typography>}
         {breadcrumbs && breadcrumbs.length > 0 && (
           <Breadcrumbs aria-label="breadcrumb">
             {breadcrumbs.slice(0, breadcrumbs.length - 1).map((b) => (
-              <Link color="inherit" href={b.href} key={b.name}>
+              <Link color="inherit" href={b.href} key={b.name} style={{ color: "var(--text-secondary)" }}>
                 {b.name}
               </Link>
             ))}
-            <Typography color="textPrimary">
+            <Typography style={{ color: "var(--text-primary)" }}>
               {breadcrumbs[breadcrumbs.length - 1].name}
             </Typography>
           </Breadcrumbs>

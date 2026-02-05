@@ -24,6 +24,20 @@ export const primary = [
   deepPurple[500],
 ];
 
+// Vibrant colors for dark mode charts
+export const primaryDark = [
+  "#78a9ff", // bright blue
+  "#fa4d56", // bright red
+  "#42be65", // bright green
+  "#f1c21b", // bright yellow
+  "#3ddbd9", // bright cyan
+  "#ff832b", // bright orange
+  "#08bdba", // bright teal
+  "#a56eff", // bright indigo
+  "#ff7eb6", // bright pink
+  "#be95ff", // bright purple
+];
+
 export const greyscale = [
   grey[300],
   grey[400],
@@ -33,4 +47,17 @@ export const greyscale = [
   grey[600],
 ];
 
+// Darker greys for dark mode (for idle allocations)
+export const greyscaleDark = [
+  "#6f6f6f",
+  "#8d8d8d",
+  "#525252",
+  "#a8a8a8",
+  "#393939",
+  "#c6c6c6",
+];
+
 export const browns = [brown[500]];
+
+// Browns for dark mode
+export const brownsDark = ["#a47148"];

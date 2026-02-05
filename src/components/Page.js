@@ -10,7 +10,9 @@ const Page = (props) => {
         display: "flex",
         overflowY: "scroll",
         margin: "0px",
-        backgroundColor: "f3f3f3",
+        backgroundColor: "var(--bg-primary)",
+        minHeight: "100vh",
+        transition: "background-color 0.2s ease",
       }}
     >
       <SidebarNav active={pathname} />
@@ -28,7 +30,7 @@ const Page = (props) => {
             flexGrow: 1,
             overflowX: "auto",
             paddingLeft: "2rem",
-            paddingRight: "rem",
+            paddingRight: "2rem",
             paddingTop: "2.5rem",
           }}
         >

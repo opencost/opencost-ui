@@ -1,3 +1,4 @@
+import "@carbon/styles/css/styles.css";
 import { createRoot } from "react-dom/client";
 import Routes from "./route";
 

@@ -18,3 +18,18 @@ body .page-container {
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+
+/* Assets Page Loading Styles */
+.assets-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: transparent;
+}
+
+/* Reduce loading spinner size and improve appearance */
+.bx--loading {
+  width: 32px !important;
+  height: 32px !important;
+}

@@ -1,11 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router";
-
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-
 import Allocations from "./pages/Allocations.js";
 import CloudCosts from "./pages/CloudCosts.js";
 import ExternalCosts from "./pages/ExternalCosts.js";
+import AssetsPage from "./pages/AssetsPage.js";  // ADD THIS
 
 const basename = (process.env.UI_PATH || "").replace(/\/+$/, "");
 
@@ -18,6 +17,7 @@ const RouteSet = () => {
           <Route exact path="/allocation" element={<Allocations />} />
           <Route exact path="/cloud" element={<CloudCosts />} />
           <Route exact path="/external-costs" element={<ExternalCosts />} />
+          <Route exact path="/assets" element={<AssetsPage />} />  {/* ADD THIS */}
         </Routes>
       </BrowserRouter>
     </LocalizationProvider>

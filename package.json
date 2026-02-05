@@ -15,6 +15,9 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+    "@carbon/charts-react": "^1.27.2",
+    "@carbon/icons-react": "^11.74.0",
+    "@carbon/react": "^1.100.0",
     "@date-io/core": "^3.2.0",
     "@date-io/date-fns": "^3.2.1",
     "@emotion/react": "^11.14.0",
@@ -31,17 +34,19 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router": "^7.12.0",
-    "recharts": "^3.6.0"
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-transform-runtime": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
+    "@parcel/transformer-sass": "^2.16.4",
     "buffer": "^6.0.3",
     "parcel": "^2.16.3",
     "prettier": "^3.8.0",
     "process": "^0.11.10",
+    "sass": "^1.97.3",
     "set-value": "4.1.0"
   },
   "resolutions": {

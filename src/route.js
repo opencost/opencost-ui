@@ -7,6 +7,10 @@ import Allocations from "./pages/Allocations.js";
 import CloudCosts from "./pages/CloudCosts.js";
 import ExternalCosts from "./pages/ExternalCosts.js";
 
+// 1. Import new placeholder component
+
+import Assets from "./pages/Assets.js";
+
 const basename = (process.env.UI_PATH || "").replace(/\/+$/, "");
 
 const RouteSet = () => {
@@ -18,6 +22,9 @@ const RouteSet = () => {
           <Route exact path="/allocation" element={<Allocations />} />
           <Route exact path="/cloud" element={<CloudCosts />} />
           <Route exact path="/external-costs" element={<ExternalCosts />} />
+        
+          {/* 2. Add the new Assets route here */}
+          <Route exact path="/assets" element={<Assets />} />
         </Routes>
       </BrowserRouter>
     </LocalizationProvider>

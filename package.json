@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+    "@carbon/react": "^1.33.0",
     "@date-io/core": "^3.2.0",
     "@date-io/date-fns": "^3.2.1",
     "@emotion/react": "^11.14.0",

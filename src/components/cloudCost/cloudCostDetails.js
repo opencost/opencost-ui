@@ -45,6 +45,7 @@ const CloudCostDetails = ({
         agg,
         costMetric,
         nextFilters,
+        currency,
       );
 
       if (resp.data) {

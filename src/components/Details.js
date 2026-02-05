@@ -92,6 +92,7 @@ const Details = ({
 
       const resp = await AllocationService.fetchAllocation(window, "", {
         accumulate: true,
+        currency,
       });
 
       let data = [];

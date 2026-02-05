@@ -2,7 +2,7 @@ import { formatSampleItemsForGraph, parseFilters } from "../util";
 import client from "./api_client";
 
 class CloudCostTopService {
-  async fetchCloudCostData(window, aggregate, costMetric, filters) {
+  async fetchCloudCostData(window, aggregate, costMetric, filters, currency) {
     const params = {
       window,
       aggregate,
@@ -10,13 +10,22 @@ class CloudCostTopService {
       filter: parseFilters(filters ?? []),
       limit: 1000,
     };
+    if (currency) {
+      params.currency = currency;
+    }
 
     if (aggregate.includes("item")) {
-      const resp = await client.get(
-        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
-          filters,
-        )}`,
-      );
+      const itemParams = {
+        window,
+        costMetric,
+        filter: parseFilters(filters),
+      };
+      if (currency) {
+        itemParams.currency = currency;
+      }
+      const resp = await client.get(`/cloudCost`, {
+        params: itemParams,
+      });
       const result_2 = await resp.data;
 
       return formatSampleItemsForGraph(result_2, costMetric);

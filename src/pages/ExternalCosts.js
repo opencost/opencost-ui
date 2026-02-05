@@ -31,7 +31,6 @@ const ExternalCosts = () => {
     aggregationOptions[0].value,
   );
   const [filters, setFilters] = React.useState([]);
-  const [currency, setCurrency] = React.useState("USD");
 
   // page and settings state
   const [init, setInit] = React.useState(false);
@@ -48,6 +47,9 @@ const ExternalCosts = () => {
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
+  
+  // Read currency directly from URL (same pattern as Allocations.js)
+  const currency = searchParams.get("currency") || "USD";
 
   async function initialize() {
     setInit(true);
@@ -62,6 +64,7 @@ const ExternalCosts = () => {
         costType,
         sortBy,
         sortDirection,
+        currency,
       );
       if (resp) {
         setExternalCostData(resp);
@@ -116,6 +119,7 @@ const ExternalCosts = () => {
         costType,
         sortBy,
         sortDirection,
+        currency,
       );
       if (resp) {
         setExternalCostTableData(resp);
@@ -201,7 +205,7 @@ const ExternalCosts = () => {
   React.useEffect(() => {
     setWindow(searchParams.get("window") || "7d");
     setAggregateBy(searchParams.get("agg") || "domain");
-    setCurrency(searchParams.get("currency") || "USD");
+    // Currency is read directly from URL above, no setter needed
     setCostType(searchParams.get("costType") || "blended");
     setSortBy(searchParams.get("sortBy") || "cost");
     setSortDirection(searchParams.get("sortDirection") || "desc");
@@ -219,7 +223,7 @@ const ExternalCosts = () => {
 
   React.useEffect(() => {
     setFetch(!fetch);
-  }, [window, aggregateBy, filters, costType, sortBy, sortDirection]);
+  }, [window, aggregateBy, filters, costType, sortBy, sortDirection, currency]);
 
   return (
     <Page active="cloud.html">
@@ -264,6 +268,13 @@ const ExternalCosts = () => {
                   search: `?${searchParams.toString()}`,
                 });
               }}
+              currency={currency}
+              setCurrency={(curr) => {
+                searchParams.set("currency", curr);
+                navigate({
+                  search: `?${searchParams.toString()}`,
+                });
+              }}
             />
           </div>
 
@@ -279,7 +290,7 @@ const ExternalCosts = () => {
             <>
               <ExternalCostsChart
                 graphData={externalCostData}
-                currency={"USD"}
+                currency={currency}
                 height={300}
                 aggregateBy={aggregateBy}
               />
@@ -298,6 +309,7 @@ const ExternalCosts = () => {
                 tableData={externalCostTableData}
                 aggregateBy={aggregateBy}
                 drilldown={drilldown}
+                currency={currency}
               />
             </>
           )}
@@ -305,6 +317,7 @@ const ExternalCosts = () => {
             <ExternalCostDetails
               row={showModal}
               onClose={() => setShowModal(null)}
+              currency={currency}
             />
           )}
         </Paper>

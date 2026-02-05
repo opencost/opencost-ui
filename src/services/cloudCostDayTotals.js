@@ -15,13 +15,19 @@ function formatItemsForCost({ data, costType }) {
 }
 
 class CloudCostDayTotalsService {
-  async fetchCloudCostData(window, aggregate, costMetric, filters) {
+  async fetchCloudCostData(window, aggregate, costMetric, filters, currency) {
     if (aggregate.includes("item")) {
-      const resp = await client.get(
-        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(
-          filters,
-        )}`,
-      );
+      const itemParams = {
+        window,
+        costMetric,
+        filter: parseFilters(filters),
+      };
+      if (currency) {
+        itemParams.currency = currency;
+      }
+      const resp = await client.get(`/cloudCost`, {
+        params: itemParams,
+      });
       const costMetricProp = costMetricToPropName[costMetric];
 
       const result_2 = await resp.data;

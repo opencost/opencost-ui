@@ -20,6 +20,7 @@ class ExternalCostsService {
     costType,
     sortBy,
     sortDirection,
+    currency,
   ) {
     const params = {
       window: win,
@@ -29,6 +30,9 @@ class ExternalCostsService {
       sortBy,
       sortDirection,
     };
+    if (currency) {
+      params.currency = currency;
+    }
 
     const result = await client.get(`/customCost/timeseries`, {
       params,
@@ -43,6 +47,7 @@ class ExternalCostsService {
     costType,
     sortBy,
     sortDirection,
+    currency,
   ) {
     const params = {
       window: win,
@@ -52,6 +57,9 @@ class ExternalCostsService {
       sortBy,
       sortDirection,
     };
+    if (currency) {
+      params.currency = currency;
+    }
 
     const result = await client.get(`/customCost/total`, {
       params,

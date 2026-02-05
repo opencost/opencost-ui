@@ -199,7 +199,7 @@ const ReportsPage = () => {
   // When parameters which effect query results change, refetch the data.
   useEffect(() => {
     fetchData();
-  }, [win, aggregateBy, accumulate, filters, includeIdle]);
+  }, [win, aggregateBy, accumulate, filters, includeIdle, currency]);
 
   // Update currency warning whenever currency changes
   useEffect(() => {
@@ -221,6 +221,7 @@ const ReportsPage = () => {
       const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
         accumulate,
         filters,
+        currency,
         includeIdle,
       });
       if (resp.data && resp.data.length > 0) {

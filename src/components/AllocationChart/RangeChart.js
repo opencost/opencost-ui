@@ -100,46 +100,84 @@ const RangeChart = ({ data, currency, height }) => {
   const CustomTooltip = (params) => {
     const { active, payload } = params;
 
-    if (!payload || payload.length == 0) {
+    if (!active || !payload || payload.length === 0) {
       return null;
     }
 
     const total = payload.reduce((sum, item) => sum + item.value, 0.0);
-    if (active) {
-      return (
-        <div
-          style={{
-            borderRadius: 2,
-            background: "rgba(255, 255, 255, 0.95)",
-            padding: 12,
-          }}
-        >
+    const sortedPayload = reverse([...payload].sort((a, b) => a.value - b.value));
+    const hoveredDate = payload[0]?.payload?.start ?? "";
+
+    return (
+      <div
+        style={{
+          borderRadius: 4,
+          background: "rgba(255, 255, 255, 0.96)",
+          padding: 12,
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
+          minWidth: 220,
+        }}
+      >
+        {hoveredDate && (
           <p
             style={{
-              fontSize: "1rem",
+              fontSize: "0.8rem",
               margin: 0,
-              marginBottom: 4,
+              marginBottom: 2,
               padding: 0,
-              color: "#000000",
+              color: "#6f6f6f",
             }}
-          >{`Total: ${toCurrency(total, currency)}`}</p>
-          {reverse(payload).map((item, i) => (
-            <p
-              key={i}
-              style={{
-                fontSize: "1rem",
-                margin: 0,
-                marginBottom: 4,
-                padding: 0,
-                color: item.fill,
-              }}
-            >{`${item.name}: ${toCurrency(item.value, currency)}`}</p>
-          ))}
+          >
+            {hoveredDate}
+          </p>
+        )}
+        <p
+          style={{
+            fontSize: "0.9rem",
+            margin: 0,
+            marginBottom: 6,
+            padding: 0,
+            fontWeight: 600,
+            color: "#000000",
+          }}
+        >
+          {`Total: ${toCurrency(total, currency)}`}
+        </p>
+        <div style={{ marginTop: 4 }}>
+          {sortedPayload.map((item, index) => {
+            const percent =
+              total > 0 ? Math.round((item.value / total) * 100) : 0;
+            return (
+              <div
+                key={`${item.name}-${index}`}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  fontSize: "0.85rem",
+                  marginBottom: 2,
+                  color: item.fill,
+                }}
+              >
+                <span
+                  style={{
+                    maxWidth: 140,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.name}
+                </span>
+                <span style={{ marginLeft: 8, color: "#161616" }}>
+                  {`${toCurrency(item.value, currency)} (${percent}%)`}
+                </span>
+              </div>
+            );
+          })}
         </div>
-      );
-    }
-
-    return null;
+      </div>
+    );
   };
 
   return (
@@ -152,7 +190,7 @@ const RangeChart = ({ data, currency, height }) => {
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="start" />
-      <YAxis />
+      <YAxis tickFormatter={(value) => toCurrency(value, currency)} />
       <Tooltip content={<CustomTooltip />} />
       {barLabels.map((barLabel, i) => (
         <Bar

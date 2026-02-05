@@ -1,19 +1,17 @@
 import * as React from "react";
-import Page from "../components/Page";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { Link, Paper, Typography } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import { get, find } from "lodash";
 import { useLocation, useNavigate } from "react-router";
+import { Grid, Column, Tile, IconButton } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 
 import { checkCustomWindow, toVerboseTimeRange } from "../util";
 import CloudCostEditControls from "../components/cloudCost/controls/cloudCostEditControls";
 import Subtitle from "../components/Subtitle";
 import Warnings from "../components/Warnings";
 import CloudCostTopService from "../services/cloudCostTop";
+import CarbonShellLayout from "../components/carbon/CarbonShellLayout";
 
 import {
   windowOptions,
@@ -226,108 +224,153 @@ const CloudCosts = () => {
   ];
 
   return (
-    <Page active="cloud.html">
-      <Header headerTitle="Cloud Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)}>
-          <RefreshIcon />
-        </IconButton>
-      </Header>
-
-      {!loading && !hasCloudCostEnabled && (
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={enabledWarnings} />
-        </div>
-      )}
-
-      {!loading && errors.length > 0 && hasCloudCostEnabled && (
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={errors} />
-        </div>
-      )}
-
-      {init && hasCloudCostEnabled && (
-        <Paper id="cloud-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-            <div style={{ flexGrow: 1 }}>
-              <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy }} />
-            </div>
-            <CloudCostEditControls
-              windowOptions={windowOptions}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
+    <CarbonShellLayout>
+      <main style={{ padding: "2rem 0" }}>
+        <Grid fullWidth condensed>
+          <Column sm={4} md={8} lg={16}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "1rem",
               }}
-              aggregationOptions={aggregationOptions}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                setFilters([]);
-                searchParams.set("agg", agg);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              costMetricOptions={costMetricOptions}
-              costMetric={costMetric}
-              setCostMetric={(c) => {
-                searchParams.set("costMetric", c);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              title={title}
-              // cumulativeData={cumulativeData}
-              currency={currency}
-              currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
-                searchParams.set("currency", curr);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
-          </div>
-
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+            >
+              <div>
+                <h2 style={{ margin: "0 0 0.5rem 0" }}>Cloud Costs</h2>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "var(--cds-text-secondary, #6f6f6f)",
+                  }}
+                >
+                  Cloud provider spend and drilldowns.
+                </p>
               </div>
+              <IconButton
+                kind="ghost"
+                label="Refresh"
+                align="bottom"
+                onClick={() => setFetch(true)}
+              >
+                <Renew />
+              </IconButton>
             </div>
-          )}
+          </Column>
 
-          {!loading && (
-            <CloudCost
-              cumulativeData={cloudCostData.tableRows}
-              currency={currency}
-              graphData={cloudCostData.graphData}
-              totalData={cloudCostData.tableTotal}
-              drilldown={drilldown}
-              sampleData={sampleData}
-            />
+          <Column sm={4} md={8} lg={16} style={{ marginTop: "1rem" }}>
+            {!loading && !hasCloudCostEnabled && (
+              <div style={{ marginBottom: 20 }}>
+                <Warnings warnings={enabledWarnings} />
+              </div>
+            )}
+
+            {!loading && errors.length > 0 && hasCloudCostEnabled && (
+              <div style={{ marginBottom: 20 }}>
+                <Warnings warnings={errors} />
+              </div>
+            )}
+          </Column>
+
+          {init && hasCloudCostEnabled && (
+            <>
+              <Column sm={4} md={8} lg={16} style={{ marginTop: "0.5rem" }}>
+                <Tile>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexFlow: "row",
+                      gap: "1.5rem",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div style={{ flexGrow: 1, minWidth: 280 }}>
+                      <Typography variant="h5">{title}</Typography>
+                      <Subtitle report={{ window, aggregateBy }} />
+                    </div>
+                    <CloudCostEditControls
+                      windowOptions={windowOptions}
+                      window={window}
+                      setWindow={(win) => {
+                        searchParams.set("window", win);
+                        navigate({
+                          search: `?${searchParams.toString()}`,
+                        });
+                      }}
+                      aggregationOptions={aggregationOptions}
+                      aggregateBy={aggregateBy}
+                      setAggregateBy={(agg) => {
+                        setFilters([]);
+                        searchParams.set("agg", agg);
+                        navigate({
+                          search: `?${searchParams.toString()}`,
+                        });
+                      }}
+                      costMetricOptions={costMetricOptions}
+                      costMetric={costMetric}
+                      setCostMetric={(c) => {
+                        searchParams.set("costMetric", c);
+                        navigate({
+                          search: `?${searchParams.toString()}`,
+                        });
+                      }}
+                      title={title}
+                      currency={currency}
+                      currencyOptions={currencyCodes}
+                      setCurrency={(curr) => {
+                        searchParams.set("currency", curr);
+                        navigate({
+                          search: `?${searchParams.toString()}`,
+                        });
+                      }}
+                    />
+                  </div>
+                </Tile>
+              </Column>
+
+              <Column sm={4} md={8} lg={16} style={{ marginTop: "1.5rem" }}>
+                <Tile>
+                  {loading && (
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <div style={{ paddingTop: 80, paddingBottom: 80 }}>
+                        <CircularProgress />
+                      </div>
+                    </div>
+                  )}
+
+                  {!loading && (
+                    <CloudCost
+                      cumulativeData={cloudCostData.tableRows}
+                      currency={currency}
+                      graphData={cloudCostData.graphData}
+                      totalData={cloudCostData.tableTotal}
+                      drilldown={drilldown}
+                      sampleData={sampleData}
+                    />
+                  )}
+                </Tile>
+              </Column>
+
+              {selectedProviderId && selectedItemName && (
+                <CloudCostDetails
+                  onClose={() => {
+                    setSelectedProviderId("");
+                    setselectedItemName("");
+                  }}
+                  selectedProviderId={selectedProviderId}
+                  selectedItem={selectedItemName}
+                  agg={aggregateBy}
+                  filters={filters}
+                  costMetric={costMetric}
+                  window={window}
+                  currency={currency}
+                />
+              )}
+            </>
           )}
-          {selectedProviderId && selectedItemName && (
-            <CloudCostDetails
-              onClose={() => {
-                setSelectedProviderId("");
-                setselectedItemName("");
-              }}
-              selectedProviderId={selectedProviderId}
-              selectedItem={selectedItemName}
-              agg={aggregateBy}
-              filters={filters}
-              costMetric={costMetric}
-              window={window}
-              currency={currency}
-            />
-          )}
-        </Paper>
-      )}
-      <Footer />
-    </Page>
+        </Grid>
+      </main>
+    </CarbonShellLayout>
   );
 };
 

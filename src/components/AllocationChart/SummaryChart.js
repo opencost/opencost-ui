@@ -1,5 +1,14 @@
-import React from "react";
-import { PieChart, Pie, Cell } from "recharts";
+import React, { useMemo } from "react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  LabelList,
+  Cell,
+} from "recharts";
 import { primary, greyscale, browns } from "../../constants/colors";
 import { toCurrency } from "../../util";
 
@@ -46,58 +55,69 @@ function toPieData(top, other, idle) {
 const SummaryChart = ({ top, other, idle, currency, height }) => {
   const pieData = toPieData(top, other, idle);
 
-  const renderLabel = (params) => {
-    const { cx, cy, midAngle, outerRadius, percent, name, fill, value } =
-      params;
-
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius * 1.1;
-    let x = cx + radius * Math.cos(-midAngle * RADIAN);
-    x += x > cx ? 2 : -2;
-    let y = cy + radius * Math.sin(-midAngle * RADIAN);
-    // y -= Math.min(Math.abs(2 / Math.cos(-midAngle * RADIAN)), 8)
-
-    if (percent < 0.02) {
-      return;
+  const chartData = useMemo(() => {
+    if (!pieData || pieData.length === 0) {
+      return [];
     }
+    const total = pieData.reduce((sum, slice) => sum + slice.value, 0);
+    return pieData
+      .slice()
+      .sort((a, b) => b.value - a.value)
+      .map((slice) => ({
+        name: slice.name,
+        value: slice.value,
+        fill: slice.fill,
+        percent: total > 0 ? slice.value / total : 0,
+      }));
+  }, [pieData]);
 
-    return (
-      <text
-        x={x}
-        y={y}
-        fill={fill}
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-      >
-        {`${name}: ${toCurrency(value, currency)} (${(percent * 100).toFixed(1)}%)`}
-      </text>
-    );
-  };
+  if (chartData.length === 0) {
+    return null;
+  }
 
   return (
-    <PieChart
-      responsive
-      width="100%"
-      height={height}
-    >
-      <Pie
-        data={pieData}
-        dataKey="value"
-        nameKey="name"
-        label={renderLabel}
-        labelLine
-        animationDuration={400}
-        cy="90%"
-        outerRadius="140%"
-        innerRadius="60%"
-        startAngle={180}
-        endAngle={0}
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={chartData}
+        layout="vertical"
+        margin={{ top: 8, right: 32, left: 0, bottom: 8 }}
       >
-        {pieData.map((datum, i) => (
-          <Cell key={i} fill={datum.fill} />
-        ))}
-      </Pie>
-    </PieChart>
+        <XAxis
+          type="number"
+          tickFormatter={(value) => toCurrency(value, currency)}
+        />
+        <YAxis type="category" dataKey="name" width={160} />
+        <Tooltip
+          formatter={(value) => toCurrency(value, currency)}
+          labelFormatter={(name) => `Name: ${name}`}
+        />
+        <Bar
+          dataKey="value"
+          radius={[0, 999, 999, 0]}
+          isAnimationActive={false}
+        >
+          {chartData.map((slice, index) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <Cell key={`${slice.name}-${index}`} fill={slice.fill} />
+          ))}
+          <LabelList
+            dataKey="value"
+            position="right"
+            formatter={(value, _name, props) => {
+              const percent =
+                typeof props?.payload?.percent === "number"
+                  ? Math.round(props.payload.percent * 100)
+                  : 0;
+              return `${toCurrency(
+                typeof value === "number" ? value : 0,
+                currency,
+              )} (${percent}%)`;
+            }}
+            style={{ fontSize: 12 }}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
 

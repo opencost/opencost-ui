@@ -1,15 +1,14 @@
 import * as React from "react";
-import Page from "../components/Page";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { Paper, Button } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { useLocation, useNavigate } from "react-router";
 import Warnings from "../components/Warnings";
 import ExternalCostsService from "../services/externalCosts";
+import CarbonShellLayout from "../components/carbon/CarbonShellLayout";
+import { Grid, Column, Tile, IconButton } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
+import { Logger } from "../services/logger";
 
 import {
   windowOptions,
@@ -82,7 +81,7 @@ const ExternalCosts = () => {
         setExternalCostData([]);
       }
     } catch (err) {
-      console.log(err);
+      Logger.error(err);
       if (err.message.indexOf("404") === 0) {
         setErrors([
           {
@@ -136,7 +135,7 @@ const ExternalCosts = () => {
         setExternalCostTableData([]);
       }
     } catch (err) {
-      console.log(err);
+      Logger.error(err);
       if (err.message.indexOf("404") === 0) {
         setErrors([
           {
@@ -222,95 +221,127 @@ const ExternalCosts = () => {
   }, [window, aggregateBy, filters, costType, sortBy, sortDirection]);
 
   return (
-    <Page active="cloud.html">
-      {/* figure out if we need */}
-      <Header headerTitle="External Costs">
-        <IconButton
-          aria-label="refresh"
-          onClick={() => setFetch(true)}
-          style={{ padding: 12 }}
-        >
-          <RefreshIcon />
-        </IconButton>
-      </Header>
-      {!loading && errors.length > 0 && (
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={errors} />
-        </div>
-      )}
-      {init && (
-        <Paper id="cloud-cost">
-          <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
-            <ExternalCostsControls
-              costType={costType}
-              setCostType={(type) => {
-                searchParams.set("costType", type);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
+    <CarbonShellLayout>
+      <main style={{ padding: "2rem 0" }}>
+        <Grid fullWidth condensed>
+          <Column sm={4} md={8} lg={16}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "1rem",
               }}
-              window={window}
-              setWindow={(win) => {
-                searchParams.set("window", win);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-              aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
-                setFilters([]);
-                searchParams.set("agg", agg);
-                navigate({
-                  search: `?${searchParams.toString()}`,
-                });
-              }}
-            />
-          </div>
-
-          {loading && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ paddingTop: 100, paddingBottom: 100 }}>
-                <CircularProgress />
+            >
+              <div>
+                <h2 style={{ margin: "0 0 0.5rem 0" }}>External Costs</h2>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "var(--cds-text-secondary, #6f6f6f)",
+                  }}
+                >
+                  Allocate and drill into costs outside the cluster (custom
+                  costs).
+                </p>
               </div>
+              <IconButton
+                kind="ghost"
+                label="Refresh"
+                align="bottom"
+                onClick={() => setFetch(true)}
+              >
+                <Renew />
+              </IconButton>
             </div>
-          )}
+          </Column>
 
-          {!loading && (
+          <Column sm={4} md={8} lg={16} style={{ marginTop: "1rem" }}>
+            {!loading && errors.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <Warnings warnings={errors} />
+              </div>
+            )}
+          </Column>
+
+          {init && (
             <>
-              <ExternalCostsChart
-                graphData={externalCostData}
-                currency={"USD"}
-                height={300}
-                aggregateBy={aggregateBy}
-              />
+              <Column sm={4} md={8} lg={16} style={{ marginTop: "0.5rem" }}>
+                <Tile>
+                  <ExternalCostsControls
+                    costType={costType}
+                    setCostType={(type) => {
+                      searchParams.set("costType", type);
+                      navigate({
+                        search: `?${searchParams.toString()}`,
+                      });
+                    }}
+                    window={window}
+                    setWindow={(win) => {
+                      searchParams.set("window", win);
+                      navigate({
+                        search: `?${searchParams.toString()}`,
+                      });
+                    }}
+                    aggregateBy={aggregateBy}
+                    setAggregateBy={(agg) => {
+                      setFilters([]);
+                      searchParams.set("agg", agg);
+                      navigate({
+                        search: `?${searchParams.toString()}`,
+                      });
+                    }}
+                  />
+                </Tile>
+              </Column>
+
+              <Column sm={4} md={8} lg={16} style={{ marginTop: "1.5rem" }}>
+                <Tile>
+                  {loading && (
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <div style={{ paddingTop: 80, paddingBottom: 80 }}>
+                        <CircularProgress />
+                      </div>
+                    </div>
+                  )}
+
+                  {!loading && (
+                    <>
+                      <ExternalCostsChart
+                        graphData={externalCostData}
+                        currency={"USD"}
+                        height={300}
+                        aggregateBy={aggregateBy}
+                      />
+                      <div style={{ paddingTop: "0.75rem" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setFilters([])}
+                        >
+                          Clear Filters
+                        </Button>
+                      </div>
+                      <ExternalCostsTable
+                        tableData={externalCostTableData}
+                        aggregateBy={aggregateBy}
+                        drilldown={drilldown}
+                      />
+                    </>
+                  )}
+                </Tile>
+              </Column>
+
+              {showModal && (
+                <ExternalCostDetails
+                  row={showModal}
+                  onClose={() => setShowModal(null)}
+                />
+              )}
             </>
           )}
-          <Button
-            style={{ margin: ".5em" }}
-            variant="outlined"
-            onClick={() => setFilters([])}
-          >
-            Clear Filters
-          </Button>
-          {!loading && (
-            <>
-              <ExternalCostsTable
-                tableData={externalCostTableData}
-                aggregateBy={aggregateBy}
-                drilldown={drilldown}
-              />
-            </>
-          )}
-          {showModal && (
-            <ExternalCostDetails
-              row={showModal}
-              onClose={() => setShowModal(null)}
-            />
-          )}
-        </Paper>
-      )}
-      <Footer />
-    </Page>
+        </Grid>
+      </main>
+    </CarbonShellLayout>
   );
 };
 

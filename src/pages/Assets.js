@@ -5,9 +5,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AssetsService from "../services/assets";
 import KPICards from "../components/assets/KPICards";
-import CostStackedBarChart from "../components/assets/CostStackedBarChart";
-import CostEfficiencyComboChart from "../components/assets/CostEfficiencyComboChart";
-import CostVsUtilizationChart from "../components/assets/CostVsUtilizationChart";
+import CostDistributionChart from "../components/assets/CostDistributionChart";
+import CostEfficiencyChart from "../components/assets/CostEfficiencyChart";
+import CostUtilizationChart from "../components/assets/CostUtilizationChart";
 import AssetTable from "../components/assets/AssetTable";
 import FilterPanel from "../components/assets/FilterPanel";
 import InsightsPanel from "../components/assets/InsightsPanel";
@@ -243,9 +243,9 @@ const AssetsDashboard = () => {
         </section>
 
         <section className="charts-section">
-          <CostStackedBarChart assets={filteredAssets} />
-          <CostEfficiencyComboChart assets={filteredAssets} />
-          <CostVsUtilizationChart assets={filteredAssets} />
+          <CostDistributionChart assets={filteredAssets} />
+          <CostEfficiencyChart assets={filteredAssets} />
+          <CostUtilizationChart assets={filteredAssets} />
         </section>
 
         {filteredAssets.length > 0 && (

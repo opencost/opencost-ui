@@ -152,11 +152,30 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
                         }
 
                         if (cell.info.header === "assetType") {
+                          const typeTagColor = {
+                            "Node Disk": "blue",
+                            PVC: "teal",
+                            Unknown: "gray",
+                          };
                           return (
                             <TableCell key={cell.id}>
-                              <Tag type="blue" size="sm">
+                              <Tag type={typeTagColor[rowData.assetType] || "gray"} size="sm">
                                 {rowData.assetType}
                               </Tag>
+                            </TableCell>
+                          );
+                        }
+
+                        if (cell.info.header === "storageClass") {
+                          return (
+                            <TableCell key={cell.id}>
+                              {rowData.storageClass !== "-" ? (
+                                <Tag type="high-contrast" size="sm">
+                                  {rowData.storageClass}
+                                </Tag>
+                              ) : (
+                                <span style={{ color: "#a8a8a8" }}>—</span>
+                              )}
                             </TableCell>
                           );
                         }
@@ -172,29 +191,34 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
                         }
 
                         if (cell.info.header === "usage") {
+                          const meterColor =
+                            rowData.usage >= 60
+                              ? "#24a148"
+                              : rowData.usage >= 20
+                              ? "#ff832b"
+                              : "#da1e28";
                           return (
                             <TableCell key={cell.id}>
                               <div style={{ minWidth: "150px" }}>
                                 <div
                                   style={{
+                                    display: "flex",
                                     height: "8px",
-                                    backgroundColor: "#e0e0e0",
                                     borderRadius: "4px",
                                     overflow: "hidden",
-                                    marginBottom: "4px",
                                   }}
                                 >
                                   <div
                                     style={{
-                                      height: "100%",
                                       width: `${Math.min(100, rowData.usage)}%`,
-                                      backgroundColor: "#0f62fe",
+                                      backgroundColor: meterColor,
                                       transition: "width 0.3s",
                                     }}
                                   />
+                                  <div style={{ flex: 1, backgroundColor: "#e0e0e0" }} />
                                 </div>
-                                <div style={{ fontSize: "0.75rem", color: "#525252" }}>
-                                  {rowData.usageFormatted} used
+                                <div style={{ fontSize: "0.75rem", color: "#525252", marginTop: "4px" }}>
+                                  {rowData.usageFormatted} used · {(100 - rowData.usage).toFixed(1)}% idle
                                 </div>
                               </div>
                             </TableCell>

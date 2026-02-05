@@ -17,13 +17,13 @@ describe("KPICards", () => {
     },
   ];
 
-  it("renders all KPI cards", () => {
+  it("renders all 4 KPI cards", () => {
     render(<KPICards assets={mockAssets} timeWindow="30d" />);
 
     expect(screen.getByText("Total Storage Cost")).toBeInTheDocument();
-    expect(screen.getByText("Total Provisioned")).toBeInTheDocument();
     expect(screen.getByText("Wasted Cost")).toBeInTheDocument();
     expect(screen.getByText("Efficiency Score")).toBeInTheDocument();
+    expect(screen.getByText("Total Assets")).toBeInTheDocument();
   });
 
   it("calculates total cost correctly", () => {

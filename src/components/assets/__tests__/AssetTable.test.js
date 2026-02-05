@@ -66,4 +66,27 @@ describe("AssetTable", () => {
       screen.getByText(/Showing 2 of 2 assets.*filtered from 5/)
     ).toBeInTheDocument();
   });
+
+  it("renders proportional usage meter with idle label", () => {
+    render(
+      <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
+    );
+    expect(screen.getByText(/45\.0% used/)).toBeInTheDocument();
+    expect(screen.getByText(/55\.0% idle/)).toBeInTheDocument();
+  });
+
+  it("renders colored tags for asset types", () => {
+    render(
+      <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
+    );
+    expect(screen.getByText("Node Disk")).toBeInTheDocument();
+    expect(screen.getByText("PVC")).toBeInTheDocument();
+  });
+
+  it("renders storage class as tag", () => {
+    render(
+      <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
+    );
+    expect(screen.getByText("fast-ssd")).toBeInTheDocument();
+  });
 });

@@ -6,7 +6,6 @@ import {
   getTotalWastedCost,
   calculateEfficiencyScore,
   formatCurrency,
-  getTotalProvisioned,
 } from "../../utils/assetCalculations";
 
 function windowLabel(timeWindow) {
@@ -22,7 +21,6 @@ const KPICards = ({ assets, timeWindow }) => {
   const totalCost = getTotalCost(assets);
   const wastedCost = getTotalWastedCost(assets);
   const efficiencyScore = calculateEfficiencyScore(assets);
-  const totalProvisioned = getTotalProvisioned(assets);
   const assetCount = assets.length;
 
   const getEfficiencyColor = (score) => {
@@ -70,26 +68,10 @@ const KPICards = ({ assets, timeWindow }) => {
       </Tile>
 
       <Tile className="kpi-card">
-        <div className="kpi-icon">📦</div>
-        <div className="kpi-label">Total Provisioned</div>
-        <div className="kpi-value">{totalProvisioned.toFixed(1)} GB</div>
-        <div className="kpi-subtitle">Allocated storage</div>
-      </Tile>
-
-      <Tile className="kpi-card">
         <div className="kpi-icon">🗂️</div>
         <div className="kpi-label">Total Assets</div>
         <div className="kpi-value">{assetCount}</div>
         <div className="kpi-subtitle">Nodes & PVCs</div>
-      </Tile>
-
-      <Tile className="kpi-card kpi-savings">
-        <div className="kpi-icon">💵</div>
-        <div className="kpi-label">Potential Savings</div>
-        <div className="kpi-value" style={{ color: "#24a148" }}>
-          {formatCurrency(wastedCost)}
-        </div>
-        <div className="kpi-subtitle">If optimized</div>
       </Tile>
     </div>
   );

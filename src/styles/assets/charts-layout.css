@@ -1,0 +1,261 @@
+/* Chart Layout — Hero + Grid
+   Color vars provided by colors.css (imported via dashboard.css) */
+
+/* Hero chart (full width) */
+.chart-hero {
+  grid-column: 1 / -1 !important;
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-hero .chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(to bottom, #fafafa, var(--color-surface));
+}
+
+.chart-hero .chart-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.chart-hero .chart-header > div:first-child p {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.chart-hero .chart-content {
+  padding: 1.5rem;
+  flex: 1;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+}
+
+.chart-hero .chart-empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Charts grid — 2-column on desktop */
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+/* Individual chart tile */
+.chart-tile {
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease;
+  animation: slideUp 0.3s ease-out;
+}
+
+.chart-tile:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.chart-tile .chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(to bottom, #fafafa, var(--color-surface));
+  gap: 1rem;
+}
+
+.chart-tile .chart-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.chart-tile .chart-header > div:first-child p,
+.chart-description {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.chart-tile .chart-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chart-tile .chart-content {
+  padding: 1.5rem;
+  flex: 1;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-tile .chart-empty {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chart stats footer */
+.chart-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  background: linear-gradient(to bottom, var(--color-surface), #fafafa);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  word-break: break-word;
+}
+
+.stat-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  text-align: center;
+  display: inline-block;
+  width: fit-content;
+}
+
+.stat-count.efficient {
+  color: var(--color-success);
+  background-color: var(--color-success-light);
+}
+
+.stat-count.healthy {
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.stat-count.critical {
+  color: var(--color-error);
+  background-color: var(--color-error-light);
+}
+
+/* Responsive — tablet */
+@media (max-width: 1024px) {
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-hero .chart-content { min-height: 350px; }
+  .chart-tile .chart-content { min-height: 280px; }
+}
+
+/* Responsive — mobile */
+@media (max-width: 768px) {
+  .charts-section { gap: 1.5rem; }
+  .chart-hero { margin-bottom: 1.5rem; }
+
+  .chart-hero .chart-header,
+  .chart-tile .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .chart-hero .chart-header { padding: 1rem; }
+  .chart-tile .chart-header { padding: 1rem; }
+  .chart-hero .chart-header h3 { font-size: 1.1rem; }
+  .chart-tile .chart-header h3 { font-size: 0.95rem; }
+
+  .chart-hero .chart-content { padding: 1rem; min-height: 280px; }
+  .chart-tile .chart-content { padding: 1rem; min-height: 250px; }
+
+  .chart-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .stat-label { font-size: 0.75rem; }
+  .stat-value { font-size: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .chart-hero .chart-header { padding: 1rem; }
+  .chart-hero .chart-content { padding: 0.75rem; min-height: 220px; }
+  .chart-tile .chart-content { padding: 0.75rem; min-height: 200px; }
+  .stat-value { font-size: 1.1rem; }
+}
+
+/* Animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Accessibility */
+@media (prefers-contrast: more) {
+  .chart-tile,
+  .chart-hero {
+    border: 1px solid var(--color-border-strong);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-tile {
+    animation: none;
+    transition: none;
+  }
+}

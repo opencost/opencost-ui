@@ -1,0 +1,62 @@
+/* Assets Dashboard Color System */
+
+:root {
+  /* Brand */
+  --color-primary: #0f62fe;
+  --color-primary-hover: #0353e9;
+  --color-primary-light: #d0e2ff;
+  --color-primary-lighter: #e3f2fd;
+
+  /* Asset types */
+  --color-asset-node: #0f62fe;
+  --color-asset-pvc: #24a148;
+  --color-asset-storage: #0043ce;
+  --color-asset-other: #525252;
+
+  /* Status */
+  --color-success: #24a148;
+  --color-success-light: #e6f6f0;
+  --color-warning: #ff832b;
+  --color-warning-light: #fef5e8;
+  --color-error: #da1e28;
+  --color-error-light: #fde8e8;
+
+  /* Text */
+  --color-text-primary: #161616;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #8d8d8d;
+  --color-text-disabled: #c5c5c5;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-hover: #f4f4f4;
+  --color-surface-active: #e5e5e5;
+  --color-background: #f4f4f4;
+
+  /* Borders */
+  --color-border: #e0e0e0;
+  --color-border-subtle: #e5e5e5;
+  --color-border-strong: #c5c5c5;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f4f4f4;
+    --color-text-secondary: #c5c5c5;
+    --color-text-tertiary: #8d8d8d;
+    --color-surface: #262626;
+    --color-surface-hover: #393939;
+    --color-surface-active: #525252;
+    --color-background: #161616;
+    --color-border: #393939;
+    --color-border-subtle: #3f3f3f;
+    --color-primary-light: #0353e9;
+    --color-primary-lighter: #0043ce;
+  }
+}

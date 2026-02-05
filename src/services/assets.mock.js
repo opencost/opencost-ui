@@ -52,20 +52,12 @@ export const getMockAssets = (window) => {
         },
     ];
 
-    // If window is today or yesterday, return fewer items
-    if (window === "today" || window === "yesterday") {
-        return [
-            {
-                "node-1": assets[0],
-                "node-2": assets[1],
-            }
-        ];
-    }
-
-    // Multiply costs for 7d/30d
+    // Determine how many items to return
+    const sliceCount = (window === "today" || window === "yesterday") ? 2 : assets.length;
     const multiplier = window === "30d" ? 30 : (window === "7d" ? 7 : 1);
+
     const result = {};
-    assets.forEach(asset => {
+    assets.slice(0, sliceCount).forEach(asset => {
         result[asset.name] = {
             ...asset,
             cost: asset.cost * multiplier,

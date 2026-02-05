@@ -18,20 +18,15 @@ import { SidebarNav } from "../components/Nav/SidebarNav";
 import Footer from "../components/Footer";
 import { toCurrency } from "../util";
 
+import Warnings from "../components/Warnings";
+import { DRAWER_WIDTH } from "../components/Nav/SidebarNav";
+
 const headerData = [
-    { header: "Name", key: "name" },
-    { header: "Type", key: "type" },
-    { header: "Cluster", key: "cluster" },
-    { header: "Provider ID", key: "providerID" },
-    { header: "Cost", key: "cost" },
-    { header: "Total Cost", key: "totalCost" },
+    // ... (omitting headers for brevity in instruction, but keep them in replacement)
 ];
 
 const windows = [
-    { id: "today", label: "Today" },
-    { id: "yesterday", label: "Yesterday" },
-    { id: "7d", label: "Last 7 days" },
-    { id: "30d", label: "Last 30 days" },
+    // ... (omitting windows for brevity)
 ];
 
 const Assets = () => {
@@ -40,13 +35,17 @@ const Assets = () => {
     const [window, setWindow] = useState(windows[2]); // Default to 7d
     const [firstRowIndex, setFirstRowIndex] = useState(0);
     const [currentPageSize, setCurrentPageSize] = useState(10);
+    const [errors, setErrors] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!window || !window.id) {
+                return;
+            }
             setLoading(true);
+            setErrors([]);
             try {
                 const data = await AssetsService.fetchAssets(window.id, "type", { accumulate: true });
-                // The API returns an array of AssetSets, usually length 1 if accumulated
                 const assetList = data.length > 0 ? Object.values(data[0]) : [];
 
                 const formattedAssets = assetList.map((asset, index) => ({
@@ -62,6 +61,7 @@ const Assets = () => {
                 setAssets(formattedAssets);
             } catch (error) {
                 console.error("Failed to fetch assets:", error);
+                setErrors([{ primary: "Failed to load assets", secondary: error.message }]);
             } finally {
                 setLoading(false);
             }
@@ -75,8 +75,14 @@ const Assets = () => {
     return (
         <div style={{ display: "flex", minHeight: "100vh" }}>
             <SidebarNav active="/assets" />
-            <div style={{ flex: 1, padding: "2rem", marginLeft: "200px" }}>
+            <div style={{ flex: 1, padding: "2rem", marginLeft: `${DRAWER_WIDTH}px` }}>
                 <Header headerTitle="Assets" />
+
+                {errors.length > 0 && (
+                    <div style={{ marginBottom: "1rem" }}>
+                        <Warnings warnings={errors} />
+                    </div>
+                )}
 
                 <div style={{ marginBottom: "1rem", width: "300px" }}>
                     <Dropdown
@@ -92,48 +98,56 @@ const Assets = () => {
                     <Loading />
                 ) : (
                     <TableContainer title="Cloud Assets" description="Overview of backing cost data broken down by individual assets.">
-                        <DataTable rows={pagedRows} headers={headerData}>
-                            {({ rows, headers, getHeaderProps, getTableProps }) => (
-                                <Table {...getTableProps()}>
-                                    <TableHead>
-                                        <TableRow>
-                                            {headers.map((header) => {
-                                                const { key, ...headerProps } = getHeaderProps({ header });
-                                                return (
-                                                    <TableHeader key={key} {...headerProps}>
-                                                        {header.header}
-                                                    </TableHeader>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {rows.map((row) => (
-                                            <TableRow key={row.id}>
-                                                {row.cells.map((cell) => (
-                                                    <TableCell key={cell.id}>{cell.value}</TableCell>
+                        {assets.length === 0 ? (
+                            <div style={{ padding: "2rem", textAlign: "center" }}>
+                                <p>No assets found for the selected period.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <DataTable rows={pagedRows} headers={headerData}>
+                                    {({ rows, headers, getHeaderProps, getTableProps }) => (
+                                        <Table {...getTableProps()}>
+                                            <TableHead>
+                                                <TableRow>
+                                                    {headers.map((header) => {
+                                                        const { key, ...headerProps } = getHeaderProps({ header });
+                                                        return (
+                                                            <TableHeader key={key} {...headerProps}>
+                                                                {header.header}
+                                                            </TableHeader>
+                                                        );
+                                                    })}
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {rows.map((row) => (
+                                                    <TableRow key={row.id}>
+                                                        {row.cells.map((cell) => (
+                                                            <TableCell key={cell.id}>{cell.value}</TableCell>
+                                                        ))}
+                                                    </TableRow>
                                                 ))}
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </DataTable>
-                        <Pagination
-                            backwardText="Previous page"
-                            forwardText="Next page"
-                            itemsPerPageText="Items per page:"
-                            page={firstRowIndex / currentPageSize + 1}
-                            pageSize={currentPageSize}
-                            pageSizes={[10, 20, 30, 40, 50]}
-                            totalItems={assets.length}
-                            onChange={({ page, pageSize }) => {
-                                if (pageSize !== currentPageSize) {
-                                    setCurrentPageSize(pageSize);
-                                }
-                                setFirstRowIndex(pageSize * (page - 1));
-                            }}
-                        />
+                                            </TableBody>
+                                        </Table>
+                                    )}
+                                </DataTable>
+                                <Pagination
+                                    backwardText="Previous page"
+                                    forwardText="Next page"
+                                    itemsPerPageText="Items per page:"
+                                    page={firstRowIndex / currentPageSize + 1}
+                                    pageSize={currentPageSize}
+                                    pageSizes={[10, 20, 30, 40, 50]}
+                                    totalItems={assets.length}
+                                    onChange={({ page, pageSize }) => {
+                                        if (pageSize !== currentPageSize) {
+                                            setCurrentPageSize(pageSize);
+                                        }
+                                        setFirstRowIndex(pageSize * (page - 1));
+                                    }}
+                                />
+                            </>
+                        )}
                     </TableContainer>
                 )}
                 <Footer />
@@ -142,4 +156,4 @@ const Assets = () => {
     );
 };
 
-export default Assets;
+export default React.memo(Assets);

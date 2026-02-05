@@ -2,11 +2,11 @@ import * as React from "react";
 import { Drawer, List } from "@mui/material";
 
 import { NavItem } from "./NavItem";
-import { BarChart, Cloud, Category } from "@mui/icons-material";
+import { BarChart, Cloud, GridView } from "@mui/icons-material";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
-const DRAWER_WIDTH = 200;
+export const DRAWER_WIDTH = 200;
 
 const SidebarNav = ({ active }) => {
   const [init, setInit] = React.useState(false);
@@ -25,7 +25,7 @@ const SidebarNav = ({ active }) => {
     },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
-    { name: "Assets", href: "/assets", icon: <Category /> },
+    { name: "Assets", href: "/assets", icon: <GridView /> },
   ];
 
   return (

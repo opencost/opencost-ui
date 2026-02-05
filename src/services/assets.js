@@ -24,8 +24,11 @@ class AssetsService {
             });
             return result.data;
         } catch (error) {
-            if (USE_MOCK_DATA && error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))) {
-                console.warn("Backend not available, using mock data for assets");
+            const isNetworkError = error.message && (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"));
+            const is404 = error.response && error.response.status === 404;
+
+            if (USE_MOCK_DATA && (isNetworkError || is404)) {
+                console.warn("Backend not available or missing endpoint, using mock data for assets");
                 return getMockAssets(win);
             }
             console.error("Error fetching assets:", error);

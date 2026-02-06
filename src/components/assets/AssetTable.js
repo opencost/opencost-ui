@@ -28,7 +28,7 @@ const typeColors = {
   SharedAsset: "gray",
 };
 
-const AssetTable = ({ data, isLoading, currency = "USD" }) => {
+const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
   // Format currency values
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-US", {
@@ -43,10 +43,11 @@ const AssetTable = ({ data, isLoading, currency = "USD" }) => {
   const headers = [
     { key: "name", header: "Name" },
     { key: "type", header: "Type" },
-    { key: "providerID", header: "Provider ID" },
+    { key: "cpuCores", header: "CPU Cores" },
+    { key: "ramGB", header: "RAM (GB)" },
+    { key: "preemptible", header: "Pricing" },
     { key: "cpuCost", header: "CPU Cost" },
     { key: "ramCost", header: "RAM Cost" },
-    { key: "gpuCost", header: "GPU Cost" },
     { key: "totalCost", header: "Total Cost" },
   ];
 
@@ -100,11 +101,13 @@ const AssetTable = ({ data, isLoading, currency = "USD" }) => {
     id: asset.id,
     name: asset.name,
     type: asset.type,
-    providerID: asset.providerID,
+    cpuCores: asset.cpuCores,
+    ramGB: asset.ramGB,
+    preemptible: asset.preemptible,
     cpuCost: asset.cpuCost,
     ramCost: asset.ramCost,
-    gpuCost: asset.gpuCost,
     totalCost: asset.totalCost,
+    _rawAsset: asset._rawAsset,
   }));
 
   return (
@@ -134,8 +137,14 @@ const AssetTable = ({ data, isLoading, currency = "USD" }) => {
             <TableBody>
               {rows.map((row) => {
                 const { key, ...rowProps } = getRowProps({ row });
+                const originalAsset = data.find((d) => d.id === row.id);
                 return (
-                  <TableRow key={row.id} {...rowProps}>
+                  <TableRow
+                    key={row.id}
+                    {...rowProps}
+                    onClick={() => onRowClick && onRowClick(originalAsset)}
+                    style={{ cursor: onRowClick ? "pointer" : "default" }}
+                  >
                     {row.cells.map((cell) => {
                       let cellContent = cell.value;
 
@@ -149,25 +158,42 @@ const AssetTable = ({ data, isLoading, currency = "USD" }) => {
                         );
                       }
 
+                      // Format CPU Cores
+                      if (cell.info.header === "cpuCores") {
+                        cellContent = cell.value > 0 ? cell.value : "-";
+                      }
+
+                      // Format RAM GB
+                      if (cell.info.header === "ramGB") {
+                        cellContent = cell.value > 0 ? `${cell.value.toFixed(1)} GB` : "-";
+                      }
+
+                      // Render preemptible/pricing as a tag
+                      if (cell.info.header === "preemptible") {
+                        if (cell.value === true) {
+                          cellContent = (
+                            <Tag type="cyan" size="sm">
+                              Spot
+                            </Tag>
+                          );
+                        } else if (cell.value === false) {
+                          cellContent = (
+                            <Tag type="gray" size="sm">
+                              On-Demand
+                            </Tag>
+                          );
+                        } else {
+                          cellContent = "-";
+                        }
+                      }
+
                       // Format cost columns as currency
                       if (
-                        ["cpuCost", "ramCost", "gpuCost", "totalCost"].includes(
+                        ["cpuCost", "ramCost", "totalCost"].includes(
                           cell.info.header
                         )
                       ) {
                         cellContent = formatCurrency(cell.value);
-                      }
-
-                      // Truncate long provider IDs
-                      if (cell.info.header === "providerID") {
-                        const maxLength = 40;
-                        if (cell.value && cell.value.length > maxLength) {
-                          cellContent = (
-                            <span title={cell.value}>
-                              {cell.value.substring(0, maxLength)}...
-                            </span>
-                          );
-                        }
                       }
 
                       return <TableCell key={cell.id}>{cellContent}</TableCell>;
@@ -190,10 +216,11 @@ AssetTable.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       type: PropTypes.string.isRequired,
-      providerID: PropTypes.string,
+      cpuCores: PropTypes.number,
+      ramGB: PropTypes.number,
+      preemptible: PropTypes.bool,
       cpuCost: PropTypes.number,
       ramCost: PropTypes.number,
-      gpuCost: PropTypes.number,
       totalCost: PropTypes.number.isRequired,
     })
   ).isRequired,
@@ -201,11 +228,14 @@ AssetTable.propTypes = {
   isLoading: PropTypes.bool,
   /** Currency code for formatting */
   currency: PropTypes.string,
+  /** Callback when a row is clicked */
+  onRowClick: PropTypes.func,
 };
 
 AssetTable.defaultProps = {
   isLoading: false,
   currency: "USD",
+  onRowClick: null,
 };
 
 export default AssetTable;

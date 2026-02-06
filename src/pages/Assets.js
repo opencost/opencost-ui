@@ -9,6 +9,7 @@ import {
   AssetTypeChart,
   AssetsHeader,
   AssetTable,
+  AssetDetailPanel,
 } from "../components/assets";
 import AssetsService from "../services/assets";
 
@@ -21,6 +22,8 @@ const Assets = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rawData, setRawData] = useState(null);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Router integration for URL-based state
   const routerLocation = useLocation();
@@ -85,6 +88,21 @@ const Assets = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Handle CSV export
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      await AssetsService.exportAssetsCsv({ window, aggregate });
+    } catch (err) {
+      setError({
+        title: "Export failed",
+        subtitle: err.message || "Could not export CSV",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [window, aggregate]);
 
   // Compute derived data
   const summary = useMemo(() => {
@@ -186,7 +204,9 @@ const Assets = () => {
           aggregate={aggregate}
           setAggregate={setAggregate}
           onRefresh={handleRefresh}
+          onExport={handleExport}
           isLoading={loading}
+          isExporting={isExporting}
         />
 
         {/* Error notification */}
@@ -252,7 +272,7 @@ const Assets = () => {
             </Column>
           </Grid>
 
-          {/* Cost distribution chart */}
+          {/* Cost charts */}
           <Grid narrow style={sectionStyle}>
             <Column lg={8} md={8} sm={4}>
               <div style={chartContainerStyle}>
@@ -279,9 +299,18 @@ const Assets = () => {
               data={tableData}
               isLoading={loading}
               currency={currency}
+              onRowClick={(asset) => setSelectedAsset(asset)}
             />
           </div>
         </div>
+
+        {/* Asset Detail Panel */}
+        <AssetDetailPanel
+          asset={selectedAsset}
+          isOpen={selectedAsset !== null}
+          onClose={() => setSelectedAsset(null)}
+          currency={currency}
+        />
       </div>
     </Page>
   );

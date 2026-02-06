@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Button, Dropdown } from "@carbon/react";
-import { Renew } from "@carbon/icons-react";
+import { Renew, Download } from "@carbon/icons-react";
+import ThemeToggle from "../ThemeToggle";
 
 /**
  * AssetsHeader - Control bar for the Assets page
@@ -36,7 +37,9 @@ const AssetsHeader = ({
   aggregate,
   setAggregate,
   onRefresh,
+  onExport,
   isLoading,
+  isExporting,
 }) => {
   const headerStyle = {
     display: "flex",
@@ -77,6 +80,9 @@ const AssetsHeader = ({
     <div style={headerStyle}>
       <h1 style={titleStyle}>Assets</h1>
       <div style={controlsContainerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
+          <ThemeToggle />
+        </div>
         <div style={dropdownContainerStyle}>
           <Dropdown
             id="window-dropdown"
@@ -112,6 +118,16 @@ const AssetsHeader = ({
         <Button
           kind="secondary"
           size="md"
+          renderIcon={Download}
+          onClick={onExport}
+          disabled={isLoading || isExporting}
+          hasIconOnly
+          iconDescription="Export to CSV"
+          tooltipPosition="bottom"
+        />
+        <Button
+          kind="secondary"
+          size="md"
           renderIcon={Renew}
           onClick={onRefresh}
           disabled={isLoading}
@@ -135,12 +151,18 @@ AssetsHeader.propTypes = {
   setAggregate: PropTypes.func.isRequired,
   /** Handler for refresh button click */
   onRefresh: PropTypes.func.isRequired,
+  /** Handler for export button click */
+  onExport: PropTypes.func,
   /** Loading state to disable refresh button */
   isLoading: PropTypes.bool,
+  /** Exporting state to disable export button */
+  isExporting: PropTypes.bool,
 };
 
 AssetsHeader.defaultProps = {
   isLoading: false,
+  isExporting: false,
+  onExport: null,
 };
 
 export default AssetsHeader;

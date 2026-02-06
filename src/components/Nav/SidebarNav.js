@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Drawer, List, Box } from "@mui/material";
+import { Drawer, List } from "@mui/material";
 
 import { NavItem } from "./NavItem";
 import { BarChart, Cloud, Storage } from "@mui/icons-material";
-import ThemeToggle from "../ThemeToggle";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
@@ -44,7 +43,7 @@ const SidebarNav = ({ active }) => {
           backgroundColor: "inherit",
           border: 0,
           width: DRAWER_WIDTH,
-          paddingTop: "2.5rem",
+          paddingTop: "0.5rem",
         },
       }}
       variant="permanent"
@@ -59,9 +58,6 @@ const SidebarNav = ({ active }) => {
           <NavItem active={active === `${l.href}`} key={l.name} {...l} />
         ))}
       </List>
-      <Box sx={{ padding: '1rem', display: 'flex', justifyContent: 'center' }}>
-        <ThemeToggle />
-      </Box>
     </Drawer>
   );
 };

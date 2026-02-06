@@ -1,5 +1,6 @@
 import { useLocation } from "react-router";
 import { SidebarNav } from "./Nav/SidebarNav";
+import ThemeToggle from "./ThemeToggle";
 
 const Page = (props) => {
   const { pathname } = useLocation();
@@ -23,6 +24,19 @@ const Page = (props) => {
           flexGrow: 1,
         }}
       >
+        {/* Theme toggle in top right corner - hidden on assets page */}
+        {pathname !== '/assets' && (
+          <div
+            style={{
+              position: "absolute",
+              top: "1rem",
+              right: "2rem",
+              zIndex: 100,
+            }}
+          >
+            <ThemeToggle />
+          </div>
+        )}
         <div
           style={{
             position: "relative",

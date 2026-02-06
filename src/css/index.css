@@ -6,6 +6,11 @@
    THEME SYSTEM - CSS Custom Properties
    ============================================ */
 
+/* Global font family */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
 /* Light theme (default) */
 :root,
 [data-theme="light"] {

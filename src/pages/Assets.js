@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, createElement as h } from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,16 +28,13 @@ import {
 } from '@carbon/react';
 import { DonutChart } from '@carbon/charts-react';
 import { ChartTheme } from '@carbon/charts';
+import { Download, Image as ImageIconCarbon, Renew } from '@carbon/icons-react';
 import '@carbon/charts/styles.css';
 import '@carbon/styles/css/styles.css';
 import '../css/AssetsDashboard.css';
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import DownloadIcon from "@mui/icons-material/Download";
-import ImageIcon from "@mui/icons-material/Image";
 import Warnings from "../components/Warnings";
 import AssetsService from "../services/assets";
 import html2canvas from 'html2canvas';
@@ -254,64 +251,70 @@ const AssetSummaryTiles = ({ assets, windowDays }) => {
   
   const { nodeDisks } = categorizeAssets(assets);
   
-  return (
-    <div className="summary-tiles" style={{ 
+  return h('div', { 
+    className: "summary-tiles",
+    style: { 
       display: 'grid', 
       gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
       gap: '12px',
       marginBottom: '24px'
-    }}>
-      <Tile className="summary-tile" style={{ 
-        padding: '12px', 
-        textAlign: 'center',
-        minHeight: 'auto'
-      }}>
-        <div className="tile-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>💾</div>
-        <div className="tile-value" style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' }}>{nodeDisks.length}</div>
-        <div className="tile-label" style={{ fontSize: '11px', color: '#525252' }}>Node Disks</div>
-      </Tile>
-      
-      <Tile className="summary-tile" style={{ 
-        padding: '12px', 
-        textAlign: 'center',
-        minHeight: 'auto'
-      }}>
-        <div className="tile-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>$</div>
-        <div className="tile-value" style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' }}>{formatCost(totalCost)}</div>
-        <div className="tile-label" style={{ fontSize: '11px', color: '#525252' }}>Total Cost</div>
-      </Tile>
-      
-      <Tile className="summary-tile" style={{ 
-        padding: '12px', 
-        textAlign: 'center',
-        minHeight: 'auto'
-      }}>
-        <div className="tile-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>📦</div>
-        <div className="tile-value" style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' }}>{bytesToGB(totalProvisioned)} GB</div>
-        <div className="tile-label" style={{ fontSize: '11px', color: '#525252' }}>Total Provisioned</div>
-      </Tile>
-      
-      <Tile className="summary-tile" style={{ 
-        padding: '12px', 
-        textAlign: 'center',
-        minHeight: 'auto'
-      }}>
-        <div className="tile-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>🏛️</div>
-        <div className="tile-value" style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' }}>{windowDays}</div>
-        <div className="tile-label" style={{ fontSize: '11px', color: '#525252' }}>Days</div>
-      </Tile>
-      
-      <Tile className="summary-tile" style={{ 
-        padding: '12px', 
-        textAlign: 'center',
-        minHeight: 'auto'
-      }}>
-        <div className="tile-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>📊</div>
-        <div className="tile-value" style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' }}>{avgIdle.toFixed(0)}%</div>
-        <div className="tile-label" style={{ fontSize: '11px', color: '#525252' }}>Cluster Idle</div>
-      </Tile>
-    </div>
-  );
+    }
+  }, [
+    // Node Disks Tile
+    h(Tile, { 
+      key: 'tile-node-disks',
+      className: "summary-tile",
+      style: { padding: '12px', textAlign: 'center', minHeight: 'auto' }
+    }, [
+      h('div', { key: 'icon', className: "tile-icon", style: { fontSize: '20px', marginBottom: '4px' } }, '💾'),
+      h('div', { key: 'value', className: "tile-value", style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' } }, nodeDisks.length),
+      h('div', { key: 'label', className: "tile-label", style: { fontSize: '11px', color: '#525252' } }, 'Node Disks')
+    ]),
+    
+    // Total Cost Tile
+    h(Tile, { 
+      key: 'tile-cost',
+      className: "summary-tile",
+      style: { padding: '12px', textAlign: 'center', minHeight: 'auto' }
+    }, [
+      h('div', { key: 'icon', className: "tile-icon", style: { fontSize: '20px', marginBottom: '4px' } }, '$'),
+      h('div', { key: 'value', className: "tile-value", style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' } }, formatCost(totalCost)),
+      h('div', { key: 'label', className: "tile-label", style: { fontSize: '11px', color: '#525252' } }, 'Total Cost')
+    ]),
+    
+    // Total Provisioned Tile
+    h(Tile, { 
+      key: 'tile-provisioned',
+      className: "summary-tile",
+      style: { padding: '12px', textAlign: 'center', minHeight: 'auto' }
+    }, [
+      h('div', { key: 'icon', className: "tile-icon", style: { fontSize: '20px', marginBottom: '4px' } }, '📦'),
+      h('div', { key: 'value', className: "tile-value", style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' } }, `${bytesToGB(totalProvisioned)} GB`),
+      h('div', { key: 'label', className: "tile-label", style: { fontSize: '11px', color: '#525252' } }, 'Total Provisioned')
+    ]),
+    
+    // Window Days Tile
+    h(Tile, { 
+      key: 'tile-days',
+      className: "summary-tile",
+      style: { padding: '12px', textAlign: 'center', minHeight: 'auto' }
+    }, [
+      h('div', { key: 'icon', className: "tile-icon", style: { fontSize: '20px', marginBottom: '4px' } }, '🏛️'),
+      h('div', { key: 'value', className: "tile-value", style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' } }, windowDays),
+      h('div', { key: 'label', className: "tile-label", style: { fontSize: '11px', color: '#525252' } }, 'Days')
+    ]),
+    
+    // Cluster Idle Tile
+    h(Tile, { 
+      key: 'tile-idle',
+      className: "summary-tile",
+      style: { padding: '12px', textAlign: 'center', minHeight: 'auto' }
+    }, [
+      h('div', { key: 'icon', className: "tile-icon", style: { fontSize: '20px', marginBottom: '4px' } }, '📊'),
+      h('div', { key: 'value', className: "tile-value", style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '2px' } }, `${avgIdle.toFixed(0)}%`),
+      h('div', { key: 'label', className: "tile-label", style: { fontSize: '11px', color: '#525252' } }, 'Cluster Idle')
+    ])
+  ]);
 };
 
 const AssetPieChart = ({ title, data, totalBytes, chartId }) => {
@@ -387,38 +390,37 @@ const AssetPieChart = ({ title, data, totalBytes, chartId }) => {
     }
   };
   
-  return (
-    <div className="pie-chart-wrapper">
-      <div className="chart-controls" style={{ 
-        display: 'flex', 
-        justifyContent: 'flex-end', 
-        gap: '8px', 
-        marginBottom: '8px' 
-      }}>
-        <Button 
-          kind="ghost" 
-          size="sm"
-          renderIcon={ImageIcon}
-          onClick={handleDownloadChart}
-          iconDescription="Download chart as image"
-        >
-          Download
-        </Button>
-      </div>
-      
-      <div className="pie-chart-container" id={chartId} ref={chartRef}>
-        <DonutChart data={chartData} options={options} />
-        <div className="chart-footer">
-          <span className="chart-footer-text">
-            Total: {bytesToGB(totalBytes)} GB
-          </span>
-          <span className="chart-footer-text chart-idle-info" style={{ marginLeft: '16px' }}>
-            Idle: {idlePercentage}% ({idleItem ? idleItem.value : '0'} GB)
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+  return h('div', { className: "pie-chart-wrapper" }, [
+    h('div', { 
+      key: 'chart-controls',
+      className: "chart-controls",
+      style: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '8px' }
+    }, 
+      h(Button, {
+        kind: "ghost",
+        size: "sm",
+        renderIcon: ImageIconCarbon,
+        onClick: handleDownloadChart,
+        iconDescription: "Download chart as image"
+      }, 'Download')
+    ),
+    h('div', { 
+      key: 'chart-container',
+      className: "pie-chart-container",
+      id: chartId,
+      ref: chartRef
+    }, [
+      h(DonutChart, { key: 'chart', data: chartData, options: options }),
+      h('div', { key: 'footer', className: "chart-footer" }, [
+        h('span', { key: 'total', className: "chart-footer-text" }, `Total: ${bytesToGB(totalBytes)} GB`),
+        h('span', { 
+          key: 'idle',
+          className: "chart-footer-text chart-idle-info",
+          style: { marginLeft: '16px' }
+        }, `Idle: ${idlePercentage}% (${idleItem ? idleItem.value : '0'} GB)`)
+      ])
+    ])
+  ]);
 };
 
 const StorageOverview = ({ assets }) => {
@@ -460,42 +462,41 @@ const StorageOverview = ({ assets }) => {
     };
   }, [pvcs]);
   
-  return (
-    <div className="storage-overview">
-      <h3 className="section-title">Storage Overview</h3>
-      <Grid>
-        <Column lg={8} md={4} sm={4}>
-          <Tile className="chart-tile">
-            <div className="overview-header">
-              <h4>Node Disks</h4>
-              <span className="total-size">{bytesToGB(nodeDiskData.totalBytes)} GB</span>
-            </div>
-            <AssetPieChart 
-              title="" 
-              data={nodeDiskData.data} 
-              totalBytes={nodeDiskData.totalBytes}
-              chartId="node-disks-chart"
-            />
-          </Tile>
-        </Column>
-        
-        <Column lg={8} md={4} sm={4}>
-          <Tile className="chart-tile">
-            <div className="overview-header">
-              <h4>PVCs (Persistent Volume Claims)</h4>
-              <span className="total-size">{bytesToGB(pvcData.totalBytes)} GB</span>
-            </div>
-            <AssetPieChart 
-              title="" 
-              data={pvcData.data} 
-              totalBytes={pvcData.totalBytes}
-              chartId="pvcs-chart"
-            />
-          </Tile>
-        </Column>
-      </Grid>
-    </div>
-  );
+  return h('div', { className: "storage-overview" }, [
+    h('h3', { key: 'title', className: "section-title" }, 'Storage Overview'),
+    h(Grid, { key: 'grid' }, [
+      h(Column, { key: 'col-node', lg: 8, md: 4, sm: 4 },
+        h(Tile, { className: "chart-tile" }, [
+          h('div', { key: 'header', className: "overview-header" }, [
+            h('h4', { key: 'title' }, 'Node Disks'),
+            h('span', { key: 'size', className: "total-size" }, `${bytesToGB(nodeDiskData.totalBytes)} GB`)
+          ]),
+          h(AssetPieChart, {
+            key: 'chart',
+            title: "",
+            data: nodeDiskData.data,
+            totalBytes: nodeDiskData.totalBytes,
+            chartId: "node-disks-chart"
+          })
+        ])
+      ),
+      h(Column, { key: 'col-pvc', lg: 8, md: 4, sm: 4 },
+        h(Tile, { className: "chart-tile" }, [
+          h('div', { key: 'header', className: "overview-header" }, [
+            h('h4', { key: 'title' }, 'PVCs (Persistent Volume Claims)'),
+            h('span', { key: 'size', className: "total-size" }, `${bytesToGB(pvcData.totalBytes)} GB`)
+          ]),
+          h(AssetPieChart, {
+            key: 'chart',
+            title: "",
+            data: pvcData.data,
+            totalBytes: pvcData.totalBytes,
+            chartId: "pvcs-chart"
+          })
+        ])
+      )
+    ])
+  ]);
 };
 
 const ActionableInsights = ({ assets }) => {
@@ -503,21 +504,19 @@ const ActionableInsights = ({ assets }) => {
   
   if (insights.length === 0) return null;
   
-  return (
-    <div className="insights-panel">
-      <h3 className="section-title">Actionable Insights</h3>
-      {insights.map((insight, index) => (
-        <InlineNotification
-          key={index}
-          kind={insight.type}
-          title={insight.title}
-          subtitle={insight.subtitle}
-          lowContrast
-          hideCloseButton
-        />
-      ))}
-    </div>
-  );
+  return h('div', { className: "insights-panel" }, [
+    h('h3', { key: 'title', className: "section-title" }, 'Actionable Insights'),
+    ...insights.map((insight, index) =>
+      h(InlineNotification, {
+        key: index,
+        kind: insight.type,
+        title: insight.title,
+        subtitle: insight.subtitle,
+        lowContrast: true,
+        hideCloseButton: true
+      })
+    )
+  ]);
 };
 
 // UPDATED: Separate Usage Cell Component (no name)
@@ -529,10 +528,11 @@ const UsageCell = ({ row }) => {
   
   const isUnused = row.usedStorage === 0;
   
-  return (
-    <div style={{ padding: '8px 0' }}>
-      {/* Progress Bar */}
-      <div style={{
+  return h('div', { style: { padding: '8px 0' } }, [
+    // Progress Bar
+    h('div', {
+      key: 'progress-bar',
+      style: {
         width: '100%',
         height: '8px',
         backgroundColor: '#f4f4f4',
@@ -540,43 +540,44 @@ const UsageCell = ({ row }) => {
         overflow: 'hidden',
         marginBottom: '6px',
         boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-      }}>
-        <div style={{
-          display: 'flex',
-          height: '100%',
-          width: '100%'
-        }}>
-          {/* Used portion (blue) */}
-          <div style={{
+      }
+    }, 
+      h('div', { 
+        style: { display: 'flex', height: '100%', width: '100%' }
+      }, [
+        // Used portion (blue)
+        h('div', {
+          key: 'used',
+          style: {
             width: `${usedPercentage}%`,
             backgroundColor: '#0f62fe',
             transition: 'width 0.3s ease'
-          }} />
-          {/* Idle portion (orange) */}
-          <div style={{
+          }
+        }),
+        // Idle portion (orange)
+        h('div', {
+          key: 'idle',
+          style: {
             width: `${idlePercentage}%`,
             backgroundColor: '#ff832b',
             transition: 'width 0.3s ease'
-          }} />
-        </div>
-      </div>
-      
-      {/* Usage Text */}
-      <div style={{
+          }
+        })
+      ])
+    ),
+    // Usage Text
+    h('div', {
+      key: 'usage-text',
+      style: {
         fontSize: '12px',
         color: '#525252',
         fontWeight: 400
-      }}>
-        {isUnused ? (
-          <span style={{ color: '#ff832b', fontWeight: 500 }}>
-            Unused (100% idle)
-          </span>
-        ) : (
-          `${row.usedStorage.toFixed(2)} GB / ${row.totalStorage.toFixed(2)} GB`
-        )}
-      </div>
-    </div>
-  );
+      }
+    }, isUnused 
+      ? h('span', { style: { color: '#ff832b', fontWeight: 500 } }, 'Unused (100% idle)')
+      : `${row.usedStorage.toFixed(2)} GB / ${row.totalStorage.toFixed(2)} GB`
+    )
+  ]);
 };
 
 // Enhanced Asset Table Component with SEPARATE Name and Usage Columns
@@ -700,174 +701,169 @@ const AssetUsageTable = ({ assets, windowDays }) => {
     }
   };
   
-  return (
-    <div className="asset-usage-table">
-      <DataTable
-        rows={paginatedRows}
-        headers={headers}
-        isSortable
-        sortRow={(a, b) => 0}
-      >
-        {({
-          rows,
-          headers,
-          getHeaderProps,
-          getRowProps,
-          getTableProps,
-          getTableContainerProps
-        }) => (
-          <TableContainer
-            title="Hourly Asset Usage Details"
-            description={`Showing ${paginatedRows.length} of ${sortedRows.length} assets (${assets.length} total)`}
-            {...getTableContainerProps()}
-          >
-            <TableToolbar>
-              <TableToolbarContent>
-                <TableToolbarSearch
-                  placeholder="Search assets..."
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  value={searchTerm}
-                />
-                
-                <Dropdown
-                  id="time-filter-dropdown"
-                  titleText=""
-                  label="Time Window"
-                  items={timeFilterOptions}
-                  itemToString={(item) => item ? item.text : ''}
-                  selectedItem={timeFilterOptions.find(opt => opt.id === timeFilter)}
-                  onChange={({ selectedItem }) => setTimeFilter(selectedItem.id)}
-                  size="sm"
-                />
-                
-                <Button
-                  kind="ghost"
-                  size="sm"
-                  onClick={() => exportToCSV(assets, { days: windowDays })}
-                >
-                  Export Table
-                </Button>
-              </TableToolbarContent>
-            </TableToolbar>
-            
-            <Table {...getTableProps()}>
-              <TableHead>
-                <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader
-                      key={header.key}
-                      {...getHeaderProps({ header })}
-                      isSortable={header.key !== 'actions'}
-                      onClick={() => header.key !== 'actions' && handleSort(header.key)}
-                      sortDirection={sortColumn === header.key ? sortDirection : 'NONE'}
-                    >
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedRows.map((row, index) => (
-                  <TableRow key={row.id} {...getRowProps({ row })}>
-                    {/* NAME COLUMN - SEPARATE */}
-                    <TableCell>
-                      <div style={{ 
-                        fontWeight: 600, 
-                        fontSize: '14px',
-                        color: '#161616',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        {row.name}
-                        {row.assetType === 'Node Disk' && (
-                          <Tag type="blue" size="sm">
-                            Node Disk
-                          </Tag>
-                        )}
-                      </div>
-                    </TableCell>
-                    
-                    {/* USAGE COLUMN - SEPARATE */}
-                    <TableCell>
-                      <UsageCell row={row} />
-                    </TableCell>
-                    
-                    <TableCell>{row.type}</TableCell>
-                    <TableCell>${row.avgCost.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Tag type={row.status.type} size="sm">
-                        {row.status.label}
-                      </Tag>
-                    </TableCell>
-                    <TableCell>
-                      <OverflowMenu size="sm" flipped>
-                        <OverflowMenuItem itemText="View Details" />
-                        <OverflowMenuItem itemText="View History" />
-                        <OverflowMenuItem itemText="Export Data" />
-                        <OverflowMenuItem 
-                          itemText="Delete Asset" 
-                          hasDivider 
-                          isDelete 
-                        />
-                      </OverflowMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            
-            <Pagination
-              page={currentPage}
-              pageSize={pageSize}
-              pageSizes={[10, 20, 50, 100]}
-              totalItems={sortedRows.length}
-              onChange={({ page, pageSize }) => {
-                setCurrentPage(page);
-                setPageSize(pageSize);
-              }}
-            />
-          </TableContainer>
-        )}
-      </DataTable>
-      
-      {/* Summary Statistics */}
-      <div style={{ 
-        marginTop: '16px', 
-        padding: '16px', 
+  return h('div', { className: "asset-usage-table" }, [
+    h(DataTable, {
+      key: 'data-table',
+      rows: paginatedRows,
+      headers: headers,
+      isSortable: true,
+      sortRow: (a, b) => 0
+    }, ({
+      rows,
+      headers,
+      getHeaderProps,
+      getRowProps,
+      getTableProps,
+      getTableContainerProps
+    }) => 
+      h(TableContainer, {
+        title: "Hourly Asset Usage Details",
+        description: `Showing ${paginatedRows.length} of ${sortedRows.length} assets (${assets.length} total)`,
+        ...getTableContainerProps()
+      }, [
+        h(TableToolbar, { key: 'toolbar' },
+          h(TableToolbarContent, null, [
+            h(TableToolbarSearch, {
+              key: 'search',
+              placeholder: "Search assets...",
+              onChange: (e) => setSearchTerm(e.target.value),
+              value: searchTerm
+            }),
+            h(Dropdown, {
+              key: 'dropdown',
+              id: "time-filter-dropdown",
+              titleText: "",
+              label: "Time Window",
+              items: timeFilterOptions,
+              itemToString: (item) => item ? item.text : '',
+              selectedItem: timeFilterOptions.find(opt => opt.id === timeFilter),
+              onChange: ({ selectedItem }) => setTimeFilter(selectedItem.id),
+              size: "sm"
+            }),
+            h(Button, {
+              key: 'export',
+              kind: "ghost",
+              size: "sm",
+              onClick: () => exportToCSV(assets, { days: windowDays })
+            }, 'Export Table')
+          ])
+        ),
+        h(Table, { key: 'table', ...getTableProps() }, [
+          h(TableHead, { key: 'thead' },
+            h(TableRow, null,
+              headers.map((header) =>
+                h(TableHeader, {
+                  key: header.key,
+                  ...getHeaderProps({ header }),
+                  isSortable: header.key !== 'actions',
+                  onClick: () => header.key !== 'actions' && handleSort(header.key),
+                  sortDirection: sortColumn === header.key ? sortDirection : 'NONE'
+                }, header.header)
+              )
+            )
+          ),
+          h(TableBody, { key: 'tbody' },
+            paginatedRows.map((row, index) =>
+              h(TableRow, { key: row.id, ...getRowProps({ row }) }, [
+                // NAME COLUMN
+                h(TableCell, { key: 'name' },
+                  h('div', {
+                    style: {
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      color: '#161616',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }
+                  }, [
+                    row.name,
+                    row.assetType === 'Node Disk' && h(Tag, {
+                      key: 'tag',
+                      type: "blue",
+                      size: "sm"
+                    }, 'Node Disk')
+                  ])
+                ),
+                // USAGE COLUMN
+                h(TableCell, { key: 'usage' },
+                  h(UsageCell, { row: row })
+                ),
+                h(TableCell, { key: 'type' }, row.type),
+                h(TableCell, { key: 'cost' }, `$${row.avgCost.toFixed(2)}`),
+                h(TableCell, { key: 'status' },
+                  h(Tag, {
+                    type: row.status.type,
+                    size: "sm"
+                  }, row.status.label)
+                ),
+                h(TableCell, { key: 'actions' },
+                  h(OverflowMenu, { size: "sm", flipped: true }, [
+                    h(OverflowMenuItem, { key: 'details', itemText: "View Details" }),
+                    h(OverflowMenuItem, { key: 'history', itemText: "View History" }),
+                    h(OverflowMenuItem, { key: 'export', itemText: "Export Data" }),
+                    h(OverflowMenuItem, {
+                      key: 'delete',
+                      itemText: "Delete Asset",
+                      hasDivider: true,
+                      isDelete: true
+                    })
+                  ])
+                )
+              ])
+            )
+          )
+        ]),
+        h(Pagination, {
+          key: 'pagination',
+          page: currentPage,
+          pageSize: pageSize,
+          pageSizes: [10, 20, 50, 100],
+          totalItems: sortedRows.length,
+          onChange: ({ page, pageSize }) => {
+            setCurrentPage(page);
+            setPageSize(pageSize);
+          }
+        })
+      ])
+    ),
+    // Summary Statistics
+    h('div', {
+      key: 'summary-stats',
+      style: {
+        marginTop: '16px',
+        padding: '16px',
         backgroundColor: '#f4f4f4',
         borderRadius: '4px',
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '16px'
-      }}>
-        <div>
-          <div style={{ fontSize: '12px', color: '#525252' }}>Total Assets</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#161616' }}>{sortedRows.length}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '12px', color: '#525252' }}>Total Storage</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#161616' }}>
-            {sortedRows.reduce((sum, row) => sum + row.totalStorage, 0).toFixed(2)} GB
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '12px', color: '#525252' }}>Avg Idle Rate</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#161616' }}>
-            {sortedRows.length > 0 
-              ? (sortedRows.reduce((sum, row) => sum + row.idlePercentage, 0) / sortedRows.length).toFixed(1)
-              : 0}%
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '12px', color: '#525252' }}>Total Cost</div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#161616' }}>
-            ${sortedRows.reduce((sum, row) => sum + row.avgCost, 0).toFixed(2)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+      }
+    }, [
+      h('div', { key: 'total-assets' }, [
+        h('div', { key: 'label', style: { fontSize: '12px', color: '#525252' } }, 'Total Assets'),
+        h('div', { key: 'value', style: { fontSize: '20px', fontWeight: 'bold', color: '#161616' } }, sortedRows.length)
+      ]),
+      h('div', { key: 'total-storage' }, [
+        h('div', { key: 'label', style: { fontSize: '12px', color: '#525252' } }, 'Total Storage'),
+        h('div', { key: 'value', style: { fontSize: '20px', fontWeight: 'bold', color: '#161616' } },
+          `${sortedRows.reduce((sum, row) => sum + row.totalStorage, 0).toFixed(2)} GB`
+        )
+      ]),
+      h('div', { key: 'avg-idle' }, [
+        h('div', { key: 'label', style: { fontSize: '12px', color: '#525252' } }, 'Avg Idle Rate'),
+        h('div', { key: 'value', style: { fontSize: '20px', fontWeight: 'bold', color: '#161616' } },
+          `${sortedRows.length > 0 ? (sortedRows.reduce((sum, row) => sum + row.idlePercentage, 0) / sortedRows.length).toFixed(1) : 0}%`
+        )
+      ]),
+      h('div', { key: 'total-cost' }, [
+        h('div', { key: 'label', style: { fontSize: '12px', color: '#525252' } }, 'Total Cost'),
+        h('div', { key: 'value', style: { fontSize: '20px', fontWeight: 'bold', color: '#161616' } },
+          `$${sortedRows.reduce((sum, row) => sum + row.avgCost, 0).toFixed(2)}`
+        )
+      ])
+    ])
+  ]);
 };
 
 const AssetsDashboard = () => {
@@ -1038,180 +1034,182 @@ const AssetsDashboard = () => {
   }, [window, useMockData]);
   
   if (loading) {
-    return (
-      <Page active="assets.html">
-        <Header headerTitle="Storage Assets">
-          <IconButton aria-label="refresh" onClick={fetchData}>
-            <RefreshIcon />
-          </IconButton>
-        </Header>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          minHeight: '400px' 
-        }}>
-          <Loading description="Loading assets data..." withOverlay={false} />
-        </div>
-        <Footer />
-      </Page>
-    );
+    return h(Page, { active: "assets.html" }, [
+      h(Header, { key: 'header', headerTitle: "Storage Assets" },
+        h(Button, {
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Renew,
+          onClick: fetchData,
+          iconDescription: "Refresh"
+        }, 'Refresh')
+      ),
+      h('div', {
+        key: 'loading',
+        style: {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '400px'
+        }
+      },
+        h(Loading, {
+          description: "Loading assets data...",
+          withOverlay: false
+        })
+      ),
+      h(Footer, { key: 'footer' })
+    ]);
   }
   
   if (errors.length > 0) {
-    return (
-      <Page active="assets.html">
-        <Header headerTitle="Storage Assets">
-          <IconButton aria-label="refresh" onClick={fetchData}>
-            <RefreshIcon />
-          </IconButton>
-        </Header>
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={errors} />
-          <div style={{ marginTop: 20, padding: 20 }}>
-            <Toggle
-              id="mock-data-toggle"
-              labelText="Use Mock Data (Development Mode)"
-              toggled={useMockData}
-              onToggle={(checked) => setUseMockData(checked)}
-            />
-          </div>
-        </div>
-        <Footer />
-      </Page>
-    );
+    return h(Page, { active: "assets.html" }, [
+      h(Header, { key: 'header', headerTitle: "Storage Assets" },
+        h(Button, {
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Renew,
+          onClick: fetchData,
+          iconDescription: "Refresh"
+        }, 'Refresh')
+      ),
+      h('div', { key: 'content', style: { marginBottom: 20 } }, [
+        h(Warnings, { key: 'warnings', warnings: errors }),
+        h('div', { key: 'toggle', style: { marginTop: 20, padding: 20 } },
+          h(Toggle, {
+            id: "mock-data-toggle",
+            labelText: "Use Mock Data (Development Mode)",
+            toggled: useMockData,
+            onToggle: (checked) => setUseMockData(checked)
+          })
+        )
+      ]),
+      h(Footer, { key: 'footer' })
+    ]);
   }
   
   if (!assetsData || !assetsData.assets || assetsData.assets.length === 0) {
-    return (
-      <Page active="assets.html">
-        <Header headerTitle="Storage Assets">
-          <IconButton aria-label="refresh" onClick={fetchData}>
-            <RefreshIcon />
-          </IconButton>
-        </Header>
-        <div style={{ marginBottom: 20 }}>
-          <Warnings warnings={[
-            {
-              primary: "No assets found",
-              secondary: "There are no storage assets available for the selected time window."
-            }
-          ]} />
-          <div style={{ marginTop: 20, padding: 20 }}>
-            <Toggle
-              id="mock-data-toggle"
-              labelText="Use Mock Data (Development Mode)"
-              toggled={useMockData}
-              onToggle={(checked) => setUseMockData(checked)}
-            />
-          </div>
-        </div>
-        <Footer />
-      </Page>
-    );
+    return h(Page, { active: "assets.html" }, [
+      h(Header, { key: 'header', headerTitle: "Storage Assets" },
+        h(Button, {
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Renew,
+          onClick: fetchData,
+          iconDescription: "Refresh"
+        }, 'Refresh')
+      ),
+      h('div', { key: 'content', style: { marginBottom: 20 } }, [
+        h(Warnings, {
+          key: 'warnings',
+          warnings: [{
+            primary: "No assets found",
+            secondary: "There are no storage assets available for the selected time window."
+          }]
+        }),
+        h('div', { key: 'toggle', style: { marginTop: 20, padding: 20 } },
+          h(Toggle, {
+            id: "mock-data-toggle",
+            labelText: "Use Mock Data (Development Mode)",
+            toggled: useMockData,
+            onToggle: (checked) => setUseMockData(checked)
+          })
+        )
+      ]),
+      h(Footer, { key: 'footer' })
+    ]);
   }
   
   const { assets, window: windowData } = assetsData;
   const windowDays = windowData?.days || 120;
   
-  return (
-    <Page active="assets.html">
-      <Header headerTitle="Storage Assets">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {useMockData && (
-            <Tag type="blue" size="sm">MOCK DATA</Tag>
-          )}
-          <Button 
-            kind="ghost" 
-            size="sm"
-            renderIcon={DownloadIcon}
-            onClick={() => handleExportData('csv')}
-          >
-            Export CSV
-          </Button>
-          <Button 
-            kind="ghost" 
-            size="sm"
-            renderIcon={DownloadIcon}
-            onClick={() => handleExportData('json')}
-          >
-            Export JSON
-          </Button>
-          <Button 
-            kind="ghost" 
-            size="sm"
-            renderIcon={ImageIcon}
-            onClick={handleExportImage}
-            disabled={exportingImage}
-          >
-            {exportingImage ? 'Exporting...' : 'Export Image'}
-          </Button>
-          <IconButton aria-label="refresh" onClick={fetchData}>
-            <RefreshIcon />
-          </IconButton>
-        </div>
-      </Header>
-      
-      <div className="assets-dashboard" ref={dashboardRef}>
-        <div className="dashboard-header">
-          <Breadcrumb noTrailingSlash>
-            <BreadcrumbItem href="#overview">Overview</BreadcrumbItem>
-            <BreadcrumbItem href="#assets">Assets</BreadcrumbItem>
-            <BreadcrumbItem href="#cluster" isCurrentPage>default-cluster</BreadcrumbItem>
-          </Breadcrumb>
-          
-          <div className="header-actions">
-            <Dropdown
-              id="window-selector"
-              titleText=""
-              label="Time Window"
-              items={timeWindowOptions}
-              itemToString={(item) => item ? item.text : ''}
-              selectedItem={timeWindowOptions.find(opt => opt.value === window)}
-              onChange={({ selectedItem }) => setWindow(selectedItem.value)}
-              size="sm"
-            />
-            <Toggle
-              id="mock-data-toggle-header"
-              labelText="Mock Data"
-              size="sm"
-              toggled={useMockData}
-              onToggle={(checked) => setUseMockData(checked)}
-            />
-          </div>
-        </div>
-        
-        <div className="dashboard-title-section">
-          {windowData && (
-            <p className="time-window">
-              Time window: {new Date(windowData.start).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-              })} – {new Date(windowData.end).toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
-              })} ({windowDays} days)
-            </p>
-          )}
-        </div>
-        
-        <AssetSummaryTiles assets={assets} windowDays={windowDays} />
-        
-        <StorageOverview assets={assets} />
-        
-        <ActionableInsights assets={assets} />
-        
-        {/* Enhanced Table View with SEPARATE Name and Usage Columns */}
-        <div className="asset-table-section" style={{ marginTop: '32px' }}>
-          <AssetUsageTable assets={assets} windowDays={windowDays} />
-        </div>
-      </div>
-      
-      <Footer />
-    </Page>
-  );
+  return h(Page, { active: "assets.html" }, [
+    h(Header, { key: 'header', headerTitle: "Storage Assets" },
+      h('div', { style: { display: 'flex', alignItems: 'center', gap: '16px' } }, [
+        useMockData && h(Tag, { key: 'mock-tag', type: "blue", size: "sm" }, 'MOCK DATA'),
+        h(Button, {
+          key: 'export-csv',
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Download,
+          onClick: () => handleExportData('csv')
+        }, 'Export CSV'),
+        h(Button, {
+          key: 'export-json',
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Download,
+          onClick: () => handleExportData('json')
+        }, 'Export JSON'),
+        h(Button, {
+          key: 'export-image',
+          kind: "ghost",
+          size: "sm",
+          renderIcon: ImageIconCarbon,
+          onClick: handleExportImage,
+          disabled: exportingImage
+        }, exportingImage ? 'Exporting...' : 'Export Image'),
+        h(Button, {
+          key: 'refresh',
+          kind: "ghost",
+          size: "sm",
+          renderIcon: Renew,
+          onClick: fetchData,
+          iconDescription: "Refresh"
+        }, 'Refresh')
+      ].filter(Boolean))
+    ),
+    h('div', { key: 'dashboard', className: "assets-dashboard", ref: dashboardRef }, [
+      h('div', { key: 'header', className: "dashboard-header" }, [
+        h(Breadcrumb, { key: 'breadcrumb', noTrailingSlash: true }, [
+          h(BreadcrumbItem, { key: 'overview', href: "#overview" }, 'Overview'),
+          h(BreadcrumbItem, { key: 'assets', href: "#assets" }, 'Assets'),
+          h(BreadcrumbItem, { key: 'cluster', href: "#cluster", isCurrentPage: true }, 'default-cluster')
+        ]),
+        h('div', { key: 'actions', className: "header-actions" }, [
+          h(Dropdown, {
+            key: 'window-selector',
+            id: "window-selector",
+            titleText: "",
+            label: "Time Window",
+            items: timeWindowOptions,
+            itemToString: (item) => item ? item.text : '',
+            selectedItem: timeWindowOptions.find(opt => opt.value === window),
+            onChange: ({ selectedItem }) => setWindow(selectedItem.value),
+            size: "sm"
+          }),
+          h(Toggle, {
+            key: 'mock-toggle',
+            id: "mock-data-toggle-header",
+            labelText: "Mock Data",
+            size: "sm",
+            toggled: useMockData,
+            onToggle: (checked) => setUseMockData(checked)
+          })
+        ])
+      ]),
+      h('div', { key: 'title-section', className: "dashboard-title-section" },
+        windowData && h('p', { className: "time-window" },
+          `Time window: ${new Date(windowData.start).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })} – ${new Date(windowData.end).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })} (${windowDays} days)`
+        )
+      ),
+      h(AssetSummaryTiles, { key: 'summary-tiles', assets: assets, windowDays: windowDays }),
+      h(StorageOverview, { key: 'storage-overview', assets: assets }),
+      h(ActionableInsights, { key: 'insights', assets: assets }),
+      h('div', { key: 'table-section', className: "asset-table-section", style: { marginTop: '32px' } },
+        h(AssetUsageTable, { assets: assets, windowDays: windowDays })
+      )
+    ]),
+    h(Footer, { key: 'footer' })
+  ]);
 };
 
 export default AssetsDashboard;

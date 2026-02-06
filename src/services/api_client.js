@@ -7,16 +7,10 @@ import axios from "axios";
 
 let baseURL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
 
-// In production/Netlify, use the /api proxy to avoid CORS issues
-// In development (localhost), use the demo server directly
+// Fallback logic for when BASE_URL is not set
 if (!baseURL || baseURL.includes("PLACEHOLDER_BASE_URL")) {
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
-    // Production: use Netlify proxy
-    baseURL = "/api";
-  } else {
-    // Development: use demo server directly
-    baseURL = "https://demo.infra.opencost.io";
-  }
+  // Default to demo server for local development
+  baseURL = "https://demo.infra.opencost.io";
 }
 
 console.log("[api_client] Using baseURL:", baseURL);

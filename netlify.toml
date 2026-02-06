@@ -1,0 +1,12 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  BASE_URL = "/api"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://demo.infra.opencost.io/:splat"
+  status = 200
+  force = true

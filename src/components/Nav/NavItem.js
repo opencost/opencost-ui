@@ -7,10 +7,11 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       className={active ? "active" : ""}
       sx={{
         "&.MuiListItem-root:hover": {
-          backgroundColor: "#ebebeb",
+          backgroundColor: "var(--sidebar-hover)",
         },
         "&.MuiListItem-root.active": {
-          backgroundColor: "#e1e1e1",
+          backgroundColor: "var(--cds-layer-accent-01, var(--sidebar-hover))",
+          borderLeft: "3px solid var(--cds-interactive-01, #0f62fe)",
         },
       }}
       onClick={(e) => {
@@ -24,7 +25,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemIcon
         sx={{
           "&.MuiListItemIcon-root": {
-            color: active ? "#346ef2" : "#4e4e4e",
+            color: active ? "var(--cds-interactive-01, #0f62fe)" : "var(--sidebar-text)",
             minWidth: 36,
           },
         }}
@@ -34,7 +35,8 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemText
         sx={{
           "& .MuiListItemText-primary": {
-            color: active ? "#346ef2" : "inherit",
+            color: active ? "var(--cds-interactive-01, #0f62fe)" : "var(--sidebar-text)",
+            fontWeight: active ? 600 : 400,
           },
         }}
         primary={name}
@@ -44,7 +46,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
   );
 
   return href && !active ? (
-    <Link style={{ textDecoration: "none", color: "inherit" }} to={`${href}`}>
+    <Link style={{ textDecoration: "none", color: "var(--sidebar-text)" }} to={`${href}`}>
       {renderListItemCore()}
     </Link>
   ) : (

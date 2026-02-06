@@ -6,9 +6,14 @@
 import axios from "axios";
 
 let baseURL = process.env.BASE_URL || "{PLACEHOLDER_BASE_URL}";
-if (baseURL.includes("PLACEHOLDER_BASE_URL")) {
-  baseURL = "http://localhost:9090";
+
+// Fallback logic for when BASE_URL is not set
+if (!baseURL || baseURL.includes("PLACEHOLDER_BASE_URL")) {
+  // Default to demo server for local development
+  baseURL = "https://demo.infra.opencost.io";
 }
+
+console.log("[api_client] Using baseURL:", baseURL);
 
 const client = axios.create({ baseURL });
 

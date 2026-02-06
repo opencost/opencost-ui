@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { PieChart } from "@carbon/charts-react";
+import { SimpleBarChart } from "@carbon/charts-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
 /**
- * AssetTypeChart - Pie chart showing cost breakdown by asset type
+ * AssetTypeChart - Horizontal bar chart showing cost breakdown by asset type
  * (Node, ClusterManagement, LoadBalancer, Disk)
  */
 const AssetTypeChart = ({ data, currency = "USD" }) => {
@@ -40,17 +40,17 @@ const AssetTypeChart = ({ data, currency = "USD" }) => {
   const options = {
     title: "Cost by Asset Type",
     resizable: true,
-    pie: {
-      labels: {
-        enabled: true,
-        formatter: (d) => d.data.group,
+    axes: {
+      left: {
+        mapsTo: "group",
+        scaleType: "labels",
       },
-      alignment: "center",
+      bottom: {
+        mapsTo: "value",
+      },
     },
     legend: {
-      alignment: "center",
-      position: "bottom",
-      clickable: true,
+      enabled: false,
     },
     color: {
       scale: colorScale,
@@ -92,7 +92,7 @@ const AssetTypeChart = ({ data, currency = "USD" }) => {
       className="asset-type-chart-container"
     >
       <style>{`
-        .asset-type-chart-container .cds--cc--pie {
+        .asset-type-chart-container .cds--cc--simple-bar {
           display: flex;
           justify-content: center;
         }
@@ -109,7 +109,7 @@ const AssetTypeChart = ({ data, currency = "USD" }) => {
           font-weight: 700 !important;
         }
       `}</style>
-      <PieChart data={data} options={options} />
+      <SimpleBarChart data={data} options={options} />
     </div>
   );
 };

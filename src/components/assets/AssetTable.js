@@ -117,8 +117,10 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick, onExport })
               kind="ghost"
               size="sm"
               renderIcon={Download}
+              iconDescription="Download"
               onClick={onExport}
               disabled={!onExport}
+              style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}
             >
               Export CSV
             </Button>
@@ -226,8 +228,10 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick, onExport })
                   kind="ghost"
                   size="sm"
                   renderIcon={Download}
+                  iconDescription="Download"
                   onClick={() => onExport && onExport(data)}
                   disabled={!onExport}
+                  style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}
                 >
                   Export CSV
                 </Button>

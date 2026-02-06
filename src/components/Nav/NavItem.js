@@ -10,7 +10,8 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
           backgroundColor: "var(--sidebar-hover)",
         },
         "&.MuiListItem-root.active": {
-          backgroundColor: "var(--sidebar-hover)",
+          backgroundColor: "var(--cds-layer-accent-01, var(--sidebar-hover))",
+          borderLeft: "3px solid var(--cds-interactive-01, #0f62fe)",
         },
       }}
       onClick={(e) => {
@@ -24,7 +25,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemIcon
         sx={{
           "&.MuiListItemIcon-root": {
-            color: active ? "var(--sidebar-active)" : "var(--sidebar-text)",
+            color: active ? "var(--cds-interactive-01, #0f62fe)" : "var(--sidebar-text)",
             minWidth: 36,
           },
         }}
@@ -34,7 +35,8 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemText
         sx={{
           "& .MuiListItemText-primary": {
-            color: active ? "var(--sidebar-active)" : "var(--sidebar-text)",
+            color: active ? "var(--cds-interactive-01, #0f62fe)" : "var(--sidebar-text)",
+            fontWeight: active ? 600 : 400,
           },
         }}
         primary={name}

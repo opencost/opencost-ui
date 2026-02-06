@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
   DataTable,
@@ -9,26 +9,38 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableToolbar,
+  TableToolbarContent,
+  TableToolbarSearch,
+  TableBatchActions,
+  TableBatchAction,
+  TableSelectAll,
+  TableSelectRow,
   Tag,
   DataTableSkeleton,
+  Button,
+  Tooltip,
 } from "@carbon/react";
+import { Download, Information } from "@carbon/icons-react";
 
 /**
- * AssetTable - Data table displaying detailed asset information
- * Uses Carbon DataTable with sorting capabilities
+ * AssetTable - Professional data table following IBM Carbon Design standards
+ * Includes TableToolbar with search and batch actions, sorting, and proper formatting
  */
 
-// Map asset types to tag colors
+// Map asset types to cool-gray tag colors per IBM guidelines
 const typeColors = {
-  Node: "blue",
-  Disk: "purple",
-  Network: "teal",
-  LoadBalancer: "cyan",
-  ClusterManagement: "magenta",
-  SharedAsset: "gray",
+  Node: "cool-gray",
+  Disk: "cool-gray",
+  Network: "cool-gray",
+  LoadBalancer: "cool-gray",
+  ClusterManagement: "cool-gray",
+  SharedAsset: "cool-gray",
 };
 
-const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
+const AssetTable = ({ data, isLoading, currency = "USD", onRowClick, onExport }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Format currency values
   const formatCurrency = (value) => {
     return new Intl.NumberFormat("en-US", {
@@ -39,17 +51,34 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
     }).format(value);
   };
 
-  // Table headers configuration
+  // Table headers configuration with alignment info
   const headers = [
-    { key: "name", header: "Name" },
-    { key: "type", header: "Type" },
-    { key: "cpuCores", header: "CPU Cores" },
-    { key: "ramGB", header: "RAM (GB)" },
-    { key: "preemptible", header: "Pricing" },
-    { key: "cpuCost", header: "CPU Cost" },
-    { key: "ramCost", header: "RAM Cost" },
-    { key: "totalCost", header: "Total Cost" },
+    { key: "name", header: "Name", align: "left" },
+    { key: "type", header: "Type", align: "left" },
+    { key: "cpuCores", header: "CPU Cores", align: "right" },
+    { key: "ramGB", header: "RAM (GB)", align: "right" },
+    { key: "preemptible", header: "Pricing", align: "left", hasTooltip: true, tooltipText: "Pricing estimates based on public cloud rates" },
+    { key: "cpuCost", header: "CPU Cost", align: "right" },
+    { key: "ramCost", header: "RAM Cost", align: "right" },
+    { key: "totalCost", header: "Total Cost", align: "right" },
   ];
+
+  // Render header content with optional tooltip
+  const renderHeaderContent = (header) => {
+    if (header.hasTooltip) {
+      return (
+        <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          {header.header}
+          <Tooltip align="top" label={header.tooltipText}>
+            <button type="button" className="cds--tooltip__trigger" style={{ background: "none", border: "none", padding: 0, cursor: "help" }}>
+              <Information size={16} />
+            </button>
+          </Tooltip>
+        </span>
+      );
+    }
+    return header.header;
+  };
 
   // Show skeleton while loading
   if (isLoading) {
@@ -59,20 +88,52 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
         rowCount={5}
         headers={headers}
         showHeader
-        showToolbar={false}
+        showToolbar
       />
     );
   }
+
+  // Filter data based on search term
+  const filteredData = data?.filter((asset) => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      asset.name?.toLowerCase().includes(searchLower) ||
+      asset.type?.toLowerCase().includes(searchLower)
+    );
+  }) || [];
 
   // Show empty state if no data
   if (!data || data.length === 0) {
     return (
       <TableContainer title="Asset Details">
+        <TableToolbar>
+          <TableToolbarContent>
+            <TableToolbarSearch
+              placeholder="Search assets..."
+              onChange={(e) => setSearchTerm(e.target.value || "")}
+            />
+            <Button
+              kind="ghost"
+              size="sm"
+              renderIcon={Download}
+              onClick={onExport}
+              disabled={!onExport}
+            >
+              Export CSV
+            </Button>
+          </TableToolbarContent>
+        </TableToolbar>
         <Table>
           <TableHead>
             <TableRow>
               {headers.map((header) => (
-                <TableHeader key={header.key}>{header.header}</TableHeader>
+                <TableHeader 
+                  key={header.key}
+                  style={{ textAlign: header.align }}
+                >
+                  {header.header}
+                </TableHeader>
               ))}
             </TableRow>
           </TableHead>
@@ -83,7 +144,7 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
                   style={{
                     textAlign: "center",
                     padding: "2rem",
-                    color: "var(--text-tertiary)",
+                    color: "var(--cds-text-secondary, var(--text-tertiary))",
                   }}
                 >
                   No assets found for the selected time window
@@ -97,7 +158,7 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
   }
 
   // Prepare rows for DataTable
-  const rows = data.map((asset) => ({
+  const rows = filteredData.map((asset) => ({
     id: asset.id,
     name: asset.name,
     type: asset.type,
@@ -110,6 +171,15 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
     _rawAsset: asset._rawAsset,
   }));
 
+  // Handle batch export action
+  const handleBatchExport = (selectedRows) => {
+    if (onExport) {
+      const selectedIds = selectedRows.map((row) => row.id);
+      const selectedData = data.filter((asset) => selectedIds.includes(asset.id));
+      onExport(selectedData);
+    }
+  };
+
   return (
     <DataTable rows={rows} headers={headers} isSortable>
       {({
@@ -119,92 +189,148 @@ const AssetTable = ({ data, isLoading, currency = "USD", onRowClick }) => {
         getHeaderProps,
         getRowProps,
         getTableContainerProps,
-      }) => (
-        <TableContainer title="Asset Details" {...getTableContainerProps()}>
-          <Table {...getTableProps()}>
-            <TableHead>
-              <TableRow>
-                {headers.map((header) => {
-                  const { key, ...headerProps } = getHeaderProps({ header });
+        getToolbarProps,
+        getBatchActionProps,
+        getSelectionProps,
+        selectedRows,
+        onInputChange,
+      }) => {
+        const batchActionProps = getBatchActionProps();
+        
+        return (
+          <TableContainer 
+            title="Asset Details" 
+            description={`Showing ${rows.length} of ${data.length} assets`}
+            {...getTableContainerProps()}
+          >
+            <TableToolbar {...getToolbarProps()}>
+              <TableBatchActions {...batchActionProps}>
+                <TableBatchAction
+                  tabIndex={batchActionProps.shouldShowBatchActions ? 0 : -1}
+                  renderIcon={Download}
+                  onClick={() => handleBatchExport(selectedRows)}
+                >
+                  Export CSV
+                </TableBatchAction>
+              </TableBatchActions>
+              <TableToolbarContent>
+                <TableToolbarSearch
+                  placeholder="Search assets..."
+                  persistent
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value || "");
+                    onInputChange(e);
+                  }}
+                />
+                <Button
+                  kind="ghost"
+                  size="sm"
+                  renderIcon={Download}
+                  onClick={() => onExport && onExport(data)}
+                  disabled={!onExport}
+                >
+                  Export CSV
+                </Button>
+              </TableToolbarContent>
+            </TableToolbar>
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  <TableSelectAll {...getSelectionProps()} />
+                  {headers.map((header) => {
+                    const { key, ...headerProps } = getHeaderProps({ header });
+                    const isNumeric = ["cpuCores", "ramGB", "cpuCost", "ramCost", "totalCost"].includes(header.key);
+                    return (
+                      <TableHeader 
+                        key={header.key} 
+                        {...headerProps}
+                        style={{ 
+                          textAlign: isNumeric ? "center" : "left",
+                        }}
+                      >
+                        {header.header}
+                      </TableHeader>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => {
+                  const { key, ...rowProps } = getRowProps({ row });
+                  const originalAsset = data.find((d) => d.id === row.id);
                   return (
-                    <TableHeader key={header.key} {...headerProps}>
-                      {header.header}
-                    </TableHeader>
+                    <TableRow
+                      key={row.id}
+                      {...rowProps}
+                      onClick={() => onRowClick && onRowClick(originalAsset)}
+                      style={{ cursor: onRowClick ? "pointer" : "default" }}
+                    >
+                      <TableSelectRow {...getSelectionProps({ row })} />
+                      {row.cells.map((cell) => {
+                        let cellContent = cell.value;
+                        const isNumeric = ["cpuCores", "ramGB", "cpuCost", "ramCost", "totalCost"].includes(cell.info.header);
+
+                        // Render type as a cool-gray tag
+                        if (cell.info.header === "type") {
+                          cellContent = (
+                            <Tag type="cool-gray" size="sm">
+                              {cell.value}
+                            </Tag>
+                          );
+                        }
+
+                        // Format CPU Cores
+                        if (cell.info.header === "cpuCores") {
+                          cellContent = cell.value > 0 ? cell.value : "-";
+                        }
+
+                        // Format RAM GB
+                        if (cell.info.header === "ramGB") {
+                          cellContent = cell.value > 0 ? `${cell.value.toFixed(1)} GB` : "-";
+                        }
+
+                        // Render preemptible/pricing as a tag
+                        if (cell.info.header === "preemptible") {
+                          if (cell.value === true) {
+                            cellContent = (
+                              <Tag type="teal" size="sm">
+                                Spot
+                              </Tag>
+                            );
+                          } else if (cell.value === false) {
+                            cellContent = (
+                              <Tag type="cool-gray" size="sm">
+                                On-Demand
+                              </Tag>
+                            );
+                          } else {
+                            cellContent = "-";
+                          }
+                        }
+
+                        // Format cost columns as currency
+                        if (["cpuCost", "ramCost", "totalCost"].includes(cell.info.header)) {
+                          cellContent = formatCurrency(cell.value);
+                        }
+
+                        return (
+                          <TableCell 
+                            key={cell.id}
+                            style={{                               textAlign: isNumeric ? "center" : "left",
+                            }}
+                          >
+                            {cellContent}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
                   );
                 })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => {
-                const { key, ...rowProps } = getRowProps({ row });
-                const originalAsset = data.find((d) => d.id === row.id);
-                return (
-                  <TableRow
-                    key={row.id}
-                    {...rowProps}
-                    onClick={() => onRowClick && onRowClick(originalAsset)}
-                    style={{ cursor: onRowClick ? "pointer" : "default" }}
-                  >
-                    {row.cells.map((cell) => {
-                      let cellContent = cell.value;
-
-                      // Render type as a colored tag
-                      if (cell.info.header === "type") {
-                        const tagColor = typeColors[cell.value] || "gray";
-                        cellContent = (
-                          <Tag type={tagColor} size="sm">
-                            {cell.value}
-                          </Tag>
-                        );
-                      }
-
-                      // Format CPU Cores
-                      if (cell.info.header === "cpuCores") {
-                        cellContent = cell.value > 0 ? cell.value : "-";
-                      }
-
-                      // Format RAM GB
-                      if (cell.info.header === "ramGB") {
-                        cellContent = cell.value > 0 ? `${cell.value.toFixed(1)} GB` : "-";
-                      }
-
-                      // Render preemptible/pricing as a tag
-                      if (cell.info.header === "preemptible") {
-                        if (cell.value === true) {
-                          cellContent = (
-                            <Tag type="cyan" size="sm">
-                              Spot
-                            </Tag>
-                          );
-                        } else if (cell.value === false) {
-                          cellContent = (
-                            <Tag type="gray" size="sm">
-                              On-Demand
-                            </Tag>
-                          );
-                        } else {
-                          cellContent = "-";
-                        }
-                      }
-
-                      // Format cost columns as currency
-                      if (
-                        ["cpuCost", "ramCost", "totalCost"].includes(
-                          cell.info.header
-                        )
-                      ) {
-                        cellContent = formatCurrency(cell.value);
-                      }
-
-                      return <TableCell key={cell.id}>{cellContent}</TableCell>;
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        );
+      }}
     </DataTable>
   );
 };
@@ -230,12 +356,15 @@ AssetTable.propTypes = {
   currency: PropTypes.string,
   /** Callback when a row is clicked */
   onRowClick: PropTypes.func,
+  /** Callback for export action */
+  onExport: PropTypes.func,
 };
 
 AssetTable.defaultProps = {
   isLoading: false,
   currency: "USD",
   onRowClick: null,
+  onExport: null,
 };
 
 export default AssetTable;

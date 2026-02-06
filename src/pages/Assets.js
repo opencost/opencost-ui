@@ -4,7 +4,7 @@ import { Grid, Column, InlineNotification, Loading } from "@carbon/react";
 
 import Page from "../components/Page";
 import {
-  StatCard,
+  KPITile,
   CostDistribution,
   AssetTypeChart,
   AssetsHeader,
@@ -28,12 +28,22 @@ const Assets = () => {
   // Router integration for URL-based state
   const routerLocation = useLocation();
   const navigate = useNavigate();
-  const searchParams = new URLSearchParams(routerLocation.search);
-
-  // Control state from URL params with defaults
-  const window = searchParams.get("window") || "7d";
-  const aggregate = searchParams.get("aggregate") || "type";
-  const currency = searchParams.get("currency") || "USD";
+  
+  // Memoize URL params to prevent unnecessary refetches on theme change
+  const window = useMemo(() => {
+    const params = new URLSearchParams(routerLocation.search);
+    return params.get("window") || "7d";
+  }, [routerLocation.search]);
+  
+  const aggregate = useMemo(() => {
+    const params = new URLSearchParams(routerLocation.search);
+    return params.get("aggregate") || "type";
+  }, [routerLocation.search]);
+  
+  const currency = useMemo(() => {
+    const params = new URLSearchParams(routerLocation.search);
+    return params.get("currency") || "USD";
+  }, [routerLocation.search]);
 
   // Update URL when controls change
   const setWindow = useCallback(
@@ -84,10 +94,12 @@ const Assets = () => {
     }
   }, [window, aggregate]);
 
-  // Fetch data when window or aggregate changes
+  // Fetch data only when window or aggregate actually changes
+  // Using string values directly prevents refetch on theme toggle
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window, aggregate]);
 
   // Handle CSV export
   const handleExport = useCallback(async () => {
@@ -106,7 +118,7 @@ const Assets = () => {
 
   // Compute derived data
   const summary = useMemo(() => {
-    if (!rawData) return { totalCost: 0, cpuCost: 0, ramCost: 0, gpuCost: 0 };
+    if (!rawData) return { totalCost: 0, cpuCost: 0, ramCost: 0, gpuCost: 0, assetCount: 0 };
     const computed = AssetsService.calculateSummary(rawData);
     // Ensure all values are valid numbers
     return {
@@ -114,8 +126,17 @@ const Assets = () => {
       cpuCost: Number.isFinite(computed.cpuCost) ? computed.cpuCost : 0,
       ramCost: Number.isFinite(computed.ramCost) ? computed.ramCost : 0,
       gpuCost: Number.isFinite(computed.gpuCost) ? computed.gpuCost : 0,
+      assetCount: Object.keys(rawData || {}).length,
     };
   }, [rawData]);
+
+  // Mock trend data - in production this would come from comparing periods
+  const trends = useMemo(() => ({
+    total: 5.2,   // +5.2% increase
+    cpu: -2.1,    // -2.1% decrease
+    ram: 8.4,     // +8.4% increase
+    gpu: 12.3,    // +12.3% increase
+  }), []);
 
   const tableData = useMemo(() => {
     if (!rawData) return [];
@@ -148,42 +169,19 @@ const Assets = () => {
     fetchData();
   };
 
-  // Define custom colors for stat cards
-  const colors = {
-    total: "var(--color-total, #00539a)",
-    cpu: "var(--color-cpu, #8a3ffc)",
-    ram: "var(--color-ram, #007d79)",
-    gpu: "var(--color-gpu, #ee5396)",
+  // Define accent colors for KPI tiles using Carbon tokens
+  const accentColors = {
+    total: "var(--cds-support-info, #0043ce)",
+    cpu: "var(--cds-support-warning, #8a3ffc)",
+    ram: "var(--cds-support-success, #007d79)",
+    gpu: "var(--cds-support-error, #ee5396)",
   };
 
-  // Grid layout styles
-  const gridStyle = {
-    padding: "0 1rem",
-  };
-
-  const sectionStyle = {
-    marginBottom: "1.5rem",
-  };
-
-  const cardContainerStyle = {
-    height: "100%",
-  };
-
-  const chartContainerStyle = {
-    backgroundColor: "var(--card-bg)",
-    borderRadius: "4px",
-    padding: "1rem",
-    height: "100%",
-    minHeight: "350px",
-    transition: "background-color 0.2s ease",
-  };
-
-  const tableContainerStyle = {
-    backgroundColor: "var(--card-bg)",
-    borderRadius: "4px",
-    padding: "1rem",
-    transition: "background-color 0.2s ease",
-  };
+  // Handle export from table
+  const handleTableExport = useCallback((selectedData) => {
+    console.log("Exporting data:", selectedData);
+    handleExport();
+  }, [handleExport]);
 
   return (
     <Page active="/assets">
@@ -223,86 +221,98 @@ const Assets = () => {
           </div>
         )}
 
-        {/* Main content grid */}
-        <div style={gridStyle}>
-          {/* Summary stat cards */}
-          <Grid narrow style={sectionStyle}>
-            <Column lg={4} md={4} sm={4} style={cardContainerStyle}>
-              <StatCard
-                label="Total Cost"
-                value={formatCurrency(summary.totalCost)}
-                color={colors.total}
-              />
-            </Column>
-            <Column lg={4} md={4} sm={4} style={cardContainerStyle}>
-              <StatCard
-                label="CPU Cost"
-                value={formatCurrency(summary.cpuCost)}
-                subValue={
-                  summary.totalCost > 0
-                    ? `${((summary.cpuCost / summary.totalCost) * 100).toFixed(1)}% of total`
-                    : null
-                }
-                color={colors.cpu}
-              />
-            </Column>
-            <Column lg={4} md={4} sm={4} style={cardContainerStyle}>
-              <StatCard
-                label="RAM Cost"
-                value={formatCurrency(summary.ramCost)}
-                subValue={
-                  summary.totalCost > 0
-                    ? `${((summary.ramCost / summary.totalCost) * 100).toFixed(1)}% of total`
-                    : null
-                }
-                color={colors.ram}
-              />
-            </Column>
-            <Column lg={4} md={4} sm={4} style={cardContainerStyle}>
-              <StatCard
-                label="GPU Cost"
-                value={formatCurrency(summary.gpuCost)}
-                subValue={
-                  summary.totalCost > 0
-                    ? `${((summary.gpuCost / summary.totalCost) * 100).toFixed(1)}% of total`
-                    : null
-                }
-                color={colors.gpu}
-              />
-            </Column>
-          </Grid>
-
-          {/* Cost charts */}
-          <Grid narrow style={sectionStyle}>
-            <Column lg={8} md={8} sm={4}>
-              <div style={chartContainerStyle}>
-                <CostDistribution
-                  data={chartData}
-                  totalCost={summary.totalCost}
-                  currency={currency}
-                />
-              </div>
-            </Column>
-            <Column lg={8} md={8} sm={4}>
-              <div style={chartContainerStyle}>
-                <AssetTypeChart
-                  data={typeChartData}
-                  currency={currency}
-                />
-              </div>
-            </Column>
-          </Grid>
-
-          {/* Asset details table */}
-          <div style={{ ...sectionStyle, ...tableContainerStyle }}>
-            <AssetTable
-              data={tableData}
-              isLoading={loading}
-              currency={currency}
-              onRowClick={(asset) => setSelectedAsset(asset)}
+        {/* Main content grid - 16 column layout */}
+        <Grid fullWidth style={{ padding: "0 1rem" }}>
+          
+          {/* Row 1: KPI Tiles - 4 columns each */}
+          <Column lg={4} md={4} sm={4} style={{ marginBottom: "1rem" }}>
+            <KPITile
+              label="Total Cost"
+              value={formatCurrency(summary.totalCost)}
+              accentColor={accentColors.total}
             />
-          </div>
-        </div>
+          </Column>
+          <Column lg={4} md={4} sm={4} style={{ marginBottom: "1rem" }}>
+            <KPITile
+              label="CPU Cost"
+              value={formatCurrency(summary.cpuCost)}
+              percentOfTotal={summary.totalCost > 0 ? (summary.cpuCost / summary.totalCost) * 100 : 0}
+              accentColor={accentColors.cpu}
+            />
+          </Column>
+          <Column lg={4} md={4} sm={4} style={{ marginBottom: "1rem" }}>
+            <KPITile
+              label="RAM Cost"
+              value={formatCurrency(summary.ramCost)}
+              percentOfTotal={summary.totalCost > 0 ? (summary.ramCost / summary.totalCost) * 100 : 0}
+              accentColor={accentColors.ram}
+            />
+          </Column>
+          <Column lg={4} md={4} sm={4} style={{ marginBottom: "1rem" }}>
+            <KPITile
+              label="GPU Cost"
+              value={formatCurrency(summary.gpuCost)}
+              percentOfTotal={summary.totalCost > 0 ? (summary.gpuCost / summary.totalCost) * 100 : 0}
+              accentColor={accentColors.gpu}
+            />
+          </Column>
+
+          {/* Row 2: Charts - 8 columns each */}
+          <Column lg={8} md={8} sm={4} style={{ marginBottom: "1rem" }}>
+            <div
+              style={{
+                backgroundColor: "var(--cds-layer-01, var(--card-bg))",
+                borderRadius: "4px",
+                padding: "1rem",
+                height: "100%",
+                minHeight: "350px",
+                border: "1px solid var(--cds-border-subtle-01, var(--border-subtle))",
+              }}
+            >
+              <CostDistribution
+                data={chartData}
+                totalCost={summary.totalCost}
+                currency={currency}
+              />
+            </div>
+          </Column>
+          <Column lg={8} md={8} sm={4} style={{ marginBottom: "1rem" }}>
+            <div
+              style={{
+                backgroundColor: "var(--cds-layer-01, var(--card-bg))",
+                borderRadius: "4px",
+                padding: "1rem",
+                height: "100%",
+                minHeight: "350px",
+                border: "1px solid var(--cds-border-subtle-01, var(--border-subtle))",
+              }}
+            >
+              <AssetTypeChart
+                data={typeChartData}
+                currency={currency}
+              />
+            </div>
+          </Column>
+
+          {/* Row 3: Data Table - Full 16 columns */}
+          <Column lg={16} md={8} sm={4} style={{ marginBottom: "1rem" }}>
+            <div
+              style={{
+                backgroundColor: "var(--cds-layer-01, var(--card-bg))",
+                borderRadius: "4px",
+                border: "1px solid var(--cds-border-subtle-01, var(--border-subtle))",
+              }}
+            >
+              <AssetTable
+                data={tableData}
+                isLoading={loading}
+                currency={currency}
+                onRowClick={(asset) => setSelectedAsset(asset)}
+                onExport={handleTableExport}
+              />
+            </div>
+          </Column>
+        </Grid>
 
         {/* Asset Detail Panel */}
         <AssetDetailPanel

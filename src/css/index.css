@@ -281,6 +281,52 @@ body .page-container {
   background-color: var(--bg-hover);
 }
 
+/* KPI Tile dark mode text colors */
+[data-theme="dark"] .assets-page .kpi-tile span {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .assets-page .kpi-tile span:first-child {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .assets-page .kpi-tile span:last-child {
+  color: var(--text-secondary) !important;
+}
+
+/* Table container and search dark mode */
+[data-theme="dark"] .assets-page .cds--table-toolbar,
+[data-theme="dark"] .assets-page .cds--toolbar-content,
+[data-theme="dark"] .assets-page .cds--search,
+[data-theme="dark"] .assets-page .cds--search-input,
+[data-theme="dark"] .assets-page .cds--table-header,
+[data-theme="dark"] .assets-page .cds--data-table-container {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .assets-page .cds--search-input {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .assets-page .cds--search-input::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .assets-page .cds--search-magnifier-icon {
+  fill: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .assets-page .cds--table-header-label {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .assets-page .cds--table-header-description {
+  color: var(--text-secondary) !important;
+}
+
 /* Recharts dark mode */
 [data-theme="dark"] .recharts-text {
   fill: var(--text-primary);

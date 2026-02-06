@@ -19,7 +19,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, #fafafa, var(--color-surface));
+  background: linear-gradient(to bottom, var(--cds-layer-accent-01), var(--color-surface));
 }
 
 .chart-hero .chart-header h3 {
@@ -87,7 +87,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, #fafafa, var(--color-surface));
+  background: linear-gradient(to bottom, var(--cds-layer-accent-01), var(--color-surface));
   gap: 1rem;
 }
 
@@ -148,38 +148,39 @@
 /* Chart stats footer */
 .chart-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, var(--color-surface), #fafafa);
+  background: linear-gradient(to bottom, var(--color-surface), var(--cds-layer-accent-01));
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--color-text-secondary);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-primary);
   word-break: break-word;
 }
 
 .stat-count {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  padding: 0.5rem 0.75rem;
+  padding: 0.375rem 0.5rem;
   border-radius: 4px;
   text-align: center;
   display: inline-block;
@@ -240,12 +241,13 @@
 
   .chart-stats {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
   }
 
-  .stat-label { font-size: 0.75rem; }
-  .stat-value { font-size: 1.25rem; }
+  .stat-label { font-size: 0.65rem; }
+  .stat-value { font-size: 1rem; }
+  .stat-count { font-size: 1rem; padding: 0.25rem 0.4rem; }
 }
 
 @media (max-width: 480px) {

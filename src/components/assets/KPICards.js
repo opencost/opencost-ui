@@ -1,6 +1,6 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { Tile } from "@carbon/react";
+import { Money, WarningAlt, ChartBar, Folder } from "@carbon/icons-react";
 import {
   getTotalCost,
   getTotalWastedCost,
@@ -24,9 +24,9 @@ const KPICards = ({ assets, timeWindow }) => {
   const assetCount = assets.length;
 
   const getEfficiencyColor = (score) => {
-    if (score >= 80) return "#24a148";
-    if (score >= 50) return "#ff832b";
-    return "#da1e28";
+    if (score >= 80) return "var(--cds-support-success)";
+    if (score >= 50) return "var(--cds-support-warning)";
+    return "var(--cds-support-error)";
   };
 
   const period = windowLabel(timeWindow);
@@ -34,23 +34,29 @@ const KPICards = ({ assets, timeWindow }) => {
   return (
     <div className="kpi-cards-container">
       <Tile className="kpi-card">
-        <div className="kpi-icon">💰</div>
+        <div className="kpi-icon">
+          <Money size={24} aria-label="Cost" />
+        </div>
         <div className="kpi-label">Total Storage Cost</div>
         <div className="kpi-value">{formatCurrency(totalCost)}</div>
         <div className="kpi-subtitle">{period}</div>
       </Tile>
 
       <Tile className="kpi-card kpi-waste">
-        <div className="kpi-icon">⚠️</div>
+        <div className="kpi-icon">
+          <WarningAlt size={24} aria-label="Warning" />
+        </div>
         <div className="kpi-label">Wasted Cost</div>
-        <div className="kpi-value" style={{ color: "#da1e28" }}>
+        <div className="kpi-value" style={{ color: "var(--cds-support-error)" }}>
           {formatCurrency(wastedCost)}
         </div>
         <div className="kpi-subtitle">From idle storage</div>
       </Tile>
 
       <Tile className="kpi-card">
-        <div className="kpi-icon">📊</div>
+        <div className="kpi-icon">
+          <ChartBar size={24} aria-label="Efficiency" />
+        </div>
         <div className="kpi-label">Efficiency Score</div>
         <div
           className="kpi-value"
@@ -68,7 +74,9 @@ const KPICards = ({ assets, timeWindow }) => {
       </Tile>
 
       <Tile className="kpi-card">
-        <div className="kpi-icon">🗂️</div>
+        <div className="kpi-icon">
+          <Folder size={24} aria-label="Assets" />
+        </div>
         <div className="kpi-label">Total Assets</div>
         <div className="kpi-value">{assetCount}</div>
         <div className="kpi-subtitle">Nodes & PVCs</div>

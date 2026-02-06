@@ -38,7 +38,7 @@ describe("AssetTable", () => {
       <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
     );
     expect(screen.getByText("Asset Name")).toBeInTheDocument();
-    expect(screen.getByText("Cluster")).toBeInTheDocument();
+    expect(screen.getAllByText("Cluster").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Type")).toBeInTheDocument();
     expect(screen.getByText("Status")).toBeInTheDocument();
   });
@@ -88,5 +88,21 @@ describe("AssetTable", () => {
       <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
     );
     expect(screen.getByText("fast-ssd")).toBeInTheDocument();
+  });
+
+  it("renders expand header for expandable rows", () => {
+    const { container } = render(
+      <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
+    );
+    const expandHeader = container.querySelector(".cds--table-expand");
+    expect(expandHeader).toBeInTheDocument();
+  });
+
+  it("renders expand buttons for each row", () => {
+    const { container } = render(
+      <AssetTable assets={mockAssets} totalAssets={2} filteredAssets={2} />
+    );
+    const expandButtons = container.querySelectorAll(".cds--table-expand__button");
+    expect(expandButtons.length).toBeGreaterThanOrEqual(2);
   });
 });

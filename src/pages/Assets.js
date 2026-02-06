@@ -115,6 +115,11 @@ const AssetsDashboard = () => {
   const [useMockData, setUseMockData] = useState(false);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [timeWindow, setTimeWindow] = useState("30d");
+  const [theme, setTheme] = useState("white");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-carbon-theme", theme);
+  }, [theme]);
 
   const fetchAssets = async () => {
     try {
@@ -234,6 +239,17 @@ const AssetsDashboard = () => {
           <button onClick={fetchAssets} className="btn-refresh" title="Refresh">
             ↻
           </button>
+          <select
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="theme-select"
+            title="Theme"
+          >
+            <option value="white">Light</option>
+            <option value="g10">Gray 10</option>
+            <option value="g90">Dark</option>
+            <option value="g100">Darker</option>
+          </select>
         </div>
       </Header>
 

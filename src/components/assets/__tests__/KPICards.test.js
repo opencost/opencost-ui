@@ -1,6 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import KPICards from "../KPICards";
 
+jest.mock("@carbon/icons-react", () => ({
+  Money: () => <span data-testid="icon-money" />,
+  WarningAlt: () => <span data-testid="icon-warning" />,
+  ChartBar: () => <span data-testid="icon-chart" />,
+  Folder: () => <span data-testid="icon-folder" />,
+}));
+
 describe("KPICards", () => {
   const mockAssets = [
     {
@@ -46,5 +53,13 @@ describe("KPICards", () => {
   it("displays correct time window label", () => {
     render(<KPICards assets={mockAssets} timeWindow="7d" />);
     expect(screen.getByText("Last 7 days")).toBeInTheDocument();
+  });
+
+  it("renders Carbon icons instead of emoji", () => {
+    render(<KPICards assets={mockAssets} timeWindow="30d" />);
+    expect(screen.getByTestId("icon-money")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-warning")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-chart")).toBeInTheDocument();
+    expect(screen.getByTestId("icon-folder")).toBeInTheDocument();
   });
 });

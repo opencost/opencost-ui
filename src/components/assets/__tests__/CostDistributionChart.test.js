@@ -4,7 +4,7 @@ import CostDistributionChart from "../CostDistributionChart";
 jest.mock("@carbon/charts-react", () => ({
   StackedBarChart: () => <div data-testid="stacked-bar-chart" />,
   GroupedBarChart: () => <div data-testid="grouped-bar-chart" />,
-  DonutChart: () => <div data-testid="donut-chart" />,
+  ComboChart: () => <div data-testid="combo-chart" />,
 }));
 
 describe("CostDistributionChart", () => {
@@ -33,7 +33,7 @@ describe("CostDistributionChart", () => {
     render(<CostDistributionChart assets={mockAssets} />);
     expect(screen.getByText("Stacked")).toBeInTheDocument();
     expect(screen.getByText("Grouped")).toBeInTheDocument();
-    expect(screen.getByText("Donut")).toBeInTheDocument();
+    expect(screen.getByText("Combo")).toBeInTheDocument();
   });
 
   it("shows empty state when no assets", () => {

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
-import { StackedBarChart, GroupedBarChart, DonutChart } from "@carbon/charts-react";
+import { StackedBarChart, GroupedBarChart, ComboChart } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
 import { formatCurrency } from "../../utils/assetCalculations";
 
@@ -32,33 +32,38 @@ function transformToStackedData(assets) {
   return { data, totalCost };
 }
 
-function transformToDonutData(assets) {
+function transformToComboData(assets) {
   if (!assets || assets.length === 0) return { data: [], totalCost: 0 };
 
-  const byType = {};
+  const byCluster = {};
   let totalCost = 0;
 
   assets.forEach((asset) => {
-    const type = asset.assetType || "Unknown";
+    const cluster = asset.cluster || "Unknown";
     const cost = asset.totalCost || 0;
-    byType[type] = (byType[type] || 0) + cost;
+    if (!byCluster[cluster]) {
+      byCluster[cluster] = { cost: 0, count: 0 };
+    }
+    byCluster[cluster].cost += cost;
+    byCluster[cluster].count += 1;
     totalCost += cost;
   });
 
-  const data = Object.entries(byType).map(([group, value]) => ({
-    group,
-    value: parseFloat(value.toFixed(2)),
-  }));
+  const data = [];
+  Object.entries(byCluster).forEach(([cluster, info]) => {
+    data.push({ group: "Cost ($)", key: cluster, value: parseFloat(info.cost.toFixed(2)) });
+    data.push({ group: "Asset Count", key: cluster, value: info.count });
+  });
 
   return { data, totalCost };
 }
 
 const colorScale = {
-  "Node Disk": "#0f62fe",
-  Node: "#0f62fe",
-  PVC: "#24a148",
-  Storage: "#0043ce",
-  Unknown: "#525252",
+  "Node Disk": "var(--cds-interactive, #0f62fe)",
+  Node: "var(--cds-interactive, #0f62fe)",
+  PVC: "var(--cds-support-success, #24a148)",
+  Storage: "var(--cds-support-info, #0043ce)",
+  Unknown: "var(--cds-text-secondary, #525252)",
 };
 
 const stackedOptions = {
@@ -87,12 +92,20 @@ const groupedOptions = {
   },
 };
 
-const donutOptions = {
+const comboOptions = {
   title: "",
   resizable: true,
   height: "400px",
-  donut: { center: { label: "Total Cost" } },
-  color: { scale: colorScale },
+  axes: {
+    left: { mapsTo: "value", title: "Cost ($)", correspondingDatasets: ["Cost ($)"] },
+    right: { mapsTo: "value", title: "Asset Count", correspondingDatasets: ["Asset Count"] },
+    bottom: { mapsTo: "key", scaleType: "labels" },
+  },
+  comboChartTypes: [
+    { type: "simple-bar", correspondingDatasets: ["Cost ($)"] },
+    { type: "line", correspondingDatasets: ["Asset Count"], options: { points: { enabled: true, radius: 4 } } },
+  ],
+  color: { scale: { "Cost ($)": "#0f62fe", "Asset Count": "#da1e28" } },
   tooltip: { enabled: true },
   legend: { enabled: true, position: "bottom", clickable: true },
   toolbar: {
@@ -104,18 +117,18 @@ const donutOptions = {
 const VARIANTS = [
   { name: "stacked", text: "Stacked", Chart: StackedBarChart },
   { name: "grouped", text: "Grouped", Chart: GroupedBarChart },
-  { name: "donut", text: "Donut", Chart: DonutChart },
+  { name: "combo", text: "Combo", Chart: ComboChart },
 ];
 
 const CostDistributionChart = ({ assets }) => {
   const [variant, setVariant] = useState(0);
 
   const { data, totalCost } = useMemo(() => {
-    if (variant === 2) return transformToDonutData(assets);
+    if (variant === 2) return transformToComboData(assets);
     return transformToStackedData(assets);
   }, [assets, variant]);
 
-  const options = [stackedOptions, groupedOptions, donutOptions][variant];
+  const options = [stackedOptions, groupedOptions, comboOptions][variant];
   const { Chart } = VARIANTS[variant];
 
   return (

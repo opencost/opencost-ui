@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import PropTypes from "prop-types";
 import {
   DataTable,
@@ -12,6 +12,9 @@ import {
   TableToolbar,
   TableToolbarContent,
   TableToolbarSearch,
+  TableExpandHeader,
+  TableExpandRow,
+  TableExpandedRow,
   Pagination,
   Tag,
 } from "@carbon/react";
@@ -19,6 +22,7 @@ import {
   calculateUsage,
   getAssetStatus,
   formatCurrency,
+  bytesToGB,
 } from "../../utils/assetCalculations";
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 20, 50];
@@ -82,6 +86,51 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
     setPageSize(newPageSize);
   };
 
+  const renderExpandedContent = (rowData) => {
+    const asset = rowData._asset;
+    const breakdown = asset.breakdown || {};
+    const idle = ((breakdown.idle || 0) * 100).toFixed(1);
+    const system = ((breakdown.system || 0) * 100).toFixed(1);
+    const user = ((breakdown.user || 0) * 100).toFixed(1);
+    const size = asset.bytes ? bytesToGB(asset.bytes) : "N/A";
+
+    return (
+      <div className="expanded-row-content">
+        <div className="expanded-detail">
+          <strong>Size</strong>
+          <span>{size} GB</span>
+        </div>
+        <div className="expanded-detail">
+          <strong>Breakdown</strong>
+          <div className="expanded-breakdown">
+            <div className="breakdown-item">
+              <span className="breakdown-label">Idle</span>
+              <span className="breakdown-value">{idle}%</span>
+            </div>
+            <div className="breakdown-item">
+              <span className="breakdown-label">System</span>
+              <span className="breakdown-value">{system}%</span>
+            </div>
+            <div className="breakdown-item">
+              <span className="breakdown-label">User</span>
+              <span className="breakdown-value">{user}%</span>
+            </div>
+          </div>
+        </div>
+        {rowData.namespace && (
+          <div className="expanded-detail">
+            <strong>Namespace</strong>
+            <span>{rowData.namespace}</span>
+          </div>
+        )}
+        <div className="expanded-detail">
+          <strong>Cluster</strong>
+          <span>{rowData.cluster}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="asset-table-carbon">
       <DataTable rows={paginatedRows} headers={headers} isSortable>
@@ -92,6 +141,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
           getRowProps,
           getTableProps,
           getTableContainerProps,
+          getExpandHeaderProps,
         }) => (
           <TableContainer
             title="Asset Details"
@@ -113,6 +163,10 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
+                  <TableExpandHeader
+                    aria-label="Expand all rows"
+                    {...getExpandHeaderProps()}
+                  />
                   {headers.map((header) => {
                     const { key, ...headerProps } = getHeaderProps({ header });
                     return (
@@ -134,110 +188,115 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
 
                   const { key, ...rowProps } = getRowProps({ row });
                   return (
-                    <TableRow key={row.id} {...rowProps}>
-                      {row.cells.map((cell) => {
-                        if (cell.info.header === "name") {
-                          return (
-                            <TableCell key={cell.id}>
-                              <div>
-                                <strong>{rowData.name}</strong>
-                                {rowData.namespace && (
-                                  <div style={{ fontSize: "0.75rem", color: "#525252" }}>
-                                    ns: {rowData.namespace}
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                          );
-                        }
+                    <Fragment key={row.id}>
+                      <TableExpandRow {...rowProps}>
+                        {row.cells.map((cell) => {
+                          if (cell.info.header === "name") {
+                            return (
+                              <TableCell key={cell.id}>
+                                <div>
+                                  <strong>{rowData.name}</strong>
+                                  {rowData.namespace && (
+                                    <div style={{ fontSize: "0.75rem", color: "var(--cds-text-secondary)" }}>
+                                      ns: {rowData.namespace}
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          }
 
-                        if (cell.info.header === "assetType") {
-                          const typeTagColor = {
-                            "Node Disk": "blue",
-                            PVC: "teal",
-                            Unknown: "gray",
-                          };
-                          return (
-                            <TableCell key={cell.id}>
-                              <Tag type={typeTagColor[rowData.assetType] || "gray"} size="sm">
-                                {rowData.assetType}
-                              </Tag>
-                            </TableCell>
-                          );
-                        }
-
-                        if (cell.info.header === "storageClass") {
-                          return (
-                            <TableCell key={cell.id}>
-                              {rowData.storageClass !== "-" ? (
-                                <Tag type="high-contrast" size="sm">
-                                  {rowData.storageClass}
+                          if (cell.info.header === "assetType") {
+                            const typeTagColor = {
+                              "Node Disk": "blue",
+                              PVC: "teal",
+                              Unknown: "gray",
+                            };
+                            return (
+                              <TableCell key={cell.id}>
+                                <Tag type={typeTagColor[rowData.assetType] || "gray"} size="sm">
+                                  {rowData.assetType}
                                 </Tag>
-                              ) : (
-                                <span style={{ color: "#a8a8a8" }}>—</span>
-                              )}
-                            </TableCell>
-                          );
-                        }
+                              </TableCell>
+                            );
+                          }
 
-                        if (cell.info.header === "cost") {
-                          return (
-                            <TableCell key={cell.id}>
-                              <div style={{ textAlign: "right" }}>
-                                <strong>{rowData.costFormatted}</strong>
-                              </div>
-                            </TableCell>
-                          );
-                        }
+                          if (cell.info.header === "storageClass") {
+                            return (
+                              <TableCell key={cell.id}>
+                                {rowData.storageClass !== "-" ? (
+                                  <Tag type="high-contrast" size="sm">
+                                    {rowData.storageClass}
+                                  </Tag>
+                                ) : (
+                                  <span style={{ color: "var(--cds-text-placeholder)" }}>—</span>
+                                )}
+                              </TableCell>
+                            );
+                          }
 
-                        if (cell.info.header === "usage") {
-                          const meterColor =
-                            rowData.usage >= 60
-                              ? "#24a148"
-                              : rowData.usage >= 20
-                              ? "#ff832b"
-                              : "#da1e28";
-                          return (
-                            <TableCell key={cell.id}>
-                              <div style={{ minWidth: "150px" }}>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    height: "8px",
-                                    borderRadius: "4px",
-                                    overflow: "hidden",
-                                  }}
-                                >
+                          if (cell.info.header === "cost") {
+                            return (
+                              <TableCell key={cell.id}>
+                                <div style={{ textAlign: "right" }}>
+                                  <strong>{rowData.costFormatted}</strong>
+                                </div>
+                              </TableCell>
+                            );
+                          }
+
+                          if (cell.info.header === "usage") {
+                            const meterColor =
+                              rowData.usage >= 60
+                                ? "var(--cds-support-success)"
+                                : rowData.usage >= 20
+                                ? "var(--cds-support-warning)"
+                                : "var(--cds-support-error)";
+                            return (
+                              <TableCell key={cell.id}>
+                                <div style={{ minWidth: "150px" }}>
                                   <div
                                     style={{
-                                      width: `${Math.min(100, rowData.usage)}%`,
-                                      backgroundColor: meterColor,
-                                      transition: "width 0.3s",
+                                      display: "flex",
+                                      height: "8px",
+                                      borderRadius: "4px",
+                                      overflow: "hidden",
                                     }}
-                                  />
-                                  <div style={{ flex: 1, backgroundColor: "#e0e0e0" }} />
+                                  >
+                                    <div
+                                      style={{
+                                        width: `${Math.min(100, rowData.usage)}%`,
+                                        backgroundColor: meterColor,
+                                        transition: "width 0.3s",
+                                      }}
+                                    />
+                                    <div style={{ flex: 1, backgroundColor: "var(--cds-border-subtle-01)" }} />
+                                  </div>
+                                  <div style={{ fontSize: "0.75rem", color: "var(--cds-text-secondary)", marginTop: "4px" }}>
+                                    {rowData.usageFormatted} used · {(100 - rowData.usage).toFixed(1)}% idle
+                                  </div>
                                 </div>
-                                <div style={{ fontSize: "0.75rem", color: "#525252", marginTop: "4px" }}>
-                                  {rowData.usageFormatted} used · {(100 - rowData.usage).toFixed(1)}% idle
-                                </div>
-                              </div>
-                            </TableCell>
-                          );
-                        }
+                              </TableCell>
+                            );
+                          }
 
-                        if (cell.info.header === "status") {
-                          return (
-                            <TableCell key={cell.id}>
-                              <Tag type={rowData.statusType} size="sm">
-                                {rowData.status}
-                              </Tag>
-                            </TableCell>
-                          );
-                        }
+                          if (cell.info.header === "status") {
+                            return (
+                              <TableCell key={cell.id}>
+                                <Tag type={rowData.statusType} size="sm">
+                                  {rowData.status}
+                                </Tag>
+                              </TableCell>
+                            );
+                          }
 
-                        return <TableCell key={cell.id}>{cell.value}</TableCell>;
-                      })}
-                    </TableRow>
+                          return <TableCell key={cell.id}>{cell.value}</TableCell>;
+                        })}
+                      </TableExpandRow>
+                      <TableExpandedRow colSpan={headers.length + 1}>
+                        {renderExpandedContent(rowData)}
+                      </TableExpandedRow>
+                    </Fragment>
                   );
                 })}
               </TableBody>

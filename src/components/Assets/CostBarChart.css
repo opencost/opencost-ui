@@ -1,0 +1,40 @@
+.cost-bar-chart {
+    width: 100%;
+}
+
+.bar-chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.bar-item {
+    display: grid;
+    grid-template-columns: 150px 1fr 120px;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bar-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.bar-wrapper {
+    height: 32px;
+    background-color: #f4f4f4;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.bar-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: right;
+}

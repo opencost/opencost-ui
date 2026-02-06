@@ -1,0 +1,66 @@
+.cost-distribution-chart {
+    margin-bottom: 2rem;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cost-distribution-chart h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.chart-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.pie-chart {
+    width: 200px;
+    height: 200px;
+}
+
+.pie-slice {
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.pie-slice:hover {
+    opacity: 0.8;
+}
+
+.chart-legend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+}
+
+.legend-label {
+    flex: 1;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+.legend-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+}

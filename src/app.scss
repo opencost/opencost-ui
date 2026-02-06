@@ -1,0 +1,25 @@
+$feature-flags: (
+    ui-shell: true,
+    focus-outline-on-keyboard-focus: true,
+);
+
+@use "../node_modules/@carbon/react/index.scss" as Carbon;
+@use "../node_modules/@carbon/react/scss/components/data-table";
+@use "../node_modules/@carbon/react/scss/components/data-table/sort";
+
+// Basic adjustments to fit into existing OpenCost layout
+.assets-page-container {
+    padding: 2rem;
+    background-color: #f4f4f4; // Match Carbon's light gray background
+    min-height: 100vh;
+}
+
+.assets-header {
+    margin-bottom: 2rem;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 400; // Carbon uses lighter weights usually
+        margin-bottom: 0.5rem;
+    }
+}

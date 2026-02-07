@@ -1,0 +1,26 @@
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    margin: 2rem 0;
+}
+
+.empty-state-icon {
+    color: #8d8d8d;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #525252;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-hint {
+    font-size: 0.875rem;
+    color: #8d8d8d;
+}

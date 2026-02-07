@@ -1,0 +1,51 @@
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    padding: 1.5rem;
+}
+
+.summary-card-label {
+    font-size: 0.875rem;
+    color: #525252;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #161616;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-card-subtext {
+    font-size: 0.875rem;
+    color: #525252;
+    margin-top: 0.25rem;
+}
+
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.trend-up {
+    color: #24a148;
+    background-color: #defbe6;
+}
+
+.trend-down {
+    color: #da1e28;
+    background-color: #fff1f0;
+}

@@ -35,6 +35,22 @@ Server running at http://localhost:1234
 ✨ Built in 1.96s
 ```
 
+### Development Without Backend
+
+For development and testing without running the OpenCost backend server, you can enable mock data mode:
+
+```sh
+# Windows PowerShell
+$env:REACT_APP_USE_MOCK_DATA="true"; npm run serve
+
+# Linux/macOS
+REACT_APP_USE_MOCK_DATA=true npm run serve
+```
+
+This will use realistic mock data for all API endpoints, allowing you to develop and test UI features without connecting to an actual OpenCost server.
+
+### Custom Backend URL
+
 And can have a custom URL backend prefix.
 
 ```sh

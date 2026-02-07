@@ -47,7 +47,11 @@ const AssetTableRow = ({ asset, assetType, currency, onAssetClick }) => {
         sx={{ 
           "& > *": { borderBottom: "unset" },
           cursor: "pointer",
-          "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" }
+          transition: "all 0.2s",
+          "&:hover": { 
+            backgroundColor: "rgba(103, 126, 234, 0.08)",
+            transform: "scale(1.001)",
+          }
         }}
         onClick={() => onAssetClick(asset)}
       >
@@ -73,7 +77,9 @@ const AssetTableRow = ({ asset, assetType, currency, onAssetClick }) => {
               sx={{
                 backgroundColor: TYPE_COLORS[assetType] || TYPE_COLORS.Other,
                 color: "white",
-                fontWeight: 600,
+                fontWeight: 700,
+                fontSize: "0.75rem",
+                letterSpacing: 0.5,
               }}
             />
             <Typography variant="body2">{asset.name || "Unknown"}</Typography>
@@ -384,7 +390,7 @@ const AssetTable = ({ assets = [], assetType, currency = "USD", loading, onAsset
   return (
     <Box>
       {/* Search bar */}
-      <Box sx={{ mb: 2, px: 2, pt: 2 }}>
+      <Box sx={{ mb: 3, px: 3, pt: 3 }}>
         <TextField
           fullWidth
           placeholder={`Search ${assetType.toLowerCase()} assets...`}
@@ -400,7 +406,12 @@ const AssetTable = ({ assets = [], assetType, currency = "USD", loading, onAsset
               </InputAdornment>
             ),
           }}
-          size="small"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "#f8f9fa",
+            },
+          }}
         />
       </Box>
 

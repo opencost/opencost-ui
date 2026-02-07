@@ -52,9 +52,12 @@ const AssetsControls = ({
       sx={{
         display: "flex",
         gap: 2,
-        mb: 3,
+        mb: 4,
+        p: 3,
         flexWrap: "wrap",
         alignItems: "center",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "12px",
       }}
     >
       <FormControl sx={{ minWidth: 200 }}>
@@ -65,6 +68,7 @@ const AssetsControls = ({
           value={window}
           label="Time Window"
           onChange={(e) => onWindowChange(e.target.value)}
+          sx={{ borderRadius: "8px", backgroundColor: "white" }}
         >
           {windowOptions.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -82,6 +86,7 @@ const AssetsControls = ({
           value={aggregate}
           label="Aggregate By"
           onChange={(e) => onAggregateChange(e.target.value)}
+          sx={{ borderRadius: "8px", backgroundColor: "white" }}
         >
           {aggregationOptions.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -96,7 +101,13 @@ const AssetsControls = ({
         variant="outlined"
         value={providerFilter}
         onChange={handleProviderChange}
-        sx={{ minWidth: 200 }}
+        sx={{
+          minWidth: 200,
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "8px",
+            backgroundColor: "white",
+          },
+        }}
         placeholder="e.g., AWS, GCP, Azure"
       />
 
@@ -105,7 +116,13 @@ const AssetsControls = ({
         variant="outlined"
         value={clusterFilter}
         onChange={handleClusterChange}
-        sx={{ minWidth: 200 }}
+        sx={{
+          minWidth: 200,
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "8px",
+            backgroundColor: "white",
+          },
+        }}
         placeholder="e.g., production"
       />
     </Box>

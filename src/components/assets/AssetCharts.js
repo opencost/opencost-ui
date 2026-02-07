@@ -58,8 +58,11 @@ const AssetDonutChart = ({ assetsByType, currency }) => {
   };
 
   return (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper
+      elevation={2}
+      sx={{ p: 3, borderRadius: "12px", background: "linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%)" }}
+    >
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
         Cost by Asset Type
       </Typography>
       <ResponsiveContainer width="100%" height={300}>
@@ -109,8 +112,11 @@ const AssetProviderChart = ({ assetsData, currency }) => {
   }));
 
   return (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper
+      elevation={2}
+      sx={{ p: 3, borderRadius: "12px", background: "linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%)" }}
+    >
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
         Cost by Provider
       </Typography>
       <ResponsiveContainer width="100%" height={300}>
@@ -144,7 +150,7 @@ const AssetCharts = ({ assetsByType, assetsData, currency }) => {
         display: "grid",
         gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
         gap: 3,
-        mb: 3,
+        mb: 4,
       }}
     >
       <AssetDonutChart assetsByType={assetsByType} currency={currency} />

@@ -8,29 +8,39 @@ import { toCurrency } from "../../util";
 const AssetTypeTile = ({ type, cost, count, color, onClick, isActive }) => {
   return (
     <Paper
+      elevation={isActive ? 8 : 2}
       sx={{
-        p: 2,
+        p: 3,
         cursor: "pointer",
-        transition: "all 0.2s",
-        border: isActive ? `2px solid ${color}` : "2px solid transparent",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        border: isActive ? `3px solid ${color}` : "3px solid transparent",
+        borderRadius: "12px",
+        background: isActive
+          ? `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`
+          : "white",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: 3,
+          transform: "translateY(-4px) scale(1.02)",
+          boxShadow: `0 12px 24px ${color}30`,
         },
       }}
       onClick={onClick}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-        <Typography variant="body2" color="textSecondary">
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
           {type}
         </Typography>
         <Chip
           label={count}
           size="small"
-          sx={{ backgroundColor: color, color: "white" }}
+          sx={{
+            backgroundColor: color,
+            color: "white",
+            fontWeight: 700,
+            minWidth: 40,
+          }}
         />
       </Box>
-      <Typography variant="h5" sx={{ fontWeight: 600 }}>
+      <Typography variant="h4" sx={{ fontWeight: 700, color: color }}>
         {cost}
       </Typography>
     </Paper>
@@ -80,9 +90,9 @@ const AssetSummaryTiles = ({
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-        gap: 2,
-        mb: 3,
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: 3,
+        mb: 4,
       }}
     >
       {sortedTiles.map((tile) => (

@@ -33,25 +33,52 @@ const AssetDetailModal = ({ asset, currency, open, onClose }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          background: `linear-gradient(135deg, ${typeColors[asset.type] || typeColors.Other}15 0%, ${typeColors[asset.type] || typeColors.Other}05 100%)`,
+          borderBottom: `3px solid ${typeColors[asset.type] || typeColors.Other}`,
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography variant="h5">{asset.name}</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            {asset.name}
+          </Typography>
           <Chip
             label={asset.type}
-            size="small"
+            size="medium"
             sx={{
               backgroundColor: typeColors[asset.type] || typeColors.Other,
               color: "white",
+              fontWeight: 700,
+              fontSize: "0.875rem",
             }}
           />
         </Box>
       </DialogTitle>
 
-      <DialogContent>
+      <DialogContent sx={{ pt: 3 }}>
         {/* Cost Summary */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" gutterBottom>
+        <Box
+          sx={{
+            mb: 3,
+            p: 3,
+            borderRadius: "12px",
+            background: `linear-gradient(135deg, ${typeColors[asset.type] || typeColors.Other}15 0%, ${typeColors[asset.type] || typeColors.Other}05 100%)`,
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
             Cost Summary
           </Typography>
           <Box sx={{ display: "flex", gap: 4 }}>
@@ -227,8 +254,19 @@ const AssetDetailModal = ({ asset, currency, open, onClose }) => {
         )}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+      <DialogActions sx={{ p: 3, borderTop: "1px solid #e0e0e0" }}>
+        <Button
+          onClick={onClose}
+          variant="contained"
+          sx={{
+            borderRadius: "8px",
+            textTransform: "none",
+            fontWeight: 600,
+            px: 4,
+          }}
+        >
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );

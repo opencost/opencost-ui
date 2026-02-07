@@ -216,69 +216,132 @@ const Assets = () => {
 
   return (
     <Page>
-      <Header
-        rightContent={
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          borderRadius: "12px",
+          p: 3,
+          mb: 3,
+          color: "white",
+        }}
+      >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              Assets
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Infrastructure-level cost breakdown
+            </Typography>
+          </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="body2">Currency:</Typography>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                fontSize: "0.875rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
+            <Box
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "8px",
+                px: 2,
+                py: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
               }}
             >
-              {currencyCodes.map((code) => (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              ))}
-            </select>
-            <IconButton onClick={handleRefresh} disabled={loading}>
+              <Typography variant="body2">Currency:</Typography>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                style={{
+                  padding: "0.5rem",
+                  fontSize: "0.875rem",
+                  borderRadius: "4px",
+                  border: "none",
+                  backgroundColor: "white",
+                  fontWeight: 600,
+                }}
+              >
+                {currencyCodes.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </Box>
+            <IconButton
+              onClick={handleRefresh}
+              disabled={loading}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                color: "white",
+                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.3)" },
+              }}
+            >
               <RefreshIcon />
             </IconButton>
           </Box>
-        }
-      >
-        Assets
-      </Header>
-
-      <Subtitle>Infrastructure-level cost breakdown</Subtitle>
+        </Box>
+      </Box>
 
       <Warnings warnings={errors} />
 
       {/* Topline Summary */}
       {toplineData && toplineData.data && (
-        <Paper sx={{ p: 2, mb: 3 }}>
-          <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-            <Box>
-              <Typography variant="caption" color="textSecondary">
-                Total Cost
-              </Typography>
-              <Typography variant="h5">
-                {toCurrency(toplineData.data.totalCost || 0, currency)}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="caption" color="textSecondary">
-                Adjustment
-              </Typography>
-              <Typography variant="h5">
-                {toCurrency(toplineData.data.adjustment || 0, currency)}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="caption" color="textSecondary">
-                Number of Assets
-              </Typography>
-              <Typography variant="h5">
-                {toplineData.data.numResults || 0}
-              </Typography>
-            </Box>
-          </Box>
-        </Paper>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
+              borderRadius: "12px",
+            }}
+          >
+            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+              Total Cost
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+              {toCurrency(toplineData.data.totalCost || 0, currency)}
+            </Typography>
+          </Paper>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+              color: "white",
+              borderRadius: "12px",
+            }}
+          >
+            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+              Adjustment
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+              {toCurrency(toplineData.data.adjustment || 0, currency)}
+            </Typography>
+          </Paper>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+              color: "white",
+              borderRadius: "12px",
+            }}
+          >
+            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+              Assets
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+              {toplineData.data.numResults || 0}
+            </Typography>
+          </Paper>
+        </Box>
       )}
 
       {/* Summary Tiles */}
@@ -311,22 +374,46 @@ const Assets = () => {
       />
 
       {/* Main Content */}
-      <Paper sx={{ width: "100%" }}>
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          borderRadius: "12px",
+          overflow: "hidden",
+        }}
+      >
         {loading && !assetsData ? (
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              p: 4,
+              p: 8,
+              gap: 2,
             }}
           >
-            <CircularProgress />
+            <CircularProgress size={60} thickness={4} />
+            <Typography variant="h6" color="textSecondary">
+              Loading assets data...
+            </Typography>
           </Box>
         ) : availableTypes.length === 0 ? (
-          <Box sx={{ p: 3 }}>
-            <Alert severity="info">
+          <Box
+            sx={{
+              p: 8,
+              textAlign: "center",
+              background: "linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%)",
+            }}
+          >
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+              No Assets Found
+            </Typography>
+            <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
               No asset data available for the selected time window and filters.
+            </Typography>
+            <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
+              Try adjusting your filters or time window to see asset data.
             </Alert>
           </Box>
         ) : (

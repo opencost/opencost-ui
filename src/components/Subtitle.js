@@ -17,9 +17,23 @@ import { toVerboseTimeRange } from "../util";
 //   },
 // });
 
-const Subtitle = ({ report, onClick }) => {
+const Subtitle = ({ report, onClick, children }) => {
   // const classes = useStyles();
   const classes = {};
+
+  // If children is provided, just render as simple text
+  if (children) {
+    return (
+      <div className={classes.root}>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+          {children}
+        </Typography>
+      </div>
+    );
+  }
+
+  // Otherwise, render breadcrumb from report
+  if (!report) return null;
 
   const { aggregateBy, window } = report;
 

@@ -175,7 +175,7 @@ export function cumulativeToTotals(allocationSet) {
   return totals;
 }
 
-export function toVerboseTimeRange(window) {
+export function toVerboseTimeRange(timeWindow) {
   const months = [
     "January",
     "February",
@@ -197,7 +197,7 @@ export function toVerboseTimeRange(window) {
   const end = new Date();
   end.setUTCHours(0, 0, 0, 0);
 
-  switch (window) {
+  switch (timeWindow) {
     case "today":
       return `${start.getUTCDate()} ${
         months[start.getUTCMonth()]
@@ -258,8 +258,8 @@ export function toVerboseTimeRange(window) {
       } ${start.getUTCFullYear()} through now`;
   }
 
-  const splitDates = window.split(",");
-  if (checkCustomWindow(window) && splitDates.length > 1) {
+  const splitDates = timeWindow.split(",");
+  if (checkCustomWindow(timeWindow) && splitDates.length > 1) {
     let s = splitDates[0].split(/\D+/).slice(0, 3);
     let e = splitDates[1].split(/\D+/).slice(0, 3);
     if (s.length === 3 && e.length === 3) {
@@ -337,18 +337,18 @@ export function toCurrency(amount, currency, precision) {
   return amount.toLocaleString(currencyLocale, opts);
 }
 
-export function checkCustomWindow(window) {
+export function checkCustomWindow(timeWindow) {
   // Example ISO interval string: 2020-12-02T00:00:00Z,2020-12-03T23:59:59Z
   const customDateRegex =
     /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z,\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
-  return customDateRegex.test(window);
+  return customDateRegex.test(timeWindow);
 }
 
 export function formatSampleItemsForGraph({ data, costMetric }) {
   const costMetricPropName = costMetric
     ? costMetricToPropName[costMetric]
     : "amortizedNetCost";
-  const graphData = data.sets.map(({ cloudCosts, window: { end, start } }) => {
+  const graphData = data.sets.map(({ cloudCosts, timeWindow: { end, start } }) => {
     return {
       end,
       items: Object.entries(cloudCosts).map(([name, item]) => ({
@@ -359,7 +359,7 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
     };
   });
   const accumulator = {};
-  data.sets.forEach(({ cloudCosts, window }) => {
+  data.sets.forEach(({ cloudCosts, timeWindow }) => {
     Object.entries(cloudCosts).forEach(([name, cloudCostItem]) => {
       const { properties } = cloudCostItem;
       accumulator[name] ||= {
@@ -375,8 +375,8 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
       accumulator[name].kubernetesCost +=
         cloudCostItem[costMetricPropName].cost *
         cloudCostItem[costMetricPropName].kubernetesPercent;
-      accumulator[name].start = window.start;
-      accumulator[name].end = window.end;
+      accumulator[name].start = timeWindow.start;
+      accumulator[name].end = timeWindow.end;
       accumulator[name].providerID = properties.providerID;
       accumulator[name].labelName = properties.labels?.name;
       accumulator[name].kubernetesPercent =

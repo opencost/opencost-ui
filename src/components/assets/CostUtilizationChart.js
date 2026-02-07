@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
-import { ScatterChart, DonutChart, SimpleBarChart } from "@carbon/charts-react";
+import { ScatterChart, DonutChart } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
 
 function categorize(asset) {
@@ -63,85 +63,57 @@ function transformToDonutData(assets) {
   };
 }
 
-function transformToBarData(assets) {
-  if (!assets || assets.length === 0) return { data: [], stats: null };
-
-  let efficient = 0, healthy = 0, critical = 0;
-
-  const data = assets
-    .map((asset) => {
-      const { status, utilization } = categorize(asset);
-      if (status === "Efficient") efficient++;
-      else if (status === "Critical") critical++;
-      else healthy++;
-
-      return {
-        group: status,
-        key: asset.name || asset.id,
-        value: utilization,
-      };
-    })
-    .sort((a, b) => b.value - a.value);
-
-  return {
-    data,
-    stats: { efficient, healthy, critical, total: data.length },
-  };
-}
-
 const statusColors = {
   Efficient: "#24a148",
   Healthy: "#0f62fe",
   Critical: "#da1e28",
 };
 
-const scatterOptions = {
-  title: "",
-  resizable: true,
-  height: "350px",
-  legend: { enabled: true, position: "bottom", clickable: true },
-  tooltip: { enabled: true },
-  axes: {
-    left: { mapsTo: "y", title: "Monthly Cost ($)" },
-    bottom: { mapsTo: "x", title: "Utilization (%)", domain: [0, 100] },
-  },
-  color: { scale: statusColors },
-  points: { radius: 6, fillOpacity: 0.7 },
-};
-
-const donutOptions = {
-  title: "",
-  resizable: true,
-  height: "350px",
-  donut: { center: { label: "Assets" } },
-  color: { scale: statusColors },
-  tooltip: { enabled: true },
-  legend: { enabled: true, position: "bottom", clickable: true },
-};
-
-const barOptions = {
-  title: "",
-  resizable: true,
-  height: "350px",
-  axes: {
-    left: { mapsTo: "value", title: "Utilization (%)", domain: [0, 100] },
-    bottom: { mapsTo: "key", scaleType: "labels" },
-  },
-  color: { scale: statusColors },
-  tooltip: { enabled: true },
-  legend: { enabled: true, position: "bottom", clickable: true },
-  bars: { maxWidth: 40 },
-};
-
 const VARIANTS = [
-  { name: "scatter", text: "Scatter", Chart: ScatterChart, transform: transformToScatterData, options: scatterOptions },
-  { name: "donut", text: "Donut", Chart: DonutChart, transform: transformToDonutData, options: donutOptions },
-  { name: "bar", text: "Bar", Chart: SimpleBarChart, transform: transformToBarData, options: barOptions },
+  {
+    name: "scatter",
+    text: "Scatter",
+    Chart: ScatterChart,
+    transform: transformToScatterData,
+    options: {
+      title: "",
+      resizable: true,
+      height: "350px",
+      legend: { enabled: true, position: "bottom", clickable: true },
+      tooltip: { enabled: true },
+      axes: {
+        left: { mapsTo: "y", title: "Monthly Cost ($)" },
+        bottom: { mapsTo: "x", title: "Utilization (%)", domain: [0, 100] },
+      },
+      color: { scale: statusColors },
+      points: { radius: 6, fillOpacity: 0.7 },
+    },
+  },
+  {
+    name: "donut",
+    text: "Donut",
+    Chart: DonutChart,
+    transform: transformToDonutData,
+    options: {
+      title: "",
+      resizable: true,
+      height: "350px",
+      donut: { center: { label: "Assets" } },
+      color: { scale: statusColors },
+      tooltip: { enabled: true },
+      legend: { enabled: true, position: "bottom", clickable: true },
+    },
+  },
 ];
 
-const CostUtilizationChart = ({ assets }) => {
+const CostUtilizationChart = ({ assets, theme }) => {
   const [variant, setVariant] = useState(0);
   const current = VARIANTS[variant];
+
+  const chartOptions = useMemo(
+    () => ({ ...current.options, theme: theme || "white" }),
+    [current.options, theme]
+  );
 
   const { data, stats } = useMemo(
     () => current.transform(assets),
@@ -172,7 +144,7 @@ const CostUtilizationChart = ({ assets }) => {
       {data.length > 0 ? (
         <>
           <div className="chart-content">
-            <Chart data={data} options={current.options} />
+            <Chart data={data} options={chartOptions} />
           </div>
           {stats && (
             <div className="chart-stats">
@@ -211,6 +183,7 @@ CostUtilizationChart.propTypes = {
       breakdown: PropTypes.shape({ idle: PropTypes.number }),
     })
   ).isRequired,
+  theme: PropTypes.string,
 };
 
 export default CostUtilizationChart;

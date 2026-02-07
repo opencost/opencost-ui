@@ -4,7 +4,12 @@ import CostDistributionChart from "../CostDistributionChart";
 jest.mock("@carbon/charts-react", () => ({
   StackedBarChart: () => <div data-testid="stacked-bar-chart" />,
   GroupedBarChart: () => <div data-testid="grouped-bar-chart" />,
-  ComboChart: () => <div data-testid="combo-chart" />,
+}));
+
+jest.mock("@carbon/react", () => ({
+  Tile: ({ children, className }) => <div className={className}>{children}</div>,
+  ContentSwitcher: ({ children }) => <div role="tablist">{children}</div>,
+  Switch: ({ text }) => <button role="tab">{text}</button>,
 }));
 
 describe("CostDistributionChart", () => {
@@ -29,11 +34,10 @@ describe("CostDistributionChart", () => {
     expect(screen.getByTestId("stacked-bar-chart")).toBeInTheDocument();
   });
 
-  it("renders ContentSwitcher with 3 variants", () => {
+  it("renders ContentSwitcher with 2 variants", () => {
     render(<CostDistributionChart assets={mockAssets} />);
     expect(screen.getByText("Stacked")).toBeInTheDocument();
     expect(screen.getByText("Grouped")).toBeInTheDocument();
-    expect(screen.getByText("Combo")).toBeInTheDocument();
   });
 
   it("shows empty state when no assets", () => {

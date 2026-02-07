@@ -1,16 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loading, InlineNotification, ContentSwitcher, Switch } from "@carbon/react";
+import {
+  InlineNotification,
+  SkeletonPlaceholder,
+  DataTableSkeleton,
+  SkeletonText,
+} from "@carbon/react";
 import Page from "../components/Page";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import AssetsService from "../services/assets";
+import AssetsHeader from "../components/assets/AssetsHeader";
 import KPICards from "../components/assets/KPICards";
 import CostDistributionChart from "../components/assets/CostDistributionChart";
-import CostEfficiencyChart from "../components/assets/CostEfficiencyChart";
 import CostUtilizationChart from "../components/assets/CostUtilizationChart";
+import CostTrendChart from "../components/assets/CostTrendChart";
 import AssetTable from "../components/assets/AssetTable";
 import FilterPanel from "../components/assets/FilterPanel";
 import InsightsPanel from "../components/assets/InsightsPanel";
+import AssetDetailPanel from "../components/assets/AssetDetailPanel";
 import "../styles/assets/dashboard.css";
 import "../styles/assets/charts-layout.css";
 
@@ -98,8 +105,6 @@ function applyFilters(assets, filters) {
   return filtered;
 }
 
-const TIME_WINDOWS = ["7d", "14d", "30d", "60d", "90d"];
-
 const INITIAL_FILTERS = {
   status: [],
   assetType: [],
@@ -108,6 +113,40 @@ const INITIAL_FILTERS = {
   search: "",
 };
 
+const SkeletonDashboard = () => (
+  <div className="assets-dashboard">
+    <section className="kpi-section">
+      <div className="kpi-cards-container">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="skeleton-card">
+            <SkeletonPlaceholder className="skeleton-kpi" />
+          </div>
+        ))}
+      </div>
+    </section>
+    <section className="insights-section">
+      <SkeletonText heading width="200px" />
+      <SkeletonText paragraph lineCount={3} />
+    </section>
+    <section className="charts-section">
+      <div className="skeleton-chart-tile">
+        <SkeletonPlaceholder className="skeleton-chart" />
+      </div>
+      <div className="skeleton-chart-tile">
+        <SkeletonPlaceholder className="skeleton-chart" />
+      </div>
+    </section>
+    <section className="table-section">
+      <DataTableSkeleton
+        columnCount={6}
+        rowCount={5}
+        showHeader={false}
+        showToolbar={false}
+      />
+    </section>
+  </div>
+);
+
 const AssetsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -115,11 +154,9 @@ const AssetsDashboard = () => {
   const [useMockData, setUseMockData] = useState(false);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [timeWindow, setTimeWindow] = useState("30d");
-  const [theme, setTheme] = useState("white");
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-carbon-theme", theme);
-  }, [theme]);
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  
 
   const fetchAssets = async () => {
     try {
@@ -128,7 +165,7 @@ const AssetsDashboard = () => {
 
       let result;
       if (useMockData) {
-        result = AssetsService.getMockData();
+        result = AssetsService.getMockData(timeWindow);
         await new Promise((r) => setTimeout(r, 500));
       } else {
         result = await AssetsService.fetchAssets(timeWindow);
@@ -166,13 +203,20 @@ const AssetsDashboard = () => {
     assetTypes: [...new Set(assets.map((a) => a.assetType))],
   }), [assets]);
 
+  const handleRowClick = (asset) => {
+    setSelectedAsset(asset);
+    setPanelOpen(true);
+  };
+
+  const handlePanelClose = () => {
+    setPanelOpen(false);
+  };
+
   if (loading) {
     return (
       <Page active="/assets">
         <Header headerTitle="Storage Assets" />
-        <div className="assets-loading">
-          <Loading description="Loading assets data..." withOverlay={false} />
-        </div>
+        <SkeletonDashboard />
         <Footer />
       </Page>
     );
@@ -225,50 +269,37 @@ const AssetsDashboard = () => {
   return (
     <Page active="/assets">
       <Header headerTitle="Storage Assets">
-        <div className="header-actions">
-          {useMockData && <span className="mock-data-badge">Mock Data</span>}
-          <ContentSwitcher
-            size="sm"
-            selectedIndex={TIME_WINDOWS.indexOf(timeWindow)}
-            onChange={(e) => setTimeWindow(TIME_WINDOWS[e.index])}
-          >
-            {TIME_WINDOWS.map((w) => (
-              <Switch key={w} name={w} text={w} />
-            ))}
-          </ContentSwitcher>
-          <button onClick={fetchAssets} className="btn-refresh" title="Refresh">
-            ↻
-          </button>
-          <select
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            className="theme-select"
-            title="Theme"
-          >
-            <option value="white">Light</option>
-            <option value="g10">Gray 10</option>
-            <option value="g90">Dark</option>
-            <option value="g100">Darker</option>
-          </select>
-        </div>
+        <AssetsHeader
+          timeWindow={timeWindow}
+          onTimeWindowChange={setTimeWindow}
+          onRefresh={fetchAssets}
+          useMockData={useMockData}
+        />
       </Header>
 
       <div className="assets-dashboard">
+        {/* Top: KPI Cards */}
         <section className="kpi-section">
           <KPICards assets={filteredAssets} timeWindow={timeWindow} />
         </section>
 
-        <section className="charts-section">
-          <CostDistributionChart assets={filteredAssets} />
-          <CostEfficiencyChart assets={filteredAssets} />
-          <CostUtilizationChart assets={filteredAssets} />
-        </section>
-
+        {/* Second: InsightsPanel (full width, actionable recommendations) */}
         {filteredAssets.length > 0 && (
           <section className="insights-section">
             <InsightsPanel assets={filteredAssets} />
           </section>
         )}
+
+        {/* Third: Chart Row 1 — CostTrendChart (left) + CostUtilizationChart (right) */}
+        <section className="charts-section charts-row">
+          <CostTrendChart assets={filteredAssets} timeWindow={timeWindow} />
+          <CostUtilizationChart assets={filteredAssets} timeWindow={timeWindow} />
+        </section>
+
+        {/* Fourth: Chart Row 2 — CostDistributionChart (full width) */}
+        <section className="charts-section charts-full">
+          <CostDistributionChart assets={filteredAssets} timeWindow={timeWindow} />
+        </section>
 
         <section className="filters-section">
           <FilterPanel
@@ -280,12 +311,14 @@ const AssetsDashboard = () => {
           />
         </section>
 
+        {/* Bottom: Asset Table */}
         <section className="table-section">
           {filteredAssets.length > 0 ? (
             <AssetTable
               assets={filteredAssets}
               totalAssets={assets.length}
               filteredAssets={filteredAssets.length}
+              onRowClick={handleRowClick}
             />
           ) : (
             <div className="no-results">
@@ -297,6 +330,12 @@ const AssetsDashboard = () => {
           )}
         </section>
       </div>
+
+      <AssetDetailPanel
+        asset={selectedAsset}
+        isOpen={panelOpen}
+        onClose={handlePanelClose}
+      />
 
       <Footer />
     </Page>

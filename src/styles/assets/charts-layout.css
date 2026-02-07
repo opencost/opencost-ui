@@ -19,7 +19,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, var(--cds-layer-accent-01), var(--color-surface));
+  background: linear-gradient(to bottom, var(--cds-layer-accent-01, var(--cds-layer-accent, #e0e0e0)), var(--color-surface));
 }
 
 .chart-hero .chart-header h3 {
@@ -56,13 +56,23 @@
   justify-content: center;
 }
 
-/* Charts grid — 2-column on desktop */
+/* Charts grid — 2-column row */
 .charts-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-bottom: 2rem;
   align-items: start;
+}
+
+/* Chart row: exactly 2 charts side-by-side */
+.charts-row {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Full-width chart row: single chart spanning full width */
+.charts-full {
+  grid-template-columns: 1fr;
 }
 
 /* Individual chart tile */
@@ -87,7 +97,7 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, var(--cds-layer-accent-01), var(--color-surface));
+  background: linear-gradient(to bottom, var(--cds-layer-accent-01, var(--cds-layer-accent, #e0e0e0)), var(--color-surface));
   gap: 1rem;
 }
 
@@ -152,7 +162,7 @@
   gap: 1rem;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--color-border);
-  background: linear-gradient(to bottom, var(--color-surface), var(--cds-layer-accent-01));
+  background: linear-gradient(to bottom, var(--color-surface), var(--cds-layer-accent-01, var(--cds-layer-accent, #e0e0e0)));
 }
 
 .stat-item {
@@ -202,9 +212,35 @@
   background-color: var(--color-error-light);
 }
 
+/* Skeleton loading states */
+.skeleton-card {
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.skeleton-kpi {
+  width: 100%;
+  height: 80px;
+}
+
+.skeleton-chart-tile {
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.skeleton-chart {
+  width: 100%;
+  height: 320px;
+}
+
 /* Responsive — tablet */
 @media (max-width: 1024px) {
-  .charts-section {
+  .charts-section,
+  .charts-row {
     grid-template-columns: 1fr;
   }
 

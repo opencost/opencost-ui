@@ -15,9 +15,14 @@ import {
   TableExpandHeader,
   TableExpandRow,
   TableExpandedRow,
+  TableSelectAll,
+  TableSelectRow,
+  TableBatchActions,
+  TableBatchAction,
   Pagination,
   Tag,
 } from "@carbon/react";
+import { Export } from "@carbon/icons-react";
 import {
   calculateUsage,
   getAssetStatus,
@@ -37,7 +42,7 @@ const headers = [
   { key: "status", header: "Status" },
 ];
 
-const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
+const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -131,9 +136,52 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
     );
   };
 
+  const handleBatchExport = (selectedRows) => {
+    const selectedAssets = selectedRows.map(row => {
+      const asset = paginatedRows.find(r => r.id === row.id)?._asset;
+      return asset;
+    }).filter(Boolean);
+
+    const csv = convertToCSV(selectedAssets);
+    downloadCSV(csv, `assets-export-${Date.now()}.csv`);
+  };
+
+  const convertToCSV = (assetsList) => {
+    const csvHeaders = ['Name', 'Type', 'Cluster', 'Storage Class', 'Size (GB)', 'Cost', 'Utilization', 'Status'];
+    const csvRows = assetsList.map(asset => {
+      const usage = calculateUsage(asset);
+      const status = getAssetStatus(asset);
+      return [
+        asset.name,
+        asset.assetType,
+        asset.cluster,
+        asset.storageClass || '-',
+        bytesToGB(asset.bytes),
+        asset.totalCost || 0,
+        `${usage.usedPercentage}%`,
+        status.label,
+      ];
+    });
+
+    return [csvHeaders, ...csvRows].map(row => row.join(',')).join('\n');
+  };
+
+  const downloadCSV = (csvContent, filename) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="asset-table-carbon">
-      <DataTable rows={paginatedRows} headers={headers} isSortable>
+      <DataTable rows={paginatedRows} headers={headers} isSortable radio={false}>
         {({
           rows,
           headers,
@@ -142,6 +190,9 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
           getTableProps,
           getTableContainerProps,
           getExpandHeaderProps,
+          getSelectionProps,
+          getBatchActionProps,
+          selectedRows,
         }) => (
           <TableContainer
             title="Asset Details"
@@ -151,6 +202,15 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
             {...getTableContainerProps()}
           >
             <TableToolbar>
+              <TableBatchActions {...getBatchActionProps()}>
+                <TableBatchAction
+                  tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                  renderIcon={Export}
+                  onClick={() => handleBatchExport(selectedRows)}
+                >
+                  Export Selected
+                </TableBatchAction>
+              </TableBatchActions>
               <TableToolbarContent>
                 <TableToolbarSearch
                   placeholder="Search assets..."
@@ -163,6 +223,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
+                  <TableSelectAll {...getSelectionProps()} />
                   <TableExpandHeader
                     aria-label="Expand all rows"
                     {...getExpandHeaderProps()}
@@ -190,11 +251,16 @@ const AssetTable = ({ assets, totalAssets, filteredAssets }) => {
                   return (
                     <Fragment key={row.id}>
                       <TableExpandRow {...rowProps}>
+                        <TableSelectRow {...getSelectionProps({ row })} />
                         {row.cells.map((cell) => {
                           if (cell.info.header === "name") {
                             return (
                               <TableCell key={cell.id}>
-                                <div>
+                                <div
+                                  onClick={() => onRowClick && onRowClick(rowData._asset)}
+                                  style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                                  className="asset-name-cell"
+                                >
                                   <strong>{rowData.name}</strong>
                                   {rowData.namespace && (
                                     <div style={{ fontSize: "0.75rem", color: "var(--cds-text-secondary)" }}>
@@ -336,6 +402,7 @@ AssetTable.propTypes = {
   ).isRequired,
   totalAssets: PropTypes.number,
   filteredAssets: PropTypes.number,
+  onRowClick: PropTypes.func,
 };
 
 export default AssetTable;

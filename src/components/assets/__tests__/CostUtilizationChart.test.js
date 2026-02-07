@@ -4,7 +4,12 @@ import CostUtilizationChart from "../CostUtilizationChart";
 jest.mock("@carbon/charts-react", () => ({
   ScatterChart: () => <div data-testid="scatter-chart" />,
   DonutChart: () => <div data-testid="donut-chart" />,
-  SimpleBarChart: () => <div data-testid="simple-bar-chart" />,
+}));
+
+jest.mock("@carbon/react", () => ({
+  Tile: ({ children, className }) => <div className={className}>{children}</div>,
+  ContentSwitcher: ({ children }) => <div role="tablist">{children}</div>,
+  Switch: ({ text }) => <button role="tab">{text}</button>,
 }));
 
 describe("CostUtilizationChart", () => {
@@ -27,11 +32,10 @@ describe("CostUtilizationChart", () => {
     expect(screen.getByText("Total Tracked")).toBeInTheDocument();
   });
 
-  it("renders ContentSwitcher with 3 variants", () => {
+  it("renders ContentSwitcher with 2 variants", () => {
     render(<CostUtilizationChart assets={mockAssets} />);
     expect(screen.getByText("Scatter")).toBeInTheDocument();
     expect(screen.getByText("Donut")).toBeInTheDocument();
-    expect(screen.getByText("Bar")).toBeInTheDocument();
   });
 
   it("shows empty state when no assets", () => {

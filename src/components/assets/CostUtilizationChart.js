@@ -82,7 +82,7 @@ const VARIANTS = [
       legend: { enabled: true, position: "bottom", clickable: true },
       tooltip: { enabled: true },
       axes: {
-        left: { mapsTo: "y", title: "Monthly Cost ($)" },
+        left: { mapsTo: "y", title: "Cost ($)" },
         bottom: { mapsTo: "x", title: "Utilization (%)", domain: [0, 100] },
       },
       color: { scale: statusColors },
@@ -106,13 +106,22 @@ const VARIANTS = [
   },
 ];
 
-const CostUtilizationChart = ({ assets, theme }) => {
+const CostUtilizationChart = ({ assets, timeWindow }) => {
   const [variant, setVariant] = useState(0);
   const current = VARIANTS[variant];
 
   const chartOptions = useMemo(
-    () => ({ ...current.options, theme: theme || "white" }),
-    [current.options, theme]
+    () => {
+      const opts = { ...current.options, theme: "white" };
+      if (opts.axes?.left) {
+        opts.axes = {
+          ...opts.axes,
+          left: { ...opts.axes.left, title: `Cost ($) — ${timeWindow || "30d"}` },
+        };
+      }
+      return opts;
+    },
+    [current.options, timeWindow]
   );
 
   const { data, stats } = useMemo(
@@ -183,7 +192,7 @@ CostUtilizationChart.propTypes = {
       breakdown: PropTypes.shape({ idle: PropTypes.number }),
     })
   ).isRequired,
-  theme: PropTypes.string,
+  timeWindow: PropTypes.string,
 };
 
 export default CostUtilizationChart;

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
-import { StackedBarChart, GroupedBarChart, ComboChart } from "@carbon/charts-react";
+import { StackedBarChart, GroupedBarChart } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
 import { formatCurrency } from "../../utils/assetCalculations";
 
@@ -32,38 +32,12 @@ function transformToStackedData(assets) {
   return { data, totalCost };
 }
 
-function transformToComboData(assets) {
-  if (!assets || assets.length === 0) return { data: [], totalCost: 0 };
-
-  const byCluster = {};
-  let totalCost = 0;
-
-  assets.forEach((asset) => {
-    const cluster = asset.cluster || "Unknown";
-    const cost = asset.totalCost || 0;
-    if (!byCluster[cluster]) {
-      byCluster[cluster] = { cost: 0, count: 0 };
-    }
-    byCluster[cluster].cost += cost;
-    byCluster[cluster].count += 1;
-    totalCost += cost;
-  });
-
-  const data = [];
-  Object.entries(byCluster).forEach(([cluster, info]) => {
-    data.push({ group: "Cost ($)", key: cluster, value: parseFloat(info.cost.toFixed(2)) });
-    data.push({ group: "Asset Count", key: cluster, value: info.count });
-  });
-
-  return { data, totalCost };
-}
-
 const colorScale = {
-  "Node Disk": "var(--cds-interactive, #0f62fe)",
-  Node: "var(--cds-interactive, #0f62fe)",
-  PVC: "var(--cds-support-success, #24a148)",
-  Storage: "var(--cds-support-info, #0043ce)",
-  Unknown: "var(--cds-text-secondary, #525252)",
+  "Node Disk": "#0f62fe",
+  Node: "#0f62fe",
+  PVC: "#24a148",
+  Storage: "#0043ce",
+  Unknown: "#525252",
 };
 
 const stackedOptions = {
@@ -92,43 +66,24 @@ const groupedOptions = {
   },
 };
 
-const comboOptions = {
-  title: "",
-  resizable: true,
-  height: "400px",
-  axes: {
-    left: { mapsTo: "value", title: "Cost ($)", correspondingDatasets: ["Cost ($)"] },
-    right: { mapsTo: "value", title: "Asset Count", correspondingDatasets: ["Asset Count"] },
-    bottom: { mapsTo: "key", scaleType: "labels" },
-  },
-  comboChartTypes: [
-    { type: "simple-bar", correspondingDatasets: ["Cost ($)"] },
-    { type: "line", correspondingDatasets: ["Asset Count"], options: { points: { enabled: true, radius: 4 } } },
-  ],
-  color: { scale: { "Cost ($)": "#0f62fe", "Asset Count": "#da1e28" } },
-  tooltip: { enabled: true },
-  legend: { enabled: true, position: "bottom", clickable: true },
-  toolbar: {
-    enabled: true,
-    controls: [{ type: "Export as CSV" }, { type: "Export as PNG" }],
-  },
-};
-
 const VARIANTS = [
-  { name: "stacked", text: "Stacked", Chart: StackedBarChart },
-  { name: "grouped", text: "Grouped", Chart: GroupedBarChart },
-  { name: "combo", text: "Combo", Chart: ComboChart },
+  { name: "stacked", text: "Stacked", Chart: StackedBarChart, options: stackedOptions },
+  { name: "grouped", text: "Grouped", Chart: GroupedBarChart, options: groupedOptions },
 ];
 
-const CostDistributionChart = ({ assets }) => {
+const CostDistributionChart = ({ assets, timeWindow }) => {
   const [variant, setVariant] = useState(0);
 
-  const { data, totalCost } = useMemo(() => {
-    if (variant === 2) return transformToComboData(assets);
-    return transformToStackedData(assets);
-  }, [assets, variant]);
+  const { data, totalCost } = useMemo(
+    () => transformToStackedData(assets),
+    [assets]
+  );
 
-  const options = [stackedOptions, groupedOptions, comboOptions][variant];
+  const chartOptions = useMemo(
+    () => ({ ...VARIANTS[variant].options, theme: "white" }),
+    [variant]
+  );
+
   const { Chart } = VARIANTS[variant];
 
   return (
@@ -137,7 +92,7 @@ const CostDistributionChart = ({ assets }) => {
         <div>
           <h3>Cost Distribution</h3>
           <p className="chart-description">
-            Total cost per cluster, broken down by asset type
+            Total cost per cluster ({timeWindow || "30d"} window), broken down by asset type
           </p>
         </div>
         <div className="chart-controls">
@@ -155,7 +110,7 @@ const CostDistributionChart = ({ assets }) => {
       </div>
       {data.length > 0 ? (
         <div className="chart-content">
-          <Chart data={data} options={options} />
+          <Chart data={data} options={chartOptions} />
         </div>
       ) : (
         <div className="chart-empty">
@@ -175,6 +130,7 @@ CostDistributionChart.propTypes = {
       totalCost: PropTypes.number,
     })
   ).isRequired,
+  timeWindow: PropTypes.string,
 };
 
 export default CostDistributionChart;

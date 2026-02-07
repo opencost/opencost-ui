@@ -7,10 +7,10 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       className={active ? "active" : ""}
       sx={{
         "&.MuiListItem-root:hover": {
-          backgroundColor: "#ebebeb",
+          backgroundColor: "var(--cds-layer-hover-01, #ebebeb)",
         },
         "&.MuiListItem-root.active": {
-          backgroundColor: "#e1e1e1",
+          backgroundColor: "var(--cds-layer-active-01, #e1e1e1)",
         },
       }}
       onClick={(e) => {
@@ -24,7 +24,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemIcon
         sx={{
           "&.MuiListItemIcon-root": {
-            color: active ? "#346ef2" : "#4e4e4e",
+            color: active ? "var(--cds-interactive, #346ef2)" : "var(--cds-text-secondary, #4e4e4e)",
             minWidth: 36,
           },
         }}
@@ -34,7 +34,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
       <ListItemText
         sx={{
           "& .MuiListItemText-primary": {
-            color: active ? "#346ef2" : "inherit",
+            color: active ? "var(--cds-interactive, #346ef2)" : "var(--cds-text-primary, inherit)",
           },
         }}
         primary={name}
@@ -44,7 +44,7 @@ const NavItem = ({ active, href, name, onClick, secondary, title, icon }) => {
   );
 
   return href && !active ? (
-    <Link style={{ textDecoration: "none", color: "inherit" }} to={`${href}`}>
+    <Link style={{ textDecoration: "none", color: "var(--cds-text-primary, inherit)" }} to={`${href}`}>
       {renderListItemCore()}
     </Link>
   ) : (

@@ -1,3 +1,5 @@
+export const parseDays = (timeWindow) => parseInt(timeWindow) || 30;
+
 export const bytesToGB = (bytes, decimals = 2) => {
   if (!bytes || bytes === 0) return 0;
   return parseFloat((bytes / Math.pow(1024, 3)).toFixed(decimals));
@@ -19,13 +21,10 @@ export const getTotalCost = (assets) => {
   return assets.reduce((sum, asset) => sum + (asset.totalCost || 0), 0);
 };
 
-// Assumes $0.1 per GB-month for idle storage
-export const getWastedCostForAsset = (asset, costPerGBMonth = 0.1) => {
+export const getWastedCostForAsset = (asset) => {
   if (!asset) return 0;
-  const idlePercent = (asset.breakdown?.idle || 0);
-  const idleBytes = (asset.bytes || 0) * idlePercent;
-  const idleGB = bytesToGB(idleBytes);
-  return parseFloat((idleGB * costPerGBMonth).toFixed(2));
+  const idlePercent = asset.breakdown?.idle || 0;
+  return parseFloat(((asset.totalCost || 0) * idlePercent).toFixed(2));
 };
 
 export const getTotalWastedCost = (assets) => {

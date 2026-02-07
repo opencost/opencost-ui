@@ -63,7 +63,7 @@ export const getAssetStatus = (asset) => {
     return { label: "WASTE", type: "red", severity: "high" };
   }
   if (idlePercent >= 40) {
-    return { label: "REVIEW", type: "orange", severity: "medium" };
+    return { label: "REVIEW", type: "magenta", severity: "medium" };
   }
   return { label: "OK", type: "green", severity: "low" };
 };

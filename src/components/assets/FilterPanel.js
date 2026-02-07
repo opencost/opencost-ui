@@ -139,14 +139,16 @@ const FilterPanel = ({
               </fieldset>
             )}
 
-            <div className="filter-group">
-              <Toggle
-                id="mock-data-toggle"
-                labelText="Use Mock Data (Dev Mode)"
-                toggled={useMockData}
-                onToggle={(checked) => onMockDataToggle(checked)}
-              />
-            </div>
+            {process.env.NODE_ENV === "development" && (
+              <div className="filter-group">
+                <Toggle
+                  id="mock-data-toggle"
+                  labelText="Use Mock Data (Dev Mode)"
+                  toggled={useMockData}
+                  onToggle={(checked) => onMockDataToggle(checked)}
+                />
+              </div>
+            )}
 
             {activeFilterCount > 0 && (
               <Button

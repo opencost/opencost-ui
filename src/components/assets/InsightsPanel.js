@@ -53,7 +53,7 @@ const InsightsPanel = ({ assets }) => {
                   <strong>{insight.confidence}%</strong> confidence
                 </span>
               </div>
-              <Button kind="primary" size="sm" className="btn-action">
+              <Button kind="primary" size="sm" disabled title="Coming soon">
                 {insight.action}
               </Button>
             </div>

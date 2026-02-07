@@ -146,6 +146,14 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
     downloadCSV(csv, `assets-export-${Date.now()}.csv`);
   };
 
+  const escapeCSVField = (field) => {
+    const str = String(field);
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
   const convertToCSV = (assetsList) => {
     const csvHeaders = ['Name', 'Type', 'Cluster', 'Storage Class', 'Size (GB)', 'Cost', 'Utilization', 'Status'];
     const csvRows = assetsList.map(asset => {
@@ -160,7 +168,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
         asset.totalCost || 0,
         `${usage.usedPercentage}%`,
         status.label,
-      ];
+      ].map(escapeCSVField);
     });
 
     return [csvHeaders, ...csvRows].map(row => row.join(',')).join('\n');

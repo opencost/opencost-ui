@@ -48,7 +48,7 @@
   color: var(--cds-support-success);
 }
 
-.detail-status.status-gray {
+.detail-status.status-magenta {
   background-color: var(--cds-support-warning-inverse, #fff8e1);
   color: var(--cds-support-warning);
 }

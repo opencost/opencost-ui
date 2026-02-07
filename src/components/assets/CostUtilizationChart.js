@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { ScatterChart, DonutChart } from "@carbon/charts-react";
-import "@carbon/charts/styles.css";
 
 function categorize(asset) {
   const idle = asset.breakdown?.idle || 0;

@@ -4,6 +4,7 @@ import {
   SkeletonPlaceholder,
   DataTableSkeleton,
   SkeletonText,
+  Button,
 } from "@carbon/react";
 import Page from "../components/Page";
 import Header from "../components/Header";
@@ -235,10 +236,10 @@ const AssetsDashboard = () => {
             onClose={() => setError(null)}
           />
           <div className="assets-error-actions">
-            <button onClick={fetchAssets} className="btn-retry">Retry</button>
-            <button onClick={() => setUseMockData(true)} className="btn-mock">
+            <Button kind="secondary" size="md" onClick={fetchAssets}>Retry</Button>
+            <Button kind="primary" size="md" onClick={() => setUseMockData(true)}>
               Use Mock Data
-            </button>
+            </Button>
           </div>
         </div>
         <Footer />
@@ -257,9 +258,9 @@ const AssetsDashboard = () => {
             subtitle="No storage assets available. Try enabling mock data for demonstration."
             hideCloseButton={false}
           />
-          <button onClick={() => setUseMockData(true)} className="btn-mock">
+          <Button kind="primary" size="md" onClick={() => setUseMockData(true)}>
             Load Mock Data
-          </button>
+          </Button>
         </div>
         <Footer />
       </Page>
@@ -323,9 +324,9 @@ const AssetsDashboard = () => {
           ) : (
             <div className="no-results">
               <p>No assets match the current filters</p>
-              <button onClick={() => setFilters(INITIAL_FILTERS)}>
+              <Button kind="secondary" size="sm" onClick={() => setFilters(INITIAL_FILTERS)}>
                 Clear Filters
-              </button>
+              </Button>
             </div>
           )}
         </section>

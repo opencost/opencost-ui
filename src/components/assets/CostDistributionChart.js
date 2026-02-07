@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { StackedBarChart, GroupedBarChart } from "@carbon/charts-react";
-import "@carbon/charts/styles.css";
 import { formatCurrency } from "../../utils/assetCalculations";
 
 function transformToStackedData(assets) {

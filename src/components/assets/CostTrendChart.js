@@ -2,7 +2,6 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { LineChart, StackedAreaChart } from "@carbon/charts-react";
-import "@carbon/charts/styles.css";
 import { parseDays } from "../../utils/assetCalculations";
 
 const VARIANTS = [

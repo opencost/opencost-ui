@@ -202,6 +202,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
     <div style={{ width: "100%" }}>
       <h3
         style={{
+          marginTop: "-0.15rem",
           marginBottom: "1rem",
           fontWeight: 600,
           textAlign: "center",

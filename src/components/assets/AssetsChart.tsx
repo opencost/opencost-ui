@@ -13,7 +13,7 @@ import {
   Pie,
 } from "recharts";
 import { Button } from "@carbon/react";
-import { Maximize, Close, Download } from "@carbon/icons-react";
+import { Maximize, Close, Download, ArrowLeft, ArrowUpLeft } from "@carbon/icons-react";
 import { toCurrency } from "../../util";
 import EmptyState from "../EmptyState";
 import { AssetsChartProps } from '../../types/assets';
@@ -58,7 +58,7 @@ const COLORS = {
 const PIE_COLORS = [
   "#0066ff",
   "#9900ff",
-  "#00cc99",
+  "#007a20ff",
   "#ff0044",
   "#ff6600",
   "#ffcc00",
@@ -260,12 +260,12 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
+          marginTop: "-0.5rem",
           marginBottom: "1.5rem",
           width: "100%"
         }}
       >
-        <div style={{ width: "32px" }} />
         <h3
           style={{
             margin: 0,
@@ -277,14 +277,7 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
         >
           Cost Breakdown
         </h3>
-        <Button
-          hasIconOnly
-          renderIcon={Maximize}
-          iconDescription="Fullscreen"
-          kind="ghost"
-          size="sm"
-          onClick={() => setFullscreenOpen(true)}
-        />
+
       </div>
 
       <div
@@ -336,7 +329,7 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
           </ResponsiveContainer>
         </div>
 
-        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ width: "100%", height: height, minWidth: 0, display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -348,7 +341,6 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                 paddingAngle={1}
                 dataKey="value"
                 stroke="none"
-
               >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
@@ -361,11 +353,40 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
-                <tspan x="50%" dy="-0.47em" style={{ fontSize: "28px", fontWeight: "bold",  }}>Total Cost</tspan>
-                <tspan x="50%" dy="1.3em" style={{ fontSize: "24px", fontWeight: "bold",  }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
+                <tspan x="50%" dy="-0.47em" style={{ fontSize: "28px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>Total Cost</tspan>
+                <tspan x="50%" dy="1.3em" style={{ fontSize: "24px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
               </text>
             </PieChart>
           </ResponsiveContainer>
+          <div style={{ position: "absolute", top: "4px", right: "10px", zIndex: 10 }}>
+            <Button
+              hasIconOnly
+              renderIcon={Maximize}
+              iconDescription="Fullscreen"
+              kind="ghost"
+              size="sm"
+              onClick={() => setFullscreenOpen(true)}
+            />
+          </div>
+          <div style={{ position: "absolute", top: "4px", left: "-24px", pointerEvents: "none", color: "var(--cds-text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <ArrowLeft size={24} stroke="2" />
+              <span style={{ fontSize: "20px", fontWeight: 500 }}>Component Cost</span>
+            </div>
+          </div>
+          <div style={{ position: "absolute", bottom: "4px", right: "4px", pointerEvents: "none", color: "var(--cds-text-secondary)", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <ArrowUpLeft size={20} />
+              <span style={{ fontSize: "20px", fontWeight: 500 }}>Machine Cost</span>
+            </div>
+          </div>
+          {pieData.length > 0 && (
+            <div style={{ position: "absolute", bottom: "4px", left: "6px", textAlign: "left", pointerEvents: "none" }}>
+              <div style={{ fontSize: "14px", color: "var(--cds-text-secondary)", marginBottom: "4px" }}>Top: {pieData[0].name}</div>
+              <div style={{ fontSize: "24px", fontWeight: "bold", color: "var(--cds-text-primary)" }}>{toCurrency(pieData[0].value, currency, 0)}</div>
+            </div>
+          )}
+
         </div>
       </div>
       {fullscreenOpen && (
@@ -543,36 +564,78 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={120}
-                      outerRadius={240}
-                      paddingAngle={1}
-                      dataKey="value"
-                      stroke="none"
-
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<PieTooltip currency={currency} total={totalAssetCost} />} />
-                    <text
-                      x="50%"
-                      y="50%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                    >
-                      <tspan x="50%" dy="-0.6em" style={{ fontSize: "18px", fill: "var(--cds-text-secondary)" }}>Total Cost</tspan>
-                      <tspan x="50%" dy="1.4em" style={{ fontSize: "36px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
-                    </text>
-
-                  </PieChart>
-                </ResponsiveContainer>
+                <div style={{ display: "flex", width: "100%", height: "100%", gap: "1rem" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={120}
+                          outerRadius={240}
+                          paddingAngle={1}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<PieTooltip currency={currency} total={totalAssetCost} />} />
+                        <text
+                          x="50%"
+                          y="50%"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan x="50%" dy="-0.47em" style={{ fontSize: "28px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>Total Cost</tspan>
+                          <tspan x="50%" dy="1.3em" style={{ fontSize: "24px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
+                        </text>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div style={{ flex: 1, height: "100%", overflowY: "auto", border: "1px solid var(--cds-border-subtle-01, #e0e0e0)", borderRadius: "4px" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ backgroundColor: "var(--cds-layer-02, #f4f4f4)", borderBottom: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>
+                          <th style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--cds-layer-02, #f4f4f4)", textAlign: "left", padding: "12px 16px", color: "var(--cds-text-secondary)", fontSize: "12px", borderRight: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>Name</th>
+                          <th style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--cds-layer-02, #f4f4f4)", textAlign: "right", padding: "12px 16px", color: "var(--cds-text-secondary)", fontSize: "12px", borderRight: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>Cost</th>
+                          <th style={{ position: "sticky", top: 0, zIndex: 1, backgroundColor: "var(--cds-layer-02, #f4f4f4)", textAlign: "right", padding: "12px 16px", color: "var(--cds-text-secondary)", fontSize: "12px" }}>%</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...assetData]
+                          .sort((a, b) => (b.totalCost || 0) - (a.totalCost || 0))
+                          .map((item, idx) => {
+                            const cost = item.totalCost || 0;
+                            const percent = totalAssetCost > 0 ? (cost / totalAssetCost) * 100 : 0;
+                            return (
+                              <tr key={idx} style={{ borderBottom: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>
+                                <td style={{ padding: "12px 16px", color: "var(--cds-text-primary)", borderRight: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <div style={{
+                                      width: "12px",
+                                      height: "12px",
+                                      backgroundColor: idx < 8 ? PIE_COLORS[idx % PIE_COLORS.length] : "#a8a8a8",
+                                      borderRadius: "2px"
+                                    }} />
+                                    {item.name || "Unknown"}
+                                  </div>
+                                </td>
+                                <td style={{ textAlign: "right", padding: "12px 16px", color: "var(--cds-text-primary)", fontWeight: 500, borderRight: "1px solid var(--cds-border-subtle-01, #e0e0e0)" }}>
+                                  {toCurrency(cost, currency, 2)}
+                                </td>
+                                <td style={{ textAlign: "right", padding: "12px 16px", color: "var(--cds-text-secondary)" }}>
+                                  {percent.toFixed(1)}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               )}
             </div>
           </div>

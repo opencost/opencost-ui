@@ -35,6 +35,33 @@ Server running at http://localhost:1234
 ✨ Built in 1.96s
 ```
 
+### Development Without Backend
+
+For development and testing without running the OpenCost backend server, you can enable mock data mode:
+
+```sh
+# Windows PowerShell
+$env:REACT_APP_USE_MOCK_DATA="true"; npm run serve
+
+# Linux/macOS
+REACT_APP_USE_MOCK_DATA=true npm run serve
+```
+
+This will use realistic mock data for all API endpoints, allowing you to develop and test UI features without connecting to an actual OpenCost server.
+
+### OpenCost API Documentation
+
+The UI consumes the following OpenCost APIs:
+
+- **[Allocation API](https://docs.kubecost.com/apis/monitoring-apis/allocation-api)** - Cost allocation data by pod, namespace, etc.
+- **[Assets API](https://docs.kubecost.com/apis/monitoring-apis/assets-api)** - Infrastructure cost data (nodes, disks, load balancers)
+  - `/model/assets` - Retrieve backing cost data by individual assets
+  - `/model/assets/topline` - Condensed overview of total cost metrics
+  - `/model/assets/diff` - Compare asset changes between two time windows
+- **[Cloud Cost API](https://docs.kubecost.com/apis/monitoring-apis/cloud-cost-api)** - Cloud provider billing data
+
+### Custom Backend URL
+
 And can have a custom URL backend prefix.
 
 ```sh

@@ -228,6 +228,16 @@
   height: 16px;
 }
 
+/* Charts — remove blue focus outlines on SVG click */
+.assets-chart-card svg:focus,
+.assets-chart-card svg *:focus {
+  outline: none;
+}
+
+.assets-chart-card .recharts-surface {
+  outline: none;
+}
+
 /* Charts area */
 .assets-charts {
   display: flex;
@@ -248,6 +258,70 @@
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
+}
+
+/* Donut center hover label */
+.assets-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.assets-donut-center-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #161616;
+  line-height: 1.2;
+}
+
+.assets-donut-center-value {
+  font-size: 0.75rem;
+  color: #525252;
+  margin-top: 2px;
+}
+
+/* Pie chart legend */
+.assets-pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.5rem 0.25rem 0;
+}
+
+.assets-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.assets-pie-legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.assets-pie-legend-name {
+  flex: 1;
+  color: #393939;
+}
+
+.assets-pie-legend-value {
+  font-weight: 600;
+  color: #161616;
+  white-space: nowrap;
+}
+
+.assets-pie-legend-pct {
+  font-size: 0.75rem;
+  color: #6f6f6f;
+  min-width: 3rem;
+  text-align: right;
 }
 
 /* Table section */

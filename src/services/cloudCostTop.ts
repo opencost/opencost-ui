@@ -1,10 +1,98 @@
-import { formatSampleItemsForGraph, parseFilters } from "../util";
+import { parseFilters } from "../util";
+import { costMetricToPropName } from "../components/cloudCost/tokens";
 import client from "./api_client";
 import {
   CloudCostFilter,
   CloudCostResponse,
   SampleDataResponse,
+  TableRowItem,
 } from "../types/cloudCost";
+
+function formatSampleItemsForGraph({ data, costMetric }) {
+  const costMetricPropName = costMetric
+    ? costMetricToPropName[costMetric]
+    : "amortizedNetCost";
+  const graphData = data.sets.map(({ cloudCosts, window: { end, start } }) => {
+    return {
+      end,
+      items: Object.entries(cloudCosts).map(([name, item]) => ({
+        name,
+        value: item.netCost.cost,
+      })),
+      start,
+    };
+  });
+  const accumulator: Record<string, Omit<TableRowItem, "name">> = {};
+  data.sets.forEach(({ cloudCosts, window }) => {
+    Object.entries(cloudCosts).forEach(([name, cloudCostItem]) => {
+      const { properties } = cloudCostItem;
+      accumulator[name] ||= {
+        cost: 0,
+        start: "",
+        end: "",
+        providerID: "",
+        labelName: "",
+        kubernetesCost: 0,
+        kubernetesPercent: 0,
+      };
+      accumulator[name].cost += cloudCostItem[costMetricPropName].cost;
+      accumulator[name].kubernetesCost +=
+        cloudCostItem[costMetricPropName].cost *
+        cloudCostItem[costMetricPropName].kubernetesPercent;
+      accumulator[name].start = window.start;
+      accumulator[name].end = window.end;
+      accumulator[name].providerID = properties.providerID;
+      accumulator[name].labelName = properties.labels?.name;
+      accumulator[name].kubernetesPercent =
+        cloudCostItem[costMetricPropName].kubernetesPercent;
+    });
+  });
+  const tableRows = Object.entries(accumulator)
+    .map(
+      ([
+        name,
+        {
+          cost,
+          start,
+          end,
+          providerID,
+          kubernetesCost,
+          kubernetesPercent,
+          labelName,
+        },
+      ]) => ({
+        cost,
+        name,
+        kubernetesCost,
+        kubernetesPercent,
+        start,
+        end,
+        providerID,
+        labelName,
+      }),
+    )
+    .sort((a, b) => (a.cost > b.cost ? -1 : 1));
+
+  const tableTotal = tableRows.reduce(
+    (tr1, tr2) => ({
+      ...tr1,
+      cost: tr1.cost + tr2.cost,
+      kubernetesCost: tr1.kubernetesCost + tr2.kubernetesCost,
+    }),
+    {
+      cost: 0,
+      name: "",
+      kubernetesCost: 0,
+      kubernetesPercent: 0,
+      end: "",
+      start: "",
+      labelName: "",
+      providerID: "",
+    },
+  );
+
+  return { graphData, tableRows, tableTotal };
+}
 
 class CloudCostTopService {
   async fetchCloudCostData(

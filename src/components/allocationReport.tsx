@@ -34,6 +34,14 @@ const AllocationReport = ({
     { key: "totalCost", header: "Total" },
   ];
 
+  const formatCurrency = (value, currency) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 2,
+    }).format(value);
+  };
+
   const rows = cumulativeData.map((item, index) => ({
     id: String(index),
     name: item.name,
@@ -48,14 +56,6 @@ const AllocationReport = ({
   }));
 
   const paginatedRows = rows.slice((page - 1) * pageSize, page * pageSize);
-
-  const formatCurrency = (value, currency) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
 
   const canDrillDown = aggregateBy !== "container";
 

@@ -1,24 +1,20 @@
 import * as React from "react";
 import {
+  DataTable,
   Table,
+  TableHead,
+  TableRow,
+  TableHeader,
   TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
-  Typography,
-  Box,
-  Collapse,
-  IconButton,
-  Chip,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import SearchIcon from "@mui/icons-material/Search";
+  TableToolbar,
+  TableToolbarContent,
+  TableToolbarSearch,
+  Pagination,
+  Tag,
+  Button,
+} from "@carbon/react";
+import { ChevronDown, ChevronUp } from "@carbon/icons-react";
 import { toCurrency } from "../../util";
 import { formatBytes, formatMinutes } from "./tokens";
 
@@ -32,438 +28,187 @@ const TYPE_COLORS = {
 };
 
 /**
- * AssetTableRow - Individual row with expandable breakdown
+ * AssetTable - Professional data table with comprehensive asset information
+ * Includes search, pagination, and formatted cost display
  */
-const AssetTableRow = ({ asset, assetType, currency, onAssetClick }) => {
-  const [open, setOpen] = React.useState(false);
-
-  const hasBreakdown =
-    (assetType === "Node" && (asset.cpuBreakdown || asset.ramBreakdown)) ||
-    (assetType === "Disk" && asset.breakdown);
-
-  return (
-    <>
-      <TableRow 
-        sx={{ 
-          "& > *": { borderBottom: "unset" },
-          cursor: "pointer",
-          transition: "all 0.2s",
-          "&:hover": { 
-            backgroundColor: "rgba(103, 126, 234, 0.08)",
-            transform: "scale(1.001)",
-          }
-        }}
-        onClick={() => onAssetClick(asset)}
-      >
-        <TableCell onClick={(e) => e.stopPropagation()}>
-          {hasBreakdown && (
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(!open);
-              }}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          )}
-        </TableCell>
-        <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Chip
-              label={assetType}
-              size="small"
-              sx={{
-                backgroundColor: TYPE_COLORS[assetType] || TYPE_COLORS.Other,
-                color: "white",
-                fontWeight: 700,
-                fontSize: "0.75rem",
-                letterSpacing: 0.5,
-              }}
-            />
-            <Typography variant="body2">{asset.name || "Unknown"}</Typography>
-          </Box>
-        </TableCell>
-        <TableCell>{asset.properties?.provider || "-"}</TableCell>
-        <TableCell>{asset.properties?.cluster || "-"}</TableCell>
-        <TableCell align="right">
-          {toCurrency(asset.totalCost, currency)}
-        </TableCell>
-        <TableCell align="right">
-          {asset.adjustment
-            ? toCurrency(asset.adjustment, currency)
-            : toCurrency(0, currency)}
-        </TableCell>
-
-        {/* Node-specific columns */}
-        {assetType === "Node" && (
-          <>
-            <TableCell align="right">
-              {asset.cpuCores ? asset.cpuCores.toFixed(2) : "-"}
-            </TableCell>
-            <TableCell align="right">
-              {asset.ramBytes ? formatBytes(asset.ramBytes) : "-"}
-            </TableCell>
-            <TableCell align="right">
-              {asset.cpuCost
-                ? toCurrency(asset.cpuCost, currency)
-                : toCurrency(0, currency)}
-            </TableCell>
-            <TableCell align="right">
-              {asset.ramCost
-                ? toCurrency(asset.ramCost, currency)
-                : toCurrency(0, currency)}
-            </TableCell>
-          </>
-        )}
-
-        {/* Disk-specific columns */}
-        {assetType === "Disk" && (
-          <>
-            <TableCell align="right">
-              {asset.bytes ? formatBytes(asset.bytes) : "-"}
-            </TableCell>
-            <TableCell align="right">
-              {asset.byteHours ? formatBytes(asset.byteHours) : "-"}
-            </TableCell>
-          </>
-        )}
-
-        {/* Network/LoadBalancer-specific columns */}
-        {(assetType === "Network" || assetType === "LoadBalancer") && (
-          <>
-            <TableCell align="right">
-              {asset.minutes ? formatMinutes(asset.minutes) : "-"}
-            </TableCell>
-            <TableCell>{asset.providerID || "-"}</TableCell>
-          </>
-        )}
-      </TableRow>
-
-      {/* Expandable breakdown row */}
-      {hasBreakdown && (
-        <TableRow>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <Box sx={{ margin: 1 }}>
-                <Typography variant="h6" gutterBottom component="div">
-                  Cost Breakdown
-                </Typography>
-                {assetType === "Node" && (
-                  <>
-                    {asset.cpuBreakdown && (
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2">
-                          CPU Breakdown:
-                        </Typography>
-                        <Typography variant="body2">
-                          Idle: {toCurrency(asset.cpuBreakdown.idle, currency)}{" "}
-                          | Used:{" "}
-                          {toCurrency(asset.cpuBreakdown.used, currency)} |
-                          System:{" "}
-                          {toCurrency(asset.cpuBreakdown.system, currency)}
-                        </Typography>
-                      </Box>
-                    )}
-                    {asset.ramBreakdown && (
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2">
-                          RAM Breakdown:
-                        </Typography>
-                        <Typography variant="body2">
-                          Idle: {toCurrency(asset.ramBreakdown.idle, currency)}{" "}
-                          | Used:{" "}
-                          {toCurrency(asset.ramBreakdown.used, currency)} |
-                          System:{" "}
-                          {toCurrency(asset.ramBreakdown.system, currency)}
-                        </Typography>
-                      </Box>
-                    )}
-                  </>
-                )}
-              </Box>
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      )}
-    </>
-  );
-};
-
-/**
- * AssetTable - Main table component for displaying assets
- */
-const AssetTable = ({ assets = [], assetType, currency = "USD", loading, onAssetClick }) => {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const [orderBy, setOrderBy] = React.useState("totalCost");
-  const [order, setOrder] = React.useState("desc");
+const AssetTable = ({ assets, assetType, currency, loading, onAssetClick }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(25);
 
-  // Define columns based on asset type
-  const getColumns = () => {
-    const baseColumns = [
-      { id: "expand", label: "", width: 50, sortable: false },
-      { id: "name", label: "Name", width: "auto", sortable: true },
-      { id: "provider", label: "Provider", width: 150, sortable: true },
-      { id: "cluster", label: "Cluster", width: 150, sortable: true },
-      {
-        id: "totalCost",
-        label: "Total Cost",
-        width: 150,
-        numeric: true,
-        sortable: true,
-      },
-      {
-        id: "adjustment",
-        label: "Adjustment",
-        width: 150,
-        numeric: true,
-        sortable: true,
-      },
-    ];
+  // Prepare rows with formatted data for professional presentation
+  const rows = React.useMemo(() => {
+    if (!assets) return [];
+    
+    const filtered = searchQuery
+      ? assets.filter((asset) =>
+          asset.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          asset.properties?.provider?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          asset.properties?.cluster?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : assets;
 
-    if (assetType === "Node") {
-      return [
-        ...baseColumns,
-        {
-          id: "cpuCores",
-          label: "CPU Cores",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-        {
-          id: "ramBytes",
-          label: "RAM",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-        {
-          id: "cpuCost",
-          label: "CPU Cost",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-        {
-          id: "ramCost",
-          label: "RAM Cost",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-      ];
-    }
+    return filtered.map((asset, index) => ({
+      id: `${asset.name}-${index}`,
+      name: asset.name || "Unknown",
+      provider: asset.properties?.provider || "-",
+      cluster: asset.properties?.cluster || "-",
+      totalCost: asset.totalCost || 0,
+      totalCostFormatted: toCurrency(asset.totalCost || 0, currency),
+      adjustment: asset.adjustment || 0,
+      adjustmentFormatted: toCurrency(asset.adjustment || 0, currency),
+      type: assetType,
+      asset, // Store full asset for click handler
+    }));
+  }, [assets, assetType, searchQuery, currency]);
 
-    if (assetType === "Disk") {
-      return [
-        ...baseColumns,
-        {
-          id: "bytes",
-          label: "Size",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-        {
-          id: "byteHours",
-          label: "Byte Hours",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-      ];
-    }
+  const paginatedRows = React.useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, page, pageSize]);
 
-    if (assetType === "Network" || assetType === "LoadBalancer") {
-      return [
-        ...baseColumns,
-        {
-          id: "minutes",
-          label: "Runtime",
-          width: 120,
-          numeric: true,
-          sortable: true,
-        },
-        {
-          id: "providerID",
-          label: "Provider ID",
-          width: 200,
-          sortable: false,
-        },
-      ];
-    }
-
-    return baseColumns;
-  };
-
-  const columns = getColumns();
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Sort and paginate data
-  const sortedAssets = React.useMemo(() => {
-    if (!assets || assets.length === 0) return [];
-
-    // Apply search filter
-    let filtered = assets;
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = assets.filter((asset) => {
-        return (
-          asset.name?.toLowerCase().includes(query) ||
-          asset.type?.toLowerCase().includes(query) ||
-          asset.properties?.provider?.toLowerCase().includes(query) ||
-          asset.properties?.cluster?.toLowerCase().includes(query)
-        );
-      });
-    }
-
-    const sorted = [...filtered].sort((a, b) => {
-      let aVal = a[orderBy];
-      let bVal = b[orderBy];
-
-      // Handle nested properties
-      if (orderBy === "provider") {
-        aVal = a.properties?.provider || "";
-        bVal = b.properties?.provider || "";
-      } else if (orderBy === "cluster") {
-        aVal = a.properties?.cluster || "";
-        bVal = b.properties?.cluster || "";
-      }
-
-      // Handle missing values
-      if (aVal === undefined || aVal === null) aVal = 0;
-      if (bVal === undefined || bVal === null) bVal = 0;
-
-      if (typeof aVal === "string") {
-        return order === "asc"
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
-
-      return order === "asc" ? aVal - bVal : bVal - aVal;
-    });
-
-    return sorted;
-  }, [assets, order, orderBy, searchQuery]);
-
-  const paginatedAssets = sortedAssets.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage,
-  );
+  // Define headers with professional formatting
+  const headers = [
+    { key: "name", header: "Asset Name" },
+    { key: "provider", header: "Cloud Provider" },
+    { key: "cluster", header: "Cluster" },
+    { key: "totalCostFormatted", header: "Total Cost" },
+    { key: "adjustmentFormatted", header: "Cost Adjustment" },
+  ];
 
   if (loading) {
     return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <Typography>Loading...</Typography>
-      </Box>
+      <div style={{ padding: "3rem", textAlign: "center", color: "#525252" }}>
+        <div style={{ marginBottom: "1rem" }}>Loading asset data...</div>
+        <div style={{ fontSize: "0.875rem" }}>Please wait while we fetch your infrastructure costs</div>
+      </div>
     );
   }
 
   if (!assets || assets.length === 0) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant="body2">
-          No {assetType.toLowerCase()} assets found for this time period.
-        </Typography>
-      </Box>
+      <div style={{ padding: "3rem", backgroundColor: "#f4f4f4", borderRadius: "4px", textAlign: "center" }}>
+        <h4 style={{ margin: 0, marginBottom: "0.5rem", color: "#161616" }}>No Assets Found</h4>
+        <p style={{ margin: 0, color: "#525252" }}>
+          No {assetType.toLowerCase()} assets found for this time period. Try adjusting your filters or time window.
+        </p>
+      </div>
     );
   }
 
   return (
-    <Box>
-      {/* Search bar */}
-      <Box sx={{ mb: 3, px: 3, pt: 3 }}>
-        <TextField
-          fullWidth
-          placeholder={`Search ${assetType.toLowerCase()} assets...`}
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setPage(0); // Reset to first page on search
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "12px",
-              backgroundColor: "#f8f9fa",
-            },
-          }}
-        />
-      </Box>
-
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.numeric ? "right" : "left"}
-                  style={{ width: column.width, fontWeight: 600 }}
-                  sortDirection={orderBy === column.id ? order : false}
-                >
-                  {column.sortable !== false ? (
-                    <TableSortLabel
-                      active={orderBy === column.id}
-                      direction={orderBy === column.id ? order : "asc"}
-                      onClick={() => handleRequestSort(column.id)}
-                    >
-                      {column.label}
-                    </TableSortLabel>
-                  ) : (
-                    column.label
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedAssets.map((asset, index) => (
-              <AssetTableRow
-                key={`${asset.name}-${index}`}
-                asset={asset}
-                assetType={assetType}
-                currency={currency}
-                onAssetClick={onAssetClick}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        component="div"
-        count={sortedAssets.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Box>
+    <div>
+      <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f4f4f4", borderRadius: "4px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 600, color: "#161616", marginBottom: "0.25rem" }}>
+              {assetType} Assets
+            </h4>
+            <p style={{ margin: 0, fontSize: "0.875rem", color: "#525252" }}>
+              Showing {paginatedRows.length} of {rows.length} assets
+            </p>
+          </div>
+          {searchQuery && (
+            <div style={{ fontSize: "0.875rem", color: "#525252" }}>
+              Filtered results for "<strong>{searchQuery}</strong>"
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <DataTable rows={paginatedRows} headers={headers}>
+        {({
+          rows,
+          headers,
+          getHeaderProps,
+          getRowProps,
+          getTableProps,
+          getToolbarProps,
+          onInputChange,
+        }) => (
+          <>
+            <TableToolbar {...getToolbarProps()}>
+              <TableToolbarContent>
+                <TableToolbarSearch
+                  onChange={(e) => {
+                    onInputChange(e);
+                    setSearchQuery(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder={`Search by name, provider, or cluster...`}
+                  persistent
+                />
+              </TableToolbarContent>
+            </TableToolbar>
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => {
+                    const { key, ...headerProps } = getHeaderProps({ header });
+                    return (
+                      <TableHeader key={key} {...headerProps}>
+                        {header.header}
+                      </TableHeader>
+                    );
+                  })}
+                  <TableHeader>Details</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row, rowIndex) => {
+                  const rowData = paginatedRows[rowIndex];
+                  const { key, ...rowProps } = getRowProps({ row });
+                  return (
+                    <TableRow key={key} {...rowProps}>
+                      <TableCell>
+                        <div style={{ fontWeight: 500 }}>
+                          {rowData.name}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Tag type="blue" size="sm">
+                          {rowData.provider}
+                        </Tag>
+                      </TableCell>
+                      <TableCell>{rowData.cluster}</TableCell>
+                      <TableCell>
+                        <strong style={{ color: "#161616" }}>
+                          {rowData.totalCostFormatted}
+                        </strong>
+                      </TableCell>
+                      <TableCell>
+                        <span style={{ color: rowData.adjustment > 0 ? "#24a148" : rowData.adjustment < 0 ? "#da1e28" : "#525252" }}>
+                          {rowData.adjustmentFormatted}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          onClick={() => onAssetClick(rowData.asset)}
+                        >
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            <Pagination
+              totalItems={rows.length}
+              page={page}
+              pageSize={pageSize}
+              pageSizes={[10, 25, 50, 100]}
+              onChange={({ page: newPage, pageSize: newPageSize }) => {
+                setPage(newPage);
+                setPageSize(newPageSize);
+              }}
+            />
+          </>
+        )}
+      </DataTable>
+    </div>
   );
 };
 

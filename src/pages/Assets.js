@@ -1,15 +1,6 @@
 import * as React from "react";
-import {
-  Box,
-  Paper,
-  Typography,
-  Tab,
-  Tabs,
-  CircularProgress,
-  IconButton,
-  Alert,
-} from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Grid, Column, Tabs, Tab, TabList, TabPanels, TabPanel, Loading, Button } from "@carbon/react";
+import { Renew } from "@carbon/icons-react";
 import { useLocation, useNavigate } from "react-router";
 import { find, get } from "lodash";
 
@@ -27,6 +18,21 @@ import AssetsService from "../services/assets";
 import { windowOptions, assetTypes } from "../components/assets/tokens";
 import { toCurrency, checkCustomWindow, toVerboseTimeRange } from "../util";
 import { currencyCodes } from "../constants/currencyCodes";
+
+/**
+ * Assets Page
+ * 
+ * Displays infrastructure-level cost data from the OpenCost Assets API.
+ * Shows breakdown by asset types: Node, Disk, Network, LoadBalancer, and ClusterManagement.
+ * 
+ * Features:
+ * - Summary tiles with click-to-filter by asset type
+ * - Interactive charts (donut chart by type, bar chart by provider)
+ * - Searchable, sortable, paginated data tables
+ * - Detail modal with properties, labels, and CPU/RAM breakdowns
+ * 
+ * API Reference: https://docs.kubecost.com/apis/monitoring-apis/assets-api
+ */
 
 const Assets = () => {
   // Form state
@@ -216,37 +222,36 @@ const Assets = () => {
 
   return (
     <Page>
-      <Box
-        sx={{
+      <div
+        style={{
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           borderRadius: "12px",
-          p: 3,
-          mb: 3,
+          padding: "1.5rem",
+          marginBottom: "1.5rem",
           color: "white",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box>
-            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h3 style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.75rem" }}>
               Assets
-            </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+            </h3>
+            <p style={{ opacity: 0.9, margin: 0 }}>
               Infrastructure-level cost breakdown
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Box
-              sx={{
+            </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div
+              style={{
                 backgroundColor: "rgba(255, 255, 255, 0.2)",
                 borderRadius: "8px",
-                px: 2,
-                py: 1,
+                padding: "0.5rem 1rem",
                 display: "flex",
                 alignItems: "center",
-                gap: 1,
+                gap: "0.5rem",
               }}
             >
-              <Typography variant="body2">Currency:</Typography>
+              <span style={{ fontSize: "0.875rem" }}>Currency:</span>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
@@ -265,83 +270,85 @@ const Assets = () => {
                   </option>
                 ))}
               </select>
-            </Box>
-            <IconButton
+            </div>
+            <Button
+              kind="ghost"
+              size="md"
               onClick={handleRefresh}
               disabled={loading}
-              sx={{
+              renderIcon={Renew}
+              iconDescription="Refresh"
+              hasIconOnly
+              style={{
                 backgroundColor: "rgba(255, 255, 255, 0.2)",
                 color: "white",
-                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.3)" },
               }}
-            >
-              <RefreshIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
+            />
+          </div>
+        </div>
+      </div>
 
       <Warnings warnings={errors} />
 
       {/* Topline Summary */}
       {toplineData && toplineData.data && (
-        <Box
-          sx={{
+        <div
+          style={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-            gap: 2,
-            mb: 3,
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "1rem",
+            marginBottom: "1.5rem",
           }}
         >
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
+          <div
+            style={{
+              padding: "1.5rem",
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               color: "white",
               borderRadius: "12px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
             }}
           >
-            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+            <span style={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.75rem" }}>
               Total Cost
-            </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+            </span>
+            <h3 style={{ fontWeight: 700, marginTop: "0.5rem", fontSize: "1.75rem" }}>
               {toCurrency(toplineData.data.totalCost || 0, currency)}
-            </Typography>
-          </Paper>
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
+            </h3>
+          </div>
+          <div
+            style={{
+              padding: "1.5rem",
               background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
               color: "white",
               borderRadius: "12px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
             }}
           >
-            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+            <span style={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.75rem" }}>
               Adjustment
-            </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+            </span>
+            <h3 style={{ fontWeight: 700, marginTop: "0.5rem", fontSize: "1.75rem" }}>
               {toCurrency(toplineData.data.adjustment || 0, currency)}
-            </Typography>
-          </Paper>
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
+            </h3>
+          </div>
+          <div
+            style={{
+              padding: "1.5rem",
               background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
               color: "white",
               borderRadius: "12px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
             }}
           >
-            <Typography variant="caption" sx={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: 1 }}>
+            <span style={{ opacity: 0.9, textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.75rem" }}>
               Assets
-            </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
+            </span>
+            <h3 style={{ fontWeight: 700, marginTop: "0.5rem", fontSize: "1.75rem" }}>
               {toplineData.data.numResults || 0}
-            </Typography>
-          </Paper>
-        </Box>
+            </h3>
+          </div>
+        </div>
       )}
 
       {/* Summary Tiles */}
@@ -374,84 +381,83 @@ const Assets = () => {
       />
 
       {/* Main Content */}
-      <Paper
-        elevation={3}
-        sx={{
+      <div
+        style={{
           width: "100%",
           borderRadius: "12px",
           overflow: "hidden",
+          backgroundColor: "#fff",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
         }}
       >
         {loading && !assetsData ? (
-          <Box
-            sx={{
+          <div
+            style={{
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              p: 8,
-              gap: 2,
+              padding: "4rem",
+              gap: "1rem",
             }}
           >
-            <CircularProgress size={60} thickness={4} />
-            <Typography variant="h6" color="textSecondary">
-              Loading assets data...
-            </Typography>
-          </Box>
+            <Loading description="Loading assets data..." withOverlay={false} />
+          </div>
         ) : availableTypes.length === 0 ? (
-          <Box
-            sx={{
-              p: 8,
+          <div
+            style={{
+              padding: "4rem",
               textAlign: "center",
               background: "linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%)",
             }}
           >
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+            <h5 style={{ fontWeight: 600, marginBottom: "1rem" }}>
               No Assets Found
-            </Typography>
-            <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+            </h5>
+            <p style={{ color: "#525252", marginBottom: "1.5rem" }}>
               No asset data available for the selected time window and filters.
-            </Typography>
-            <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
-              Try adjusting your filters or time window to see asset data.
-            </Alert>
-          </Box>
+            </p>
+            <div style={{
+              padding: "1rem",
+              backgroundColor: "#e5f6ff",
+              border: "1px solid #0f62fe",
+              borderRadius: "4px",
+              maxWidth: "600px",
+              margin: "0 auto",
+            }}>
+              <p style={{ margin: 0, color: "#161616" }}>
+                Try adjusting your filters or time window to see asset data.
+              </p>
+            </div>
+          </div>
         ) : (
           <>
-            {/* Tabs for asset types */}
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Tabs value={activeTab} onChange={handleTabChange}>
+            {/* Carbon Tabs for asset types */}
+            <Tabs selectedIndex={activeTab} onChange={(evt) => handleTabChange(evt, evt.selectedIndex)}>
+              <TabList aria-label="Asset type tabs">
                 {availableTypes.map((type) => (
-                  <Tab
-                    key={type.value}
-                    label={`${type.name} (${assetsByType[type.value]?.length || 0})`}
-                  />
+                  <Tab key={type.value}>
+                    {type.name} ({assetsByType[type.value]?.length || 0})
+                  </Tab>
                 ))}
-              </Tabs>
-            </Box>
-
-            {/* Table for active tab */}
-            {availableTypes.map((type, index) => (
-              <Box
-                key={type.value}
-                role="tabpanel"
-                hidden={activeTab !== index}
-                sx={{ p: 0 }}
-              >
-                {activeTab === index && (
-                  <AssetTable
-                    assets={assetsByType[type.value] || []}
-                    assetType={type.value}
-                    currency={currency}
-                    loading={loading}
-                    onAssetClick={handleAssetClick}
-                  />
-                )}
-              </Box>
-            ))}
+              </TabList>
+              <TabPanels>
+                {availableTypes.map((type, index) => (
+                  <TabPanel key={type.value}>
+                    <AssetTable
+                      assets={assetsByType[type.value] || []}
+                      assetType={type.value}
+                      currency={currency}
+                      loading={loading}
+                      onAssetClick={handleAssetClick}
+                    />
+                  </TabPanel>
+                ))}
+              </TabPanels>
+            </Tabs>
           </>
         )}
-      </Paper>
+      </div>
 
       {/* Asset Detail Modal */}
       <AssetDetailModal

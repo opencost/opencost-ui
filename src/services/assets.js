@@ -2,6 +2,19 @@ import { parseFilters } from "../util";
 import client from "./api_client";
 import { getMockAssetsData, getMockToplineData } from "./assets.mock";
 
+/**
+ * Assets API Service
+ * 
+ * Consumes the OpenCost Assets API to retrieve backing cost data for infrastructure resources.
+ * API Documentation: https://docs.kubecost.com/apis/monitoring-apis/assets-api
+ * 
+ * Endpoints:
+ * - GET /model/assets - Returns asset cost data with various aggregations
+ * - GET /model/assets/topline - Returns condensed cost overview
+ * 
+ * Supported asset types: Node, Disk, Network, LoadBalancer, ClusterManagement
+ */
+
 // Flag to enable mock data for development
 const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true";
 
@@ -12,6 +25,9 @@ const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true";
 class AssetsService {
   /**
    * Fetch asset data from the /model/assets endpoint
+   * 
+   * API Docs: https://docs.kubecost.com/apis/monitoring-apis/assets-api#using-the-assets-api
+   * 
    * @param {string} window - Time window (e.g., "7d", "1w", ISO ranges)
    * @param {object} options - Additional query parameters
    * @param {string} options.aggregate - Aggregation field (default: "type")
@@ -64,6 +80,11 @@ class AssetsService {
 
   /**
    * Fetch topline summary data for assets
+   * 
+   * API Docs: https://docs.kubecost.com/apis/monitoring-apis/assets-api#querying-with-endpoint-to-view-cost-totals-across-query
+   * 
+   * Returns condensed overview with totalCost, adjustment, and numResults
+   * 
    * @param {string} window - Time window (e.g., "7d", "1w", ISO ranges)
    * @param {object} options - Additional query parameters
    * @param {array} options.filters - Array of filter objects

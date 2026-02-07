@@ -34,3 +34,14 @@ export const greyscale = [
 ];
 
 export const browns = [brown[500]];
+
+// Asset type colors for Carbon Design System components
+export const ASSET_COLORS = {
+  Node: "#0f62fe",
+  Disk: "#8a3ffc",
+  Network: "#0072c3",
+  LoadBalancer: "#198038",
+  ClusterManagement: "#fa4d56",
+  Management: "#fa4d56",
+  Other: "#878d96",
+};

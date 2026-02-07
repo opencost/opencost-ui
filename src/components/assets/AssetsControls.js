@@ -1,12 +1,10 @@
 import * as React from "react";
 import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+  Dropdown,
+  TextInput,
+  Grid,
+  Column,
+} from "@carbon/react";
 import { windowOptions, aggregationOptions } from "./tokens";
 
 /**
@@ -23,8 +21,7 @@ const AssetsControls = ({
   const [providerFilter, setProviderFilter] = React.useState("");
   const [clusterFilter, setClusterFilter] = React.useState("");
 
-  const handleProviderChange = (event) => {
-    const value = event.target.value;
+  const handleProviderChange = (value) => {
     setProviderFilter(value);
 
     // Update filters array
@@ -35,8 +32,7 @@ const AssetsControls = ({
     onFiltersChange(newFilters);
   };
 
-  const handleClusterChange = (event) => {
-    const value = event.target.value;
+  const handleClusterChange = (value) => {
     setClusterFilter(value);
 
     // Update filters array
@@ -48,84 +44,53 @@ const AssetsControls = ({
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        gap: 2,
-        mb: 4,
-        p: 3,
-        flexWrap: "wrap",
-        alignItems: "center",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "12px",
-      }}
-    >
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel id="window-select-label">Time Window</InputLabel>
-        <Select
-          labelId="window-select-label"
-          id="window-select"
-          value={window}
-          label="Time Window"
-          onChange={(e) => onWindowChange(e.target.value)}
-          sx={{ borderRadius: "8px", backgroundColor: "white" }}
-        >
-          {windowOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+    <div className="assets-controls" style={{ marginBottom: "2rem", padding: "1.5rem", backgroundColor: "#f4f4f4", borderRadius: "4px" }}>
+      <Grid narrow>
+        <Column lg={4} md={4} sm={4}>
+          <Dropdown
+            id="window-dropdown"
+            titleText="Time Window"
+            label="Select window"
+            items={windowOptions}
+            itemToString={(item) => item?.name || ""}
+            selectedItem={windowOptions.find((w) => w.value === window)}
+            onChange={({ selectedItem }) => onWindowChange(selectedItem?.value || "7d")}
+          />
+        </Column>
 
-      <FormControl sx={{ minWidth: 200 }}>
-        <InputLabel id="aggregate-select-label">Aggregate By</InputLabel>
-        <Select
-          labelId="aggregate-select-label"
-          id="aggregate-select"
-          value={aggregate}
-          label="Aggregate By"
-          onChange={(e) => onAggregateChange(e.target.value)}
-          sx={{ borderRadius: "8px", backgroundColor: "white" }}
-        >
-          {aggregationOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        <Column lg={4} md={4} sm={4}>
+          <Dropdown
+            id="aggregate-dropdown"
+            titleText="Aggregate By"
+            label="Select aggregation"
+            items={aggregationOptions}
+            itemToString={(item) => item?.name || ""}
+            selectedItem={aggregationOptions.find((a) => a.value === aggregate)}
+            onChange={({ selectedItem }) => onAggregateChange(selectedItem?.value || "day")}
+          />
+        </Column>
 
-      <TextField
-        label="Filter by Provider"
-        variant="outlined"
-        value={providerFilter}
-        onChange={handleProviderChange}
-        sx={{
-          minWidth: 200,
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "8px",
-            backgroundColor: "white",
-          },
-        }}
-        placeholder="e.g., AWS, GCP, Azure"
-      />
+        <Column lg={4} md={4} sm={4}>
+          <TextInput
+            id="provider-filter"
+            labelText="Filter by Provider"
+            placeholder="e.g., AWS, GCP, Azure"
+            value={providerFilter}
+            onChange={(e) => handleProviderChange(e.target.value)}
+          />
+        </Column>
 
-      <TextField
-        label="Filter by Cluster"
-        variant="outlined"
-        value={clusterFilter}
-        onChange={handleClusterChange}
-        sx={{
-          minWidth: 200,
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "8px",
-            backgroundColor: "white",
-          },
-        }}
-        placeholder="e.g., production"
-      />
-    </Box>
+        <Column lg={4} md={4} sm={4}>
+          <TextInput
+            id="cluster-filter"
+            labelText="Filter by Cluster"
+            placeholder="e.g., production"
+            value={clusterFilter}
+            onChange={(e) => handleClusterChange(e.target.value)}
+          />
+        </Column>
+      </Grid>
+    </div>
   );
 };
 

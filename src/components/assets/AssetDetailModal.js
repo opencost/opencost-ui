@@ -1,274 +1,256 @@
-import * as React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Box,
-  Chip,
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@mui/material";
+import React from "react";
+import { Modal, Grid, Column, Tag, StructuredListWrapper, StructuredListBody, StructuredListRow, StructuredListCell } from "@carbon/react";
+import { formatBytes, formatMinutes } from "./tokens";
 import { toCurrency } from "../../util";
-import { formatBytes } from "./tokens";
+import { ASSET_COLORS } from "../../constants/colors";
 
-/**
- * AssetDetailModal - Detailed view of asset properties, labels, and breakdowns
- */
-const AssetDetailModal = ({ asset, currency, open, onClose }) => {
+const AssetDetailModal = ({ open, onClose, asset, currency = "USD" }) => {
   if (!asset) return null;
 
-  const typeColors = {
-    Node: "#0f62fe",
-    Disk: "#8a3ffc",
-    Network: "#0072c3",
-    LoadBalancer: "#198038",
-    Management: "#fa4d56",
-    Other: "#878d96",
-  };
+  const assetColor = ASSET_COLORS[asset.type] || "#0f62fe";
+  const hasAdjustment = asset.adjustment !== undefined && asset.adjustment !== 0;
+  const adjustmentColor = asset.adjustment > 0 ? "#24a148" : "#da1e28";
+  const adjustmentLabel = asset.adjustment > 0 ? "Additional Charges" : "Cost Savings";
+  const finalCost = asset.totalCost + (asset.adjustment || 0);
 
   return (
-    <Dialog
+    <Modal
       open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "16px",
-          boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
-        },
-      }}
+      onRequestClose={onClose}
+      modalHeading={
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <span>Asset Details: {asset.name}</span>
+          <Tag type="blue" size="md">{asset.type}</Tag>
+        </div>
+      }
+      primaryButtonText="Close"
+      onRequestSubmit={onClose}
+      size="lg"
     >
-      <DialogTitle
-        sx={{
-          background: `linear-gradient(135deg, ${typeColors[asset.type] || typeColors.Other}15 0%, ${typeColors[asset.type] || typeColors.Other}05 100%)`,
-          borderBottom: `3px solid ${typeColors[asset.type] || typeColors.Other}`,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            {asset.name}
-          </Typography>
-          <Chip
-            label={asset.type}
-            size="medium"
-            sx={{
-              backgroundColor: typeColors[asset.type] || typeColors.Other,
-              color: "white",
-              fontWeight: 700,
-              fontSize: "0.875rem",
-            }}
-          />
-        </Box>
-      </DialogTitle>
+      <Grid narrow style={{ paddingLeft: 0, paddingRight: 0 }}>
+        {/* Professional Cost Summary Section */}
+        <Column lg={16}>
+          <div style={{
+            padding: "1rem",
+            backgroundColor: "#f4f4f4",
+            borderRadius: "4px",
+            marginBottom: "2rem",
+            borderLeft: `4px solid ${assetColor}`
+          }}>
+            <Grid narrow>
+              <Column lg={5}>
+                <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>Base Cost</p>
+                <p style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0, color: assetColor }}>
+                  {toCurrency(asset.totalCost, currency)}
+                </p>
+              </Column>
+              
+              {hasAdjustment && (
+                <Column lg={5}>
+                  <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    {adjustmentLabel}
+                  </p>
+                  <p style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0, color: adjustmentColor }}>
+                    {asset.adjustment > 0 ? "+" : ""}{toCurrency(asset.adjustment, currency)}
+                  </p>
+                </Column>
+              )}
+              
+              <Column lg={6}>
+                <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>Final Cost</p>
+                <p style={{ fontSize: "1.5rem", fontWeight: 700, margin: 0, color: "#161616" }}>
+                  {toCurrency(finalCost, currency)}
+                </p>
+              </Column>
+            </Grid>
+          </div>
+        </Column>
 
-      <DialogContent sx={{ pt: 3 }}>
-        {/* Cost Summary */}
-        <Box
-          sx={{
-            mb: 3,
-            p: 3,
-            borderRadius: "12px",
-            background: `linear-gradient(135deg, ${typeColors[asset.type] || typeColors.Other}15 0%, ${typeColors[asset.type] || typeColors.Other}05 100%)`,
-          }}
-        >
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-            Cost Summary
-          </Typography>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Box>
-              <Typography variant="caption" color="textSecondary">
-                Total Cost
-              </Typography>
-              <Typography variant="h5">
-                {toCurrency(asset.totalCost, currency)}
-              </Typography>
-            </Box>
-            {asset.adjustment !== undefined && asset.adjustment !== 0 && (
-              <Box>
-                <Typography variant="caption" color="textSecondary">
-                  Adjustment
-                </Typography>
-                <Typography variant="h5">
-                  {toCurrency(asset.adjustment, currency)}
-                </Typography>
-              </Box>
+        {/* Core Metrics Grid */}
+        <Column lg={16}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gap: "1rem",
+            marginBottom: "2rem",
+            padding: "1rem",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e0e0e0",
+            borderRadius: "4px"
+          }}>
+            <div>
+              <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>Provider</p>
+              <p style={{ fontSize: "1rem", fontWeight: 600, margin: 0 }}>{asset.providerID || "N/A"}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>Cluster</p>
+              <p style={{ fontSize: "1rem", fontWeight: 600, margin: 0 }}>{asset.cluster || "N/A"}</p>
+            </div>
+            {asset.minutes && (
+              <div>
+                <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>Duration</p>
+                <p style={{ fontSize: "1.rem", fontWeight: 600, margin: 0 }}>{formatMinutes(asset.minutes)}</p>
+              </div>
             )}
-          </Box>
-        </Box>
+          </div>
+        </Column>
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Properties */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Properties
-          </Typography>
-          <Table size="small">
-            <TableBody>
+        {/* Properties with Professional Layout */}
+        <Column lg={16}>
+          <h4 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1rem", fontWeight: 600 }}>Asset Properties</h4>
+          <StructuredListWrapper style={{ marginBottom: "2rem" }}>
+            <StructuredListBody>
               {asset.properties &&
                 Object.entries(asset.properties).map(([key, value]) => (
-                  <TableRow key={key}>
-                    <TableCell sx={{ fontWeight: 600, width: "30%" }}>
-                      {key}
-                    </TableCell>
-                    <TableCell>{value}</TableCell>
-                  </TableRow>
+                  <StructuredListRow key={key}>
+                    <StructuredListCell style={{ fontWeight: 600, textTransform: "capitalize", color: "#161616" }}>
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </StructuredListCell>
+                    <StructuredListCell style={{ color: "#525252" }}>{value}</StructuredListCell>
+                  </StructuredListRow>
                 ))}
-            </TableBody>
-          </Table>
-        </Box>
+            </StructuredListBody>
+          </StructuredListWrapper>
+        </Column>
 
-        {/* Labels */}
+        {/* Labels with Visual Tags */}
         {asset.labels && Object.keys(asset.labels).length > 0 && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Labels
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                {Object.entries(asset.labels).map(([key, value]) => (
-                  <Chip
-                    key={key}
-                    label={`${key}: ${value}`}
-                    size="small"
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-            </Box>
-          </>
+          <Column lg={16}>
+            <h4 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1rem", fontWeight: 600 }}>Labels & Metadata</h4>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "2rem" }}>
+              {Object.entries(asset.labels).map(([key, value]) => (
+                <Tag key={key} type="gray" size="md">
+                  <strong>{key}:</strong> {value}
+                </Tag>
+              ))}
+            </div>
+          </Column>
         )}
 
-        {/* Node-specific breakdowns */}
+        {/* Node Resource Breakdown with Visual Indicators */}
         {asset.type === "Node" && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Resource Breakdown
-              </Typography>
-
-              {/* CPU */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  CPU ({asset.cpuCores} cores) - Total:{" "}
+          <Column lg={16}>
+            <h4 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1rem", fontWeight: 600 }}>
+              Resource Utilization Breakdown
+            </h4>
+            <div style={{ padding: "1rem", backgroundColor: "#f4f4f4", borderRadius: "4px", marginBottom: "1rem" }}>
+              <p style={{ fontSize: "0.875rem", color: "#525252", margin: 0 }}>
+                Detailed breakdown of CPU and RAM costs showing used, idle, and system allocations
+              </p>
+            </div>
+            
+            {/* CPU Breakdown */}
+            <div style={{ marginBottom: "2rem", padding: "1rem", border: "1px solid #e0e0e0", borderRadius: "4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                <h5 style={{ margin: 0, fontWeight: 600 }}>
+                  CPU Resources ({asset.cpuCores} cores)
+                </h5>
+                <span style={{ fontWeight: 700, fontSize: "1.125rem", color: assetColor }}>
                   {toCurrency(asset.cpuCost, currency)}
-                </Typography>
-                {asset.cpuBreakdown && (
-                  <Box sx={{ pl: 2 }}>
-                    <Typography variant="body2">
-                      Used: {toCurrency(asset.cpuBreakdown.used, currency)} (
-                      {(
-                        (asset.cpuBreakdown.used / asset.cpuCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                    <Typography variant="body2">
-                      Idle: {toCurrency(asset.cpuBreakdown.idle, currency)} (
-                      {(
-                        (asset.cpuBreakdown.idle / asset.cpuCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                    <Typography variant="body2">
-                      System: {toCurrency(asset.cpuBreakdown.system, currency)}{" "}
-                      (
-                      {(
-                        (asset.cpuBreakdown.system / asset.cpuCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-
-              {/* RAM */}
-              <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  RAM ({formatBytes(asset.ramBytes)}) - Total:{" "}
-                  {toCurrency(asset.ramCost, currency)}
-                </Typography>
-                {asset.ramBreakdown && (
-                  <Box sx={{ pl: 2 }}>
-                    <Typography variant="body2">
-                      Used: {toCurrency(asset.ramBreakdown.used, currency)} (
-                      {(
-                        (asset.ramBreakdown.used / asset.ramCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                    <Typography variant="body2">
-                      Idle: {toCurrency(asset.ramBreakdown.idle, currency)} (
-                      {(
-                        (asset.ramBreakdown.idle / asset.ramCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                    <Typography variant="body2">
-                      System: {toCurrency(asset.ramBreakdown.system, currency)}{" "}
-                      (
-                      {(
-                        (asset.ramBreakdown.system / asset.ramCost) *
-                        100
-                      ).toFixed(1)}
-                      %)
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          </>
-        )}
-
-        {/* Disk-specific info */}
-        {asset.type === "Disk" && asset.bytes && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Storage Details
-              </Typography>
-              <Typography variant="body2">
-                Size: {formatBytes(asset.bytes)}
-              </Typography>
-              {asset.byteHours && (
-                <Typography variant="body2">
-                  Byte Hours: {formatBytes(asset.byteHours)}
-                </Typography>
+                </span>
+              </div>
+              {asset.cpuBreakdown && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#24a14810", borderRadius: "4px", borderLeft: "3px solid #24a148" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Used</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#24a148" }}>
+                      {toCurrency(asset.cpuBreakdown.used, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.cpuBreakdown.used / asset.cpuCost) * 100).toFixed(1)}% utilized
+                    </p>
+                  </div>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#ff990010", borderRadius: "4px", borderLeft: "3px solid #ff9900" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Idle</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#ff9900" }}>
+                      {toCurrency(asset.cpuBreakdown.idle, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.cpuBreakdown.idle / asset.cpuCost) * 100).toFixed(1)}% idle
+                    </p>
+                  </div>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#0f62fe10", borderRadius: "4px", borderLeft: "3px solid #0f62fe" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>System</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#0f62fe" }}>
+                      {toCurrency(asset.cpuBreakdown.system, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.cpuBreakdown.system / asset.cpuCost) * 100).toFixed(1)}% system
+                    </p>
+                  </div>
+                </div>
               )}
-            </Box>
-          </>
-        )}
-      </DialogContent>
+            </div>
 
-      <DialogActions sx={{ p: 3, borderTop: "1px solid #e0e0e0" }}>
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-            borderRadius: "8px",
-            textTransform: "none",
-            fontWeight: 600,
-            px: 4,
-          }}
-        >
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+            {/* RAM Breakdown */}
+            <div style={{ padding: "1rem", border: "1px solid #e0e0e0", borderRadius: "4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                <h5 style={{ margin: 0, fontWeight: 600 }}>
+                  RAM Resources ({formatBytes(asset.ramBytes)})
+                </h5>
+                <span style={{ fontWeight: 700, fontSize: "1.125rem", color: assetColor }}>
+                  {toCurrency(asset.ramCost, currency)}
+                </span>
+              </div>
+              {asset.ramBreakdown && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#24a14810", borderRadius: "4px", borderLeft: "3px solid #24a148" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Used</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#24a148" }}>
+                      {toCurrency(asset.ramBreakdown.used, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.ramBreakdown.used / asset.ramCost) * 100).toFixed(1)}% utilized
+                    </p>
+                  </div>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#ff990010", borderRadius: "4px", borderLeft: "3px solid #ff9900" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Idle</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#ff9900" }}>
+                      {toCurrency(asset.ramBreakdown.idle, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.ramBreakdown.idle / asset.ramCost) * 100).toFixed(1)}% idle
+                    </p>
+                  </div>
+                  <div style={{ padding: "0.75rem", backgroundColor: "#0f62fe10", borderRadius: "4px", borderLeft: "3px solid #0f62fe" }}>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>System</p>
+                    <p style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0, color: "#0f62fe" }}>
+                      {toCurrency(asset.ramBreakdown.system, currency)}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", margin: 0, marginTop: "0.25rem" }}>
+                      {((asset.ramBreakdown.system / asset.ramCost) * 100).toFixed(1)}% system
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Column>
+        )}
+
+        {/* Disk Storage Information */}
+        {asset.type === "Disk" && asset.bytes && (
+          <Column lg={16}>
+            <h4 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1rem", fontWeight: 600 }}>
+              Storage Details
+            </h4>
+            <div style={{ padding: "1rem", backgroundColor: "#f4f4f4", borderRadius: "4px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Disk Size</p>
+                  <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>{formatBytes(asset.bytes)}</p>
+                </div>
+                {asset.byteHours && (
+                  <div>
+                    <p style={{ fontSize: "0.75rem", color: "#525252", marginTop: 0, marginBottom: "0.25rem" }}>Byte Hours</p>
+                    <p style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>{formatBytes(asset.byteHours)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Column>
+        )}
+      </Grid>
+    </Modal>
   );
 };
 

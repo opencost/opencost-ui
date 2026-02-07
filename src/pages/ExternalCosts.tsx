@@ -3,7 +3,6 @@ import { useGlobalEvent } from "../services/eventBus";
 import Page from "../components/Page";
 import PageSkeleton from "../components/PageSkeleton";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import { Button, Tile } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
 import { get, find } from "lodash";
@@ -199,7 +198,6 @@ const ExternalCosts = () => {
           )}
         </Tile>
       )}
-      <Footer />
     </Page>
   );
 };

@@ -9,9 +9,14 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  TableSelectAll,
+  TableSelectRow,
   Pagination,
   Tag,
+  Search,
+  Button,
 } from "@carbon/react";
+import { Download } from "@carbon/icons-react";
 import { toCurrency } from "../../util";
 import { AssetData, AssetsTableProps, HeadCell } from "../../types/assets";
 
@@ -54,7 +59,6 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number): T[] {
   return stabilizedThis.map((el) => el[0]);
 }
 
-// Type badge colors
 const getTypeColor = (
   type: string,
 ): "blue" | "purple" | "green" | "magenta" | "cyan" | "gray" => {
@@ -81,11 +85,14 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
   const [orderBy, setOrderBy] = useState<string>("totalCost");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
   const numData = assetData.length;
 
   useEffect(() => {
     setPage(0);
-  }, [numData]);
+  }, [numData, searchTerm]);
 
   if (assetData.length === 0) {
     return (
@@ -117,8 +124,13 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
     header: cell.label,
   }));
 
+  const filteredData = assetData.filter((item) =>
+    (item.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.type || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const orderedRows = stableSort(
-    assetData,
+    filteredData,
     getComparator(order, orderBy as keyof AssetData),
   );
   const pageRows = orderedRows.slice(
@@ -131,9 +143,63 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
     ...row,
   }));
 
+  const handleSelectAll = () => {
+    const pageRowNames = new Set(pageRows.map((r) => r.name || ""));
+    const allPageRowsSelected = pageRows.every((r) => selectedRows.has(r.name || ""));
+
+    if (allPageRowsSelected) {
+      const newSelected = new Set(selectedRows);
+      pageRowNames.forEach((name) => newSelected.delete(name));
+      setSelectedRows(newSelected);
+    } else {
+      const newSelected = new Set(selectedRows);
+      pageRowNames.forEach((name) => newSelected.add(name));
+      setSelectedRows(newSelected);
+    }
+  };
+
+  const handleSelectRow = (id: string) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const exportSelectedAsCSV = () => {
+    const selectedData = assetData.filter((item) => selectedRows.has(item.name || ""));
+    if (selectedData.length === 0) return;
+
+    const headers = ["Name", "Type", "CPU Cost", "GPU Cost", "RAM Cost", "Adjustment", "Total Cost"];
+    const csvRows = [
+      headers.join(","),
+      ...selectedData.map((item) =>
+        [
+          `"${item.name || ""}"`,
+          `"${item.type || ""}"`,
+          item.cpuCost || 0,
+          item.gpuCost || 0,
+          item.ramCost || 0,
+          item.adjustment || 0,
+          item.totalCost || 0,
+        ].join(",")
+      ),
+    ];
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `assets-selected-${selectedData.length}-items.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ width: "100%" }}>
-      {/* Section Title */}
       <h3
         style={{
           marginBottom: "1rem",
@@ -144,6 +210,32 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
       >
         Asset Details
       </h3>
+
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", alignItems: "center" }}>
+        <div style={{ flex: 1 }}>
+          <Search
+            size="md"
+            placeholder="Search by name or type..."
+            labelText="Search"
+            closeButtonLabelText="Clear search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Button
+          kind="ghost"
+          size="md"
+          renderIcon={Download}
+          disabled={selectedRows.size === 0}
+          onClick={exportSelectedAsCSV}
+          style={{
+            border: "1px solid var(--cds-border-strong-01)",
+            color: selectedRows.size > 0 ? "var(--cds-text-primary)" : undefined,
+          }}
+        >
+          {selectedRows.size > 0 ? `Export (${selectedRows.size})` : "Select to Export"}
+        </Button>
+      </div>
 
       <DataTable rows={rows} headers={headers} isSortable>
         {({
@@ -157,6 +249,13 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
             <Table {...getTableProps()} size="lg">
               <TableHead>
                 <TableRow>
+                  <TableSelectAll
+                    id="select-all"
+                    name="select-all"
+                    checked={pageRows.length > 0 && pageRows.every((r) => selectedRows.has(r.name || ""))}
+                    indeterminate={pageRows.some((r) => selectedRows.has(r.name || "")) && !pageRows.every((r) => selectedRows.has(r.name || ""))}
+                    onSelect={handleSelectAll}
+                  />
                   {tableHeaders.map((header) => {
                     const cell = headCells.find((c) => c.id === header.key);
                     return (
@@ -191,6 +290,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                   key="totals-row"
                   style={{ backgroundColor: "var(--cds-layer-02, #f4f4f4)" }}
                 >
+                  <TableCell key="totals-checkbox" />
                   <TableCell
                     key="totals-name"
                     style={{ fontWeight: 700, fontSize: "0.95rem" }}
@@ -228,7 +328,6 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                   </TableCell>
                 </TableRow>
 
-                {/* Data rows */}
                 {tableRows.map((row) => {
                   const originalRow =
                     pageRows.find((r) => r.name === row.id) || pageRows[0];
@@ -241,6 +340,14 @@ const AssetsTable: React.FC<AssetsTableProps> = ({
                         cursor: drilldown ? "pointer" : "default",
                       }}
                     >
+                      <TableSelectRow
+                        key={`select-row-${row.id}`}
+                        id={`select-${row.id}`}
+                        name={`select-${row.id}`}
+                        checked={selectedRows.has(row.id)}
+                        onSelect={() => handleSelectRow(row.id)}
+                        ariaLabel={`Select ${row.id}`}
+                      />
                       <TableCell
                         key={`${row.id}-name`}
                         style={{

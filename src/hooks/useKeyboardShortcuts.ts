@@ -20,9 +20,10 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcuts) => {
 
       let key = event.key;
 
-      if (event.shiftKey && key.length === 1 && key.toUpperCase() !== key.toLowerCase()) {
+      if (event.ctrlKey && key.toUpperCase() !== key.toLowerCase()) {
+        key = `Ctrl+${key.toUpperCase()}`;
+      } else if (event.shiftKey && key.length === 1 && key.toUpperCase() !== key.toLowerCase()) {
         key = `Shift+${key.toUpperCase()}`;
-
       } else if (key === "/") {
         key = "/";
       } else {

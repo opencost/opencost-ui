@@ -11,7 +11,8 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
   onRequestClose,
 }) => {
   const shortcuts = [
-    { section: "Global", keys: ["/"], description: "Show keyboard shortcuts" },
+    { section: "Global", keys: ["Ctrl + M"], description: "Toggle theme (Dark/Light)" },
+    { section: "Global", keys: ["Ctrl + I"], description: "Toggle notifications" },
     {
       section: "Navigation",
       keys: ["Shift + A"],
@@ -35,7 +36,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
     <Modal
       open={open}
       onRequestClose={onRequestClose}
-      modalHeading="Keyboard Shortcuts"
+      modalHeading="Keyboard Shortcuts (/)"
       passiveModal
       size="sm"
       className="keyboard-shortcuts-modal"

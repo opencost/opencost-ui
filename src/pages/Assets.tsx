@@ -383,7 +383,6 @@ const Assets: React.FC = () => {
           title="Demo Mode"
           subtitle="Displaying sample data. The OpenCost backend is unavailable or returned an error."
           lowContrast
-          hideCloseButton
           style={{ marginBottom: "1rem" }}
         />
       )}
@@ -408,7 +407,7 @@ const Assets: React.FC = () => {
                       <h3
                         style={{
                           fontWeight: 700,
-                          color: "var(--cds-text-primary)",
+                          color: "#ff0044",
                           margin: 0,
                         }}
                       >
@@ -462,7 +461,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3 style={{ fontWeight: 700, color: "#009d9a", margin: 0 }}>
+                      <h3 style={{ fontWeight: 700, color: "#00cc00", margin: 0 }}>
                         {toCurrency(totalData.gpuCost, currency, 2)}
                       </h3>
                       <p

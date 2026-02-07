@@ -46,6 +46,7 @@ interface PieTooltipProps {
   active?: boolean;
   payload?: PieTooltipPayloadEntry[];
   currency: string;
+  total?: number;
 }
 
 const COLORS = {
@@ -123,7 +124,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, c
   return null;
 };
 
-const PieTooltip: React.FC<PieTooltipProps> = ({ active, payload, currency }) => {
+const PieTooltip: React.FC<PieTooltipProps> = ({ active, payload, currency, total }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     return (
@@ -149,7 +150,7 @@ const PieTooltip: React.FC<PieTooltipProps> = ({ active, payload, currency }) =>
           {toCurrency(data.value, currency, 2)}
         </p>
         <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "var(--cds-text-secondary)" }}>
-          {((data.percent || 0) * 100).toFixed(1)}%
+          {((data.percent || (total ? data.value / total : 0)) * 100).toFixed(1)}%
         </p>
       </div>
     );
@@ -210,6 +211,8 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
       });
     }
   }
+
+  const totalAssetCost = pieData.reduce((sum, item) => sum + item.value, 0);
 
   const formatYAxis = (value: number) => {
     if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
@@ -345,16 +348,22 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                 paddingAngle={1}
                 dataKey="value"
                 stroke="none"
-                label={({ name, percent }) =>
-                  `${name.length > 10 ? name.slice(0, 10) + "..." : name} (${(percent * 100).toFixed(0)}%)`
-                }
-                labelLine={{ stroke: "var(--cds-text-secondary)", strokeWidth: 1 }}
+
               >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
                 ))}
               </Pie>
-              <Tooltip content={<PieTooltip currency={currency} />} />
+              <Tooltip content={<PieTooltip currency={currency} total={totalAssetCost} />} />
+              <text
+                x="50%"
+                y="50%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                <tspan x="50%" dy="-0.47em" style={{ fontSize: "28px", fontWeight: "bold",  }}>Total Cost</tspan>
+                <tspan x="50%" dy="1.3em" style={{ fontSize: "24px", fontWeight: "bold",  }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
+              </text>
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -545,24 +554,32 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                       paddingAngle={1}
                       dataKey="value"
                       stroke="none"
-                      label={({ name, percent }) =>
-                        `${name.length > 15 ? name.slice(0, 15) + "..." : name} (${(percent * 100).toFixed(0)}%)`
-                      }
-                      labelLine={{ stroke: "var(--cds-text-secondary)", strokeWidth: 1 }}
+
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
                       ))}
                     </Pie>
-                    <Tooltip content={<PieTooltip currency={currency} />} />
+                    <Tooltip content={<PieTooltip currency={currency} total={totalAssetCost} />} />
+                    <text
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      <tspan x="50%" dy="-0.6em" style={{ fontSize: "18px", fill: "var(--cds-text-secondary)" }}>Total Cost</tspan>
+                      <tspan x="50%" dy="1.4em" style={{ fontSize: "36px", fontWeight: "bold", fill: "var(--cds-text-primary)" }}>{toCurrency(totalAssetCost, currency, 0)}</tspan>
+                    </text>
+
                   </PieChart>
                 </ResponsiveContainer>
               )}
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

@@ -13,7 +13,7 @@ const RouteSet = () => {
     <BrowserRouter basename={basename}>
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={<Allocations />} />
+          <Route path="/" element={<Assets />} />
           <Route path="/allocation" element={<Allocations />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/cloud" element={<CloudCosts />} />

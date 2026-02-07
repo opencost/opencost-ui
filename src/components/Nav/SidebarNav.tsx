@@ -12,10 +12,10 @@ import {
 import { useLocation, useNavigate } from "react-router";
 
 const links = [
+  { name: "Assets", href: "/assets", icon: DataTable },
   { name: "Cost Allocation", href: "/allocation", icon: ChartBar },
   { name: "Cloud Costs", href: "/cloud", icon: Cloud },
   { name: "External Costs", href: "/external-costs", icon: CloudServiceManagement },
-  { name: "Assets", href: "/assets", icon: DataTable },
 ];
 
 const SidebarNav = ({ isSideNavExpanded, onToggleSideNav }) => {

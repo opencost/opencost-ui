@@ -53,7 +53,7 @@ export const lightTheme = {
   mode: "light" as const,
   colors: {
     primary: {
-      main: "#0f62fe",
+      main: "#0066ff",
       light: "#4589ff",
       dark: "#0043ce",
       contrastText: "#ffffff",
@@ -137,7 +137,7 @@ export const darkTheme = {
     info: {
       main: "#4589ff",
       light: "#78a9ff",
-      dark: "#0f62fe",
+      dark: "#0066ff",
     },
   },
 };

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 
 const ColorModeContext = createContext({
-  toggleColorMode: () => {},
+  toggleColorMode: () => { },
   mode: "white",
 });
 
@@ -48,7 +48,7 @@ const whiteTheme = {
   "--cds-border-tile-02": "#e0e0e0",
   "--cds-border-tile-03": "#c6c6c6",
   "--cds-border-inverse": "#161616",
-  "--cds-border-interactive": "#0f62fe",
+  "--cds-border-interactive": "#0066ff",
   "--cds-border-disabled": "rgba(22, 22, 22, 0.25)",
   "--cds-text-primary": "#161616",
   "--cds-text-secondary": "#525252",
@@ -59,10 +59,10 @@ const whiteTheme = {
   "--cds-text-on-color": "#ffffff",
   "--cds-text-on-color-disabled": "rgba(255, 255, 255, 0.25)",
   "--cds-text-disabled": "rgba(22, 22, 22, 0.25)",
-  "--cds-link-primary": "#0f62fe",
+  "--cds-link-primary": "#0066ff",
   "--cds-link-secondary": "#0043ce",
   "--cds-link-inverse": "#78a9ff",
-  "--cds-link-visited": "#8a3ffc",
+  "--cds-link-visited": "#9900ff",
   "--cds-icon-primary": "#161616",
   "--cds-icon-secondary": "#525252",
   "--cds-icon-on-color": "#ffffff",
@@ -77,13 +77,13 @@ const whiteTheme = {
   "--cds-support-success-inverse": "#42be65",
   "--cds-support-warning-inverse": "#f1c21b",
   "--cds-support-info-inverse": "#4589ff",
-  "--cds-button-primary": "#0f62fe",
+  "--cds-button-primary": "#0066ff",
   "--cds-button-primary-hover": "#0353e9",
   "--cds-button-primary-active": "#002d9c",
   "--cds-button-secondary": "#393939",
   "--cds-button-secondary-hover": "#4c4c4c",
   "--cds-button-secondary-active": "#6f6f6f",
-  "--cds-button-tertiary": "#0f62fe",
+  "--cds-button-tertiary": "#0066ff",
   "--cds-button-tertiary-hover": "#0353e9",
   "--cds-button-tertiary-active": "#002d9c",
   "--cds-button-danger": "#da1e28",
@@ -91,7 +91,7 @@ const whiteTheme = {
   "--cds-button-danger-active": "#750e13",
   "--cds-button-separator": "#e0e0e0",
   "--cds-button-disabled": "#c6c6c6",
-  "--cds-focus": "#0f62fe",
+  "--cds-focus": "#0066ff",
   "--cds-focus-inset": "#ffffff",
   "--cds-focus-inverse": "#ffffff",
   "--cds-skeleton-background": "#e8e8e8",
@@ -154,7 +154,7 @@ const g100Theme = {
   "--cds-text-disabled": "rgba(244, 244, 244, 0.25)",
   "--cds-link-primary": "#78a9ff",
   "--cds-link-secondary": "#a6c8ff",
-  "--cds-link-inverse": "#0f62fe",
+  "--cds-link-inverse": "#0066ff",
   "--cds-link-visited": "#be95ff",
   "--cds-icon-primary": "#f4f4f4",
   "--cds-icon-secondary": "#c6c6c6",
@@ -169,8 +169,8 @@ const g100Theme = {
   "--cds-support-error-inverse": "#da1e28",
   "--cds-support-success-inverse": "#24a148",
   "--cds-support-warning-inverse": "#f1c21b",
-  "--cds-support-info-inverse": "#0f62fe",
-  "--cds-button-primary": "#0f62fe",
+  "--cds-support-info-inverse": "#0066ff",
+  "--cds-button-primary": "#0066ff",
   "--cds-button-primary-hover": "#0353e9",
   "--cds-button-primary-active": "#002d9c",
   "--cds-button-secondary": "#6f6f6f",
@@ -186,7 +186,7 @@ const g100Theme = {
   "--cds-button-disabled": "#525252",
   "--cds-focus": "#ffffff",
   "--cds-focus-inset": "#161616",
-  "--cds-focus-inverse": "#0f62fe",
+  "--cds-focus-inverse": "#0066ff",
   "--cds-skeleton-background": "#353535",
   "--cds-skeleton-element": "#525252",
   "--cds-toggle-off": "#6f6f6f",
@@ -207,12 +207,12 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const themeVars = mode === "white" ? whiteTheme : g100Theme;
-    
+
     // Apply all CSS variables
     Object.entries(themeVars).forEach(([prop, value]) => {
       document.documentElement.style.setProperty(prop, value);
     });
-    
+
     document.documentElement.setAttribute("data-carbon-theme", mode);
     localStorage.setItem("themeMode", mode);
   }, [mode]);

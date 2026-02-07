@@ -28,7 +28,7 @@ const CloudCostRow = ({
   return (
     <TableRow onClick={() => drilldown(row)}>
       <TableCell
-        style={{ cursor: "pointer", color: "#0f62fe", padding: "1rem" }}
+        style={{ cursor: "pointer", color: "#0066ff", padding: "1rem" }}
       >
         {name}
       </TableCell>

@@ -427,7 +427,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3 style={{ fontWeight: 700, color: "#0f62fe", margin: 0 }}>
+                      <h3 style={{ fontWeight: 700, color: "#0066ff", margin: 0 }}>
                         {toCurrency(totalData.cpuCost, currency, 2)}
                       </h3>
                       <p
@@ -444,7 +444,7 @@ const Assets: React.FC = () => {
                   </Tile>
                   <Tile>
                     <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
-                      <h3 style={{ fontWeight: 700, color: "#8a3ffc", margin: 0 }}>
+                      <h3 style={{ fontWeight: 700, color: "#9900ff", margin: 0 }}>
                         {toCurrency(totalData.ramCost, currency, 2)}
                       </h3>
                       <p

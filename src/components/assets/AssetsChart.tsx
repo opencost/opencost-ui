@@ -52,13 +52,13 @@ interface PieTooltipProps {
 const COLORS = {
   cpu: "#0066ff",
   ram: "#9900ff",
-  gpu: "#00cc99",
+  gpu: "#00cc00",
 };
 
 const PIE_COLORS = [
   "#0066ff",
   "#9900ff",
-  "#007a20ff",
+  "#029106d1",
   "#ff0044",
   "#ff6600",
   "#ffcc00",
@@ -436,7 +436,7 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                     padding: "8px 16px",
                     border: "none",
                     borderRadius: "4px",
-                    backgroundColor: activeChart === "bar" ? "var(--cds-interactive-01, #0f62fe)" : "var(--cds-layer-02, #e0e0e0)",
+                    backgroundColor: activeChart === "bar" ? "var(--cds-interactive-01, #0066ff)" : "var(--cds-layer-02, #e0e0e0)",
                     color: activeChart === "bar" ? "#fff" : "var(--cds-text-primary)",
                     cursor: "pointer",
                     fontWeight: 500,
@@ -450,7 +450,7 @@ const AssetsChart: React.FC<AssetsChartProps> = ({
                     padding: "8px 16px",
                     border: "none",
                     borderRadius: "4px",
-                    backgroundColor: activeChart === "pie" ? "var(--cds-interactive-01, #0f62fe)" : "var(--cds-layer-02, #e0e0e0)",
+                    backgroundColor: activeChart === "pie" ? "var(--cds-interactive-01, #0066ff)" : "var(--cds-layer-02, #e0e0e0)",
                     color: activeChart === "pie" ? "#fff" : "var(--cds-text-primary)",
                     cursor: "pointer",
                     fontWeight: 500,

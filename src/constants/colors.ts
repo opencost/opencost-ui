@@ -2,7 +2,7 @@
 
 // Primary colors for charts and data visualization
 export const primary = [
-  "#0f62fe", // Blue
+  "#0066ff", // Blue
   "#da1e28", // Red
   "#24a148", // Green
   "#f1c21b", // Yellow
@@ -11,7 +11,7 @@ export const primary = [
   "#009d9a", // Teal
   "#6929c4", // Indigo/Purple
   "#ff8389", // Deep Orange (light red)
-  "#8a3ffc", // Deep Purple
+  "#9900ff", // Deep Purple
 ];
 
 // Greyscale for secondary elements

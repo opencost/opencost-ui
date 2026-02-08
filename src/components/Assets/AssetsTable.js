@@ -6,17 +6,17 @@ import {
 } from '@carbon/react';
 import { 
   Download, 
-  VirtualMachine,  // Icon for Nodes
-  StorageRequest,  // Icon for Disks/PVCs
-  Network_2,       // Icon for LoadBalancers
-  Help             // Fallback
+  VirtualMachine,  
+  StorageRequest,  
+  Network_2,       
+  Help             
 } from '@carbon/icons-react';
 
 const AssetsTable = ({ assets }) => {
   const [firstRowIndex, setFirstRowIndex] = useState(0);
   const [currentPageSize, setCurrentPageSize] = useState(10);
 
-  // 1. ICON LOGIC: Match icons to resource types
+  
   const getTypeIcon = (type) => {
     const t = (type || '').toLowerCase();
     if (t.includes('node')) return <VirtualMachine size={20} fill="#0f62fe" />; // Blue for Compute
@@ -37,7 +37,7 @@ const AssetsTable = ({ assets }) => {
     switch(cat) {
       case 'Compute': return 'blue';
       case 'Storage': return 'purple';
-      case 'Network': return 'cyan'; // Changed to 'cyan' for better contrast
+      case 'Network': return 'cyan'; 
       default: return 'gray';
     }
   };
@@ -48,7 +48,7 @@ const AssetsTable = ({ assets }) => {
 
   const headers = [
     { key: 'name', header: 'Resource Name' },
-    { key: 'type', header: 'Type' }, // Moved Type next to Name for better flow
+    { key: 'type', header: 'Type' },
     { key: 'category', header: 'Category' },
     { key: 'provider', header: 'Provider' },
     { key: 'costValue', header: 'Cost ($)' },
@@ -105,7 +105,7 @@ const AssetsTable = ({ assets }) => {
                       <TableRow key={key} {...rowProps}>
                         {row.cells.map((cell) => {
                           
-                          // RENDER 1: Type with ICON
+                          
                           if (cell.info.header === 'type') {
                              return (
                                <TableCell key={cell.id}>
@@ -117,7 +117,7 @@ const AssetsTable = ({ assets }) => {
                              );
                           }
 
-                          // RENDER 2: Category Tag
+                          
                           if (cell.info.header === 'category') {
                              return (
                                <TableCell key={cell.id}>
@@ -126,7 +126,7 @@ const AssetsTable = ({ assets }) => {
                              );
                           }
 
-                          // RENDER 3: Cost Bar
+                          
                           if (cell.info.header === 'costValue') {
                              return (
                                <TableCell key={cell.id}>

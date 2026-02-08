@@ -19,6 +19,7 @@ import AssetTable from "../components/assets/AssetTable";
 import FilterPanel from "../components/assets/FilterPanel";
 import InsightsPanel from "../components/assets/InsightsPanel";
 import AssetDetailPanel from "../components/assets/AssetDetailPanel";
+import { IDLE_THRESHOLD_REVIEW, IDLE_THRESHOLD_WASTE } from "../utils/assetCalculations";
 import "../styles/assets/dashboard.css";
 import "../styles/assets/charts-layout.css";
 
@@ -74,9 +75,9 @@ function applyFilters(assets, filters) {
   if (filters.status?.length > 0) {
     filtered = filtered.filter((asset) => {
       const idle = (asset.breakdown?.idle || 0) * 100;
-      if (filters.status.includes("ok") && idle < 40) return true;
-      if (filters.status.includes("review") && idle >= 40 && idle < 80) return true;
-      if (filters.status.includes("waste") && idle >= 80) return true;
+      if (filters.status.includes("ok") && idle < IDLE_THRESHOLD_REVIEW) return true;
+      if (filters.status.includes("review") && idle >= IDLE_THRESHOLD_REVIEW && idle < IDLE_THRESHOLD_WASTE) return true;
+      if (filters.status.includes("waste") && idle >= IDLE_THRESHOLD_WASTE) return true;
       return false;
     });
   }

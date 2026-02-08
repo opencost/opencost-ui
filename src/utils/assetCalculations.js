@@ -32,11 +32,9 @@ export const getTotalWastedCost = (assets) => {
   return assets.reduce((sum, asset) => sum + getWastedCostForAsset(asset), 0);
 };
 
-export const getTotalProvisioned = (assets) => {
-  if (!assets || assets.length === 0) return 0;
-  const totalBytes = assets.reduce((sum, asset) => sum + (asset.bytes || 0), 0);
-  return bytesToGB(totalBytes);
-};
+// Status classification thresholds (percentage idle)
+export const IDLE_THRESHOLD_REVIEW = 40;
+export const IDLE_THRESHOLD_WASTE = 80;
 
 export const getAverageIdle = (assets) => {
   if (!assets || assets.length === 0) return 0;
@@ -59,19 +57,13 @@ export const getAssetStatus = (asset) => {
 
   const idlePercent = getIdlePercentage(asset);
 
-  if (idlePercent >= 80) {
+  if (idlePercent >= IDLE_THRESHOLD_WASTE) {
     return { label: "WASTE", type: "red", severity: "high" };
   }
-  if (idlePercent >= 40) {
+  if (idlePercent >= IDLE_THRESHOLD_REVIEW) {
     return { label: "REVIEW", type: "magenta", severity: "medium" };
   }
   return { label: "OK", type: "green", severity: "low" };
-};
-
-export const categorizeAssets = (assets) => {
-  const nodeDisks = assets.filter(asset => asset.local === 1);
-  const pvcs = assets.filter(asset => asset.local !== 1);
-  return { nodeDisks, pvcs };
 };
 
 export const calculateUsage = (asset) => {
@@ -115,36 +107,7 @@ export const formatCurrency = (amount, showCents = true) => {
   });
 };
 
-export const getTrendIndicator = (current, previous) => {
-  if (previous === 0) return { direction: "→", percentage: 0, change: 0 };
-
-  const change = current - previous;
-  const percentage = parseFloat(((change / previous) * 100).toFixed(1));
-  const direction = change > 0 ? "↑" : change < 0 ? "↓" : "→";
-
-  return { direction, percentage, change };
-};
-
-export const sortAssets = (assets, column, direction = "ASC") => {
-  const sorted = [...assets];
-
-  sorted.sort((a, b) => {
-    let aVal = a[column];
-    let bVal = b[column];
-
-    if (typeof aVal === "number" && typeof bVal === "number") {
-      return direction === "ASC" ? aVal - bVal : bVal - aVal;
-    }
-
-    const aStr = String(aVal || "").toLowerCase();
-    const bStr = String(bVal || "").toLowerCase();
-    return direction === "ASC" ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
-  });
-
-  return sorted;
-};
-
-// Light-theme categorical palette (14 colors) — leads with Magenta 50
+// Light-theme categorical palette (14 colors) 
 export const CHART_PALETTE_LIGHT = [
   "#ee538b", // Magenta 50
   "#1192e8", // Cyan 50
@@ -162,7 +125,7 @@ export const CHART_PALETTE_LIGHT = [
   "#012749", // Cyan 90
 ];
 
-// Dark-theme categorical palette — leads with Magenta 60 for dark contrast
+// Dark-theme categorical palette
 export const CHART_PALETTE_DARK = [
   "#d12771", // Magenta 60
   "#1192e8", // Cyan 50
@@ -186,11 +149,10 @@ export const CHART_PALETTE = CHART_PALETTE_LIGHT;
 // Semantic status colors (green = good, yellow/blue = review, red = bad)
 export const STATUS_COLORS = {
   Efficient: "#24a148", // Green 50 — high contrast
-  Healthy: "#4589ff",   // Blue 50  — high contrast
+  Healthy: "#4589ff",   // Blue 40  — high contrast
   Critical: "#da1e28",  // Red 60   — high contrast
 };
 
-// Build a dynamic color scale from group names using the theme-aware palette
 export const buildColorScale = (groups, isDark = false) => {
   const palette = isDark ? CHART_PALETTE_DARK : CHART_PALETTE_LIGHT;
   const scale = {};

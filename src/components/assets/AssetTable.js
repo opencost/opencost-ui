@@ -275,7 +275,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
                             return (
                               <TableCell key={cell.id}>
                                 {rowData.storageClass !== "-" ? (
-                                  <Tag type="high-contrast" size="sm">
+                                  <Tag type="cool-gray" size="sm">
                                     {rowData.storageClass}
                                   </Tag>
                                 ) : (

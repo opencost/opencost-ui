@@ -189,6 +189,18 @@ const CloudCosts = () => {
     setTitle(generateTitle({ window, aggregateBy, costMetric }));
   }, [window, aggregateBy, costMetric, filters]);
 
+  React.useEffect(() => {
+    // Update currency warning whenever currency changes
+    if (currency !== "USD") {
+      setErrors([{
+        primary: "Currency Conversion in Use",
+        secondary: "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill."
+      }]);
+    } else {
+      setErrors([]);
+    }
+  }, [currency]);
+
   const hasCloudCostEnabled = aggregateBy.includes("item")
     ? true // this is kind of hacky but something weird is happening
     : // when drilling down will address in a later PR - @jjarrett21

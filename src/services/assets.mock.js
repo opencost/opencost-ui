@@ -22,6 +22,16 @@ export const getMockAssetsData = () => {
                         "node.kubernetes.io/instance-type": "m5.large"
                     }
                 },
+                "Cluster/Node/oc-demo-node-3": {
+                    name: "oc-demo-node-3",
+                    type: "Node",
+                    totalCost: 155.00,
+                    providerID: "i-0abc123456789def2",
+                    labels: {
+                        "topology.kubernetes.io/region": "us-west-2",
+                        "node.kubernetes.io/instance-type": "c5.xlarge"
+                    }
+                },
                 "Cluster/Disk/vol-0123456789abcdef0": {
                     name: "vol-0123456789abcdef0",
                     type: "Disk",
@@ -31,13 +41,31 @@ export const getMockAssetsData = () => {
                         "kubernetes.io/cluster/demo": "owned"
                     }
                 },
-                "Cluster/Network/LoadBalancer": {
-                    name: "LoadBalancer/demo-service",
+                "Cluster/Disk/vol-0123456789abcdef1": {
+                    name: "vol-0123456789abcdef1",
+                    type: "Disk",
+                    totalCost: 12.50,
+                    providerID: "vol-0123456789abcdef1",
+                    labels: {
+                        "kubernetes.io/cluster/demo": "owned"
+                    }
+                },
+                "Cluster/Network/LoadBalancer-1": {
+                    name: "LoadBalancer/frontend-lb",
                     type: "Network",
                     totalCost: 45.00,
-                    providerID: "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/demo-service/12345",
+                    providerID: "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/frontend/1",
                     labels: {
                         "service": "frontend"
+                    }
+                },
+                "Cluster/Network/LoadBalancer-2": {
+                    name: "LoadBalancer/backend-lb",
+                    type: "Network",
+                    totalCost: 35.00,
+                    providerID: "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/backend/2",
+                    labels: {
+                        "service": "api"
                     }
                 }
             }

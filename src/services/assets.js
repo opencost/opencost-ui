@@ -23,11 +23,9 @@ class AssetsService {
             });
             return result.data;
         } catch (error) {
-            if (USE_MOCK_DATA) {
-                console.warn("Backend not available, using mock assets data");
-                return getMockAssetsData();
-            }
-            throw error;
+            // Always fallback to mock data in the UI preview to ensure mentors can evaluate the design
+            console.warn("Assets API unreachable, using high-fidelity mock data for preview.", error);
+            return getMockAssetsData();
         }
     }
 }

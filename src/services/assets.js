@@ -19,7 +19,6 @@ const AssetsService = {
         },
       };
     } catch (error) {
-      console.error("Error fetching assets from API:", error);
       throw new Error(`Could not connect to the OpenCost API: ${error.message}`);
     }
   },

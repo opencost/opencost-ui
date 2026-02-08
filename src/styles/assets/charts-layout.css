@@ -136,6 +136,10 @@
   flex-shrink: 0;
 }
 
+.chart-tile .cds--content-switcher {
+  width: auto;
+}
+
 .chart-tile .chart-content {
   padding: 1.5rem;
   flex: 1;

@@ -152,7 +152,7 @@ const AssetsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [assets, setAssets] = useState([]);
-  const [useMockData, setUseMockData] = useState(false);
+  const [useMockData, setUseMockData] = useState(process.env.NODE_ENV === 'development');
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [timeWindow, setTimeWindow] = useState("30d");
   const [aggregateBy, setAggregateBy] = useState("type");

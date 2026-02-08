@@ -156,7 +156,6 @@ const AssetsDashboard = () => {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [timeWindow, setTimeWindow] = useState("30d");
   const [aggregateBy, setAggregateBy] = useState("type");
-  const [accumulate, setAccumulate] = useState(true);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [panelOpen, setPanelOpen] = useState(false);
 
@@ -167,12 +166,11 @@ const AssetsDashboard = () => {
 
       let result;
       if (useMockData) {
-        result = AssetsService.getMockData(timeWindow, aggregateBy, accumulate);
+        result = AssetsService.getMockData(timeWindow, aggregateBy);
         await new Promise((r) => setTimeout(r, 500));
       } else {
         result = await AssetsService.fetchAssets(timeWindow, {
           aggregate: aggregateBy,
-          accumulate,
         });
       }
 
@@ -195,7 +193,7 @@ const AssetsDashboard = () => {
 
   useEffect(() => {
     fetchAssets();
-  }, [useMockData, timeWindow, aggregateBy, accumulate]);
+  }, [useMockData, timeWindow, aggregateBy]);
 
   const filteredAssets = useMemo(
     () => applyFilters(assets, filters),
@@ -279,8 +277,6 @@ const AssetsDashboard = () => {
           onTimeWindowChange={setTimeWindow}
           aggregateBy={aggregateBy}
           onAggregateByChange={setAggregateBy}
-          accumulate={accumulate}
-          onAccumulateChange={setAccumulate}
           onRefresh={fetchAssets}
           useMockData={useMockData}
         />

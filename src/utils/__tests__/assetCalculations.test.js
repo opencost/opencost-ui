@@ -4,6 +4,10 @@ import {
   calculateEfficiencyScore,
   getAssetStatus,
   formatCurrency,
+  buildColorScale,
+  CHART_PALETTE,
+  CHART_PALETTE_LIGHT,
+  CHART_PALETTE_DARK,
 } from "../assetCalculations";
 
 describe("assetCalculations", () => {
@@ -70,6 +74,53 @@ describe("assetCalculations", () => {
 
     it("formats zero", () => {
       expect(formatCurrency(0)).toBe("$0.00");
+    });
+  });
+
+  describe("buildColorScale", () => {
+    it("assigns colors from light palette by default", () => {
+      const scale = buildColorScale(["A", "B", "C"]);
+      expect(scale["A"]).toBe(CHART_PALETTE_LIGHT[0]);
+      expect(scale["B"]).toBe(CHART_PALETTE_LIGHT[1]);
+      expect(scale["C"]).toBe(CHART_PALETTE_LIGHT[2]);
+    });
+
+    it("assigns colors from dark palette when isDark is true", () => {
+      const scale = buildColorScale(["A", "B"], true);
+      expect(scale["A"]).toBe(CHART_PALETTE_DARK[0]);
+      expect(scale["B"]).toBe(CHART_PALETTE_DARK[1]);
+    });
+
+    it("wraps around palette for more groups than colors", () => {
+      const groups = Array.from({ length: 16 }, (_, i) => `g${i}`);
+      const scale = buildColorScale(groups);
+      expect(scale["g14"]).toBe(CHART_PALETTE_LIGHT[0]);
+      expect(scale["g15"]).toBe(CHART_PALETTE_LIGHT[1]);
+    });
+
+    it("deduplicates groups", () => {
+      const scale = buildColorScale(["A", "B", "A", "B"]);
+      expect(Object.keys(scale).length).toBe(2);
+    });
+
+    it("CHART_PALETTE alias equals CHART_PALETTE_LIGHT", () => {
+      expect(CHART_PALETTE).toBe(CHART_PALETTE_LIGHT);
+    });
+
+    it("light palette has no duplicate colors", () => {
+      expect(new Set(CHART_PALETTE_LIGHT).size).toBe(CHART_PALETTE_LIGHT.length);
+    });
+
+    it("dark palette has no duplicate colors", () => {
+      expect(new Set(CHART_PALETTE_DARK).size).toBe(CHART_PALETTE_DARK.length);
+    });
+
+    it("light palette leads with Magenta 50", () => {
+      expect(CHART_PALETTE_LIGHT[0]).toBe("#ee538b");
+    });
+
+    it("dark palette leads with Magenta 60", () => {
+      expect(CHART_PALETTE_DARK[0]).toBe("#d12771");
     });
   });
 });

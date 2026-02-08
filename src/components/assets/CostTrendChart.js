@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { LineChart, StackedAreaChart } from "@carbon/charts-react";
 import { parseDays, buildColorScale } from "../../utils/assetCalculations";
+import { useThemeMode } from "../../context/ThemeContext";
 
 const VARIANTS = [
   { name: "stacked", text: "Stacked Area", Chart: StackedAreaChart },
@@ -66,6 +67,7 @@ function generateTrendData(assets, days, aggregateBy) {
 
 const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
   const [variant, setVariant] = useState(0);
+  const { theme: carbonTheme, isDark } = useThemeMode();
   const ChartComponent = VARIANTS[variant].Chart;
 
   const days = parseDays(timeWindow);
@@ -76,13 +78,13 @@ const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
   const groupLabel = AGGREGATE_LABELS[aggregateBy] || "cluster";
 
   const colorScale = useMemo(
-    () => buildColorScale([...new Set(data.map((d) => d.group))]),
-    [data]
+    () => buildColorScale([...new Set(data.map((d) => d.group))], isDark),
+    [data, isDark]
   );
 
   const options = {
     title: "",
-    theme: "white",
+    theme: carbonTheme,
     axes: {
       bottom: {
         title: "Date",

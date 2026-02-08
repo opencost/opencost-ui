@@ -22,7 +22,7 @@ const KPICards = ({ assets, timeWindow }) => {
 
   const getEfficiencyColor = (score) => {
     if (score >= 80) return "var(--cds-support-success)";
-    if (score >= 50) return "var(--cds-support-warning)";
+    if (score >= 50) return "var(--color-warning-badge-bg)";
     return "var(--cds-support-error)";
   };
 

@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
-import { Dropdown, Button } from "@carbon/react";
+import { Dropdown, Button, Toggle } from "@carbon/react";
 import { Renew } from "@carbon/icons-react";
+import { useThemeMode } from "../../context/ThemeContext";
 
 const WINDOW_OPTIONS = [
   { id: "today", label: "Today" },
@@ -21,26 +22,17 @@ const AGGREGATE_OPTIONS = [
   { id: "providerID", label: "Provider" },
 ];
 
-const ACCUMULATE_OPTIONS = [
-  { id: "true", label: "Entire Window" },
-  { id: "false", label: "Daily" },
-];
-
 const AssetsHeader = ({
   timeWindow,
   onTimeWindowChange,
   aggregateBy,
   onAggregateByChange,
-  accumulate,
-  onAccumulateChange,
   onRefresh,
   useMockData,
 }) => {
+  const { isDark, toggleTheme } = useThemeMode();
   const selectedWindow = WINDOW_OPTIONS.find((o) => o.id === timeWindow) || WINDOW_OPTIONS[4];
   const selectedAggregate = AGGREGATE_OPTIONS.find((o) => o.id === aggregateBy) || AGGREGATE_OPTIONS[0];
-  const selectedAccumulate = ACCUMULATE_OPTIONS.find(
-    (o) => o.id === String(accumulate)
-  ) || ACCUMULATE_OPTIONS[0];
 
   return (
     <div className="assets-header-controls">
@@ -70,15 +62,13 @@ const AssetsHeader = ({
         size="sm"
       />
 
-      <Dropdown
-        id="accumulate-select"
-        titleText="Resolution"
-        label="Select resolution"
-        items={ACCUMULATE_OPTIONS}
-        selectedItem={selectedAccumulate}
-        onChange={({ selectedItem }) => {
-          if (selectedItem) onAccumulateChange(selectedItem.id === "true");
-        }}
+      <Toggle
+        id="theme-toggle"
+        labelText="Dark Mode"
+        labelA=""
+        labelB=""
+        toggled={isDark}
+        onToggle={toggleTheme}
         size="sm"
       />
 
@@ -99,8 +89,6 @@ AssetsHeader.propTypes = {
   onTimeWindowChange: PropTypes.func.isRequired,
   aggregateBy: PropTypes.string.isRequired,
   onAggregateByChange: PropTypes.func.isRequired,
-  accumulate: PropTypes.bool.isRequired,
-  onAccumulateChange: PropTypes.func.isRequired,
   onRefresh: PropTypes.func.isRequired,
   useMockData: PropTypes.bool,
 };

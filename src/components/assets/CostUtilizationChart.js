@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { ScatterChart, DonutChart } from "@carbon/charts-react";
 import { STATUS_COLORS, buildColorScale } from "../../utils/assetCalculations";
+import { useThemeMode } from "../../context/ThemeContext";
 
 function categorize(asset) {
   const idle = asset.breakdown?.idle || 0;
@@ -83,6 +84,7 @@ function transformToDonutData(assets, aggregateBy) {
 
 const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) => {
   const [variant, setVariant] = useState(0);
+  const { theme: carbonTheme, isDark } = useThemeMode();
 
   const isStatusMode = aggregateBy === "status";
 
@@ -96,16 +98,16 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
   const colorScale = useMemo(
     () => isStatusMode
       ? STATUS_COLORS
-      : buildColorScale(data.map((d) => d.group)),
-    [data, isStatusMode]
+      : buildColorScale(data.map((d) => d.group), isDark),
+    [data, isStatusMode, isDark]
   );
 
   const scatterOptions = useMemo(
     () => ({
       title: "",
       resizable: true,
-      height: "360px",
-      theme: "white",
+      height: "350px",
+      theme: carbonTheme,
       legend: {
         enabled: true,
         position: "bottom",
@@ -120,15 +122,15 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
       color: { scale: colorScale },
       points: { radius: 6, fillOpacity: 0.7 },
     }),
-    [timeWindow, colorScale]
+    [timeWindow, colorScale, carbonTheme]
   );
 
   const donutOptions = useMemo(
     () => ({
       title: "",
       resizable: true,
-      height: "360px",
-      theme: "white",
+      height: "350px",
+      theme: carbonTheme,
       donut: { center: { label: "Assets" }, alignment: "center" },
       color: { scale: colorScale },
       tooltip: { enabled: true },
@@ -139,7 +141,7 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
         alignment: "center",
       },
     }),
-    [colorScale]
+    [colorScale, carbonTheme]
   );
 
   const Chart = variant === 0 ? ScatterChart : DonutChart;

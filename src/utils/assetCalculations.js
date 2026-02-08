@@ -144,10 +144,9 @@ export const sortAssets = (assets, column, direction = "ASC") => {
   return sorted;
 };
 
-// Carbon Design System data visualization categorical palette (14 colors)
-// High-contrast, perceptually distinct, accessible for color-blind users
-export const CHART_PALETTE = [
-  "#6929c4", // Purple 70
+// Light-theme categorical palette (14 colors) — leads with Magenta 50
+export const CHART_PALETTE_LIGHT = [
+  "#ee538b", // Magenta 50
   "#1192e8", // Cyan 50
   "#005d5d", // Teal 70
   "#9f1853", // Magenta 70
@@ -155,13 +154,34 @@ export const CHART_PALETTE = [
   "#570408", // Red 90
   "#198038", // Green 60
   "#002d9c", // Blue 80
-  "#ee538b", // Magenta 50
+  "#6929c4", // Purple 70
   "#b28600", // Yellow 50
   "#8a3800", // Orange 70
-  "#a56eff", // Purple 50
+  "#78a9ff", // Blue 40
   "#009d9a", // Teal 50
   "#012749", // Cyan 90
 ];
+
+// Dark-theme categorical palette — leads with Magenta 60 for dark contrast
+export const CHART_PALETTE_DARK = [
+  "#d12771", // Magenta 60
+  "#1192e8", // Cyan 50
+  "#005d5d", // Teal 70
+  "#9f1853", // Magenta 70
+  "#fa4d56", // Red 50
+  "#570408", // Red 90
+  "#198038", // Green 60
+  "#002d9c", // Blue 80
+  "#6929c4", // Purple 70
+  "#b28600", // Yellow 50
+  "#8a3800", // Orange 70
+  "#78a9ff", // Blue 40
+  "#009d9a", // Teal 50
+  "#012749", // Cyan 90
+];
+
+// Backward-compatible alias
+export const CHART_PALETTE = CHART_PALETTE_LIGHT;
 
 // Semantic status colors (green = good, yellow/blue = review, red = bad)
 export const STATUS_COLORS = {
@@ -170,12 +190,13 @@ export const STATUS_COLORS = {
   Critical: "#da1e28",  // Red 60   — high contrast
 };
 
-// Build a dynamic color scale from group names using the Carbon palette
-export const buildColorScale = (groups) => {
+// Build a dynamic color scale from group names using the theme-aware palette
+export const buildColorScale = (groups, isDark = false) => {
+  const palette = isDark ? CHART_PALETTE_DARK : CHART_PALETTE_LIGHT;
   const scale = {};
   const unique = [...new Set(groups)];
   unique.forEach((name, i) => {
-    scale[name] = CHART_PALETTE[i % CHART_PALETTE.length];
+    scale[name] = palette[i % palette.length];
   });
   return scale;
 };

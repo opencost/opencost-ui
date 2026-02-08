@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { StackedBarChart, GroupedBarChart, SimpleBarChart } from "@carbon/charts-react";
 import { formatCurrency, buildColorScale } from "../../utils/assetCalculations";
+import { useThemeMode } from "../../context/ThemeContext";
 
 const AGGREGATE_LABELS = {
   type: "Asset Type",
@@ -87,6 +88,7 @@ const VARIANTS = [
 
 const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
   const [variant, setVariant] = useState(0);
+  const { theme: carbonTheme, isDark } = useThemeMode();
   const isCostPerGB = variant === 3;
   const isHorizontal = variant === 2;
 
@@ -111,8 +113,8 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
   }, [data]);
 
   const colorScale = useMemo(
-    () => buildColorScale(data.map((d) => d.group)),
-    [data]
+    () => buildColorScale(data.map((d) => d.group), isDark),
+    [data, isDark]
   );
 
   const chartOptions = useMemo(() => {
@@ -121,22 +123,24 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
     const baseOptions = {
       title: "",
       resizable: true,
-      height: "400px",
-      theme: "white",
+      height: "360px",
+      theme: carbonTheme,
       bars: { maxWidth: 60 },
       color: { scale: colorScale },
       tooltip: {
         enabled: true,
         showTotal: variant === 0,
         valueFormatter: (value, label) => {
+          const num = typeof value === "number" ? value : Number(value);
+          if (isNaN(num)) return String(value);
           if (isCostPerGB) {
-            return `$${value.toFixed(4)}/GB`;
+            return `$${num.toFixed(4)}/GB`;
           }
           const item = data.find((d) => d.group === label);
           if (item && item.percentage) {
-            return `$${value.toFixed(2)} (${item.percentage}%)`;
+            return `$${num.toFixed(2)} (${item.percentage}%)`;
           }
-          return `$${value.toFixed(2)}`;
+          return `$${num.toFixed(2)}`;
         },
       },
       legend: { enabled: true, position: "bottom", clickable: true, alignment: "center" },
@@ -174,7 +178,7 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
     }
 
     return baseOptions;
-  }, [variant, axisLabel, colorScale, data, isCostPerGB, isHorizontal]);
+  }, [variant, axisLabel, colorScale, data, isCostPerGB, isHorizontal, carbonTheme]);
 
   const { Chart } = VARIANTS[variant];
 

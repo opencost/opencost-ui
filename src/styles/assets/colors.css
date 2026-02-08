@@ -1,52 +1,13 @@
-/* Color system using Carbon Design System tokens */
+/* Color system using Carbon Design System tokens.
+   Carbon's Theme component sets --cds-* tokens via CSS classes.
+   We only declare custom aliases and app-specific tokens here. */
 
 :root {
-  /* Text */
-  --cds-text-primary: #161616;
-  --cds-text-secondary: #525252;
-  --cds-text-placeholder: #a8a8a8;
-  --cds-text-on-color: #ffffff;
-  --cds-text-disabled: #c6c6c6;
-
-  /* Background & Layer Colors */
-  --cds-background: #f4f4f4;
-  --cds-layer-01: #ffffff;
-  --cds-layer-02: #f4f4f4;
-  --cds-layer-hover-01: #e8e8e8;
-  --cds-layer-active-01: #c6c6c6;
-  --cds-layer-accent-01: #e0e0e0;
-
-  /* Interactive Colors */
-  --cds-interactive: #0f62fe;
-  --cds-interactive-hover: #0353e9;
-  --cds-interactive-active: #002d9c;
-  --cds-highlight: #d0e2ff;
-
-  /* Border Colors */
-  --cds-border-subtle-01: #e0e0e0;
-  --cds-border-strong-01: #8d8d8d;
-  --cds-border-interactive: #0f62fe;
-
-  /* Support/Status Colors */
-  --cds-support-success: #24a148;
-  --cds-support-warning: #ff832b;
-  --cds-support-error: #da1e28;
-  --cds-support-info: #0043ce;
-
-  /* Support Background Colors */
-  --cds-support-success-inverse: #defbe6;
-  --cds-support-warning-inverse: #fff8e1;
-  --cds-support-error-inverse: #fff1f1;
-
-  /* Focus */
-  --cds-focus: #0f62fe;
-  --cds-focus-inset: #ffffff;
-
-  /* Legacy aliases (point to Carbon tokens) */
+  /* Legacy aliases (point to Carbon tokens via var()) */
   --color-primary: var(--cds-interactive);
   --color-primary-hover: var(--cds-interactive-hover);
   --color-primary-light: var(--cds-highlight);
-  --color-primary-lighter: #e8f1ff;
+  --color-primary-lighter: var(--cds-highlight);
 
   /* Asset types */
   --color-asset-node: var(--cds-interactive);
@@ -62,10 +23,15 @@
   --color-error: var(--cds-support-error);
   --color-error-light: var(--cds-support-error-inverse);
 
+  /* Warning contrast helpers */
+  --color-on-warning: #161616;
+  --color-warning-badge-bg: var(--cds-support-warning);
+  --color-warning-badge-text: #161616;
+
   /* Text */
   --color-text-primary: var(--cds-text-primary);
   --color-text-secondary: var(--cds-text-secondary);
-  --color-text-tertiary: #8d8d8d;
+  --color-text-tertiary: var(--cds-text-placeholder);
   --color-text-disabled: var(--cds-text-disabled);
 
   /* Surfaces */
@@ -79,9 +45,32 @@
   --color-border-subtle: var(--cds-layer-accent-01);
   --color-border-strong: var(--cds-border-strong-01);
 
+  /* Chart tile surfaces (--cds-layer-02 is #fff in white theme, same as page) */
+  --chart-tile-bg: #e8e8e8;
+  --chart-stat-bg: #ffffff;
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark theme overrides */
+.cds--g90,
+.cds--g100 {
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+  /* Warning contrast for dark backgrounds */
+  --color-warning: #8e6a00;
+  --color-on-warning: #f4f4f4;
+  --color-warning-badge-bg: #f1c21b;
+  --color-warning-badge-text: #161616;
+
+  /* Chart tile surfaces — defer to Carbon layer tokens in dark mode */
+  --chart-tile-bg: var(--cds-layer-02);
+  --chart-stat-bg: var(--cds-layer-01);
 }

@@ -2,22 +2,32 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import AssetsHeader from "../AssetsHeader";
 
 jest.mock("@carbon/react", () => ({
-  Dropdown: ({ id, titleText, selectedItem, items, onChange, size }) => (
+  Dropdown: ({ id, titleText, selectedItem }) => (
     <div data-testid={id}>
       <label>{titleText}</label>
       <span>{selectedItem?.label}</span>
     </div>
   ),
-  Button: ({ children, onClick, renderIcon: Icon, iconDescription, hasIconOnly, ...rest }) => (
+  Button: ({ children, onClick, renderIcon: Icon, iconDescription }) => (
     <button onClick={onClick} aria-label={iconDescription}>
       {Icon && <Icon />}
       {children}
     </button>
   ),
+  Toggle: ({ id, labelText, toggled, onToggle }) => (
+    <label data-testid={id}>
+      {labelText}
+      <input type="checkbox" checked={toggled} onChange={onToggle} />
+    </label>
+  ),
 }));
 
 jest.mock("@carbon/icons-react", () => ({
   Renew: () => <span data-testid="icon-renew" />,
+}));
+
+jest.mock("../../../context/ThemeContext", () => ({
+  useThemeMode: () => ({ theme: "white", isDark: false, toggleTheme: jest.fn() }),
 }));
 
 describe("AssetsHeader", () => {
@@ -26,8 +36,6 @@ describe("AssetsHeader", () => {
     onTimeWindowChange: jest.fn(),
     aggregateBy: "type",
     onAggregateByChange: jest.fn(),
-    accumulate: true,
-    onAccumulateChange: jest.fn(),
     onRefresh: jest.fn(),
     useMockData: false,
   };
@@ -50,11 +58,10 @@ describe("AssetsHeader", () => {
     expect(screen.getByText("Asset Type")).toBeInTheDocument();
   });
 
-  it("renders Resolution dropdown with selected value", () => {
+  it("renders Dark Mode toggle", () => {
     render(<AssetsHeader {...mockProps} />);
 
-    expect(screen.getByText("Resolution")).toBeInTheDocument();
-    expect(screen.getByText("Entire Window")).toBeInTheDocument();
+    expect(screen.getByText("Dark Mode")).toBeInTheDocument();
   });
 
   it("renders refresh button", () => {
@@ -84,11 +91,11 @@ describe("AssetsHeader", () => {
     expect(screen.queryByText("Mock Data")).not.toBeInTheDocument();
   });
 
-  it("renders all three dropdowns", () => {
+  it("renders both dropdowns and theme toggle", () => {
     render(<AssetsHeader {...mockProps} />);
 
     expect(screen.getByText("Date Range")).toBeInTheDocument();
     expect(screen.getByText("Aggregate By")).toBeInTheDocument();
-    expect(screen.getByText("Resolution")).toBeInTheDocument();
+    expect(screen.getByText("Dark Mode")).toBeInTheDocument();
   });
 });

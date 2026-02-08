@@ -6,25 +6,17 @@ import {
 } from '@carbon/react';
 import { 
   Download, 
-  VirtualMachine,  
-  StorageRequest,  
-  Network_2,       
-  Help             
+  VirtualMachine, 
+  StorageRequest, 
+  Network_2, 
+  Help 
 } from '@carbon/icons-react';
 
 const AssetsTable = ({ assets }) => {
   const [firstRowIndex, setFirstRowIndex] = useState(0);
   const [currentPageSize, setCurrentPageSize] = useState(10);
 
-  
-  const getTypeIcon = (type) => {
-    const t = (type || '').toLowerCase();
-    if (t.includes('node')) return <VirtualMachine size={20} fill="#0f62fe" />; // Blue for Compute
-    if (t.includes('disk') || t.includes('pvc') || t.includes('volume')) return <StorageRequest size={20} fill="#8a3ffc" />; // Purple for Storage
-    if (t.includes('loadbalancer') || t.includes('network')) return <Network_2 size={20} fill="#0072c3" />; // Teal for Network
-    return <Help size={20} fill="#525252" />;
-  };
-
+  // --- Logic Helpers ---
   const getCategory = (type) => {
     const t = (type || '').toLowerCase();
     if (t.includes('node')) return 'Compute';
@@ -37,24 +29,25 @@ const AssetsTable = ({ assets }) => {
     switch(cat) {
       case 'Compute': return 'blue';
       case 'Storage': return 'purple';
-      case 'Network': return 'cyan'; 
+      case 'Network': return 'cyan';
       default: return 'gray';
     }
+  };
+
+  const getTypeIcon = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('node')) return <VirtualMachine size={20} fill="#0f62fe" />;
+    if (t.includes('disk') || t.includes('pvc') || t.includes('volume')) return <StorageRequest size={20} fill="#8a3ffc" />;
+    if (t.includes('loadbalancer') || t.includes('network')) return <Network_2 size={20} fill="#0072c3" />;
+    return <Help size={20} fill="#525252" />;
   };
 
   const maxCost = useMemo(() => {
     return Math.max(...assets.map(a => (a.totalCost || a.cost || 0)), 1);
   }, [assets]);
 
-  const headers = [
-    { key: 'name', header: 'Resource Name' },
-    { key: 'type', header: 'Type' },
-    { key: 'category', header: 'Category' },
-    { key: 'provider', header: 'Provider' },
-    { key: 'costValue', header: 'Cost ($)' },
-  ];
-
-  const rows = assets.map((asset, index) => {
+  // 1. RENAME THIS TO 'allRows' (Fixes the crash)
+  const allRows = assets.map((asset, index) => {
     const cost = asset.totalCost || asset.cost || 0;
     const category = getCategory(asset.type);
 
@@ -65,17 +58,45 @@ const AssetsTable = ({ assets }) => {
       type: asset.type || 'Unknown',
       provider: asset.properties?.provider || 'Unknown',
       costValue: cost, 
-      categoryColor: getCategoryColor(category)
+      categoryColor: getCategoryColor(category) // We need to access this safely later
     };
   });
 
-  const handleDownload = () => { /* ... keep your download logic ... */ };
+  const headers = [
+    { key: 'name', header: 'Resource Name' },
+    { key: 'type', header: 'Type' },
+    { key: 'category', header: 'Category' },
+    { key: 'provider', header: 'Provider' },
+    { key: 'costValue', header: 'Cost ($)' },
+  ];
+
+  const handleDownload = () => {
+    const csvHeaders = ['Resource Name', 'Type', 'Category', 'Provider', 'Cost ($)'];
+    const csvRows = allRows.map(row => [
+      `"${row.name}"`,
+      row.type,
+      row.category,
+      row.provider,
+      row.costValue.toFixed(2)
+    ]);
+    const csvContent = [csvHeaders.join(','), ...csvRows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `opencost_assets.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="assets-table-container">
-      <DataTable rows={rows.slice(firstRowIndex, firstRowIndex + currentPageSize)} headers={headers} isSortable>
+      {/* 2. Pass the sliced 'allRows' to the DataTable */}
+      <DataTable rows={allRows.slice(firstRowIndex, firstRowIndex + currentPageSize)} headers={headers} isSortable>
         {({
-          rows, headers, getHeaderProps, getRowProps, getTableProps, onInputChange
+          rows, // This 'rows' is ONLY the current page (10 items)
+          headers, getHeaderProps, getRowProps, getTableProps, onInputChange
         }) => (
           <TableContainer title="Asset Breakdown" description={`Showing ${assets.length} total resources`}>
             <TableToolbar>
@@ -98,13 +119,16 @@ const AssetsTable = ({ assets }) => {
                 {rows.length > 0 ? (
                   rows.map((row) => {
                     const { key, ...rowProps } = getRowProps({ row });
+                    
+                    // 3. SAFETY FIX: Lookup the original data from 'allRows' using the ID
+                    const originalData = allRows[parseInt(row.id)] || {}; 
+                    
                     const cost = row.cells.find(c => c.id.includes('costValue'))?.value || 0;
                     const percent = (cost / maxCost) * 100;
 
                     return (
                       <TableRow key={key} {...rowProps}>
                         {row.cells.map((cell) => {
-                          
                           
                           if (cell.info.header === 'type') {
                              return (
@@ -117,16 +141,17 @@ const AssetsTable = ({ assets }) => {
                              );
                           }
 
-                          
                           if (cell.info.header === 'category') {
                              return (
                                <TableCell key={cell.id}>
-                                 <Tag type={rows[parseInt(row.id)].categoryColor} size="sm">{cell.value}</Tag>
+                                 {/* 4. Use the SAFE 'originalData' here */}
+                                 <Tag type={originalData.categoryColor || 'gray'} size="sm">
+                                   {cell.value}
+                                 </Tag>
                                </TableCell>
                              );
                           }
 
-                          
                           if (cell.info.header === 'costValue') {
                              return (
                                <TableCell key={cell.id}>
@@ -152,6 +177,7 @@ const AssetsTable = ({ assets }) => {
           </TableContainer>
         )}
       </DataTable>
+      
       <Pagination
         totalItems={assets.length}
         backwardText="Previous page"

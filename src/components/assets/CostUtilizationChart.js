@@ -112,7 +112,6 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
         enabled: true,
         position: "bottom",
         clickable: true,
-        alignment: "center",
       },
       tooltip: { enabled: true },
       axes: {

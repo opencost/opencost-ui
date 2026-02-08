@@ -103,7 +103,6 @@ const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
     legend: {
       enabled: true,
       position: "bottom",
-      alignment: "center",
     },
     tooltip: {
       enabled: true,

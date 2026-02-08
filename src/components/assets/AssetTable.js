@@ -9,9 +9,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableToolbar,
-  TableToolbarContent,
-  TableToolbarSearch,
   TableExpandHeader,
   TableExpandRow,
   TableExpandedRow,
@@ -45,7 +42,6 @@ const headers = [
 const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const rows = useMemo(() => {
     return assets.map((asset) => {
@@ -70,21 +66,10 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
     });
   }, [assets]);
 
-  const filteredRows = useMemo(() => {
-    if (!searchTerm) return rows;
-    const term = searchTerm.toLowerCase();
-    return rows.filter(
-      (row) =>
-        row.name.toLowerCase().includes(term) ||
-        row.cluster.toLowerCase().includes(term) ||
-        (row.namespace && row.namespace.toLowerCase().includes(term))
-    );
-  }, [rows, searchTerm]);
-
   const paginatedRows = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return filteredRows.slice(startIndex, startIndex + pageSize);
-  }, [filteredRows, currentPage, pageSize]);
+    return rows.slice(startIndex, startIndex + pageSize);
+  }, [rows, currentPage, pageSize]);
 
   const handlePaginationChange = ({ page, pageSize: newPageSize }) => {
     setCurrentPage(page);
@@ -204,29 +189,20 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
         }) => (
           <TableContainer
             title="Asset Details"
-            description={`Showing ${paginatedRows.length} of ${filteredRows.length} assets${
+            description={`Showing ${paginatedRows.length} of ${rows.length} assets${
               totalAssets > filteredAssets ? ` (filtered from ${totalAssets})` : ""
             }`}
             {...getTableContainerProps()}
           >
-            <TableToolbar>
-              <TableBatchActions {...getBatchActionProps()}>
-                <TableBatchAction
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                  renderIcon={Export}
-                  onClick={() => handleBatchExport(selectedRows)}
-                >
-                  Export Selected
-                </TableBatchAction>
-              </TableBatchActions>
-              <TableToolbarContent>
-                <TableToolbarSearch
-                  placeholder="Search assets..."
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  value={searchTerm}
-                />
-              </TableToolbarContent>
-            </TableToolbar>
+            <TableBatchActions {...getBatchActionProps()}>
+              <TableBatchAction
+                tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                renderIcon={Export}
+                onClick={() => handleBatchExport(selectedRows)}
+              >
+                Export Selected
+              </TableBatchAction>
+            </TableBatchActions>
 
             <Table {...getTableProps()}>
               <TableHead>
@@ -380,7 +356,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
               page={currentPage}
               pageSize={pageSize}
               pageSizes={ITEMS_PER_PAGE_OPTIONS}
-              totalItems={filteredRows.length}
+              totalItems={rows.length}
               onChange={handlePaginationChange}
             />
           </TableContainer>

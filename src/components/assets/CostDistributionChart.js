@@ -143,7 +143,7 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
           return `$${num.toFixed(2)}`;
         },
       },
-      legend: { enabled: true, position: "bottom", clickable: true, alignment: "center" },
+      legend: { enabled: true, position: "bottom", clickable: true },
       toolbar: {
         enabled: true,
         controls: [{ type: "Export as CSV" }, { type: "Export as PNG" }],

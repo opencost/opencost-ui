@@ -1,4 +1,5 @@
 @import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
+@import "../../node_modules/@carbon/styles/css/styles.css";
 
 body {
   background-color: #f3f3f3;

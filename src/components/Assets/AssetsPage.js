@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Grid, Column, Dropdown, Loading, Tile } from '@carbon/react';
+import { Grid, Column, Dropdown, Loading, Tile, Button } from '@carbon/react';
+import { Renew } from '@carbon/icons-react'; // <--- Import Icon
 import { getAssets } from '../../services/assets'; 
 
-
+// Import Components
 import AssetSummary from './AssetSummary';
 import { AssetTypeChart, AssetProviderChart } from './AssetCharts'; 
 import AssetsTable from './AssetsTable';
-
 
 const timeOptions = [
   { name: "Today", value: "today" },
@@ -32,18 +32,28 @@ const AssetsPage = () => {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  
+  // Set default to "Last 7 days"
   const [selectedWindow, setSelectedWindow] = useState(timeOptions[6]); 
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
-  useEffect(() => {
+  // 1. DATA FETCHING LOGIC (Reusable)
+  const fetchData = () => {
     setLoading(true);
-   
     getAssets(selectedWindow.value)
       .then(data => { setAssets(data); setLoading(false); })
       .catch(err => { console.error(err); setLoading(false); });
+  };
+
+  // Initial Fetch & Fetch on Time Change
+  useEffect(() => {
+    fetchData();
   }, [selectedWindow]);
+
+  // 2. REFRESH HANDLER
+  const handleRefresh = () => {
+    fetchData();
+  };
 
   const assetTypes = useMemo(() => {
     const types = new Set(assets.map(a => a.type || 'Unknown'));
@@ -65,25 +75,27 @@ const AssetsPage = () => {
     <Grid className="assets-page" fullWidth style={{ padding: '2rem', maxWidth: '100%' }}>
       
       <Column lg={16} md={8} sm={4} style={{ marginBottom: '2rem' }}>
-         <h1 style={{ fontWeight: '300', fontSize: '2.5rem', marginBottom: '2rem', color: '#161616' }}>
-            Assets
-         </h1>
+         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h1 style={{ fontWeight: '300', fontSize: '2.5rem', color: '#161616' }}>
+                Assets
+            </h1>
+         </div>
 
          <Grid narrow>
-         
+           {/* Time Filter */}
            <Column lg={4} md={4} sm={4}>
              <Dropdown
                 id="time-window"
                 titleText="Time Range"
                 label="Time Range"
                 items={timeOptions}
-                
                 itemToString={(item) => (item ? item.name : '')}
                 selectedItem={selectedWindow}
                 onChange={({ selectedItem }) => setSelectedWindow(selectedItem)}
              />
            </Column>
 
+           {/* Type Filter */}
            <Column lg={4} md={4} sm={4}>
              <Dropdown
                 id="asset-type"
@@ -95,6 +107,7 @@ const AssetsPage = () => {
              />
            </Column>
 
+           {/* Category Filter */}
            <Column lg={4} md={4} sm={4}>
              <Dropdown
                 id="category"
@@ -105,11 +118,25 @@ const AssetsPage = () => {
                 onChange={({ selectedItem }) => setSelectedCategory(selectedItem)}
              />
            </Column>
+
+           {/* REFRESH BUTTON (New 4th Column) */}
+           <Column lg={4} md={4} sm={4} style={{ display: 'flex', alignItems: 'flex-end' }}>
+             <Button 
+                kind="tertiary" 
+                renderIcon={Renew} 
+                onClick={handleRefresh}
+                style={{ width: '100%' }}
+             >
+                Refresh Data
+             </Button>
+           </Column>
          </Grid>
       </Column>
 
       {loading ? (
-        <Column lg={16}><Loading withOverlay={false} /></Column>
+        <Column lg={16} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', width: '100%' }}>
+          <Loading withOverlay={false} description="Loading assets..." />
+        </Column>
       ) : (
         <>
           <Column lg={16} md={8} sm={4}>

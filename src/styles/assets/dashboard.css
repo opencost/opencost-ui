@@ -121,8 +121,13 @@
 
 .assets-header-controls {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.assets-header-controls .cds--dropdown__wrapper {
+  min-width: 160px;
 }
 
 .mock-data-badge {

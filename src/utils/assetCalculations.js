@@ -143,3 +143,39 @@ export const sortAssets = (assets, column, direction = "ASC") => {
 
   return sorted;
 };
+
+// Carbon Design System data visualization categorical palette (14 colors)
+// High-contrast, perceptually distinct, accessible for color-blind users
+export const CHART_PALETTE = [
+  "#6929c4", // Purple 70
+  "#1192e8", // Cyan 50
+  "#005d5d", // Teal 70
+  "#9f1853", // Magenta 70
+  "#fa4d56", // Red 50
+  "#570408", // Red 90
+  "#198038", // Green 60
+  "#002d9c", // Blue 80
+  "#ee538b", // Magenta 50
+  "#b28600", // Yellow 50
+  "#8a3800", // Orange 70
+  "#a56eff", // Purple 50
+  "#009d9a", // Teal 50
+  "#012749", // Cyan 90
+];
+
+// Semantic status colors (green = good, yellow/blue = review, red = bad)
+export const STATUS_COLORS = {
+  Efficient: "#24a148", // Green 50 — high contrast
+  Healthy: "#4589ff",   // Blue 50  — high contrast
+  Critical: "#da1e28",  // Red 60   — high contrast
+};
+
+// Build a dynamic color scale from group names using the Carbon palette
+export const buildColorScale = (groups) => {
+  const scale = {};
+  const unique = [...new Set(groups)];
+  unique.forEach((name, i) => {
+    scale[name] = CHART_PALETTE[i % CHART_PALETTE.length];
+  });
+  return scale;
+};

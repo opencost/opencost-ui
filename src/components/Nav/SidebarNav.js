@@ -36,8 +36,9 @@ const SidebarNav = ({ active }) => {
         flexShrink: 0,
         width: DRAWER_WIDTH,
         "& .MuiDrawer-paper": {
-          backgroundColor: "var(--cds-background, #f4f4f4)",
+          backgroundColor: "#ffffff",
           border: 0,
+          borderRight: "1px solid var(--cds-border-subtle-01, #e0e0e0)",
           width: DRAWER_WIDTH,
           paddingTop: "2.5rem",
         },

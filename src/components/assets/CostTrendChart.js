@@ -1,25 +1,46 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { LineChart, StackedAreaChart } from "@carbon/charts-react";
-import { parseDays } from "../../utils/assetCalculations";
+import { parseDays, buildColorScale } from "../../utils/assetCalculations";
 
 const VARIANTS = [
   { name: "stacked", text: "Stacked Area", Chart: StackedAreaChart },
   { name: "line", text: "Line", Chart: LineChart },
 ];
 
-function generateTrendData(assets, days) {
+const AGGREGATE_LABELS = {
+  type: "asset type",
+  cluster: "cluster",
+  storageclass: "storage class",
+  providerID: "provider",
+};
+
+function getGroupValue(asset, aggregateBy) {
+  switch (aggregateBy) {
+    case "type":
+      return asset.assetType || "Unknown";
+    case "storageclass":
+      return asset.storageClass || "Unspecified";
+    case "providerID":
+      return asset.providerID || asset.name || "Unknown";
+    case "cluster":
+    default:
+      return asset.cluster || "Unknown";
+  }
+}
+
+function generateTrendData(assets, days, aggregateBy) {
   const data = [];
-  const clusterCosts = {};
+  const groupCosts = {};
 
   assets.forEach((asset) => {
-    const cluster = asset.cluster || "Unknown";
-    if (!clusterCosts[cluster]) {
-      clusterCosts[cluster] = { current: 0, count: 0 };
+    const groupVal = getGroupValue(asset, aggregateBy);
+    if (!groupCosts[groupVal]) {
+      groupCosts[groupVal] = { current: 0, count: 0 };
     }
-    clusterCosts[cluster].current += asset.totalCost || 0;
-    clusterCosts[cluster].count += 1;
+    groupCosts[groupVal].current += asset.totalCost || 0;
+    groupCosts[groupVal].count += 1;
   });
 
   for (let i = days - 1; i >= 0; i--) {
@@ -27,13 +48,13 @@ function generateTrendData(assets, days) {
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
 
-    Object.entries(clusterCosts).forEach(([cluster, info]) => {
+    Object.entries(groupCosts).forEach(([groupVal, info]) => {
       const variation = (Math.random() - 0.5) * 0.3;
       const trendFactor = 1 + ((days - 1 - i) / (days - 1 || 1)) * 0.1;
       const value = info.current * (1 + variation) * trendFactor;
 
       data.push({
-        group: cluster,
+        group: groupVal,
         date: dateStr,
         value: parseFloat(value.toFixed(2)),
       });
@@ -43,15 +64,21 @@ function generateTrendData(assets, days) {
   return data;
 }
 
-const CostTrendChart = ({ assets, timeWindow }) => {
+const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
   const [variant, setVariant] = useState(0);
   const ChartComponent = VARIANTS[variant].Chart;
 
   const days = parseDays(timeWindow);
-  const data = generateTrendData(assets, days);
+  const data = generateTrendData(assets, days, aggregateBy);
 
   const totalCost = assets.reduce((sum, a) => sum + (a.totalCost || 0), 0);
-  const clusterCount = new Set(assets.map(a => a.cluster)).size;
+  const groupCount = new Set(assets.map(a => getGroupValue(a, aggregateBy))).size;
+  const groupLabel = AGGREGATE_LABELS[aggregateBy] || "cluster";
+
+  const colorScale = useMemo(
+    () => buildColorScale([...new Set(data.map((d) => d.group))]),
+    [data]
+  );
 
   const options = {
     title: "",
@@ -68,6 +95,7 @@ const CostTrendChart = ({ assets, timeWindow }) => {
         stacked: variant === 0,
       },
     },
+    color: { scale: colorScale },
     curve: "curveMonotoneX",
     height: "350px",
     legend: {
@@ -94,7 +122,7 @@ const CostTrendChart = ({ assets, timeWindow }) => {
       <div className="chart-header">
         <div className="chart-title-section">
           <h3>Cost Trend (Last {days} Days)</h3>
-          <p className="chart-subtitle">Historical cost data by cluster</p>
+          <p className="chart-subtitle">Historical cost data by {groupLabel}</p>
         </div>
         <ContentSwitcher
           selectedIndex={variant}
@@ -127,8 +155,8 @@ const CostTrendChart = ({ assets, timeWindow }) => {
           <span className="stat-value">${totalCost.toFixed(2)}</span>
         </div>
         <div className="stat-item">
-          <span className="stat-label">Clusters Tracked</span>
-          <span className="stat-value">{clusterCount}</span>
+          <span className="stat-label">{groupLabel.charAt(0).toUpperCase() + groupLabel.slice(1)}s</span>
+          <span className="stat-value">{groupCount}</span>
         </div>
         <div className="stat-item">
           <span className="stat-label">Data Points</span>
@@ -147,6 +175,7 @@ CostTrendChart.propTypes = {
     })
   ).isRequired,
   timeWindow: PropTypes.string,
+  aggregateBy: PropTypes.string,
 };
 
 export default CostTrendChart;

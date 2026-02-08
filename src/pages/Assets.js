@@ -155,9 +155,10 @@ const AssetsDashboard = () => {
   const [useMockData, setUseMockData] = useState(false);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [timeWindow, setTimeWindow] = useState("30d");
+  const [aggregateBy, setAggregateBy] = useState("type");
+  const [accumulate, setAccumulate] = useState(true);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  
 
   const fetchAssets = async () => {
     try {
@@ -166,10 +167,13 @@ const AssetsDashboard = () => {
 
       let result;
       if (useMockData) {
-        result = AssetsService.getMockData(timeWindow);
+        result = AssetsService.getMockData(timeWindow, aggregateBy, accumulate);
         await new Promise((r) => setTimeout(r, 500));
       } else {
-        result = await AssetsService.fetchAssets(timeWindow);
+        result = await AssetsService.fetchAssets(timeWindow, {
+          aggregate: aggregateBy,
+          accumulate,
+        });
       }
 
       if (result?.data) {
@@ -191,7 +195,7 @@ const AssetsDashboard = () => {
 
   useEffect(() => {
     fetchAssets();
-  }, [useMockData, timeWindow]);
+  }, [useMockData, timeWindow, aggregateBy, accumulate]);
 
   const filteredAssets = useMemo(
     () => applyFilters(assets, filters),
@@ -273,6 +277,10 @@ const AssetsDashboard = () => {
         <AssetsHeader
           timeWindow={timeWindow}
           onTimeWindowChange={setTimeWindow}
+          aggregateBy={aggregateBy}
+          onAggregateByChange={setAggregateBy}
+          accumulate={accumulate}
+          onAccumulateChange={setAccumulate}
           onRefresh={fetchAssets}
           useMockData={useMockData}
         />
@@ -293,13 +301,13 @@ const AssetsDashboard = () => {
 
         {/* Third: Chart Row 1 — CostTrendChart (left) + CostUtilizationChart (right) */}
         <section className="charts-section charts-row">
-          <CostTrendChart assets={filteredAssets} timeWindow={timeWindow} />
-          <CostUtilizationChart assets={filteredAssets} timeWindow={timeWindow} />
+          <CostTrendChart assets={filteredAssets} timeWindow={timeWindow} aggregateBy={aggregateBy} />
+          <CostUtilizationChart assets={filteredAssets} timeWindow={timeWindow} aggregateBy={aggregateBy} />
         </section>
 
         {/* Fourth: Chart Row 2 — CostDistributionChart (full width) */}
         <section className="charts-section charts-full">
-          <CostDistributionChart assets={filteredAssets} timeWindow={timeWindow} />
+          <CostDistributionChart assets={filteredAssets} timeWindow={timeWindow} aggregateBy={aggregateBy} />
         </section>
 
         <section className="filters-section">

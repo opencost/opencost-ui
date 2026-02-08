@@ -3,8 +3,9 @@ import client from "./api_client";
 const AssetsService = {
   fetchAssets: async (timeWindow = "30d", options = {}) => {
     try {
+      const { aggregate = "type", accumulate = true, ...rest } = options;
       const response = await client.get("/assets", {
-        params: { window: timeWindow, aggregate: "type", accumulate: true, ...options },
+        params: { window: timeWindow, aggregate, accumulate, ...rest },
       });
 
       const days = parseInt(timeWindow) || 30;
@@ -23,7 +24,7 @@ const AssetsService = {
     }
   },
 
-  getMockData: (timeWindow = "7d") => {
+  getMockData: (timeWindow = "7d", aggregate = "type", accumulate = true) => {
     const days = parseInt(timeWindow) || 7;
     const scale = days / 7;
     const now = new Date();
@@ -219,8 +220,85 @@ const AssetsService = {
       if (cluster.pvc) scaledData[clusterKey].pvc = scaleGroup(cluster.pvc);
     }
 
+    // Reorganize data based on aggregate parameter
+    const reorganizeByAggregate = (data, aggregateBy) => {
+      if (aggregateBy === "cluster") {
+        // Already grouped by cluster, return as-is
+        return data;
+      }
+
+      const reorganized = {};
+
+      // Flatten all assets from all clusters
+      const allAssets = [];
+      for (const [clusterKey, cluster] of Object.entries(data)) {
+        if (cluster.nodes) {
+          for (const [nodeKey, nodeData] of Object.entries(cluster.nodes)) {
+            allAssets.push({
+              key: `${clusterKey}-node-${nodeKey}`,
+              cluster: clusterKey,
+              name: nodeKey,
+              assetType: "Node Disk",
+              ...nodeData,
+            });
+          }
+        }
+        if (cluster.pvc) {
+          for (const [pvcKey, pvcData] of Object.entries(cluster.pvc)) {
+            allAssets.push({
+              key: `${clusterKey}-pvc-${pvcKey}`,
+              cluster: clusterKey,
+              name: pvcData.claimName || pvcKey,
+              assetType: "PVC",
+              ...pvcData,
+            });
+          }
+        }
+      }
+
+      // Group assets based on aggregate parameter
+      if (aggregateBy === "type") {
+        // Group by asset type (Node Disk, PVC)
+        reorganized["Node Disk"] = { nodes: {} };
+        reorganized["PVC"] = { pvc: {} };
+
+        allAssets.forEach((asset) => {
+          if (asset.assetType === "Node Disk") {
+            reorganized["Node Disk"].nodes[asset.name] = asset;
+          } else if (asset.assetType === "PVC") {
+            reorganized["PVC"].pvc[asset.name] = asset;
+          }
+        });
+      } else if (aggregateBy === "storageclass") {
+        // Group by storage class
+        allAssets.forEach((asset) => {
+          const sc = asset.storageClass || "unspecified";
+          if (!reorganized[sc]) {
+            reorganized[sc] = {};
+          }
+          if (asset.local === 1) {
+            if (!reorganized[sc].nodes) reorganized[sc].nodes = {};
+            reorganized[sc].nodes[asset.name] = asset;
+          } else {
+            if (!reorganized[sc].pvc) reorganized[sc].pvc = {};
+            reorganized[sc].pvc[asset.name] = asset;
+          }
+        });
+      } else if (aggregateBy === "providerID") {
+        // Group by providerID (one asset per group)
+        allAssets.forEach((asset) => {
+          const providerId = asset.providerID || asset.name;
+          reorganized[providerId] = { type: asset.type, ...asset };
+        });
+      }
+
+      return reorganized;
+    };
+
+    const finalData = reorganizeByAggregate(scaledData, aggregate);
+
     return {
-      data: scaledData,
+      data: finalData,
       window: { start: start.toISOString(), end: now.toISOString(), days },
     };
   },

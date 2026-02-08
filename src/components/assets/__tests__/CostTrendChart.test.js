@@ -79,7 +79,7 @@ describe("CostTrendChart", () => {
 
     expect(screen.getByText("Daily Avg")).toBeTruthy();
     expect(screen.getByText("30d Total")).toBeTruthy();
-    expect(screen.getByText("Clusters Tracked")).toBeTruthy();
+    expect(screen.getByText("Clusters")).toBeTruthy();
     expect(screen.getByText("Data Points")).toBeTruthy();
   });
 

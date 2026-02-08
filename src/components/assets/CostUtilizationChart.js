@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { ScatterChart, DonutChart } from "@carbon/charts-react";
+import { STATUS_COLORS, buildColorScale } from "../../utils/assetCalculations";
 
 function categorize(asset) {
   const idle = asset.breakdown?.idle || 0;
@@ -12,7 +13,23 @@ function categorize(asset) {
   return { status: "Healthy", utilization };
 }
 
-function transformToScatterData(assets) {
+function getGroupValue(asset, aggregateBy) {
+  switch (aggregateBy) {
+    case "type":
+      return asset.assetType || "Unknown";
+    case "storageclass":
+      return asset.storageClass || "Unspecified";
+    case "providerID":
+      return asset.providerID || asset.name || "Unknown";
+    case "cluster":
+      return asset.cluster || "Unknown";
+    case "status":
+    default:
+      return categorize(asset).status;
+  }
+}
+
+function transformToScatterData(assets, aggregateBy) {
   if (!assets || assets.length === 0) return { data: [], stats: null };
 
   let efficient = 0, healthy = 0, critical = 0;
@@ -25,7 +42,7 @@ function transformToScatterData(assets) {
       else healthy++;
 
       return {
-        group: status,
+        group: getGroupValue(asset, aggregateBy),
         x: utilization,
         y: parseFloat((asset.totalCost || 0).toFixed(2)),
       };
@@ -38,23 +55,25 @@ function transformToScatterData(assets) {
   };
 }
 
-function transformToDonutData(assets) {
+function transformToDonutData(assets, aggregateBy) {
   if (!assets || assets.length === 0) return { data: [], stats: null };
 
   let efficient = 0, healthy = 0, critical = 0;
+  const groupCounts = {};
 
   assets.forEach((asset) => {
     const { status } = categorize(asset);
     if (status === "Efficient") efficient++;
     else if (status === "Critical") critical++;
     else healthy++;
+
+    const groupVal = getGroupValue(asset, aggregateBy);
+    groupCounts[groupVal] = (groupCounts[groupVal] || 0) + 1;
   });
 
-  const data = [
-    { group: "Efficient", value: efficient },
-    { group: "Healthy", value: healthy },
-    { group: "Critical", value: critical },
-  ].filter((d) => d.value > 0);
+  const data = Object.entries(groupCounts)
+    .map(([group, value]) => ({ group, value }))
+    .filter((d) => d.value > 0);
 
   return {
     data,
@@ -62,73 +81,69 @@ function transformToDonutData(assets) {
   };
 }
 
-const statusColors = {
-  Efficient: "#24a148",
-  Healthy: "#0f62fe",
-  Critical: "#da1e28",
-};
-
-const VARIANTS = [
-  {
-    name: "scatter",
-    text: "Scatter",
-    Chart: ScatterChart,
-    transform: transformToScatterData,
-    options: {
-      title: "",
-      resizable: true,
-      height: "350px",
-      legend: { enabled: true, position: "bottom", clickable: true },
-      tooltip: { enabled: true },
-      axes: {
-        left: { mapsTo: "y", title: "Cost ($)" },
-        bottom: { mapsTo: "x", title: "Utilization (%)", domain: [0, 100] },
-      },
-      color: { scale: statusColors },
-      points: { radius: 6, fillOpacity: 0.7 },
-    },
-  },
-  {
-    name: "donut",
-    text: "Donut",
-    Chart: DonutChart,
-    transform: transformToDonutData,
-    options: {
-      title: "",
-      resizable: true,
-      height: "350px",
-      donut: { center: { label: "Assets" } },
-      color: { scale: statusColors },
-      tooltip: { enabled: true },
-      legend: { enabled: true, position: "bottom", clickable: true },
-    },
-  },
-];
-
-const CostUtilizationChart = ({ assets, timeWindow }) => {
+const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) => {
   const [variant, setVariant] = useState(0);
-  const current = VARIANTS[variant];
 
-  const chartOptions = useMemo(
-    () => {
-      const opts = { ...current.options, theme: "white" };
-      if (opts.axes?.left) {
-        opts.axes = {
-          ...opts.axes,
-          left: { ...opts.axes.left, title: `Cost ($) — ${timeWindow || "30d"}` },
-        };
-      }
-      return opts;
-    },
-    [current.options, timeWindow]
-  );
+  const isStatusMode = aggregateBy === "status";
 
   const { data, stats } = useMemo(
-    () => current.transform(assets),
-    [assets, variant]
+    () => variant === 0
+      ? transformToScatterData(assets, aggregateBy)
+      : transformToDonutData(assets, aggregateBy),
+    [assets, variant, aggregateBy]
   );
 
-  const { Chart } = current;
+  const colorScale = useMemo(
+    () => isStatusMode
+      ? STATUS_COLORS
+      : buildColorScale(data.map((d) => d.group)),
+    [data, isStatusMode]
+  );
+
+  const scatterOptions = useMemo(
+    () => ({
+      title: "",
+      resizable: true,
+      height: "360px",
+      theme: "white",
+      legend: {
+        enabled: true,
+        position: "bottom",
+        clickable: true,
+        alignment: "center",
+      },
+      tooltip: { enabled: true },
+      axes: {
+        left: { mapsTo: "y", title: `Cost ($) — ${timeWindow || "30d"}` },
+        bottom: { mapsTo: "x", title: "Utilization (%)", domain: [0, 100] },
+      },
+      color: { scale: colorScale },
+      points: { radius: 6, fillOpacity: 0.7 },
+    }),
+    [timeWindow, colorScale]
+  );
+
+  const donutOptions = useMemo(
+    () => ({
+      title: "",
+      resizable: true,
+      height: "360px",
+      theme: "white",
+      donut: { center: { label: "Assets" }, alignment: "center" },
+      color: { scale: colorScale },
+      tooltip: { enabled: true },
+      legend: {
+        enabled: true,
+        position: "bottom",
+        clickable: true,
+        alignment: "center",
+      },
+    }),
+    [colorScale]
+  );
+
+  const Chart = variant === 0 ? ScatterChart : DonutChart;
+  const chartOptions = variant === 0 ? scatterOptions : donutOptions;
 
   return (
     <Tile className="chart-tile">
@@ -136,7 +151,9 @@ const CostUtilizationChart = ({ assets, timeWindow }) => {
         <div>
           <h3>Cost vs Utilization</h3>
           <p className="chart-description">
-            Asset efficiency — green is well-utilized, red needs attention
+            {isStatusMode
+              ? "Asset efficiency — green is well-utilized, red needs attention"
+              : `Asset utilization grouped by ${aggregateBy}`}
           </p>
         </div>
         <ContentSwitcher
@@ -144,9 +161,8 @@ const CostUtilizationChart = ({ assets, timeWindow }) => {
           selectedIndex={variant}
           onChange={(e) => setVariant(e.index)}
         >
-          {VARIANTS.map((v) => (
-            <Switch key={v.name} name={v.name} text={v.text} />
-          ))}
+          <Switch key="scatter" name="scatter" text="Scatter" />
+          <Switch key="donut" name="donut" text="Donut" />
         </ContentSwitcher>
       </div>
       {data.length > 0 ? (
@@ -192,6 +208,7 @@ CostUtilizationChart.propTypes = {
     })
   ).isRequired,
   timeWindow: PropTypes.string,
+  aggregateBy: PropTypes.string,
 };
 
 export default CostUtilizationChart;

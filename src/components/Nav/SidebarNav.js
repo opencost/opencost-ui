@@ -1,59 +1,69 @@
-import * as React from "react";
-import { Drawer, List } from "@mui/material";
-
-import { NavItem } from "./NavItem";
-import { BarChart, Cloud } from "@mui/icons-material";
+import { SideNav, SideNavLink, SideNavItems } from "@carbon/react";
+import {
+  ChartColumn,
+  CloudDataOps,
+  LayersExternal,
+  IbmCloudBareMetalServer,
+  Asleep,
+  Light,
+} from "@carbon/icons-react";
+import { useTheme } from "../../context/ThemeContext";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
-const DRAWER_WIDTH = 200;
-
 const SidebarNav = ({ active }) => {
-  const [init, setInit] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!init) {
-      setInit(true);
-    }
-  }, [init]);
-
-  const top = [
-    {
-      name: "Cost Allocation",
-      href: "/allocation",
-      icon: <BarChart />,
-    },
-    { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
-    { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
-  ];
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <Drawer
-      anchor={"left"}
-      open
-      sx={{
-        flexShrink: 0,
-        width: DRAWER_WIDTH,
-        "& .MuiDrawer-paper": {
-          backgroundColor: "inherit",
-          border: 0,
-          width: DRAWER_WIDTH,
-          paddingTop: "2.5rem",
-        },
-      }}
-      variant="permanent"
-    >
-      <img
-        src={logo}
-        alt="OpenCost"
-        style={{ flexShrink: 1, padding: "1rem" }}
-      />
-      <List style={{ flexGrow: 1 }}>
-        {top.map((l) => (
-          <NavItem active={active === `${l.href}`} key={l.name} {...l} />
-        ))}
-      </List>
-    </Drawer>
+    <>
+      <SideNav
+        isFixedNav
+        expanded={true}
+        isChildOfHeader={false}
+        aria-label="Side navigation"
+      >
+        <img src={logo} alt="OpenCost" style={{ margin: "10px" }} />
+        <SideNavItems>
+          {[
+            {
+              icon: ChartColumn,
+              href: "/allocation",
+              label: "Cost Allocation",
+            },
+            {
+              icon: CloudDataOps,
+              href: "/cloud",
+              label: "Cloud Costs",
+            },
+            {
+              icon: LayersExternal,
+              href: "/external-costs",
+              label: "External Costs",
+            },
+            {
+              icon: IbmCloudBareMetalServer,
+              href: "/assets",
+              label: "Assets",
+            },
+          ].map(({ icon, href, label }) => (
+            <SideNavLink
+              key={href}
+              renderIcon={icon}
+              href={href}
+              aria-current={active === href ? "page" : undefined}
+            >
+              {label}
+            </SideNavLink>
+          ))}
+          <SideNavLink
+            renderIcon={theme === "g10" ? Asleep : Light}
+            onClick={toggleTheme}
+          >
+            {theme === "g10" ? "Dark Mode" : "Light Mode"}
+          </SideNavLink>
+        </SideNavItems>
+      </SideNav>
+    </>
   );
 };
 

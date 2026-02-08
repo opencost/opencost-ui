@@ -98,15 +98,24 @@ function getPreviousWindow(windowStr) {
 function normalizeAssets(response) {
   if (!response || !response.data) return [];
 
-  const dataArray = response.data;
+  const data = response.data;
   const assets = [];
 
-  dataArray.forEach((assetMap) => {
-    if (typeof assetMap !== "object") return;
-    Object.entries(assetMap).forEach(([key, asset]) => {
+  if (Array.isArray(data)) {
+    data.forEach((assetMap) => {
+      if (!assetMap || typeof assetMap !== "object") return;
+      Object.entries(assetMap).forEach(([key, asset]) => {
+        assets.push({ ...asset, key });
+      });
+    });
+    return assets;
+  }
+
+  if (data && typeof data === "object") {
+    Object.entries(data).forEach(([key, asset]) => {
       assets.push({ ...asset, key });
     });
-  });
+  }
 
   return assets;
 }

@@ -52,28 +52,43 @@ const Assets: React.FC = () => {
         const fetchAssets = async () => {
             setLoading(true);
             try {
-                const data = await AssetsService.fetchAssets("7d", "type", { accumulate: true });
-                if (data && data.data) {
-                    const flattened: Asset[] = data.data.flatMap((set: any) =>
-                        Object.entries(set).map(([id, val]: [string, any]) => ({ id, ...val }))
-                    );
-                    setAssets(flattened);
+                const response = await AssetsService.fetchAssets("7d", "type", { accumulate: true });
+                // Normalize data: sometimes it's wrapped in { data: [...] }, sometimes it's just [...]
+                const rawData = response?.data || (Array.isArray(response) ? response : null);
 
-                    const totalCostValue = flattened.reduce((acc, curr) => acc + (curr.totalCost || 0), 0);
-                    const types = flattened.reduce((acc: Record<string, number>, curr) => {
-                        acc[curr.type] = (acc[curr.type] || 0) + curr.totalCost;
+                if (rawData && Array.isArray(rawData)) {
+                    const flattened: Asset[] = rawData.flatMap((set: any) => {
+                        if (!set || typeof set !== 'object') return [];
+                        return Object.entries(set).map(([id, val]: [string, any]) => ({
+                            id,
+                            ...(val && typeof val === 'object' ? val : {})
+                        }));
+                    });
+
+                    // Defensive data processing
+                    const validAssets = flattened.filter(a => a && a.type && a.id);
+                    setAssets(validAssets);
+
+                    const totalCostValue = validAssets.reduce((acc, curr) => acc + (Number(curr.totalCost) || 0), 0);
+                    const types = validAssets.reduce((acc: Record<string, number>, curr) => {
+                        const t = curr.type || "Other";
+                        acc[t] = (acc[t] || 0) + (Number(curr.totalCost) || 0);
                         return acc;
                     }, {});
 
                     const chartRaw = Object.entries(types).map(([name, value]) => ({ name, value }));
                     setChartData(chartRaw);
 
-                    const topTypeValue = Object.entries(types).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
-                    setSummary({ total: totalCostValue, count: flattened.length, topType: topTypeValue });
+                    const sortedTypes = Object.entries(types).sort((a, b) => b[1] - a[1]);
+                    const topTypeValue = sortedTypes[0]?.[0] || "None";
+                    setSummary({ total: totalCostValue, count: validAssets.length, topType: topTypeValue });
+                    setError(null); // Clear any previous error
+                } else {
+                    throw new Error("Invalid data structure received from Assets API");
                 }
             } catch (err) {
                 setError("Failed to fetch assets data. Please ensure the backend is reachable.");
-                console.error(err);
+                console.error("Assets Load Error:", err);
             } finally {
                 setLoading(false);
             }

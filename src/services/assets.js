@@ -6,6 +6,14 @@ const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true" || true; //
 
 class AssetsService {
     async fetchAssets(win, aggregate, options) {
+        // Defensive check for hostname to force mock on preview sites
+        const isPreview = window.location.hostname.includes('netlify') || window.location.hostname.includes('github.io');
+
+        if (isPreview) {
+            console.log("Preview environment detected, using mock assets data.");
+            return getMockAssetsData();
+        }
+
         const { accumulate = true, filters } = options;
         const params = {
             window: win,
@@ -21,10 +29,14 @@ class AssetsService {
             const result = await client.get("/assets", {
                 params,
             });
-            return result.data;
+            // Handle both { data: [...] } and just [...] response formats
+            const responseData = result.data;
+            if (responseData && (responseData.data || Array.isArray(responseData))) {
+                return responseData;
+            }
+            throw new Error("Unexpected API response format");
         } catch (error) {
-            // Always fallback to mock data in the UI preview to ensure mentors can evaluate the design
-            console.warn("Assets API unreachable, using high-fidelity mock data for preview.", error);
+            console.warn("Assets API unreachable or invalid response, falling back to mock data.", error);
             return getMockAssetsData();
         }
     }

@@ -25,14 +25,14 @@ const AssetSummary = ({ assets }) => {
 
   const uniqueTypes = new Set(assets.map(a => a.type)).size;
   
-  // Formatter
+  
   const fmtMoney = (val) => new Intl.NumberFormat('en-US', { 
     style: 'currency', 
     currency: 'USD',
     minimumFractionDigits: 2 
   }).format(val);
 
-  // 2. Reusable "Standard Card" Component
+  
   const SummaryCard = ({ title, value, Icon, subtext }) => (
     <Tile style={{ 
       height: '100%', 
@@ -61,7 +61,7 @@ const AssetSummary = ({ assets }) => {
   return (
     <Grid narrow className="asset-summary-grid" style={{ padding: 0, marginBottom: '2rem' }}>
       
-      {/* Standard Cards */}
+      
       <Column lg={4} md={4} sm={4}>
         <SummaryCard title="Total Assets" value={totalAssets} Icon={Cube} subtext="Active resources found" />
       </Column>
@@ -74,24 +74,24 @@ const AssetSummary = ({ assets }) => {
         <SummaryCard title="Asset Types" value={uniqueTypes} Icon={ChartClusterBar} subtext="Categories (Nodes, Disks, etc.)" />
       </Column>
 
-      {/* 3. The "Insight" Card (Red Highlighting) */}
+      
       <Column lg={4} md={4} sm={4}>
         <Tile style={{ 
           height: '100%', 
           minHeight: '160px', 
-          backgroundColor: '#fff0f0', // Red Tint
-          borderTop: '4px solid #da1e28', // Carbon Red
+          backgroundColor: '#fff0f0', 
+          borderTop: '4px solid #da1e28', 
           display: 'flex', 
           flexDirection: 'column', 
           justifyContent: 'space-between'
         }}>
-          {/* UPDATED HEADER SECTION */}
+          
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <h6 style={{ color: '#da1e28', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                  Top Spending Asset
               </h6>
-              {/* THE NEW "REVIEW REQUIRED" LABEL */}
+              
               <span style={{ 
                   fontSize: '0.625rem', 
                   backgroundColor: '#da1e28', 

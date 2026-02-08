@@ -2,16 +2,14 @@ import React from "react";
 import { DonutChart, SimpleBarChart } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
 
-// --- 1. DATA HELPERS ---
 
-// Safely calculate cost (handles different API formats)
 const getSafeCost = (item) => {
   if (typeof item.totalCost === 'number') return item.totalCost;
   if (typeof item.cost === 'number') return item.cost;
   return (item.cpuCost || 0) + (item.ramCost || 0) + (item.gpuCost || 0) + (item.pvCost || 0);
 };
 
-// Process data for the "Type" Chart (Donut)
+
 const processTypeData = (items) => {
   const groups = {};
   items.forEach(item => {
@@ -20,18 +18,18 @@ const processTypeData = (items) => {
     groups[type] = (groups[type] || 0) + cost;
   });
 
-  // Convert to Carbon Chart format
+  
   return Object.keys(groups).map(type => ({
     group: type,
     value: parseFloat(groups[type].toFixed(2))
   })).sort((a, b) => b.value - a.value);
 };
 
-// Process data for the "Provider" Chart (Bar)
+
 const processProviderData = (items) => {
   const groups = {};
   items.forEach(item => {
-    // Check both standard locations for provider info
+    
     const provider = item.properties?.provider || item.provider || "Custom";
     const cost = getSafeCost(item);
     groups[provider] = (groups[provider] || 0) + cost;
@@ -43,7 +41,7 @@ const processProviderData = (items) => {
   })).sort((a, b) => b.value - a.value);
 };
 
-// --- 2. EXPORTED COMPONENTS ---
+
 
 export const AssetTypeChart = ({ items, height = "300px" }) => {
   const data = processTypeData(items);
@@ -77,10 +75,10 @@ export const AssetProviderChart = ({ items, height = "300px" }) => {
     },
     color: {
       scale: { 
-        "Oracle": "#0f62fe", // Carbon Blue
-        "AWS": "#ff9900",    // AWS Orange
-        "GCP": "#34a853",    // Google Green
-        "Azure": "#0078d4"   // Azure Blue
+        "Oracle": "#0f62fe", 
+        "AWS": "#ff9900",    
+        "GCP": "#34a853",    
+        "Azure": "#0078d4"   
       } 
     }
   };
@@ -92,5 +90,4 @@ export const AssetProviderChart = ({ items, height = "300px" }) => {
   );
 };
 
-// Default export if needed for compatibility, but we will use named imports
 export default AssetTypeChart;

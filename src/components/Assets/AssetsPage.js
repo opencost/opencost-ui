@@ -2,12 +2,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Grid, Column, Dropdown, Loading, Tile } from '@carbon/react';
 import { getAssets } from '../../services/assets'; 
 
-// Import Components
+
 import AssetSummary from './AssetSummary';
 import { AssetTypeChart, AssetProviderChart } from './AssetCharts'; 
 import AssetsTable from './AssetsTable';
 
-// 1. EXPANDED TIME OPTIONS (The list you requested)
+
 const timeOptions = [
   { name: "Today", value: "today" },
   { name: "Yesterday", value: "yesterday" },
@@ -32,14 +32,14 @@ const AssetsPage = () => {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Set default to "Last 7 days" (index 6 in the new list)
+  
   const [selectedWindow, setSelectedWindow] = useState(timeOptions[6]); 
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
   useEffect(() => {
     setLoading(true);
-    // Use .value instead of .id based on your new object structure
+   
     getAssets(selectedWindow.value)
       .then(data => { setAssets(data); setLoading(false); })
       .catch(err => { console.error(err); setLoading(false); });
@@ -70,14 +70,14 @@ const AssetsPage = () => {
          </h1>
 
          <Grid narrow>
-           {/* TIME RANGE DROPDOWN UPDATED */}
+         
            <Column lg={4} md={4} sm={4}>
              <Dropdown
                 id="time-window"
                 titleText="Time Range"
                 label="Time Range"
                 items={timeOptions}
-                // Updated to use .name property
+                
                 itemToString={(item) => (item ? item.name : '')}
                 selectedItem={selectedWindow}
                 onChange={({ selectedItem }) => setSelectedWindow(selectedItem)}

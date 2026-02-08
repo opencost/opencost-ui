@@ -1,0 +1,95 @@
+/* assets.css - Premium Overrides and Enhancements */
+
+.assets-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.assets-summary-grid {
+    margin-bottom: 2rem;
+}
+
+.assets-viz-card {
+    background: #ffffff;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.viz-heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #161616;
+}
+
+.summary-tile-mini {
+    height: 142px;
+    /* Calculated to match viz card height in grid ideally */
+    background: #ffffff;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0.38, 0.9);
+}
+
+.summary-tile-mini:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.summary-label {
+    color: #525252;
+    font-size: 0.875rem;
+}
+
+.summary-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #161616;
+}
+
+.assets-accordion {
+    margin-top: 1rem;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+}
+
+.accordion-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.type-title {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.cost-cell {
+    font-weight: 600;
+    color: #0f62fe;
+}
+
+.assets-error-wrapper {
+    color: #da1e28;
+    padding: 2rem;
+    border: 1px solid #da1e28;
+    background: #fff1f1;
+    text-align: center;
+    border-radius: 4px;
+}
+
+/* Fix Carbon Table Search width */
+.cds--table-toolbar-content .cds--search {
+    max-width: 400px !important;
+}
+
+.cds--table-container {
+    padding: 0 !important;
+}
+
+.count-tag {
+    margin-left: auto;
+    margin-right: 2rem;
+}

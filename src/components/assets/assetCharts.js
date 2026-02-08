@@ -94,9 +94,16 @@ export const TopAssetsCostBarChart = ({ assets, currency, limit = 8 }) => {
   );
 };
 
-export const NodeCostBreakdownChart = ({ nodes, currency }) => {
+function topNodesByCost(nodes, limit) {
+  return [...nodes]
+    .sort((a, b) => (b.totalCost || 0) - (a.totalCost || 0))
+    .slice(0, limit);
+}
+
+export const NodeCostBreakdownChart = ({ nodes, currency, limit = 10 }) => {
   if (!nodes || nodes.length === 0) return null;
-  const barData = nodes.map((n) => ({
+  const topNodes = topNodesByCost(nodes, limit);
+  const barData = topNodes.map((n) => ({
     name: (n.properties?.name || n.key || "Unknown").slice(-25),
     cpuCost: +(n.cpuCost || 0).toFixed(2),
     ramCost: +(n.ramCost || 0).toFixed(2),
@@ -228,9 +235,10 @@ function utilizationBarColor(pct) {
   return "#4caf50";
 }
 
-export const NodeUtilizationChart = ({ nodes }) => {
+export const NodeUtilizationChart = ({ nodes, limit = 10 }) => {
   if (!nodes || nodes.length === 0) return null;
-  const data = nodes.map((n) => ({
+  const topNodes = topNodesByCost(nodes, limit);
+  const data = topNodes.map((n) => ({
     name: (n.properties?.name || n.key || "").slice(-25),
     cpuUsed: +(((1 - (n.cpuBreakdown?.idle || 1)) * 100).toFixed(1)),
     ramUsed: +(((1 - (n.ramBreakdown?.idle || 1)) * 100).toFixed(1)),

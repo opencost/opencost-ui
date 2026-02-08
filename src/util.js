@@ -332,6 +332,12 @@ export function toCurrency(amount, currency, precision) {
   if (typeof precision === "number") {
     opts.minimumFractionDigits = precision;
     opts.maximumFractionDigits = precision;
+  } else {
+    // For very small amounts (less than $0.01), show up to 4 decimal places
+    if (Math.abs(amount) > 0 && Math.abs(amount) < 0.01) {
+      opts.minimumFractionDigits = 2;
+      opts.maximumFractionDigits = 4;
+    }
   }
 
   return amount.toLocaleString(currencyLocale, opts);

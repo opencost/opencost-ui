@@ -1,12 +1,5 @@
 import React, { useMemo } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Chip from "@mui/material/Chip";
-import Tooltip from "@mui/material/Tooltip";
-import { Tile } from "@carbon/react";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
-import SpeedIcon from "@mui/icons-material/Speed";
+import { Tile, Heading, Tag } from "@carbon/react";
 import { toCurrency } from "../../util";
 
 const SavingsOpportunities = ({ assets, currency }) => {
@@ -44,13 +37,12 @@ const SavingsOpportunities = ({ assets, currency }) => {
   if (underutilized.length === 0 && anomalies.length === 0) return null;
 
   return (
-    <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
-        <TrendingDownIcon color="success" fontSize="small" />
+    <div style={{ marginBottom: 24 }}>
+      <Heading size="sm" style={{ marginBottom: 12, fontSize: "1.4rem", fontWeight: 700 }}>
         Savings Opportunities
-      </Typography>
+      </Heading>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 2 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
         {totalPotentialSavings > 0 && (
           <Tile
             style={{
@@ -61,18 +53,17 @@ const SavingsOpportunities = ({ assets, currency }) => {
               boxShadow: "none",
             }}
           >
-            <Typography
-              variant="caption"
-              sx={{ textTransform: "uppercase", letterSpacing: 0.8, fontSize: "0.65rem", fontWeight: 600, color: "#2e7d32" }}
+            <p
+              style={{ textTransform: "uppercase", letterSpacing: 0.8, fontSize: "0.65rem", fontWeight: 600, color: "#2e7d32", margin: 0 }}
             >
               Estimated Potential Savings
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: "#2e7d32", mt: 0.5 }}>
+            </p>
+            <Heading style={{ fontWeight: 700, color: "#2e7d32", marginTop: 6, fontSize: "1.05rem" }}>
               {toCurrency(totalPotentialSavings, currency)}
-            </Typography>
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            </Heading>
+            <p style={{ color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
               from {underutilized.length} underutilized {underutilized.length === 1 ? "asset" : "assets"}
-            </Typography>
+            </p>
           </Tile>
         )}
 
@@ -87,37 +78,33 @@ const SavingsOpportunities = ({ assets, currency }) => {
               boxShadow: "none",
             }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-              <Tooltip title={asset.properties?.name || asset.key || ""}>
-                <Typography
-                  variant="body2"
-                  fontWeight={600}
-                  sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "65%" }}
-                >
-                  {asset.properties?.name || asset.key || "Unknown"}
-                </Typography>
-              </Tooltip>
-              <Chip
-                icon={<SpeedIcon sx={{ fontSize: 12 }} />}
-                label={`${asset.cpuUtil.toFixed(0)}% CPU`}
-                size="small"
-                sx={{ backgroundColor: "#ffcdd2", color: "#c62828", fontWeight: 600, fontSize: "0.65rem" }}
-              />
-            </Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              Cost: {toCurrency(asset.totalCost || 0, currency)} &bull; Save ~{toCurrency(asset.potentialSavings, currency)}
-            </Typography>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+              <p
+                style={{
+                  fontWeight: 600,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "65%",
+                  margin: 0,
+                }}
+                title={asset.properties?.name || asset.key || ""}
+              >
+                {asset.properties?.name || asset.key || "Unknown"}
+              </p>
+              <Tag type="red">{asset.cpuUtil.toFixed(0)}% CPU</Tag>
+            </div>
+            <p style={{ color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
+              Cost: {toCurrency(asset.totalCost || 0, currency)} | Save approx {toCurrency(asset.potentialSavings, currency)}
+            </p>
             {asset.ramUtil !== null && (
-              <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
+              <p style={{ color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
                 RAM utilization: {asset.ramUtil.toFixed(0)}%
-              </Typography>
+              </p>
             )}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 1 }}>
-              <WarningAmberIcon sx={{ fontSize: 14, color: "#e65100" }} />
-              <Typography variant="caption" sx={{ color: "#e65100", fontWeight: 500 }}>
-                Consider right-sizing or scaling down
-              </Typography>
-            </Box>
+            <p style={{ color: "#e65100", fontWeight: 600, marginTop: 6, fontSize: "0.875rem", marginBottom: 0 }}>
+              Consider right-sizing or scaling down
+            </p>
           </Tile>
         ))}
 
@@ -132,35 +119,32 @@ const SavingsOpportunities = ({ assets, currency }) => {
               boxShadow: "none",
             }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-              <Tooltip title={asset.properties?.name || asset.key || ""}>
-                <Typography
-                  variant="body2"
-                  fontWeight={600}
-                  sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "65%" }}
-                >
-                  {asset.properties?.name || asset.key || "Unknown"}
-                </Typography>
-              </Tooltip>
-              <Chip
-                label="High Cost"
-                size="small"
-                sx={{ backgroundColor: "#fff3e0", color: "#e65100", fontWeight: 600, fontSize: "0.65rem" }}
-              />
-            </Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              {toCurrency(asset.totalCost || 0, currency)} — {((asset.totalCost / avgNodeCost) * 100 - 100).toFixed(0)}% above average
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 1 }}>
-              <WarningAmberIcon sx={{ fontSize: 14, color: "#f57c00" }} />
-              <Typography variant="caption" sx={{ color: "#f57c00", fontWeight: 500 }}>
-                Cost spike — review resource allocation
-              </Typography>
-            </Box>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+              <p
+                style={{
+                  fontWeight: 600,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "65%",
+                  margin: 0,
+                }}
+                title={asset.properties?.name || asset.key || ""}
+              >
+                {asset.properties?.name || asset.key || "Unknown"}
+              </p>
+              <Tag type="yellow">High Cost</Tag>
+            </div>
+            <p style={{ color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
+              {toCurrency(asset.totalCost || 0, currency)} - {((asset.totalCost / avgNodeCost) * 100 - 100).toFixed(0)}% above average
+            </p>
+            <p style={{ color: "#f57c00", fontWeight: 600, marginTop: 6, fontSize: "0.875rem", marginBottom: 0 }}>
+              Cost spike - review resource allocation
+            </p>
           </Tile>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

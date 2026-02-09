@@ -1,18 +1,15 @@
 import React from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
-import InfoIcon from "@mui/icons-material/Info";
-import Tooltip from "@mui/material/Tooltip";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import LinearProgress from "@mui/material/LinearProgress";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Tag,
+} from "@carbon/react";
 import { toCurrency } from "../../util";
 import { typeColors } from "./tokens";
 
@@ -24,16 +21,9 @@ function utilizationColor(pct) {
 }
 function utilizationLabel(pct) {
   const v = parseFloat(pct);
-  if (v < 30) return "Low — consider right-sizing";
+  if (v < 30) return "Low - consider right-sizing";
   if (v < 70) return "Moderate";
   return "Healthy";
-}
-
-function bytesToShort(bytes) {
-  if (!bytes || bytes === 0) return "-";
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return (bytes / Math.pow(1024, i)).toFixed(1) + " " + sizes[i];
 }
 
 const columns = [
@@ -69,34 +59,50 @@ const AssetTable = ({ assets, currency, onSelectAsset, sortBy, sortDirection, on
     }
   };
 
+  const renderHeaderLabel = (col) => {
+    if (col.id !== sortBy) return col.label;
+    return `${col.label} (${sortDirection})`;
+  };
+
+  const renderUtilizationBar = (utilPct) => {
+    if (utilPct === null) return "-";
+    const color = utilizationColor(utilPct);
+    const pct = Math.min(parseFloat(utilPct), 100);
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 70, height: 6, backgroundColor: "#e0e0e0", borderRadius: 3 }}>
+          <div
+            style={{
+              width: `${pct}%`,
+              height: "100%",
+              backgroundColor: color,
+              borderRadius: 3,
+            }}
+          />
+        </div>
+        <span style={{ fontSize: "0.75rem", minWidth: 32, fontWeight: 600, color }}>{utilPct}%</span>
+      </div>
+    );
+  };
+
   return (
     <TableContainer>
-      <Table stickyHeader size="small">
+      <Table size="sm" useZebraStyles>
         <TableHead>
           <TableRow>
             {columns.map((col) => (
-              <TableCell
+              <TableHeader
                 key={col.id}
-                align={col.numeric ? "right" : "left"}
-                sx={{
-                  fontWeight: "bold",
+                onClick={() => handleSort(col)}
+                style={{
                   minWidth: col.minWidth,
-                  backgroundColor: "#fafafa",
                   whiteSpace: "nowrap",
+                  cursor: col.sortable ? "pointer" : "default",
+                  textAlign: col.numeric ? "right" : "left",
                 }}
               >
-                {col.sortable ? (
-                  <TableSortLabel
-                    active={sortBy === col.id}
-                    direction={sortBy === col.id ? sortDirection : "asc"}
-                    onClick={() => handleSort(col)}
-                  >
-                    {col.label}
-                  </TableSortLabel>
-                ) : (
-                  col.label
-                )}
-              </TableCell>
+                {col.sortable ? renderHeaderLabel(col) : col.label}
+              </TableHeader>
             ))}
           </TableRow>
         </TableHead>
@@ -106,124 +112,66 @@ const AssetTable = ({ assets, currency, onSelectAsset, sortBy, sortDirection, on
             return (
               <TableRow
                 key={asset.key || idx}
-                hover
-                sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#f0f7ff" } }}
                 onClick={() => onSelectAsset && onSelectAsset(asset)}
+                style={{ cursor: "pointer" }}
               >
-                <TableCell sx={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <Tooltip title={asset.properties?.name || asset.key || ""}>
-                    <span>{asset.properties?.name || asset.key || "Unknown"}</span>
-                  </Tooltip>
+                <TableCell style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span title={asset.properties?.name || asset.key || ""}>
+                    {asset.properties?.name || asset.key || "Unknown"}
+                  </span>
                 </TableCell>
                 <TableCell>
-                  <Chip
-                    label={asset.type}
-                    size="small"
-                    sx={{
-                      backgroundColor: typeColors[asset.type] || "#607D8B",
-                      color: "#fff",
-                      fontWeight: 500,
-                      fontSize: "0.7rem",
-                    }}
-                  />
+                  <Tag type="blue" style={{ backgroundColor: typeColors[asset.type] || "#607D8B", color: "#fff" }}>
+                    {asset.type}
+                  </Tag>
                 </TableCell>
                 <TableCell>{asset.properties?.provider || "-"}</TableCell>
                 <TableCell>{asset.properties?.cluster || "-"}</TableCell>
                 <TableCell>{asset.properties?.category || "-"}</TableCell>
-                <TableCell align="right">
+                <TableCell style={{ textAlign: "right" }}>
                   {asset.cpuCost != null && asset.cpuCost > 0
                     ? toCurrency(asset.cpuCost, currency)
                     : "-"}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell style={{ textAlign: "right" }}>
                   {asset.ramCost != null && asset.ramCost > 0
                     ? toCurrency(asset.ramCost, currency)
                     : "-"}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell style={{ textAlign: "right" }}>
                   {asset.gpuCost != null && asset.gpuCost > 0
                     ? toCurrency(asset.gpuCost, currency)
                     : "-"}
                 </TableCell>
-                <TableCell align="right">
+                <TableCell style={{ textAlign: "right" }}>
                   {asset.adjustment != null && asset.adjustment !== 0 ? (
-                    <Tooltip
-                      title={
-                        <span>
-                          {asset.adjustment < 0 ? "Discount" : "Surcharge"}: {toCurrency(asset.adjustment, currency)}
-                          <br />
-                          {Math.abs((asset.adjustment / (asset.totalCost || 1)) * 100).toFixed(1)}% of total cost
-                        </span>
-                      }
-                      arrow
+                    <span
+                      title={`${asset.adjustment < 0 ? "Discount" : "Surcharge"}: ${toCurrency(asset.adjustment, currency)} | ${Math.abs((asset.adjustment / (asset.totalCost || 1)) * 100).toFixed(1)}% of total cost`}
+                      style={{ color: asset.adjustment < 0 ? "#2e7d32" : "#d32f2f", fontWeight: 600 }}
                     >
-                      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
-                        <span style={{ color: asset.adjustment < 0 ? "#2e7d32" : "#d32f2f", fontWeight: 500 }}>
-                          {toCurrency(asset.adjustment, currency)}
-                        </span>
-                        <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem" }}>
-                          {asset.adjustment < 0 ? "disc." : "surch."}
-                        </Typography>
-                      </Box>
-                    </Tooltip>
+                      {toCurrency(asset.adjustment, currency)}
+                    </span>
                   ) : (
                     "-"
                   )}
                 </TableCell>
-                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                <TableCell style={{ textAlign: "right", fontWeight: 700 }}>
                   {toCurrency(asset.totalCost || 0, currency)}
                 </TableCell>
-                <TableCell>
-                  {utilPct !== null ? (
-                    <Tooltip
-                      title={
-                        <span>
-                          {asset.type === "Node" && asset.cpuBreakdown ? (
-                            <>
-                              CPU: {((1 - (asset.cpuBreakdown.idle || 0)) * 100).toFixed(1)}%
-                              (sys {((asset.cpuBreakdown.system || 0) * 100).toFixed(1)}%,
-                              user {((asset.cpuBreakdown.user || 0) * 100).toFixed(1)}%)
-                              <br />
-                            </>
-                          ) : null}
-                          {asset.ramBreakdown ? (
-                            <>
-                              RAM: {((1 - (asset.ramBreakdown.idle || 0)) * 100).toFixed(1)}%
-                              <br />
-                            </>
-                          ) : null}
-                          {utilizationLabel(utilPct)}
-                        </span>
-                      }
-                      arrow
-                    >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <LinearProgress
-                          variant="determinate"
-                          value={Math.min(parseFloat(utilPct), 100)}
-                          sx={{
-                            width: 60,
-                            height: 6,
-                            borderRadius: 3,
-                            backgroundColor: "#e0e0e0",
-                            "& .MuiLinearProgress-bar": {
-                              backgroundColor: utilizationColor(utilPct),
-                            },
-                          }}
-                        />
-                        <span style={{ fontSize: "0.75rem", minWidth: 30, fontWeight: 500, color: utilizationColor(utilPct) }}>
-                          {utilPct}%
-                        </span>
-                      </Box>
-                    </Tooltip>
-                  ) : (
-                    "-"
-                  )}
+                <TableCell title={utilPct !== null ? utilizationLabel(utilPct) : ""}>
+                  {renderUtilizationBar(utilPct)}
                 </TableCell>
                 <TableCell>
-                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); onSelectAsset && onSelectAsset(asset); }}>
-                    <InfoIcon fontSize="small" />
-                  </IconButton>
+                  <Button
+                    kind="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectAsset && onSelectAsset(asset);
+                    }}
+                  >
+                    View
+                  </Button>
                 </TableCell>
               </TableRow>
             );

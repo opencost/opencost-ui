@@ -442,7 +442,7 @@ function generateDailyData(days) {
   for (let d = 0; d < days; d++) {
     const dayData = {};
     for (const [key, asset] of Object.entries(base)) {
-      const factor = 0.8 + Math.random() * 0.4; // vary costs 80%-120%
+      const factor = 0.8 + Math.random() * 0.4; 
       dayData[key] = {
         ...asset,
         totalCost: +(asset.totalCost / 7 * factor).toFixed(2),

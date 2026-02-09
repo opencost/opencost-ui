@@ -1,34 +1,37 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { get, find } from "lodash";
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import SearchIcon from "@mui/icons-material/Search";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import TablePagination from "@mui/material/TablePagination";
-import Chip from "@mui/material/Chip";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import MemoryIcon from "@mui/icons-material/Memory";
-import StorageIcon from "@mui/icons-material/Storage";
-import CloudIcon from "@mui/icons-material/Cloud";
-import SettingsIcon from "@mui/icons-material/Settings";
-import SettingsEthernetIcon from "@mui/icons-material/SettingsEthernet";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import SpeedIcon from "@mui/icons-material/Speed";
-import WidgetsIcon from "@mui/icons-material/Widgets";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import Button from "@mui/material/Button";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import {
+  Button,
+  DatePicker,
+  DatePickerInput,
+  Heading,
+  Loading,
+  Modal,
+  Pagination,
+  Search,
+  SelectableTag,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tile,
+} from "@carbon/react";
+import {
+  AssemblyCluster,
+  Calendar,
+  Chip,
+  ChartLine,
+  Close,
+  Cube,
+  CurrencyDollar,
+  DataBase,
+  LoadBalancerNetwork,
+  Network_4,
+  Renew,
+  StoragePool,
+} from "@carbon/icons-react";
 import { endOfDay, startOfDay, isValid } from "date-fns";
 
 import Header from "../components/Header";
@@ -51,14 +54,6 @@ import {
   CostDistributionTreemap,
 } from "../components/assets/assetCharts";
 import { windowOptions } from "../components/assets/tokens";
-
-const typeIconMap = {
-  Node: <MemoryIcon fontSize="small" />,
-  Disk: <StorageIcon fontSize="small" />,
-  LoadBalancer: <CloudIcon fontSize="small" />,
-  Network: <SettingsEthernetIcon fontSize="small" />,
-  ClusterManagement: <SettingsIcon fontSize="small" />,
-};
 
 function getWindowDays(windowStr) {
   switch (windowStr) {
@@ -355,13 +350,6 @@ const Assets = () => {
 
   useEffect(() => setPage(0), [typeFilter, searchQuery, sortBy, sortDirection, win, aggregateBy, rowsPerPage]);
 
-  const handleChangePage = (event, newPage) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const stats = useMemo(() => {
     const types = {};
     const typeCounts = {};
@@ -474,12 +462,27 @@ const Assets = () => {
     setTypeFilter(typeFilter === type ? null : type);
   };
 
+  const typeLabelMap = {
+    ClusterManagement: "Cluster Management",
+    LoadBalancer: "Load Balancer",
+  };
+
+  const typeIconMap = {
+    Node: Chip,
+    Disk: DataBase,
+    LoadBalancer: LoadBalancerNetwork,
+    Network: Network_4,
+    ClusterManagement: AssemblyCluster,
+  };
+
+  const formatTypeLabel = (type) => typeLabelMap[type] || type;
+
   return (
     <Page active="/assets">
       <Header headerTitle="Assets">
-        <IconButton aria-label="refresh" onClick={fetchData} style={{ padding: 12 }}>
-          <RefreshIcon />
-        </IconButton>
+        <Button kind="ghost" size="sm" renderIcon={Renew} onClick={fetchData}>
+          Refresh
+        </Button>
       </Header>
 
       {!loading && errors.length > 0 && (
@@ -488,15 +491,15 @@ const Assets = () => {
         </div>
       )}
 
-      <Paper sx={{ p: 3, mb: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2, mb: 3 }}>
+      <Tile style={{ padding: 24, marginBottom: 16, background: "#fff" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
           <div>
-            <Typography variant="h5">
-              Assets &mdash; {windowName}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            <Heading size="sm" style={{ fontSize: "1.4rem", fontWeight: 700 }}>
+              Assets - {windowName}
+            </Heading>
+            <p style={{ marginTop: 6, color: "#6f6f6f", fontSize: "0.875rem" }}>
               Infrastructure assets and their associated costs from the OpenCost Assets API
-            </Typography>
+            </p>
           </div>
           <AssetControls
             window={win}
@@ -510,48 +513,48 @@ const Assets = () => {
             showCharts={showCharts}
             onToggleCharts={() => setShowCharts(!showCharts)}
           />
-        </Box>
+        </div>
 
         {loading && (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-            <CircularProgress />
-          </Box>
+          <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+            <Loading withOverlay={false} />
+          </div>
         )}
 
         {!loading && allAssets.length > 0 && (
           <>
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 2, mb: 3 }}>
-              <SummaryCard 
-                label="Total Cost" 
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 }}>
+              <SummaryCard
+                label="Total Cost"
                 value={toCurrency(stats.totalCost, currency)}
                 secondary={formatAvgCost(stats.totalCost, allAssets.length, currency)}
                 trend={trends.totalCost}
                 accent="#1976d2"
-                icon={<AttachMoneyIcon sx={{ fontSize: 16 }} />}
+                icon={<CurrencyDollar size={16} />}
               />
-              <SummaryCard 
-                label="CPU Cost" 
+              <SummaryCard
+                label="CPU Cost"
                 value={toCurrency(stats.totalCPU, currency)}
                 secondary={formatShare(stats.totalCPU, stats.totalCost)}
                 trend={trends.totalCPU}
                 accent="#2196f3"
-                icon={<MemoryIcon sx={{ fontSize: 16 }} />}
+                icon={<Chip size={16} />}
               />
-              <SummaryCard 
-                label="RAM Cost" 
+              <SummaryCard
+                label="RAM Cost"
                 value={toCurrency(stats.totalRAM, currency)}
                 secondary={formatShare(stats.totalRAM, stats.totalCost)}
                 trend={trends.totalRAM}
                 accent="#00897b"
-                icon={<StorageIcon sx={{ fontSize: 16 }} />}
+                icon={<StoragePool size={16} />}
               />
-              <SummaryCard 
-                label="GPU Cost" 
+              <SummaryCard
+                label="GPU Cost"
                 value={toCurrency(stats.totalGPU, currency)}
                 secondary={formatShare(stats.totalGPU, stats.totalCost)}
                 trend={trends.totalGPU}
                 accent="#f57c00"
-                icon={<SpeedIcon sx={{ fontSize: 16 }} />}
+                icon={<Chip size={16} />}
               />
               {efficiencyScore !== null && (
                 <SummaryCard
@@ -559,15 +562,15 @@ const Assets = () => {
                   value={`${efficiencyScore}/100`}
                   secondary={
                     efficiencyScore >= 70 ? "Healthy utilization" :
-                    efficiencyScore >= 40 ? "Moderate — room to optimize" :
-                    "Low — significant waste detected"
+                    efficiencyScore >= 40 ? "Moderate - room to optimize" :
+                    "Low - significant waste detected"
                   }
                   accent={
                     efficiencyScore >= 70 ? "#4caf50" :
                     efficiencyScore >= 40 ? "#ff9800" :
                     "#f44336"
                   }
-                  icon={<SpeedIcon sx={{ fontSize: 16 }} />}
+                  icon={<ChartLine size={16} />}
                 />
               )}
               {monthlyForecast !== null && (
@@ -576,105 +579,110 @@ const Assets = () => {
                   value={toCurrency(monthlyForecast, currency)}
                   secondary={`Based on ${getWindowDays(win)}d avg rate`}
                   accent="#7b1fa2"
-                  icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
+                  icon={<Calendar size={16} />}
                 />
               )}
-              <SummaryCard 
-                label="Total Assets" 
+              <SummaryCard
+                label="Total Assets"
                 value={allAssets.length}
                 secondary={`${stats.providers.length} providers, ${stats.clusters.length} clusters`}
                 accent="#455a64"
-                icon={<WidgetsIcon sx={{ fontSize: 16 }} />}
+                icon={<Cube size={16} />}
               />
-            </Box>
+            </div>
 
             <SavingsOpportunities assets={allAssets} currency={currency} />
 
             {showCharts && (
-              <>
-                <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-                  <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="scrollable" scrollButtons="auto">
-                    <Tab label="Cost by Type" />
-                    <Tab label="Top Assets" />
-                    <Tab label="Node Breakdown" />
-                    <Tab label="Node Utilization" />
-                  </Tabs>
-                </Box>
-
-                <Box sx={{ mb: 3 }}>
-                  {activeTab === 0 && (
-                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 2 }}>
-                      <AssetTypePieChart assetsByType={stats.types} currency={currency} />
-                      <CostDistributionTreemap assets={allAssets} currency={currency} />
-                    </Box>
-                  )}
-                  {activeTab === 1 && (
-                    <TopAssetsCostBarChart assets={allAssets} currency={currency} limit={10} />
-                  )}
-                  {activeTab === 2 && (
-                    nodes.length > 0 ? (
-                      <NodeCostBreakdownChart nodes={nodes} currency={currency} />
-                    ) : (
-                      <Typography color="text.secondary" sx={{ py: 4, textAlign: "center" }}>
-                        No Node assets available in the current dataset.
-                      </Typography>
-                    )
-                  )}
-                  {activeTab === 3 && (
-                    nodes.length > 0 ? (
-                      <NodeUtilizationChart nodes={nodes} />
-                    ) : (
-                      <Typography color="text.secondary" sx={{ py: 4, textAlign: "center" }}>
-                        No Node assets with utilization data available.
-                      </Typography>
-                    )
-                  )}
-                </Box>
-              </>
+              <div style={{ marginBottom: 24 }}>
+                <Tabs
+                  selectedIndex={activeTab}
+                  onChange={({ selectedIndex }) => setActiveTab(selectedIndex)}
+                >
+                  <TabList aria-label="Asset charts">
+                    <Tab>Cost by Type</Tab>
+                    <Tab>Top Assets</Tab>
+                    <Tab>Node Breakdown</Tab>
+                    <Tab>Node Utilization</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+                        <AssetTypePieChart assetsByType={stats.types} currency={currency} />
+                        <CostDistributionTreemap assets={allAssets} currency={currency} />
+                      </div>
+                    </TabPanel>
+                    <TabPanel>
+                      <TopAssetsCostBarChart assets={allAssets} currency={currency} limit={10} />
+                    </TabPanel>
+                    <TabPanel>
+                      {nodes.length > 0 ? (
+                        <NodeCostBreakdownChart nodes={nodes} currency={currency} />
+                      ) : (
+                        <p style={{ padding: "16px 0", textAlign: "center", color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
+                          No Node assets available in the current dataset.
+                        </p>
+                      )}
+                    </TabPanel>
+                    <TabPanel>
+                      {nodes.length > 0 ? (
+                        <NodeUtilizationChart nodes={nodes} />
+                      ) : (
+                        <p style={{ padding: "16px 0", textAlign: "center", color: "#6f6f6f", fontSize: "0.875rem", margin: 0 }}>
+                          No Node assets with utilization data available.
+                        </p>
+                      )}
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </div>
             )}
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
-                <Typography variant="h6" sx={{ mr: 1, whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
+                <Heading size="sm" style={{ marginRight: 8, whiteSpace: "nowrap" }}>
                   {typeFilter ? `${typeFilter} Assets` : "All Assets"}
-                </Typography>
-                <Chip
-                  label={`All (${allAssets.length})`}
-                  onClick={() => setTypeFilter(null)}
-                  variant={!typeFilter ? "filled" : "outlined"}
-                  color={!typeFilter ? "primary" : "default"}
-                  size="small"
+                </Heading>
+                <SelectableTag
+                  id="assets-filter-all"
+                  selected={!typeFilter}
+                  size="lg"
+                  text={`All Assets (${allAssets.length})`}
+                  renderIcon={Cube}
+                  onChange={() => setTypeFilter(null)}
                 />
                 {typeEntries.map(([type]) => (
-                  <Chip
+                  <SelectableTag
                     key={type}
-                    icon={typeIconMap[type] || null}
-                    label={`${type}: ${stats.typeCounts[type] || 0}`}
-                    onClick={() => handleTypeFilterToggle(type)}
-                    variant={typeFilter === type ? "filled" : "outlined"}
-                    color={typeFilter === type ? "primary" : "default"}
-                    size="small"
+                    id={`assets-filter-${type}`}
+                    selected={typeFilter === type}
+                    size="lg"
+                    text={`${formatTypeLabel(type)} Assets (${stats.typeCounts[type] || 0})`}
+                    renderIcon={typeIconMap[type] || Cube}
+                    onChange={(selected) => {
+                      if (selected) {
+                        setTypeFilter(type);
+                      } else if (typeFilter === type) {
+                        setTypeFilter(null);
+                      }
+                    }}
                   />
                 ))}
                 {typeFilter && (
-                  <Chip label="Clear" size="small" onDelete={() => setTypeFilter(null)} color="error" variant="outlined" />
+                  <Button kind="ghost" size="sm" renderIcon={Close} onClick={() => setTypeFilter(null)}>
+                    Clear
+                  </Button>
                 )}
-              </Box>
-              <TextField
-                size="small"
-                placeholder="Search assets…"
+              </div>
+              <Search
+                id="assets-search"
+                size="sm"
+                labelText="Search assets"
+                placeholder="Search assets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ minWidth: 200, maxWidth: 260 }}
               />
-            </Box>
+            </div>
 
             <AssetTable
               assets={pagedAssets}
@@ -685,92 +693,69 @@ const Assets = () => {
               onSort={handleSort}
             />
 
-            <TablePagination
-              component="div"
-              count={filteredAssets.length}
-              rowsPerPage={rowsPerPage}
-              rowsPerPageOptions={[10, 25, 50, 100]}
-              page={Math.min(page, totalPages - 1 || 0)}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+            <Pagination
+              page={Math.min(page + 1, totalPages || 1)}
+              pageSize={rowsPerPage}
+              pageSizes={[10, 25, 50, 100]}
+              totalItems={filteredAssets.length}
+              size="sm"
+              onChange={({ page: nextPage, pageSize }) => {
+                setPage(Math.max(0, nextPage - 1));
+                if (pageSize !== rowsPerPage) {
+                  setRowsPerPage(pageSize);
+                }
+              }}
             />
           </>
         )}
 
         {!loading && allAssets.length === 0 && errors.length === 0 && (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <StorageIcon sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              No assets found
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Heading size="sm">No assets found</Heading>
+            <p style={{ color: "#6f6f6f", marginTop: 6, fontSize: "0.875rem" }}>
               Try adjusting the time window or check that the OpenCost backend is running.
-            </Typography>
-          </Box>
+            </p>
+          </div>
         )}
-      </Paper>
+      </Tile>
 
-      <Dialog open={customRangeOpen} onClose={closeCustomRange} maxWidth="xs" fullWidth>
-        <DialogTitle>Custom range</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 1 }}>
-            <DatePicker
-              style={{ width: 160 }}
-              autoOk={true}
-              disableToolbar
-              format="MM/dd/yyyy"
-              margin="normal"
+      <Modal
+        open={customRangeOpen}
+        modalHeading="Custom range"
+        primaryButtonText="Apply"
+        secondaryButtonText="Cancel"
+        onRequestClose={closeCustomRange}
+        onRequestSubmit={applyCustomRange}
+      >
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
+          <DatePicker
+            dateFormat="m/d/Y"
+            maxDate={new Date()}
+            onChange={(dates) => handleCustomStartChange(dates[0])}
+          >
+            <DatePickerInput
               id="assets-date-start"
-              label="Start date"
-              value={customStartDate}
-              maxDate={new Date()}
-              maxDateMessage="Date should not be after today."
-              onChange={handleCustomStartChange}
-              onError={(error) => {
-                if (error === "maxDate") {
-                  setCustomStartHelper("Date should not be after today.");
-                }
-              }}
-              slotProps={{
-                field: {
-                  helperText: customStartHelper,
-                  variant: "outlined",
-                  size: "small",
-                },
-              }}
+              labelText="Start date"
+              placeholder="mm/dd/yyyy"
+              invalid={Boolean(customStartHelper)}
+              invalidText={customStartHelper}
             />
-            <DatePicker
-              style={{ width: 160 }}
-              autoOk={true}
-              disableToolbar
-              format="MM/dd/yyyy"
-              margin="normal"
+          </DatePicker>
+          <DatePicker
+            dateFormat="m/d/Y"
+            maxDate={new Date()}
+            onChange={(dates) => handleCustomEndChange(dates[0])}
+          >
+            <DatePickerInput
               id="assets-date-end"
-              label="End date"
-              value={customEndDate}
-              maxDate={new Date()}
-              maxDateMessage="Date should not be after today."
-              onChange={handleCustomEndChange}
-              onError={(error) => {
-                if (error === "maxDate") {
-                  setCustomEndHelper("Date should not be after today.");
-                }
-              }}
-              slotProps={{
-                field: {
-                  helperText: customEndHelper,
-                  variant: "outlined",
-                  size: "small",
-                },
-              }}
+              labelText="End date"
+              placeholder="mm/dd/yyyy"
+              invalid={Boolean(customEndHelper)}
+              invalidText={customEndHelper}
             />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeCustomRange}>Cancel</Button>
-          <Button variant="contained" onClick={applyCustomRange}>Apply</Button>
-        </DialogActions>
-      </Dialog>
+          </DatePicker>
+        </div>
+      </Modal>
 
       <Footer />
 

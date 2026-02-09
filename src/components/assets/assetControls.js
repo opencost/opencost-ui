@@ -1,15 +1,6 @@
-import React from "react";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import DownloadIcon from "@mui/icons-material/Download";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
+import React, { useMemo } from "react";
+import { Button, Dropdown, Toggle } from "@carbon/react";
+import { Download } from "@carbon/icons-react";
 import { windowOptions, aggregationOptions } from "./tokens";
 import { currencyCodes } from "../../constants/currencyCodes";
 import { checkCustomWindow, toVerboseTimeRange } from "../../util";
@@ -26,12 +17,16 @@ const AssetControls = ({
   showCharts,
   onToggleCharts,
 }) => {
-  const renderWindowValue = (value) => {
-    const match = windowOptions.find((opt) => opt.value === value);
-    if (match) return match.name;
-    if (checkCustomWindow(value)) return toVerboseTimeRange(value);
-    return value;
-  };
+  const windowItems = useMemo(() => {
+    if (checkCustomWindow(window)) {
+      return [{ name: toVerboseTimeRange(window), value: window }, ...windowOptions];
+    }
+    return windowOptions;
+  }, [window]);
+
+  const selectedWindow = windowItems.find((opt) => opt.value === window) || windowItems[0];
+  const selectedAggregation =
+    aggregationOptions.find((opt) => opt.value === aggregateBy) || aggregationOptions[0];
 
   return (
     <div
@@ -40,108 +35,73 @@ const AssetControls = ({
         flexWrap: "wrap",
         gap: "12px",
         alignItems: "center",
+        fontSize: "0.875rem",
       }}
     >
-      <Box
-        sx={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 1,
-          px: 1,
-          py: 0.25,
-          borderRadius: 999,
-          border: "1px solid",
-          borderColor: showCharts ? "#90caf9" : "#e0e0e0",
-          backgroundColor: showCharts ? "#e3f2fd" : "#fafafa",
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 600, color: showCharts ? "#1565c0" : "#616161" }}
-        >
-          Charts
-        </Typography>
-        <FormControlLabel
-          labelPlacement="end"
-          label={showCharts ? "On" : "Off"}
-          control={
-            <Switch
-              size="small"
-              checked={showCharts}
-              onChange={() => onToggleCharts && onToggleCharts()}
-              sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": { color: "#1565c0" },
-                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { backgroundColor: "#90caf9" },
-              }}
-            />
+      <Toggle
+        id="assets-charts-toggle"
+        labelText="Charts"
+        toggled={showCharts}
+        onToggle={() => onToggleCharts && onToggleCharts()}
+        size="sm"
+      />
+
+      <Dropdown
+        id="assets-window"
+        titleText="Window"
+        label="Select window"
+        items={windowItems}
+        itemToString={(item) => (item ? item.name : "")}
+        selectedItem={selectedWindow}
+        size="sm"
+        style={{ minWidth: 200 }}
+        onChange={({ selectedItem }) => {
+          if (!selectedItem) return;
+          if (selectedItem.value === "custom") {
+            if (onCustomRange) onCustomRange();
+            return;
           }
-          sx={{ marginRight: 0, marginLeft: 0 }}
-        />
-      </Box>
-      <FormControl size="small" sx={{ minWidth: 160 }}>
-        <InputLabel>Window</InputLabel>
-        <Select
-          value={window}
-          label="Window"
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value === "custom") {
-              if (onCustomRange) onCustomRange();
-              return;
-            }
-            setWindow(value);
-          }}
-          renderValue={renderWindowValue}
-        >
-          {windowOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          setWindow(selectedItem.value);
+        }}
+      />
 
-      <FormControl size="small" sx={{ minWidth: 160 }}>
-        <InputLabel shrink>Aggregate By</InputLabel>
-        <Select
-          value={aggregateBy}
-          label="Aggregate By"
-          notched
-          displayEmpty
-          renderValue={(value) => {
-            const match = aggregationOptions.find((opt) => opt.value === value);
-            return match ? match.name : "Individual Asset";
-          }}
-          onChange={(e) => setAggregateBy(e.target.value)}
-        >
-          {aggregationOptions.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Dropdown
+        id="assets-aggregate"
+        titleText="Aggregate By"
+        label="Aggregate"
+        items={aggregationOptions}
+        itemToString={(item) => (item ? item.name : "")}
+        selectedItem={selectedAggregation}
+        size="sm"
+        style={{ minWidth: 200 }}
+        onChange={({ selectedItem }) => {
+          if (selectedItem) setAggregateBy(selectedItem.value);
+        }}
+      />
 
-      <FormControl size="small" sx={{ minWidth: 100 }}>
-        <InputLabel>Currency</InputLabel>
-        <Select
-          value={currency}
-          label="Currency"
-          onChange={(e) => setCurrency(e.target.value)}
-        >
-          {currencyCodes.map((c) => (
-            <MenuItem key={c} value={c}>
-              {c}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Dropdown
+        id="assets-currency"
+        titleText="Currency"
+        label="Currency"
+        items={currencyCodes}
+        itemToString={(item) => item || ""}
+        selectedItem={currency}
+        size="sm"
+        style={{ minWidth: 140 }}
+        onChange={({ selectedItem }) => {
+          if (selectedItem) setCurrency(selectedItem);
+        }}
+      />
 
-      <Tooltip title="Download as CSV">
-        <IconButton onClick={onDownloadCSV} size="small">
-          <DownloadIcon />
-        </IconButton>
-      </Tooltip>
+      <Button
+        kind="ghost"
+        size="sm"
+        hasIconOnly
+        renderIcon={Download}
+        iconDescription="Download CSV"
+        onClick={onDownloadCSV}
+        style={{ alignSelf: "flex-end", marginTop: 24 }}
+      />
     </div>
   );
 };

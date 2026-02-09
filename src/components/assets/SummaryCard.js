@@ -1,9 +1,5 @@
 import React from "react";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
-import TrendingFlatIcon from "@mui/icons-material/TrendingFlat";
+import { Tile, Heading } from "@carbon/react";
 
 const trendConfig = {
   success: { bg: "#e8f5e9", color: "#2e7d32", border: "#a5d6a7" },
@@ -12,111 +8,86 @@ const trendConfig = {
   default: { bg: "#f5f5f5", color: "#616161", border: "#e0e0e0" },
 };
 
-const TrendIcon = ({ direction, size = 13, color }) => {
-  const sx = { fontSize: size, color };
-  if (direction === "up") return <TrendingUpIcon sx={sx} />;
-  if (direction === "down") return <TrendingDownIcon sx={sx} />;
-  return <TrendingFlatIcon sx={sx} />;
-};
-
 const SummaryCard = ({ label, value, secondary, icon, trend, accent, highlight }) => {
   const strip = accent || highlight || "#1976d2";
   const tc = trend ? trendConfig[trend.color] || trendConfig.default : null;
 
   return (
-    <Box
-      sx={{
+    <Tile
+      style={{
         position: "relative",
-        backgroundColor: "#fff",
         borderRadius: "8px",
         border: "1px solid #e4e7ec",
+        backgroundColor: "#fff",
         overflow: "hidden",
         minHeight: 110,
         display: "flex",
         flexDirection: "column",
-        transition: "box-shadow 0.2s, transform 0.15s",
-        "&:hover": {
-          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          transform: "translateY(-1px)",
-        },
+        padding: 0,
       }}
     >
-      <Box sx={{ height: 3, background: strip, flexShrink: 0 }} />
+      <div style={{ height: 3, background: strip, flexShrink: 0 }} />
 
-      <Box sx={{ p: "14px 16px 12px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.75 }}>
-          <Typography
-            variant="caption"
-            sx={{
+      <div style={{ padding: "14px 16px 12px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <p
+            style={{
               textTransform: "uppercase",
               letterSpacing: 0.8,
               fontSize: "0.62rem",
               fontWeight: 600,
               color: "#667085",
-              lineHeight: 1,
+              margin: 0,
             }}
           >
             {label}
-          </Typography>
-          {icon && (
-            <Box sx={{ color: strip, display: "flex", alignItems: "center", opacity: 0.7 }}>
-              {icon}
-            </Box>
-          )}
-        </Box>
+          </p>
+          {icon ? <span style={{ color: strip, opacity: 0.7, display: "inline-flex" }}>{icon}</span> : null}
+        </div>
 
-        <Typography
-          variant="h5"
-          sx={{
+        <Heading
+          style={{
             fontWeight: 700,
             color: "#101828",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
             lineHeight: 1.15,
-            fontSize: "1.35rem",
+            fontSize: "1.1rem",
           }}
           title={typeof value === "string" ? value : String(value)}
         >
           {value}
-        </Typography>
+        </Heading>
 
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: "auto", pt: 0.75, gap: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "auto", paddingTop: 6, gap: 8 }}>
           {secondary ? (
-            <Typography
-              variant="caption"
-              sx={{ color: "#667085", fontSize: "0.68rem", lineHeight: 1.3, flexShrink: 1, minWidth: 0 }}
-            >
+            <p style={{ color: "#667085", fontSize: "0.68rem", lineHeight: 1.3, minWidth: 0, margin: 0 }}>
               {secondary}
-            </Typography>
+            </p>
           ) : <span />}
 
           {tc && trend && (
-            <Box
-              sx={{
+            <div
+              style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "3px",
-                px: 0.75,
-                py: "2px",
-                borderRadius: "10px",
+                gap: 4,
+                padding: "2px 6px",
+                borderRadius: 10,
                 backgroundColor: tc.bg,
                 border: `1px solid ${tc.border}`,
                 flexShrink: 0,
               }}
             >
-              <TrendIcon direction={trend.direction} color={tc.color} />
-              <Typography
-                variant="caption"
-                sx={{ fontSize: "0.58rem", fontWeight: 600, color: tc.color, whiteSpace: "nowrap" }}
-              >
+              <span style={{ fontSize: "0.58rem", fontWeight: 600, color: tc.color, whiteSpace: "nowrap" }}>
                 {trend.label}
-              </Typography>
-            </Box>
+              </span>
+            </div>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </Tile>
   );
 };
 

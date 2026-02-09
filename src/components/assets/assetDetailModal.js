@@ -1,18 +1,17 @@
 import React from "react";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableRow from "@mui/material/TableRow";
-import Chip from "@mui/material/Chip";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
+import {
+  Button,
+  ComposedModal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  StructuredListBody,
+  StructuredListCell,
+  StructuredListRow,
+  StructuredListWrapper,
+  Tag,
+  Heading,
+} from "@carbon/react";
 import { toCurrency } from "../../util";
 
 function bytesToReadable(bytes) {
@@ -34,37 +33,49 @@ const UtilizationBar = ({ label, breakdown }) => {
   const used = ((1 - (breakdown.idle || 0)) * 100).toFixed(1);
   const system = ((breakdown.system || 0) * 100).toFixed(1);
   const user = ((breakdown.user || 0) * 100).toFixed(1);
-  const color = parseFloat(used) < 30 ? "#f44336" : parseFloat(used) < 70 ? "#ff9800" : "#4caf50";
-  const statusLabel = parseFloat(used) < 30 ? "Low — consider right-sizing" : parseFloat(used) < 70 ? "Moderate" : "Healthy";
+  const color = parseFloat(used) < 30 ? "#da1e28" : parseFloat(used) < 70 ? "#f1c21b" : "#24a148";
+  const statusLabel = parseFloat(used) < 30 ? "Low - consider right-sizing" : parseFloat(used) < 70 ? "Moderate" : "Healthy";
   return (
-    <Box sx={{ mb: 1.5 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-        <Typography variant="body2" fontWeight="bold">{label} Utilization</Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Typography variant="body2" sx={{ color, fontWeight: 600 }}>{used}%</Typography>
-          <Typography variant="caption" sx={{ color: "text.secondary" }}>({statusLabel})</Typography>
-        </Box>
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={Math.min(parseFloat(used), 100)}
-        sx={{
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: "#e0e0e0",
-          "& .MuiLinearProgress-bar": {
+    <div style={{ marginBottom: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>{label} Utilization</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color, fontWeight: 700 }}>{used}%</span>
+          <span style={{ color: "#6f6f6f", fontSize: "0.75rem" }}>
+            ({statusLabel})
+          </span>
+        </div>
+      </div>
+      <div style={{ height: 6, borderRadius: 3, backgroundColor: "#e0e0e0", overflow: "hidden" }}>
+        <div
+          style={{
+            width: `${Math.min(parseFloat(used), 100)}%`,
+            height: "100%",
             backgroundColor: color,
-          },
-        }}
-      />
-      <Box sx={{ display: "flex", gap: 2, mt: 0.5 }}>
-        <Typography variant="caption" color="text.secondary">System: {system}%</Typography>
-        <Typography variant="caption" color="text.secondary">User: {user}%</Typography>
-        <Typography variant="caption" color="text.secondary">Idle: {((breakdown.idle || 0) * 100).toFixed(1)}%</Typography>
-      </Box>
-    </Box>
+          }}
+        />
+      </div>
+      <div style={{ display: "flex", gap: 16, marginTop: 8, color: "#525252", fontSize: "0.75rem" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4589ff" }} /> System: {system}%
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#8a3ffc" }} /> User: {user}%
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#e0e0e0" }} /> Idle: {((breakdown.idle || 0) * 100).toFixed(1)}%
+        </span>
+      </div>
+    </div>
   );
 };
+
+const DetailRow = ({ label, value }) => (
+  <StructuredListRow>
+    <StructuredListCell style={{ fontWeight: 600 }}>{label}</StructuredListCell>
+    <StructuredListCell>{value}</StructuredListCell>
+  </StructuredListRow>
+);
 
 const AssetDetailModal = ({ open, onClose, asset, currency }) => {
   if (!asset) return null;
@@ -75,179 +86,117 @@ const AssetDetailModal = ({ open, onClose, asset, currency }) => {
   const isDisk = asset.type === "Disk";
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Chip
-          label={asset.type}
-          color="primary"
-          size="small"
-          sx={{ fontWeight: "bold" }}
-        />
-        <span>{props.name || asset.key || "Unknown Asset"}</span>
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
-          <Box sx={{ textAlign: "center", minWidth: 120, p: 2, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-            <Typography variant="h5" fontWeight="bold" color="primary">
+    <ComposedModal open={open} onClose={onClose} size="md">
+      <ModalHeader>
+        <Tag type="blue" size="sm">{asset.type}</Tag>
+        <Heading style={{ marginTop: "6px", fontWeight: 600 }}>{props.name || asset.key || "Unknown Asset"}</Heading>
+      </ModalHeader>
+      <ModalBody>
+        <div style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 1 120px", padding: "16px", background: "#f4f4f4", borderBottom: "2px solid #0f62fe", borderRadius: "2px" }}>
+            <div style={{ fontSize: "1.25rem", fontWeight: 600, color: "#161616" }}>
               {toCurrency(asset.totalCost || 0, currency)}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">Total Cost</Typography>
-          </Box>
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#525252", fontWeight: 500, marginTop: "4px", textTransform: "uppercase" }}>
+              Total Cost
+            </div>
+          </div>
+          
           {asset.adjustment !== undefined && asset.adjustment !== 0 && (
-            <Box sx={{ textAlign: "center", minWidth: 120, p: 2, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-              <Typography variant="h5" fontWeight="bold" color={asset.adjustment < 0 ? "success.main" : "error.main"}>
+            <div style={{ 
+              flex: "1 1 120px", 
+              padding: "16px", 
+              background: asset.adjustment < 0 ? "#e5f6ff" : "#fff1f1", 
+              borderBottom: `2px solid ${asset.adjustment < 0 ? "#0043ce" : "#da1e28"}`,
+              borderRadius: "2px" 
+            }}>
+              <div style={{ 
+                fontSize: "1.25rem", 
+                fontWeight: 600, 
+                color: asset.adjustment < 0 ? "#0043ce" : "#da1e28" 
+              }}>
                 {toCurrency(asset.adjustment, currency)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">Adjustment</Typography>
-            </Box>
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "#525252", fontWeight: 500, marginTop: "4px", textTransform: "uppercase" }}>
+                Adjustment
+              </div>
+            </div>
           )}
-          {asset.minutes > 0 && (
-            <Box sx={{ textAlign: "center", minWidth: 120, p: 2, bgcolor: "#f5f5f5", borderRadius: 2 }}>
-              <Typography variant="h5" fontWeight="bold">
-                {hoursToReadable(asset.minutes / 60)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">Active Time</Typography>
-            </Box>
-          )}
-          {isNode && asset.discount > 0 && (
-            <Box sx={{ textAlign: "center", minWidth: 120, p: 2, bgcolor: "#e8f5e9", borderRadius: 2 }}>
-              <Typography variant="h5" fontWeight="bold" color="success.main">
-                {(asset.discount * 100).toFixed(1)}%
-              </Typography>
-              <Typography variant="caption" color="text.secondary">Discount</Typography>
-            </Box>
-          )}
-        </Box>
 
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-          Properties
-        </Typography>
-        <Table size="small" sx={{ mb: 2 }}>
-          <TableBody>
-            {props.provider && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Provider</TableCell>
-                <TableCell>{props.provider}</TableCell>
-              </TableRow>
-            )}
-            {props.cluster && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Cluster</TableCell>
-                <TableCell>{props.cluster}</TableCell>
-              </TableRow>
-            )}
-            {props.project && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Project</TableCell>
-                <TableCell>{props.project}</TableCell>
-              </TableRow>
-            )}
-            {props.service && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Service</TableCell>
-                <TableCell>{props.service}</TableCell>
-              </TableRow>
-            )}
-            {props.category && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Category</TableCell>
-                <TableCell>{props.category}</TableCell>
-              </TableRow>
-            )}
+          {asset.minutes > 0 && (
+            <div style={{ flex: "1 1 120px", padding: "16px", background: "#f4f4f4", borderBottom: "2px solid #8d8d8d", borderRadius: "2px" }}>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600, color: "#161616" }}>
+                {hoursToReadable(asset.minutes / 60)}
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "#525252", fontWeight: 500, marginTop: "4px", textTransform: "uppercase" }}>
+                Active Time
+              </div>
+            </div>
+          )}
+
+          {isNode && asset.discount > 0 && (
+            <div style={{ flex: "1 1 120px", padding: "16px", background: "#defbe6", borderBottom: "2px solid #198038", borderRadius: "2px" }}>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600, color: "#198038" }}>
+                {(asset.discount * 100).toFixed(1)}%
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "#525252", fontWeight: 500, marginTop: "4px", textTransform: "uppercase" }}>
+                Discount
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Heading size="sm" style={{ marginBottom: 8 }}>Properties</Heading>
+        <StructuredListWrapper isCondensed>
+          <StructuredListBody>
+            {props.provider && <DetailRow label="Provider" value={props.provider} />}
+            {props.cluster && <DetailRow label="Cluster" value={props.cluster} />}
+            {props.project && <DetailRow label="Project" value={props.project} />}
+            {props.service && <DetailRow label="Service" value={props.service} />}
+            {props.category && <DetailRow label="Category" value={props.category} />}
             {props.providerID && (
-              <TableRow>
-                <TableCell sx={{ fontWeight: 500 }}>Provider ID</TableCell>
-                <TableCell sx={{ wordBreak: "break-all", fontSize: "0.8rem" }}>{props.providerID}</TableCell>
-              </TableRow>
+              <DetailRow label="Provider ID" value={<span style={{ wordBreak: "break-all" }}>{props.providerID}</span>} />
             )}
-            <TableRow>
-              <TableCell sx={{ fontWeight: 500 }}>Window</TableCell>
-              <TableCell>
-                {asset.start ? new Date(asset.start).toLocaleString() : "N/A"} &mdash;{" "}
-                {asset.end ? new Date(asset.end).toLocaleString() : "N/A"}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+            <DetailRow
+              label="Window"
+              value={`${asset.start ? new Date(asset.start).toLocaleString() : "N/A"} - ${asset.end ? new Date(asset.end).toLocaleString() : "N/A"}`}
+            />
+          </StructuredListBody>
+        </StructuredListWrapper>
 
         {isNode && (
           <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Cost Breakdown
-            </Typography>
-            <Table size="small" sx={{ mb: 2 }}>
-              <TableBody>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>CPU Cost</TableCell>
-                  <TableCell>{toCurrency(asset.cpuCost || 0, currency)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>RAM Cost</TableCell>
-                  <TableCell>{toCurrency(asset.ramCost || 0, currency)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>GPU Cost</TableCell>
-                  <TableCell>{toCurrency(asset.gpuCost || 0, currency)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>Adjustment</TableCell>
-                  <TableCell>{toCurrency(asset.adjustment || 0, currency)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <Heading size="sm" style={{ margin: "16px 0 8px" }}>Cost Breakdown</Heading>
+            <StructuredListWrapper isCondensed>
+              <StructuredListBody>
+                <DetailRow label="CPU Cost" value={toCurrency(asset.cpuCost || 0, currency)} />
+                <DetailRow label="RAM Cost" value={toCurrency(asset.ramCost || 0, currency)} />
+                <DetailRow label="GPU Cost" value={toCurrency(asset.gpuCost || 0, currency)} />
+                <DetailRow label="Adjustment" value={toCurrency(asset.adjustment || 0, currency)} />
+              </StructuredListBody>
+            </StructuredListWrapper>
 
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Hardware Specifications
-            </Typography>
-            <Table size="small" sx={{ mb: 2 }}>
-              <TableBody>
-                {asset.nodeType && (
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 500 }}>Instance Type</TableCell>
-                    <TableCell>{asset.nodeType}</TableCell>
-                  </TableRow>
-                )}
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>CPU Cores</TableCell>
-                  <TableCell>{asset.cpuCores || 0}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>RAM</TableCell>
-                  <TableCell>{bytesToReadable(asset.ramBytes)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>CPU Core-Hours</TableCell>
-                  <TableCell>{(asset.cpuCoreHours || 0).toFixed(1)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>RAM Byte-Hours</TableCell>
-                  <TableCell>{bytesToReadable(asset.ramByteHours)}</TableCell>
-                </TableRow>
+            <Heading size="sm" style={{ margin: "16px 0 8px" }}>Hardware Specifications</Heading>
+            <StructuredListWrapper isCondensed>
+              <StructuredListBody>
+                {asset.nodeType && <DetailRow label="Instance Type" value={asset.nodeType} />}
+                <DetailRow label="CPU Cores" value={asset.cpuCores || 0} />
+                <DetailRow label="RAM" value={bytesToReadable(asset.ramBytes)} />
+                <DetailRow label="CPU Core-Hours" value={(asset.cpuCoreHours || 0).toFixed(1)} />
+                <DetailRow label="RAM Byte-Hours" value={bytesToReadable(asset.ramByteHours)} />
                 {asset.gpuCount > 0 && (
                   <>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 500 }}>GPU Count</TableCell>
-                      <TableCell>{asset.gpuCount}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 500 }}>GPU Hours</TableCell>
-                      <TableCell>{(asset.GPUHours || 0).toFixed(1)}</TableCell>
-                    </TableRow>
+                    <DetailRow label="GPU Count" value={asset.gpuCount} />
+                    <DetailRow label="GPU Hours" value={(asset.GPUHours || 0).toFixed(1)} />
                   </>
                 )}
                 {asset.preemptible !== undefined && (
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 500 }}>Preemptible</TableCell>
-                    <TableCell>{asset.preemptible > 0 ? "Yes" : "No"}</TableCell>
-                  </TableRow>
+                  <DetailRow label="Preemptible" value={asset.preemptible > 0 ? "Yes" : "No"} />
                 )}
-              </TableBody>
-            </Table>
+              </StructuredListBody>
+            </StructuredListWrapper>
 
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Utilization
-            </Typography>
+            <Heading size="sm" style={{ margin: "16px 0 8px" }}>Utilization</Heading>
             <UtilizationBar label="CPU" breakdown={asset.cpuBreakdown} />
             <UtilizationBar label="RAM" breakdown={asset.ramBreakdown} />
           </>
@@ -255,49 +204,22 @@ const AssetDetailModal = ({ open, onClose, asset, currency }) => {
 
         {isDisk && (
           <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Disk Details
-            </Typography>
-            <Table size="small" sx={{ mb: 2 }}>
-              <TableBody>
-                {asset.storageClass && (
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 500 }}>Storage Class</TableCell>
-                    <TableCell>{asset.storageClass}</TableCell>
-                  </TableRow>
-                )}
+            <Heading size="sm" style={{ margin: "16px 0 8px" }}>Disk Details</Heading>
+            <StructuredListWrapper isCondensed>
+              <StructuredListBody>
+                {asset.storageClass && <DetailRow label="Storage Class" value={asset.storageClass} />}
                 {asset.claimName && (
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 500 }}>PVC Claim</TableCell>
-                    <TableCell>{asset.claimNamespace}/{asset.claimName}</TableCell>
-                  </TableRow>
+                  <DetailRow label="PVC Claim" value={`${asset.claimNamespace}/${asset.claimName}`} />
                 )}
-                {asset.volumeName && (
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 500 }}>Volume</TableCell>
-                    <TableCell>{asset.volumeName}</TableCell>
-                  </TableRow>
-                )}
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>Total Size</TableCell>
-                  <TableCell>{bytesToReadable(asset.bytes)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>Byte-Hours Total</TableCell>
-                  <TableCell>{bytesToReadable(asset.byteHours)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 500 }}>Byte-Hours Used</TableCell>
-                  <TableCell>{bytesToReadable(asset.byteHoursUsed)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                {asset.volumeName && <DetailRow label="Volume" value={asset.volumeName} />}
+                <DetailRow label="Total Size" value={bytesToReadable(asset.bytes)} />
+                <DetailRow label="Byte-Hours Total" value={bytesToReadable(asset.byteHours)} />
+                <DetailRow label="Byte-Hours Used" value={bytesToReadable(asset.byteHoursUsed)} />
+              </StructuredListBody>
+            </StructuredListWrapper>
             {asset.breakdown && (
               <>
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  Storage Utilization
-                </Typography>
+                <Heading size="sm" style={{ margin: "16px 0 8px" }}>Storage Utilization</Heading>
                 <UtilizationBar label="Storage" breakdown={asset.breakdown} />
               </>
             )}
@@ -306,30 +228,21 @@ const AssetDetailModal = ({ open, onClose, asset, currency }) => {
 
         {Object.keys(labels).length > 0 && (
           <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Labels
-            </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
+            <Heading size="sm" style={{ margin: "16px 0 8px" }}>Labels</Heading>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {Object.entries(labels).map(([k, v]) => (
-                <Chip
-                  key={k}
-                  label={`${k}: ${v}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontSize: "0.75rem" }}
-                />
+                <Tag key={k} type="gray">
+                  {k}: {v}
+                </Tag>
               ))}
-            </Box>
+            </div>
           </>
         )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="contained">
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </ModalBody>
+      <ModalFooter>
+        <Button kind="primary" onClick={onClose}>Close</Button>
+      </ModalFooter>
+    </ComposedModal>
   );
 };
 

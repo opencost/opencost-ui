@@ -240,7 +240,7 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
         </>
       ) : (
         <div className="chart-empty">
-          No cost data available for the selected period
+          No cost data available for the selected period.
         </div>
       )}
     </Tile>

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Drawer, List } from "@mui/material";
 
 import { NavItem } from "./NavItem";
-import { BarChart, Cloud } from "@mui/icons-material";
+import { BarChart, Cloud, Storage } from "@mui/icons-material";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
@@ -23,6 +23,7 @@ const SidebarNav = ({ active }) => {
       href: "/allocation",
       icon: <BarChart />,
     },
+    { name: "Assets", href: "/assets", icon: <Storage /> },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
     { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
   ];

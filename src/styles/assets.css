@@ -1,0 +1,992 @@
+/* Assets Page Styles - Light/Dark Theme Support */
+
+/* ========================================
+   LIGHT MODE (Default)
+   ======================================== */
+.light-mode .assets-page-content {
+    padding: 2rem;
+    background-color: #f4f4f4;
+    min-height: calc(100vh - 48px);
+}
+
+/* Override Carbon Content component white background */
+.light-mode .cds--content,
+.light-mode.assets-page .cds--content {
+    background-color: #f4f4f4 !important;
+}
+
+.light-mode .assets-header h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #161616;
+    margin-bottom: 0.5rem;
+}
+
+.light-mode .assets-subtitle {
+    font-size: 1rem;
+    color: #525252;
+    margin-bottom: 1.5rem;
+}
+
+/* Light mode tiles */
+.light-mode .asset-metric-tile,
+.light-mode .asset-metric-tile.cds--tile,
+.light-mode .asset-treemap-tile,
+.light-mode .asset-treemap-tile.cds--tile,
+.light-mode .efficiency-gauge-tile,
+.light-mode .efficiency-gauge-tile.cds--tile {
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .metric-label {
+    color: #525252;
+}
+
+.light-mode .metric-subtext {
+    color: #6f6f6f;
+}
+
+.light-mode .treemap-header h4,
+.light-mode .efficiency-header h4 {
+    color: #161616;
+}
+
+.light-mode .legend-label {
+    color: #525252;
+}
+
+.light-mode .savings-callout {
+    background-color: #e0e0e0;
+}
+
+.light-mode .savings-label {
+    color: #525252;
+}
+
+.light-mode .efficiency-insight {
+    background-color: transparent;
+}
+
+.light-mode .no-data-message {
+    color: #6f6f6f;
+}
+
+/* Light mode filters */
+.light-mode .assets-filters-section {
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0;
+}
+
+/* Light mode table */
+.light-mode .cds--data-table-container {
+    background-color: #ffffff !important;
+}
+
+.light-mode .cost-bar-track {
+    background-color: #e0e0e0;
+}
+
+.light-mode .cost-value {
+    color: #161616;
+}
+
+.light-mode .expanded-row-content {
+    background-color: #f4f4f4 !important;
+}
+
+.light-mode .resource-item {
+    background-color: #ffffff;
+}
+
+.light-mode .resource-label {
+    color: #6f6f6f;
+}
+
+.light-mode .resource-value {
+    color: #161616;
+}
+
+.light-mode .breakdown-label {
+    color: #161616;
+}
+
+.light-mode .breakdown-bar span {
+    color: #525252;
+}
+
+.light-mode .duration-info {
+    color: #6f6f6f;
+}
+
+.light-mode .treemap-hint {
+    color: #6f6f6f;
+}
+
+/* ========================================
+   DARK MODE
+   ======================================== */
+.dark-mode .assets-page-content {
+    padding: 2rem;
+    background-color: #161616;
+    min-height: calc(100vh - 48px);
+}
+
+.dark-mode .assets-header h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #f4f4f4;
+    margin-bottom: 0.5rem;
+}
+
+.dark-mode .assets-subtitle {
+    font-size: 1rem;
+    color: #c6c6c6;
+    margin-bottom: 1.5rem;
+}
+
+/* Dark mode tiles */
+.dark-mode .asset-metric-tile,
+.dark-mode .asset-metric-tile.cds--tile,
+.dark-mode .asset-treemap-tile,
+.dark-mode .asset-treemap-tile.cds--tile,
+.dark-mode .efficiency-gauge-tile,
+.dark-mode .efficiency-gauge-tile.cds--tile {
+    background-color: #262626 !important;
+}
+
+.dark-mode .metric-label {
+    color: #c6c6c6;
+}
+
+.dark-mode .metric-subtext {
+    color: #8d8d8d;
+}
+
+.dark-mode .treemap-header h4,
+.dark-mode .efficiency-header h4 {
+    color: #f4f4f4;
+}
+
+.dark-mode .legend-label {
+    color: #c6c6c6;
+}
+
+.dark-mode .savings-callout {
+    background-color: #393939;
+}
+
+.dark-mode .savings-label {
+    color: #c6c6c6;
+}
+
+.dark-mode .efficiency-insight {
+    background-color: transparent;
+}
+
+.dark-mode .no-data-message {
+    color: #8d8d8d;
+}
+
+/* Dark mode filters */
+.dark-mode .assets-filters-section {
+    background-color: #262626 !important;
+}
+
+.dark-mode .assets-filters-section .cds--search-input,
+.dark-mode .assets-filters-section .cds--select-input {
+    background-color: #393939 !important;
+    border-color: #525252 !important;
+    color: #f4f4f4 !important;
+}
+
+.dark-mode .assets-filters-section .cds--label {
+    color: #c6c6c6 !important;
+}
+
+.dark-mode .assets-filters-section .cds--checkbox-label-text {
+    color: #f4f4f4 !important;
+}
+
+/* Dark mode table */
+.dark-mode .cds--data-table-container {
+    background-color: #262626 !important;
+}
+
+.dark-mode .cds--data-table thead {
+    background-color: #393939 !important;
+}
+
+.dark-mode .cds--data-table th {
+    background-color: #393939 !important;
+    color: #f4f4f4 !important;
+}
+
+.dark-mode .cds--data-table td {
+    background-color: #262626 !important;
+    color: #f4f4f4 !important;
+    border-bottom: 1px solid #393939 !important;
+}
+
+.dark-mode .cds--data-table tr:hover td {
+    background-color: #353535 !important;
+}
+
+.dark-mode .cds--data-table-header {
+    background-color: #262626 !important;
+}
+
+.dark-mode .cds--data-table-header__title {
+    color: #f4f4f4 !important;
+}
+
+.dark-mode .cds--data-table-header__description {
+    color: #c6c6c6 !important;
+}
+
+.dark-mode .cost-bar-track {
+    background-color: #393939;
+}
+
+.dark-mode .cost-value {
+    color: #f4f4f4;
+}
+
+.dark-mode .expanded-row-content {
+    background-color: #1c1c1c !important;
+}
+
+.dark-mode .resource-item {
+    background-color: #262626;
+}
+
+.dark-mode .resource-label {
+    color: #8d8d8d;
+}
+
+.dark-mode .resource-value {
+    color: #f4f4f4;
+}
+
+.dark-mode .breakdown-label {
+    color: #f4f4f4;
+}
+
+.dark-mode .breakdown-bar span {
+    color: #c6c6c6;
+}
+
+.dark-mode .duration-info {
+    color: #8d8d8d;
+}
+
+.dark-mode .treemap-hint {
+    color: #8d8d8d;
+}
+
+.dark-mode .treemap-tooltip {
+    background-color: #393939 !important;
+}
+
+.dark-mode .tooltip-name {
+    color: #f4f4f4;
+}
+
+.dark-mode .tooltip-category,
+.dark-mode .tooltip-provider {
+    color: #c6c6c6;
+}
+
+/* Dark mode Carbon Charts text visibility */
+.dark-mode .efficiency-gauge-tile text,
+.dark-mode .efficiency-gauge-tile .cds--cc--title,
+.dark-mode .efficiency-gauge-tile .bx--cc--title,
+.dark-mode .efficiency-gauge-tile tspan,
+.dark-mode .efficiency-gauge-tile .chart-title,
+.dark-mode .efficiency-gauge-tile [class*="title"],
+.dark-mode .efficiency-gauge-tile .donut-title {
+    fill: #f4f4f4 !important;
+    color: #f4f4f4 !important;
+}
+
+/* Chart legend text */
+.dark-mode .efficiency-gauge-tile .cds--cc--legend text,
+.dark-mode .efficiency-gauge-tile .bx--cc--legend text,
+.dark-mode .efficiency-gauge-tile .legend-item,
+.dark-mode .efficiency-gauge-tile [class*="legend"] text,
+.dark-mode .efficiency-gauge-tile [class*="legend"] span {
+    fill: #c6c6c6 !important;
+    color: #c6c6c6 !important;
+}
+
+/* Carbon Charts specific selectors */
+.dark-mode .efficiency-gauge-tile .cds--cc--legend-item text,
+.dark-mode .efficiency-gauge-tile .bx--cc--legend-item text,
+.dark-mode .efficiency-gauge-tile .cds--cc--legend-item,
+.dark-mode .efficiency-gauge-tile .bx--cc--legend-item {
+    fill: #c6c6c6 !important;
+    color: #c6c6c6 !important;
+}
+
+/* Donut center label */
+.dark-mode .efficiency-gauge-tile .cds--cc--pie-label,
+.dark-mode .efficiency-gauge-tile .bx--cc--pie-label,
+.dark-mode .efficiency-gauge-tile [class*="center-label"],
+.dark-mode .efficiency-gauge-tile [class*="donut-center"] {
+    fill: #f4f4f4 !important;
+    color: #f4f4f4 !important;
+}
+
+/* Force all SVG text in charts to be light */
+.dark-mode .efficiency-gauge-tile svg text {
+    fill: #c6c6c6 !important;
+}
+
+.dark-mode .efficiency-gauge-tile svg .chart-holder text {
+    fill: #c6c6c6 !important;
+}
+
+/* Carbon Charts wrapper and container */
+.dark-mode .efficiency-gauge-tile .cds--cc,
+.dark-mode .efficiency-gauge-tile .bx--cc {
+    color: #f4f4f4 !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--cc p,
+.dark-mode .efficiency-gauge-tile .bx--cc p,
+.dark-mode .efficiency-gauge-tile .cds--cc span,
+.dark-mode .efficiency-gauge-tile .bx--cc span {
+    color: #c6c6c6 !important;
+}
+
+.dark-mode .utilization-bar span {
+    color: #c6c6c6 !important;
+}
+
+/* Dark mode Carbon Charts toolbar icons */
+.dark-mode .efficiency-gauge-tile .cds--cc--toolbar button,
+.dark-mode .efficiency-gauge-tile .bx--cc--toolbar button,
+.dark-mode .efficiency-gauge-tile [class*="toolbar"] button,
+.dark-mode .efficiency-gauge-tile .chart-toolbar button {
+    color: #f4f4f4 !important;
+    fill: #f4f4f4 !important;
+    background: transparent !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--cc--toolbar button svg,
+.dark-mode .efficiency-gauge-tile .bx--cc--toolbar button svg,
+.dark-mode .efficiency-gauge-tile [class*="toolbar"] button svg,
+.dark-mode .efficiency-gauge-tile .chart-toolbar button svg {
+    fill: #f4f4f4 !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--cc--toolbar button:hover,
+.dark-mode .efficiency-gauge-tile .bx--cc--toolbar button:hover,
+.dark-mode .efficiency-gauge-tile [class*="toolbar"] button:hover,
+.dark-mode .efficiency-gauge-tile .chart-toolbar button:hover {
+    background: transparent !important;
+    color: #f4f4f4 !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--cc--toolbar button:hover svg,
+.dark-mode .efficiency-gauge-tile .bx--cc--toolbar button:hover svg,
+.dark-mode .efficiency-gauge-tile [class*="toolbar"] button:hover svg,
+.dark-mode .efficiency-gauge-tile .chart-toolbar button:hover svg {
+    fill: #f4f4f4 !important;
+}
+
+/* Dark mode Carbon Charts tooltips and popovers */
+.dark-mode .cds--tooltip,
+.dark-mode .bx--tooltip,
+.dark-mode .cds--popover,
+.dark-mode .bx--popover,
+.dark-mode .cds--tooltip-content,
+.dark-mode .bx--tooltip-content,
+.dark-mode .cds--popover-content,
+.dark-mode .bx--popover-content,
+.dark-mode .cds--toggletip,
+.dark-mode .cds--toggletip-content {
+    background-color: #393939 !important;
+    color: #f4f4f4 !important;
+}
+
+/* Fix Carbon Charts toolbar button hover/focus states */
+.dark-mode .efficiency-gauge-tile button:focus,
+.dark-mode .efficiency-gauge-tile button:active {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--overflow-menu,
+.dark-mode .efficiency-gauge-tile .bx--overflow-menu {
+    background-color: transparent !important;
+}
+
+.dark-mode .efficiency-gauge-tile .cds--overflow-menu:hover,
+.dark-mode .efficiency-gauge-tile .bx--overflow-menu:hover,
+.dark-mode .efficiency-gauge-tile .cds--overflow-menu:focus,
+.dark-mode .efficiency-gauge-tile .bx--overflow-menu:focus {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Light mode Carbon Charts text */
+.light-mode .efficiency-gauge-tile text,
+.light-mode .efficiency-gauge-tile .cds--cc--title,
+.light-mode .efficiency-gauge-tile .bx--cc--title,
+.light-mode .efficiency-gauge-tile tspan {
+    fill: #161616 !important;
+    color: #161616 !important;
+}
+
+.light-mode .efficiency-gauge-tile .cds--cc--legend text,
+.light-mode .efficiency-gauge-tile .bx--cc--legend text {
+    fill: #525252 !important;
+}
+
+.light-mode .utilization-bar span {
+    color: #525252 !important;
+}
+
+/* Treemap cell text styling */
+.treemap-cell-text {
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.treemap-cell-cost {
+    font-size: 11px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Light mode treemap - ensure text is visible on colored backgrounds */
+.light-mode .asset-treemap-tile .recharts-treemap-tile text {
+    fill: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.dark-mode .asset-treemap-tile .recharts-treemap-tile text {
+    fill: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   SHARED STYLES (Both Themes)
+   ======================================== */
+.assets-page {
+    min-height: 100vh;
+}
+
+.assets-page-grid {
+    gap: 1rem;
+}
+
+.assets-header {
+    margin-bottom: 1rem;
+}
+
+/* Theme Toggle */
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-icon {
+    opacity: 0.7;
+}
+
+.light-mode .theme-icon {
+    color: #161616;
+}
+
+.dark-mode .theme-icon {
+    color: #f4f4f4;
+}
+
+/* Filters Section */
+.assets-filters-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.asset-filters {
+    width: 100%;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.filters-row-primary {
+    margin-bottom: 1rem;
+}
+
+.filters-row-secondary {
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    align-items: center;
+}
+
+.dark-mode .filters-row-secondary {
+    border-top-color: #393939;
+}
+
+.filter-group {
+    flex-shrink: 0;
+}
+
+.filter-group .asset-search {
+    min-width: 280px;
+}
+
+.filter-group .cds--select {
+    min-width: 150px;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.75rem;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.category-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.category-tag {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-tag:hover {
+    opacity: 0.8;
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+/* Metrics Section */
+.metrics-section {
+    margin-bottom: 1.5rem;
+}
+
+.asset-metrics-grid {
+    gap: 1rem;
+}
+
+.asset-metric-tile {
+    padding: 1.5rem;
+    border-left: 4px solid #0f62fe;
+    min-height: 120px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 0;
+}
+
+.asset-metric-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.metric-subtext {
+    font-size: 0.875rem;
+}
+
+/* Visualization Section */
+.visualization-section {
+    margin-bottom: 1.5rem;
+}
+
+/* Treemap Styles */
+.asset-treemap-tile {
+    padding: 1.5rem;
+    min-height: auto;
+    height: 100%;
+}
+
+.treemap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.treemap-header h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.treemap-legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.treemap-hint {
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    text-align: center;
+    font-style: italic;
+}
+
+.treemap-tooltip {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+}
+
+/* Light mode tooltip text */
+.light-mode .treemap-tooltip {
+    background-color: #ffffff !important;
+    border: 1px solid #e0e0e0;
+}
+
+.light-mode .tooltip-name {
+    color: #161616;
+}
+
+.light-mode .tooltip-cost {
+    color: #0f62fe;
+}
+
+.light-mode .tooltip-category,
+.light-mode .tooltip-provider {
+    color: #525252;
+}
+
+.tooltip-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.tooltip-cost {
+    font-size: 1.125rem;
+    color: #0f62fe;
+    margin-bottom: 0.25rem;
+}
+
+.tooltip-category,
+.tooltip-provider {
+    font-size: 0.75rem;
+}
+
+/* Efficiency Gauge Styles */
+.efficiency-gauge-tile {
+    padding: 1.5rem;
+    min-height: 400px;
+}
+
+.efficiency-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.efficiency-header h4 {
+    margin: 0;
+}
+
+.savings-callout {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.savings-label {
+    font-size: 0.75rem;
+}
+
+.savings-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #198038;
+}
+
+.efficiency-charts {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.efficiency-chart {
+    flex: 1;
+    min-width: 200px;
+}
+
+.utilization-bar {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.utilization-bar span {
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.efficiency-insight {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.insight-warning {
+    color: #a2191f;
+    background-color: rgba(218, 30, 40, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid #da1e28;
+    margin: 0;
+}
+
+.insight-info {
+    color: #8e6a00;
+    background-color: rgba(241, 194, 27, 0.15);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid #f1c21b;
+    margin: 0;
+}
+
+.insight-success {
+    color: #0e6027;
+    background-color: rgba(25, 128, 56, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid #198038;
+    margin: 0;
+}
+
+/* Dark mode insight styles */
+.dark-mode .insight-warning {
+    color: #fa4d56;
+    background-color: rgba(218, 30, 40, 0.15);
+}
+
+.dark-mode .insight-info {
+    color: #f1c21b;
+    background-color: rgba(241, 194, 27, 0.12);
+}
+
+.dark-mode .insight-success {
+    color: #42be65;
+    background-color: rgba(25, 128, 56, 0.15);
+}
+
+/* Filter Indicator */
+.filter-indicator {
+    margin-bottom: 1rem;
+}
+
+/* Table Section */
+.table-section {
+    margin-bottom: 2rem;
+}
+
+/* Cost Bar in Table */
+.cost-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 150px;
+}
+
+.cost-value {
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.cost-bar-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cost-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Expanded Row Content */
+.expanded-row-content {
+    padding: 1.5rem;
+}
+
+.expanded-section {
+    margin-bottom: 1.5rem;
+}
+
+.expanded-section:last-child {
+    margin-bottom: 0;
+}
+
+.expanded-section h5 {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.resource-item {
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.resource-label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.resource-value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.breakdown-grid {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.breakdown-item {
+    flex: 1;
+    min-width: 250px;
+}
+
+.breakdown-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+.breakdown-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.breakdown-bar {
+    display: grid;
+    grid-template-columns: 60px 1fr 60px;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breakdown-bar span {
+    font-size: 0.75rem;
+}
+
+.breakdown-bar span:last-child {
+    text-align: right;
+}
+
+.duration-info {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 672px) {
+    .assets-page-content {
+        padding: 1rem;
+    }
+
+    .assets-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .efficiency-charts {
+        flex-direction: column;
+    }
+
+    .treemap-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cost-bar-container {
+        min-width: 100px;
+    }
+
+    .theme-toggle-container {
+        margin-left: auto;
+    }
+}

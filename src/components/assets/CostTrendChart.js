@@ -99,7 +99,7 @@ const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
     },
     color: { scale: colorScale },
     curve: "curveMonotoneX",
-    height: "350px",
+    height: "380px",
     legend: {
       enabled: true,
       position: "bottom",
@@ -146,7 +146,7 @@ const CostTrendChart = ({ assets, timeWindow, aggregateBy = "cluster" }) => {
         )}
       </div>
 
-      <div className="chart-stats">
+      <div className="chart-stats chart-stats-compact">
         <div className="stat-item">
           <span className="stat-label">Daily Avg</span>
           <span className="stat-value">${(totalCost / days).toFixed(2)}</span>

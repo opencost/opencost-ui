@@ -153,6 +153,34 @@ section {
   margin-bottom: 2rem;
 }
 
+.kpi-cards-container .stat-card .stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.kpi-cards-container .stat-card .stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.kpi-cards-container .stat-card .stat-subtitle {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--cds-text-secondary);
+  white-space: nowrap;
+}
+
+.kpi-cards-container .stat-card .stat-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
 .kpi-card {
   background: var(--cds-layer-01);
   border-left: 4px solid var(--cds-interactive);
@@ -205,7 +233,7 @@ section {
 }
 
 .insights-panel h3 {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
   color: var(--color-text-primary);
@@ -255,13 +283,13 @@ section {
   flex: 1;
   font-weight: 600;
   color: var(--color-text-primary);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .insight-savings {
   font-weight: 600;
   color: var(--cds-support-success);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .insight-body {
@@ -275,7 +303,7 @@ section {
 }
 
 .insight-description {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--color-text-primary);
   margin: 0.5rem 0 0 0;
   line-height: 1.4;
@@ -290,7 +318,7 @@ section {
 .insight-meta {
   display: flex;
   gap: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--color-text-secondary);
 }
 
@@ -389,7 +417,7 @@ section {
 }
 
 .filter-label {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-text-primary);
   display: block;
@@ -436,6 +464,14 @@ section {
   background: var(--cds-layer-01);
 }
 
+.asset-table-carbon .cds--data-table thead th {
+  font-size: 0.9rem;
+}
+
+.asset-table-carbon .cds--data-table tbody td {
+  font-size: 0.9rem;
+}
+
 .asset-table-carbon .cds--table-toolbar {
   background: var(--color-background);
 }
@@ -450,13 +486,13 @@ section {
 
 .table-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .table-info {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--color-text-secondary);
 }
 
@@ -536,7 +572,7 @@ section {
 
 .expanded-detail strong {
   color: var(--cds-text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -544,7 +580,7 @@ section {
 
 .expanded-detail span {
   color: var(--cds-text-primary);
-  font-size: 0.875rem;
+  font-size: 0.95rem;
 }
 
 .expanded-breakdown {
@@ -559,12 +595,12 @@ section {
 }
 
 .breakdown-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--cds-text-secondary);
 }
 
 .breakdown-value {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--cds-text-primary);
 }

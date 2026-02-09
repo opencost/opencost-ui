@@ -106,7 +106,7 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
     () => ({
       title: "",
       resizable: true,
-      height: "350px",
+      height: "380px",
       theme: carbonTheme,
       legend: {
         enabled: true,
@@ -128,7 +128,7 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
     () => ({
       title: "",
       resizable: true,
-      height: "350px",
+      height: "380px",
       theme: carbonTheme,
       donut: { center: { label: "Assets" }, alignment: "center" },
       color: { scale: colorScale },
@@ -172,7 +172,7 @@ const CostUtilizationChart = ({ assets, timeWindow, aggregateBy = "status" }) =>
             <Chart data={data} options={chartOptions} />
           </div>
           {stats && (
-            <div className="chart-stats">
+            <div className="chart-stats chart-stats-compact">
               <div className="stat-item">
                 <span className="stat-label">Efficient (&ge;80%)</span>
                 <span className="stat-count efficient">{stats.efficient}</span>

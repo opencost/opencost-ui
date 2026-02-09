@@ -123,7 +123,7 @@ const CostDistributionChart = ({ assets, timeWindow, aggregateBy = "cluster" }) 
     const baseOptions = {
       title: "",
       resizable: true,
-      height: "360px",
+      height: "420px",
       theme: carbonTheme,
       bars: { maxWidth: 60 },
       color: { scale: colorScale },

@@ -70,7 +70,7 @@ const FilterPanel = ({
     <div className="filter-panel-carbon">
       <div style={{ marginBottom: "1rem" }}>
         <Search
-          size="lg"
+          size="md"
           placeholder="Search by name, namespace, or cluster..."
           labelText="Search assets"
           value={filters.search}
@@ -152,12 +152,11 @@ const FilterPanel = ({
 
             {activeFilterCount > 0 && (
               <Button
-                kind="secondary"
+                kind="ghost"
                 size="sm"
                 onClick={handleClearFilters}
-                style={{ marginTop: "1rem" }}
               >
-                Clear All Filters
+                Clear all filters
               </Button>
             )}
           </div>

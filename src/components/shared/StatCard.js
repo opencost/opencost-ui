@@ -19,8 +19,8 @@ const StatCard = ({
       <div className="stat-label">{label}</div>
       <div className="stat-value" style={valueColor ? { color: valueColor } : {}}>
         {value}
+        {subtitle && <span className="stat-subtitle">{subtitle}</span>}
       </div>
-      {subtitle && <div className="stat-subtitle">{subtitle}</div>}
     </Tile>
   );
 };
@@ -28,7 +28,8 @@ const StatCard = ({
 StatCard.propTypes = {
   icon: PropTypes.elementType,
   label: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.node])
+    .isRequired,
   subtitle: PropTypes.string,
   valueColor: PropTypes.string,
   className: PropTypes.string,

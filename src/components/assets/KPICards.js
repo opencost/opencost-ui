@@ -60,7 +60,7 @@ const KPICards = ({ assets, timeWindow }) => {
         icon={Folder}
         label="Total Assets"
         value={assetCount}
-        subtitle={`${pvcCount} PVCs, ${nodeCount} Nodes`}
+        subtitle={`${pvcCount} PVCs \u00b7 ${nodeCount} Nodes`}
       />
     </div>
   );

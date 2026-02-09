@@ -8,9 +8,10 @@ const Page = (props) => {
     <div
       style={{
         display: "flex",
-        overflowY: "scroll",
+        height: "100vh",
+        overflow: "hidden",
         margin: "0px",
-        backgroundColor: "f3f3f3",
+        backgroundColor: "#fff7ed",
       }}
     >
       <SidebarNav active={pathname} />
@@ -24,9 +25,9 @@ const Page = (props) => {
         <div
           style={{
             position: "relative",
-            height: "100vh",
+            height: "100%",
             flexGrow: 1,
-            overflowX: "auto",
+            overflow: "auto",
             paddingLeft: "2rem",
             paddingRight: "rem",
             paddingTop: "2.5rem",

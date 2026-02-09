@@ -60,7 +60,7 @@ describe("CostDistributionChart", () => {
   it("shows empty state when no assets", () => {
     render(<CostDistributionChart assets={[]} />);
     expect(
-      screen.getByText("No cost data available for the selected period")
+      screen.getByText("No cost data available for the selected period.")
     ).toBeInTheDocument();
   });
 });

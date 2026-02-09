@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { ScatterChart, DonutChart } from "@carbon/charts-react";
-import { STATUS_COLORS, buildColorScale } from "../../utils/assetCalculations";
+import { STATUS_COLORS, buildColorScale, getGroupValue } from "../../utils/assetCalculations";
 import { useThemeMode } from "../../context/ThemeContext";
 
 function categorize(asset) {
@@ -14,20 +14,9 @@ function categorize(asset) {
   return { status: "Healthy", utilization };
 }
 
-function getGroupValue(asset, aggregateBy) {
-  switch (aggregateBy) {
-    case "type":
-      return asset.assetType || "Unknown";
-    case "storageclass":
-      return asset.storageClass || "Unspecified";
-    case "providerID":
-      return asset.providerID || asset.name || "Unknown";
-    case "cluster":
-      return asset.cluster || "Unknown";
-    case "status":
-    default:
-      return categorize(asset).status;
-  }
+function getGroup(asset, aggregateBy) {
+  if (aggregateBy === "status") return categorize(asset).status;
+  return getGroupValue(asset, aggregateBy);
 }
 
 function transformToScatterData(assets, aggregateBy) {
@@ -43,7 +32,7 @@ function transformToScatterData(assets, aggregateBy) {
       else healthy++;
 
       return {
-        group: getGroupValue(asset, aggregateBy),
+        group: getGroup(asset, aggregateBy),
         x: utilization,
         y: parseFloat((asset.totalCost || 0).toFixed(2)),
       };
@@ -68,7 +57,7 @@ function transformToDonutData(assets, aggregateBy) {
     else if (status === "Critical") critical++;
     else healthy++;
 
-    const groupVal = getGroupValue(asset, aggregateBy);
+    const groupVal = getGroup(asset, aggregateBy);
     groupCounts[groupVal] = (groupCounts[groupVal] || 0) + 1;
   });
 

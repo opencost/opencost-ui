@@ -33,7 +33,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
     >
       <ModalBody>
         <div className="asset-detail-panel">
-          {/* Header Section */}
           <div className="detail-header">
             <div className="detail-meta">
               <span className="detail-type">{asset.assetType}</span>
@@ -45,7 +44,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Cost Section */}
           <section className="detail-section">
             <h4 className="section-title">
               <Money size={20} />
@@ -68,7 +66,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
             </dl>
           </section>
 
-          {/* Storage Section */}
           <section className="detail-section">
             <h4 className="section-title">
               <DataBase size={20} />
@@ -93,7 +90,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
             </dl>
           </section>
 
-          {/* Utilization Breakdown */}
           <section className="detail-section">
             <h4 className="section-title">
               <Analytics size={20} />
@@ -160,7 +156,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* Kubernetes Info (for PVCs) */}
           {asset.claimNamespace && (
             <section className="detail-section">
               <h4 className="section-title">
@@ -183,7 +178,6 @@ const AssetDetailPanel = ({ asset, isOpen, onClose }) => {
             </section>
           )}
 
-          {/* Time Window Info */}
           {asset.window && (
             <section className="detail-section detail-section-last">
               <h4 className="section-title">

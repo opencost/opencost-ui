@@ -177,3 +177,17 @@ export const buildColorScale = (groups, isDark = false) => {
   });
   return scale;
 };
+
+export const getGroupValue = (asset, aggregateBy) => {
+  switch (aggregateBy) {
+    case "type":
+      return asset.assetType || "Unknown";
+    case "storageclass":
+      return asset.storageClass || "Unspecified";
+    case "providerID":
+      return asset.providerID || asset.name || "Unknown";
+    case "cluster":
+    default:
+      return asset.cluster || "Unknown";
+  }
+};

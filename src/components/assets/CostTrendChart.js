@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { LineChart, StackedAreaChart } from "@carbon/charts-react";
-import { parseDays, buildColorScale } from "../../utils/assetCalculations";
+import { parseDays, buildColorScale, getGroupValue } from "../../utils/assetCalculations";
 import { useThemeMode } from "../../context/ThemeContext";
 
 const VARIANTS = [
@@ -17,18 +17,9 @@ const AGGREGATE_LABELS = {
   providerID: "provider",
 };
 
-function getGroupValue(asset, aggregateBy) {
-  switch (aggregateBy) {
-    case "type":
-      return asset.assetType || "Unknown";
-    case "storageclass":
-      return asset.storageClass || "Unspecified";
-    case "providerID":
-      return asset.providerID || asset.name || "Unknown";
-    case "cluster":
-    default:
-      return asset.cluster || "Unknown";
-  }
+function seededRandom(seed) {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
 }
 
 function generateTrendData(assets, days, aggregateBy) {
@@ -44,13 +35,17 @@ function generateTrendData(assets, days, aggregateBy) {
     groupCosts[groupVal].count += 1;
   });
 
+  const groupKeys = Object.keys(groupCosts);
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     const dateStr = date.toISOString().split('T')[0];
 
-    Object.entries(groupCosts).forEach(([groupVal, info]) => {
-      const variation = (Math.random() - 0.5) * 0.3;
+    groupKeys.forEach((groupVal, gi) => {
+      const info = groupCosts[groupVal];
+      const seed = i * 1000 + gi;
+      const variation = (seededRandom(seed) - 0.5) * 0.3;
       const trendFactor = 1 + ((days - 1 - i) / (days - 1 || 1)) * 0.1;
       const value = info.current * (1 + variation) * trendFactor;
 

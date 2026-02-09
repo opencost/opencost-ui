@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import AssetDetailPanel from "../AssetDetailPanel";
 
 jest.mock("@carbon/icons-react", () => ({
@@ -199,16 +199,6 @@ describe("AssetDetailPanel", () => {
 
     expect(screen.queryByText("Kubernetes Information")).not.toBeInTheDocument();
     expect(screen.queryByText("Namespace")).not.toBeInTheDocument();
-  });
-
-  it("calls onClose when modal is closed", () => {
-    const onCloseMock = jest.fn();
-    render(<AssetDetailPanel {...mockProps} onClose={onCloseMock} />);
-
-    // Carbon Modal should have a close button or way to trigger onRequestClose
-    // This is a passive modal, so we can't test close button directly
-    // Just verify the prop is passed correctly
-    expect(onCloseMock).not.toHaveBeenCalled();
   });
 
   it("renders icons for each section", () => {

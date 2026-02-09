@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Tile, ContentSwitcher, Switch } from "@carbon/react";
 import { StackedBarChart, GroupedBarChart, SimpleBarChart } from "@carbon/charts-react";
-import { formatCurrency, buildColorScale } from "../../utils/assetCalculations";
+import { formatCurrency, buildColorScale, getGroupValue } from "../../utils/assetCalculations";
 import { useThemeMode } from "../../context/ThemeContext";
 
 const AGGREGATE_LABELS = {
@@ -12,20 +12,6 @@ const AGGREGATE_LABELS = {
   providerID: "Provider",
 };
 
-function getGroupField(asset, aggregateBy) {
-  switch (aggregateBy) {
-    case "type":
-      return asset.assetType || "Unknown";
-    case "storageclass":
-      return asset.storageClass || "Unspecified";
-    case "providerID":
-      return asset.providerID || asset.name || "Unknown";
-    case "cluster":
-    default:
-      return asset.cluster || "Unknown";
-  }
-}
-
 function transformToBarData(assets, aggregateBy) {
   if (!assets || assets.length === 0) return { data: [], totalCost: 0 };
 
@@ -33,7 +19,7 @@ function transformToBarData(assets, aggregateBy) {
   let totalCost = 0;
 
   assets.forEach((asset) => {
-    const groupVal = getGroupField(asset, aggregateBy);
+    const groupVal = getGroupValue(asset, aggregateBy);
     const cost = asset.totalCost || 0;
 
     if (!grouped[groupVal]) {
@@ -59,7 +45,7 @@ function transformToCostPerGBData(assets, aggregateBy) {
 
   const grouped = {};
   assets.forEach((asset) => {
-    const groupVal = getGroupField(asset, aggregateBy);
+    const groupVal = getGroupValue(asset, aggregateBy);
     if (!grouped[groupVal]) {
       grouped[groupVal] = { cost: 0, bytes: 0 };
     }

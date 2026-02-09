@@ -3,6 +3,7 @@ import { Drawer, List } from "@mui/material";
 
 import { NavItem } from "./NavItem";
 import { BarChart, Cloud } from "@mui/icons-material";
+import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
@@ -24,7 +25,8 @@ const SidebarNav = ({ active }) => {
       icon: <BarChart />,
     },
     { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
-    { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
+    { name: "Assets", href: "/assets", icon: <StorageOutlinedIcon/>},
+    { name: "External Costs", href: "/external-costs", icon: <Cloud /> }
   ];
 
   return (

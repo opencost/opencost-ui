@@ -10,7 +10,10 @@ export const generateInsights = (assets) => {
 
   // Unused PVCs (100% idle)
   const unusedPvcs = assets.filter(
-    (asset) => asset.local !== 1 && (asset.breakdown?.idle || 0) === 1
+    (asset) =>
+      asset.assetType === "PVC" &&
+      asset.local !== 1 &&
+      (asset.breakdown?.idle || 0) === 1
   );
 
   if (unusedPvcs.length > 0) {

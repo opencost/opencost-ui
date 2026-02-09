@@ -1,4 +1,5 @@
 import client from "./api_client";
+import { parseDays } from "../utils/assetCalculations";
 
 const AssetsService = {
   fetchAssets: async (timeWindow = "30d", options = {}) => {
@@ -8,7 +9,7 @@ const AssetsService = {
         params: { window: timeWindow, aggregate, accumulate, ...rest },
       });
 
-      const days = parseInt(timeWindow) || 30;
+      const days = parseDays(timeWindow);
 
       return {
         data: response.data || {},

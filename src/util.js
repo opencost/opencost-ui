@@ -348,7 +348,7 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
   const costMetricPropName = costMetric
     ? costMetricToPropName[costMetric]
     : "amortizedNetCost";
-  const graphData = data.sets.map(({ cloudCosts, timeWindow: { end, start } }) => {
+  const graphData = data.sets.map(({ cloudCosts, window: { end, start } }) => {
     return {
       end,
       items: Object.entries(cloudCosts).map(([name, item]) => ({
@@ -359,7 +359,7 @@ export function formatSampleItemsForGraph({ data, costMetric }) {
     };
   });
   const accumulator = {};
-  data.sets.forEach(({ cloudCosts, timeWindow }) => {
+  data.sets.forEach(({ cloudCosts, window }) => {
     Object.entries(cloudCosts).forEach(([name, cloudCostItem]) => {
       const { properties } = cloudCostItem;
       accumulator[name] ||= {

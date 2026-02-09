@@ -1,4 +1,19 @@
-export const parseDays = (timeWindow) => parseInt(timeWindow) || 30;
+export const parseDays = (timeWindow) => {
+  if (!timeWindow) return 30;
+
+  // Handle named windows
+  if (timeWindow === "today" || timeWindow === "yesterday") return 1;
+
+  // Handle hour-based windows (24h, 48h, etc.)
+  if (timeWindow.endsWith("h")) {
+    const hours = parseInt(timeWindow);
+    return Math.ceil(hours / 24);
+  }
+
+  // Handle day-based windows (7d, 30d, etc.) - default
+  const days = parseInt(timeWindow);
+  return !isNaN(days) && days > 0 ? days : 30;
+};
 
 export const bytesToGB = (bytes, decimals = 2) => {
   if (!bytes || bytes === 0) return 0;

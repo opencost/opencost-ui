@@ -82,13 +82,13 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
     const idle = ((breakdown.idle || 0) * 100).toFixed(1);
     const system = ((breakdown.system || 0) * 100).toFixed(1);
     const user = ((breakdown.user || 0) * 100).toFixed(1);
-    const size = asset.bytes ? bytesToGB(asset.bytes) : "N/A";
+    const size = asset.bytes ? bytesToGB(asset.bytes) : null;
 
     return (
       <div className="expanded-row-content">
         <div className="expanded-detail">
           <strong>Size</strong>
-          <span>{size} GB</span>
+          <span>{size != null ? `${size} GB` : "N/A"}</span>
         </div>
         <div className="expanded-detail">
           <strong>Breakdown</strong>
@@ -343,7 +343,7 @@ const AssetTable = ({ assets, totalAssets, filteredAssets, onRowClick }) => {
                           return <TableCell key={cell.id}>{cell.value}</TableCell>;
                         })}
                       </TableExpandRow>
-                      <TableExpandedRow colSpan={headers.length + 1}>
+                      <TableExpandedRow colSpan={headers.length + 2}>
                         {renderExpandedContent(rowData)}
                       </TableExpandedRow>
                     </Fragment>

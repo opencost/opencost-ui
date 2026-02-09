@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { isValid } from "date-fns";
 import { find, get } from "lodash";
 
-const SelectWindow = ({ windowOptions, window, setWindow }) => {
+const SelectWindow = ({ windowOptions, window, setWindow ,useSample}) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const [startDate, setStartDate] = useState(null);
@@ -117,7 +117,7 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
             flexFlow: "row",
           }}
         >
-          <div style={{ display: "flex", flexFlow: "column" }}>
+          {!useSample && <div style={{ display: "flex", flexFlow: "column" }}>
             <DatePicker
               style={{ width: "144px" }}
               autoOk={true}
@@ -182,7 +182,8 @@ const SelectWindow = ({ windowOptions, window, setWindow }) => {
                 Apply
               </Button>
             </div>
-          </div>
+          </div>}
+
           <div
             style={{
               display: "flex",

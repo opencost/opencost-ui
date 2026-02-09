@@ -24,11 +24,9 @@ const Page = (props) => {
         <div
           style={{
             position: "relative",
-            height: "100vh",
             flexGrow: 1,
-            overflowX: "auto",
             paddingLeft: "2rem",
-            paddingRight: "rem",
+            paddingRight: "2rem",
             paddingTop: "2.5rem",
           }}
         >

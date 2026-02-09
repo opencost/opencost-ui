@@ -21,7 +21,8 @@ import {
     Tag,
     TableToolbar,
     TableToolbarContent,
-    TableToolbarSearch
+    TableToolbarSearch,
+    Toggle
 } from "@carbon/react";
 import { Information, Cube, Cloud, Network_4 } from "@carbon/icons-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -34,6 +35,7 @@ interface Asset {
     id: string;
     type: string;
     totalCost: number;
+    monthlyCost: number;
     name: string;
     providerID: string;
     [key: string]: any;
@@ -43,10 +45,12 @@ const COLORS = ['#0062ff', '#24a148', '#a2191f', '#6929c4', '#1192e8', '#b28600'
 
 const Assets: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
-    const [assets, setAssets] = useState<Asset[]>([]);
+    const [allAssets, setAllAssets] = useState<Asset[]>([]); // Store full dataset
+    const [assets, setAssets] = useState<Asset[]>([]);       // Store displayed dataset
     const [summary, setSummary] = useState({ total: 0, count: 0, topType: "" });
     const [chartData, setChartData] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [showHighCost, setShowHighCost] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchAssets = async () => {
@@ -59,30 +63,21 @@ const Assets: React.FC = () => {
                 if (rawData && Array.isArray(rawData)) {
                     const flattened: Asset[] = rawData.flatMap((set: any) => {
                         if (!set || typeof set !== 'object') return [];
-                        return Object.entries(set).map(([id, val]: [string, any]) => ({
-                            id,
-                            ...(val && typeof val === 'object' ? val : {})
-                        }));
+                        return Object.entries(set).map(([id, val]: [string, any]) => {
+                            const tc = Number(val?.totalCost) || 0;
+                            return {
+                                id,
+                                ...(val && typeof val === 'object' ? val : {}),
+                                totalCost: tc,
+                                monthlyCost: (tc / 7) * 30
+                            };
+                        });
                     });
 
                     // Defensive data processing
                     const validAssets = flattened.filter(a => a && a.type && a.id);
-                    setAssets(validAssets);
-
-                    const totalCostValue = validAssets.reduce((acc, curr) => acc + (Number(curr.totalCost) || 0), 0);
-                    const types = validAssets.reduce((acc: Record<string, number>, curr) => {
-                        const t = curr.type || "Other";
-                        acc[t] = (acc[t] || 0) + (Number(curr.totalCost) || 0);
-                        return acc;
-                    }, {});
-
-                    const chartRaw = Object.entries(types).map(([name, value]) => ({ name, value }));
-                    setChartData(chartRaw);
-
-                    const sortedTypes = Object.entries(types).sort((a, b) => b[1] - a[1]);
-                    const topTypeValue = sortedTypes[0]?.[0] || "None";
-                    setSummary({ total: totalCostValue, count: validAssets.length, topType: topTypeValue });
-                    setError(null); // Clear any previous error
+                    setAllAssets(validAssets);
+                    setError(null);
                 } else {
                     throw new Error("Invalid data structure received from Assets API");
                 }
@@ -96,10 +91,36 @@ const Assets: React.FC = () => {
         fetchAssets();
     }, []);
 
+    // Filter Effect
+    useEffect(() => {
+        let filtered = allAssets;
+        if (showHighCost) {
+            filtered = allAssets.filter(a => (a.totalCost / 7) > 10); // > $10/day
+        }
+        setAssets(filtered);
+
+        // Recalculate Summary & Charts based on FILTERED view
+        const totalCostValue = filtered.reduce((acc, curr) => acc + (Number(curr.totalCost) || 0), 0);
+        const types = filtered.reduce((acc: Record<string, number>, curr) => {
+            const t = curr.type || "Other";
+            acc[t] = (acc[t] || 0) + (Number(curr.totalCost) || 0);
+            return acc;
+        }, {});
+
+        const chartRaw = Object.entries(types).map(([name, value]) => ({ name, value }));
+        setChartData(chartRaw);
+
+        const sortedTypes = Object.entries(types).sort((a, b) => b[1] - a[1]);
+        const topTypeValue = sortedTypes[0]?.[0] || "None";
+        setSummary({ total: totalCostValue, count: filtered.length, topType: topTypeValue });
+
+    }, [allAssets, showHighCost]);
+
     const headers = [
         { key: "name", header: "Name" },
         { key: "providerID", header: "Provider ID" },
         { key: "totalCost", header: "7d Cost" },
+        { key: "monthlyCost", header: "Est. Monthly" },
     ];
 
     const getTypeIcon = (type: string) => {
@@ -132,7 +153,17 @@ const Assets: React.FC = () => {
                                 <Grid className="assets-summary-grid">
                                     <Column lg={8} md={8} sm={4}>
                                         <div className="assets-viz-card">
-                                            <Heading className="viz-heading">Cost Distribution by Asset Type</Heading>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                                <Heading className="viz-heading">Cost Distribution by Asset Type</Heading>
+                                                <Toggle
+                                                    id="high-cost-toggle"
+                                                    labelA="All"
+                                                    labelB="High Cost (> $10/day)"
+                                                    size="sm"
+                                                    toggled={showHighCost}
+                                                    onToggle={() => setShowHighCost(!showHighCost)}
+                                                />
+                                            </div>
                                             <div style={{ width: '100%', height: 300 }}>
                                                 <ResponsiveContainer>
                                                     <PieChart>
@@ -223,7 +254,7 @@ const Assets: React.FC = () => {
                                                                         <TableRow {...getRowProps({ row })}>
                                                                             {row.cells.map((cell) => (
                                                                                 <TableCell key={cell.id}>
-                                                                                    {cell.info.header === "totalCost"
+                                                                                    {cell.info.header === "totalCost" || cell.info.header === "monthlyCost"
                                                                                         ? <span className="cost-cell">{toCurrency(cell.value as number, "USD")}</span>
                                                                                         : (cell.value || "N/A")}
                                                                                 </TableCell>

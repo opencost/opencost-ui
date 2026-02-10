@@ -1,10 +1,11 @@
 @import "../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css";
+@import "../../node_modules/@carbon/styles/css/styles.css";
 
 body {
   background-color: #f3f3f3;
   display: flex;
   flex-flow: column;
-  font-family: "Roboto", sans-serif;
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   margin: 0px;
   overflow-y: scroll;
 }
@@ -17,4 +18,20 @@ body .page-container {
 
 .recharts-tooltip-wrapper {
   z-index: 1000;
+}
+
+.cds--side-nav {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.cds--side-nav__items {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+}
+
+.cds--side-nav__items > .cds--side-nav__item:last-child {
+  margin-top: auto !important;
+  margin-bottom: 1rem;
 }

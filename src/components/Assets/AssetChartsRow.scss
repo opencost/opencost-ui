@@ -1,0 +1,87 @@
+@use "@carbon/react/scss/spacing" as *;
+@use "@carbon/react/scss/theme" as *;
+@use "@carbon/react/scss/breakpoint" as *;
+
+.asset-charts-row {
+  margin: $spacing-06 0;
+
+  &__grid {
+    gap: $spacing-05;
+  }
+
+  &__tile {
+    position: relative;
+    height: 100%;
+    min-height: 320px;
+    padding: $spacing-05;
+    background-color: $layer-01;
+    border: 1px solid $border-subtle-01;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: $border-subtle-02;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  &__tile-actions,
+  &__tile-header {
+    position: absolute;
+    top: $spacing-03;
+    right: $spacing-03;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: $spacing-03;
+  }
+
+  &__chart {
+    width: 100%;
+    min-height: 260px;
+    margin-top: $spacing-05;
+
+    .cds--cc--chart-wrapper {
+      height: 100%;
+    }
+
+    .cds--cc--title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: $spacing-03;
+      padding-right: $spacing-08;
+    }
+
+    .cds--cc--legend-item {
+      cursor: pointer;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    color: $text-secondary;
+    font-size: 0.875rem;
+  }
+
+  @include breakpoint-down(md) {
+    margin: $spacing-05 0;
+
+    .asset-charts-row__tile {
+      margin-bottom: $spacing-04;
+      min-height: 300px;
+    }
+  }
+
+  @include breakpoint-down(sm) {
+    .asset-charts-row__chart {
+      min-height: 220px;
+    }
+
+    .asset-charts-row__tile {
+      min-height: 280px;
+    }
+  }
+}

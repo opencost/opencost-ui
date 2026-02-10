@@ -16,6 +16,7 @@ import {
   Tile,
   SelectItem,
   FluidSelect,
+  Pagination,
 } from "@carbon/react";
 import {
   Renew,
@@ -48,6 +49,9 @@ const AssetsPage = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [lastTotalCost, setLastTotalCost] = React.useState(null);
   const [previousTotalCost, setPreviousTotalCost] = React.useState(null);
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(25);
+  const [activeTab, setActiveTab] = React.useState(0);
 
   const routerLocation = useLocation();
   const navigate = useNavigate();
@@ -92,6 +96,8 @@ const AssetsPage = () => {
     }
 
     setLoading(false);
+    // Reset pagination when new data loads
+    setPage(1);
   }
 
   const handleDateChange = (dates) => {
@@ -212,6 +218,35 @@ const AssetsPage = () => {
       ? ((sevenDayTotal - previousTotalCost) / previousTotalCost) * 100
       : null;
   const isTrendUp = trendPercentage != null && trendPercentage >= 0;
+
+  // Helper to paginate rows client-side
+  const paginateRows = React.useCallback(
+    (rows) => {
+      if (!rows) return [];
+      const start = (page - 1) * pageSize;
+      return rows.slice(start, start + pageSize);
+    },
+    [page, pageSize]
+  );
+
+  // Determine total items for pagination based on active tab
+  const totalItems = React.useMemo(() => {
+    if (!processData) return 0;
+    switch (activeTab) {
+      case 0:
+        return processData.all.length;
+      case 1:
+        return processData.compute.length;
+      case 2:
+        return processData.storage.length;
+      case 3:
+        return processData.network.length;
+      case 4:
+        return processData.management.length;
+      default:
+        return processData.all.length;
+    }
+  }, [activeTab, processData]);
 
   return (
     <Page active="/assets">
@@ -380,7 +415,13 @@ const AssetsPage = () => {
             <Loading description="Loading assets data" withOverlay={false} />
           </div>
         ) : (
-          <Tabs>
+          <Tabs
+            selectedIndex={activeTab}
+            onChange={({ selectedIndex }) => {
+              setActiveTab(selectedIndex);
+              setPage(1);
+            }}
+          >
             <div
               style={{
                 display: "flex",
@@ -467,7 +508,7 @@ const AssetsPage = () => {
                     { key: "duration", header: "Duration" },
                     { key: "cost", header: "Cost" },
                   ]}
-                  rows={processData.all}
+                  rows={paginateRows(processData.all)}
                   formatters={{
                     duration: formatDuration,
                     cost: formatCurrency,
@@ -492,7 +533,7 @@ const AssetsPage = () => {
                     { key: "gpuCost", header: "GPU Cost" },
                     { key: "totalCost", header: "Total Cost" },
                   ]}
-                  rows={processData.compute.map((r) => ({
+                  rows={paginateRows(processData.compute).map((r) => ({
                     id: r.id,
                     name: r.name,
                     type: r.type,
@@ -530,7 +571,7 @@ const AssetsPage = () => {
                     { key: "duration", header: "Duration" },
                     { key: "cost", header: "Cost" },
                   ]}
-                  rows={processData.storage.map((r) => ({
+                  rows={paginateRows(processData.storage).map((r) => ({
                     id: r.id,
                     volumeName: r.volumeName,
                     claim: r.claim,
@@ -560,7 +601,7 @@ const AssetsPage = () => {
                     { key: "duration", header: "Duration" },
                     { key: "cost", header: "Cost" },
                   ]}
-                  rows={processData.network.map((r) => ({
+                  rows={paginateRows(processData.network).map((r) => ({
                     id: r.id,
                     name: r.name,
                     cluster: r.cluster,
@@ -585,7 +626,7 @@ const AssetsPage = () => {
                     { key: "duration", header: "Duration" },
                     { key: "cost", header: "Cost" },
                   ]}
-                  rows={processData.management.map((r) => ({
+                  rows={paginateRows(processData.management).map((r) => ({
                     id: r.id,
                     service: r.service,
                     cluster: r.cluster,
@@ -601,6 +642,22 @@ const AssetsPage = () => {
               </TabPanel>
             </TabPanels>
           </Tabs>
+        )}
+
+        {/* Pagination below the tables */}
+        {!loading && totalItems > 0 && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              pageSizes={[10, 25, 50, 100]}
+              totalItems={totalItems}
+              onChange={({ page, pageSize }) => {
+                setPage(page);
+                setPageSize(pageSize);
+              }}
+            />
+          </div>
         )}
       </div>
 

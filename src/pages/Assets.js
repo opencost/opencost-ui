@@ -285,8 +285,7 @@ const AssetsPage = () => {
               <>
                 <h2 style={{ margin: 0 }}>
                   {formatCurrency(mostExpensiveAsset.cost)}{" "}
-                  {mostExpensiveAsset.cluster &&
-                    `· ${mostExpensiveAsset.cluster}`}
+                  {mostExpensiveAsset.cluster}
                 </h2>
                 <p
                   style={{

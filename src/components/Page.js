@@ -1,49 +1,57 @@
 import { useLocation } from "react-router";
+import { Theme } from "@carbon/react";
 import { SidebarNav } from "./Nav/SidebarNav";
+import { useTheme } from "../context/ThemeContext";
 
 const Page = (props) => {
   const { pathname } = useLocation();
+  const { theme } = useTheme();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        overflowY: "scroll",
-        margin: "0px",
-        backgroundColor: "f3f3f3",
-      }}
-    >
-      <SidebarNav active={pathname} />
+    <Theme theme={theme}>
       <div
         style={{
           display: "flex",
-          flexFlow: "column",
-          flexGrow: 1,
+          overflowY: "auto",
+          margin: "0px",
+          height: "100vh",
+          backgroundColor: "var(--cds-layer)",
+          color: "var(--cds-text-primary)",
         }}
       >
+        <SidebarNav active={pathname} />
         <div
           style={{
-            position: "relative",
-            height: "100vh",
+            display: "flex",
+            flexFlow: "column",
             flexGrow: 1,
-            overflowX: "auto",
-            paddingLeft: "2rem",
-            paddingRight: "rem",
-            paddingTop: "2.5rem",
+            marginLeft: 256,
+            backgroundColor: "var(--cds-background)",
           }}
         >
           <div
             style={{
-              display: "flex",
-              flexFlow: "column",
+              position: "relative",
               flexGrow: 1,
+              overflow: "auto",
+              paddingLeft: "2rem",
+              paddingRight: "2rem",
+              paddingTop: "2.5rem",
             }}
           >
-            {props.children}
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column",
+                flexGrow: 1,
+              }}
+            >
+              {props.children}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Theme>
   );
 };
 

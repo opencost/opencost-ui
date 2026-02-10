@@ -21,6 +21,7 @@
     "@carbon/charts-react": "^1.27.2",
     "@carbon/icons-react": "^11.74.0",
     "@carbon/react": "^1.100.0",
+    "@carbon/colors": "^11.27.0",
     "@date-io/core": "^3.2.0",
     "@date-io/date-fns": "^3.2.1",
     "@emotion/react": "^11.14.0",

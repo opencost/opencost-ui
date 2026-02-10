@@ -24,8 +24,9 @@
   --color-error-light: var(--cds-support-error-inverse);
 
   /* Warning contrast helpers */
-  --color-on-warning: #161616;
+  --color-on-warning: var(--cds-text-primary);
   --color-warning-badge-bg: var(--cds-support-warning);
+  /* WCAG: dark text on yellow badge regardless of theme */
   --color-warning-badge-text: #161616;
 
   /* Text */
@@ -65,9 +66,10 @@
   --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4);
 
   /* Warning contrast for dark backgrounds */
-  --color-warning: #8e6a00;
-  --color-on-warning: #f4f4f4;
-  --color-warning-badge-bg: #f1c21b;
+  --color-warning: var(--cds-support-caution-major, #8e6a00);
+  --color-on-warning: var(--cds-text-on-color);
+  --color-warning-badge-bg: var(--cds-support-warning);
+  /* WCAG: dark text on yellow badge regardless of theme */
   --color-warning-badge-text: #161616;
 
 }

@@ -2,30 +2,18 @@ import * as React from "react";
 import { Drawer, List } from "@mui/material";
 
 import { NavItem } from "./NavItem";
-import { BarChart, Cloud, Storage } from "@mui/icons-material";
+import { ChartLine, Cloud, Datastore } from "@carbon/icons-react";
 
 const logo = new URL("../../images/logo.png", import.meta.url).href;
 
 const DRAWER_WIDTH = 200;
 
 const SidebarNav = ({ active }) => {
-  const [init, setInit] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!init) {
-      setInit(true);
-    }
-  }, [init]);
-
   const top = [
-    {
-      name: "Cost Allocation",
-      href: "/allocation",
-      icon: <BarChart />,
-    },
-    { name: "Cloud Costs", href: "/cloud", icon: <Cloud /> },
-    { name: "External Costs", href: "/external-costs", icon: <Cloud /> },
-    { name: "Assets", href: "/assets", icon: <Storage /> },
+    { name: "Cost Allocation", href: "/allocation", icon: <ChartLine size={20} /> },
+    { name: "Cloud Costs", href: "/cloud", icon: <Cloud size={20} /> },
+    { name: "External Costs", href: "/external-costs", icon: <Cloud size={20} /> },
+    { name: "Assets", href: "/assets", icon: <Datastore size={20} /> },
   ];
 
   return (

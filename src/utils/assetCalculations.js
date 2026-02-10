@@ -1,3 +1,15 @@
+import {
+  magenta40, magenta50, magenta70,
+  cyan30,    cyan40,    cyan50,    cyan90,
+  teal30,    teal40,    teal50,    teal70,
+  red40,     red50,     red60,     red90,
+  green50,   green60,
+  blue40,    blue50,    blue80,
+  purple40,  purple70,
+  yellow30,  yellow50,
+  orange40,  orange70,
+} from "@carbon/colors";
+
 export const parseDays = (timeWindow) => {
   if (!timeWindow) return 30;
 
@@ -121,46 +133,47 @@ export const formatCurrency = (amount, showCents = true) => {
   });
 };
 
-// Light-theme categorical palette (14 colors) 
+// Categorical palette for light themes — Carbon Design System colors
 export const CHART_PALETTE_LIGHT = [
-  "#ee538b", // Magenta 50
-  "#1192e8", // Cyan 50
-  "#005d5d", // Teal 70
-  "#9f1853", // Magenta 70
-  "#fa4d56", // Red 50
-  "#570408", // Red 90
-  "#198038", // Green 60
-  "#002d9c", // Blue 80
-  "#6929c4", // Purple 70
-  "#b28600", // Yellow 50
-  "#8a3800", // Orange 70
-  "#78a9ff", // Blue 40
-  "#009d9a", // Teal 50
-  "#012749", // Cyan 90
+  magenta50, // #ee5396
+  cyan50,    // #1192e8
+  teal70,    // #005d5d
+  magenta70, // #9f1853
+  red50,     // #fa4d56
+  red90,     // #520408
+  green60,   // #198038
+  blue80,    // #002d9c
+  purple70,  // #6929c4
+  yellow50,  // #b28600
+  orange70,  // #8a3800
+  blue40,    // #78a9ff
+  teal50,    // #009d9a
+  cyan90,    // #012749
 ];
 
-// Dark-theme categorical palette (higher luminosity for dark backgrounds)
+// Categorical palette for dark themes — higher luminosity for dark backgrounds
 export const CHART_PALETTE_DARK = [
-  "#ff7eb6", // Magenta 40
-  "#33b1ff", // Cyan 40
-  "#08bdba", // Teal 40
-  "#ee5396", // Magenta 50
-  "#ff8389", // Red 40
-  "#ff6168", // Red 50
-  "#42be65", // Green 50
-  "#78a9ff", // Blue 40
-  "#be95ff", // Purple 40
-  "#f1c21b", // Yellow 30
-  "#ff832b", // Orange 40
-  "#82cfff", // Blue 30
-  "#3ddbd9", // Teal 30
-  "#4589ff", // Cyan 40
+  magenta40, // #ff7eb6
+  cyan40,    // #33b1ff
+  teal40,    // #08bdba
+  magenta50, // #ee5396
+  red40,     // #ff8389
+  red50,     // #fa4d56
+  green50,   // #24a148
+  blue40,    // #78a9ff
+  purple40,  // #be95ff
+  yellow30,  // #f1c21b
+  orange40,  // #ff832b
+  cyan30,    // #82cfff
+  teal30,    // #3ddbd9
+  blue50,    // #4589ff
 ];
 
+// Status colors for chart/SVG use — hex required by D3, sourced from @carbon/colors
 export const STATUS_COLORS = {
-  Efficient: "#24a148", // Green 50 — high contrast
-  Healthy: "#4589ff",   // Blue 40  — high contrast
-  Critical: "#da1e28",  // Red 60   — high contrast
+  Efficient: green60, // #198038 — Carbon Green 60, support-success
+  Healthy: blue50,    // #4589ff — Carbon Blue 50
+  Critical: red60,    // #da1e28 — Carbon Red 60, support-error
 };
 
 export const buildColorScale = (groups, isDark = false) => {

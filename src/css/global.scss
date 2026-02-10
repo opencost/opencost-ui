@@ -1,0 +1,664 @@
+// ============================================
+// OpenCost Global Theme Definitions
+// ============================================
+// Using Carbon Design System color palette
+// with purple/blue shades for charts and visualizations
+
+// ============================================
+// CSS Custom Properties (Design Tokens)
+// ============================================
+// These tokens are used by chart components for consistent theming
+// and can be consumed via var(--token-name) in components
+
+:root {
+  /* Provider colors - Blue/Violet spectrum with transparency */
+  --chart-provider-aws: rgba(69, 137, 255, 0.85);
+  --chart-provider-gcp: rgba(0, 112, 195, 0.85);
+  --chart-provider-azure: rgba(0, 161, 161, 0.85);
+  --chart-provider-oracle: rgba(125, 60, 255, 0.85);
+  --chart-provider-alibaba: rgba(255, 165, 0, 0.85);
+  --chart-provider-unknown: rgba(135, 141, 150, 0.7);
+
+  /* Category colors - Purple/Pink/Teal spectrum with transparency */
+  --chart-category-compute: rgba(138, 63, 252, 0.85);
+  --chart-category-management: rgba(253, 66, 147, 0.85);
+  --chart-category-storage: rgba(1, 149, 255, 0.85);
+  --chart-category-network: rgba(0, 218, 207, 0.85);
+
+  /* State colors */
+  --state-error: #da1e28;
+  --state-warning: #f1c21b;
+  --state-success: #24a148;
+  --state-info: #0072c3;
+
+  /* Custom Colors */
+  --table-header-bg: #fafafa; // Lighter gray for table headers
+  --card-gap: 3px;
+
+  /* Shared Colors for JS consumption */
+  --color-primary-purple: #8a3ffc;
+  --color-secondary-blue: #0072c3;
+  --color-teal: #009d9a;
+  --color-gray-100: #161616;
+  --color-gray-60: #6f6f6f;
+  --color-gray-20: #e0e0e0;
+}
+
+// ============================================
+// Carbon Color Palette
+// ============================================
+
+// Primary Colors (based on Carbon Purple)
+$primary-purple-60: #8a3ffc;
+$primary-purple-50: #a56eff;
+$primary-purple-40: #be95ff;
+$primary-purple-70: #6929c4;
+
+// Secondary Colors (based on Carbon Blue)
+$secondary-blue-60: #0072c3;
+$secondary-blue-50: #1192e8;
+$secondary-blue-40: #33b1ff;
+$secondary-blue-70: #00539a;
+
+// Teal Colors
+$teal-60: #009d9a;
+$teal-50: #08bdba;
+$teal-40: #3ddbd9;
+
+// Green Colors (for carbon emissions)
+$green-60: #24a148;
+$green-50: #42be65;
+$green-40: #6fdc8c;
+
+// Cyan Colors
+$cyan-60: #0072c3;
+$cyan-50: #1192e8;
+$cyan-40: #33b1ff;
+
+// Magenta Colors
+$magenta-60: #d12771;
+$magenta-50: #ee5396;
+$magenta-40: #ff7eb6;
+
+// Error/Warning Colors (Carbon)
+$danger-60: #da1e28;
+$warning-50: #f1c21b;
+$success-60: #24a148;
+
+// Neutral Colors (Carbon Gray)
+$gray-100: #161616;
+$gray-90: #262626;
+$gray-80: #393939;
+$gray-70: #525252;
+$gray-60: #6f6f6f;
+$gray-50: #8d8d8d;
+$gray-40: #a8a8a8;
+$gray-30: #c6c6c6;
+$gray-20: #e0e0e0;
+// $gray-10: #f4f4f4; // Carbon default
+$gray-10: var(--table-header-bg); 
+$white: #ffffff;
+
+// ============================================
+// Chart Colors 
+// ============================================
+
+$chart-purple: $primary-purple-60;
+$chart-blue: $secondary-blue-60;
+$chart-teal: $teal-60;
+$chart-magenta: $magenta-60;
+$chart-green: $green-60;
+
+// ============================================
+// Spacing 
+// ============================================
+$spacing-01: 0.125rem; // 2px
+$spacing-02: 0.25rem; // 4px
+$spacing-03: 0.5rem; // 8px
+$spacing-04: 0.75rem; // 12px
+$spacing-05: 1rem; // 16px
+$spacing-06: 1.5rem; // 24px
+$spacing-07: 2rem; // 32px
+$spacing-08: 2.5rem; // 40px
+$spacing-09: 3rem; // 48px
+
+// ============================================
+// Typography 
+// ============================================
+$font-family: 'IBM Plex Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-family-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+// ============================================
+// Global Base Styles
+// ============================================
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ============================================
+// Assets Page Specific Styles
+// ============================================
+
+// Donut Chart Customizations
+.donut-chart-no-center {
+
+
+  .cds--cc--donut-figure,
+  .text-middle,
+  .donut-figure,
+  .center-label {
+    display: none !important;
+  }
+
+  .cds--cc--chart-wrapper svg text.donut-figure,
+  .cds--cc--chart-wrapper svg g.center {
+    display: none !important;
+  }
+}
+
+.assets-page-container {
+  padding: $spacing-06;
+  background-color: $gray-10;
+  min-height: 100vh;
+  font-family: $font-family;
+
+}
+
+// Card customizations 
+.asset-card {
+  background-color: $white;
+  border-radius: 4px !important;
+  border: 1px solid $gray-20;
+  padding: $spacing-06;
+  height: 100%;
+
+}
+
+// Chart specific styles
+.chart-title-large {
+  font-size: 1.25rem !important; 
+  font-weight: 600;
+  color: $gray-100;
+  margin-bottom: $spacing-05;
+}
+
+// Donut Chart Legend Sizing
+.donut-chart-wrapper {
+
+  // Target internal Carbon Chart Legend
+  .cds--cc--legend {
+    .cds--cc--legend-item {
+      text {
+        font-size: 14px !important; 
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// KPI Card Row Gap
+.kpi-row-gap {
+  gap: 3px !important;
+}
+
+// ============================================
+// DataTable Customizations 
+// ============================================
+
+.resource-table-container {
+  @extend .asset-card; 
+  padding: $spacing-06;
+  margin-top: $spacing-06; 
+}
+
+.resource-search-container {
+  margin-bottom: $spacing-05;
+
+  // Custom search box style 
+  .cds--search {
+    background-color: $white;
+    border: 1px solid $gray-20;
+    border-radius: 4px;
+    height: 40px;
+  }
+}
+
+.styled-data-table {
+  width: 100%;
+
+  // Header style
+  thead {
+    background-color: var(--table-header-bg);
+
+    th {
+      background-color: var(--table-header-bg) !important;
+      font-weight: 500;
+      color: $gray-80;
+      border-bottom: 1px solid $gray-20;
+      padding-top: $spacing-04;
+      padding-bottom: $spacing-04;
+    }
+  }
+
+  // Row style
+  tbody tr {
+    td {
+      border-bottom: 1px solid $gray-20;
+      padding-top: $spacing-04;
+      padding-bottom: $spacing-04;
+      background-color: $white !important; // Clean white rows
+    }
+
+    &:hover td {
+      background-color: #fcfcfc !important;
+    }
+  }
+}
+
+// White Background Utilities
+.white-bg-input {
+  input {
+    background-color: #ffffff !important;
+  }
+}
+
+.white-bg-dropdown {
+  button {
+    background-color: #ffffff !important;
+  }
+
+  .cds--list-box__menu-item,
+  .cds--list-box__field {
+    background-color: #ffffff !important;
+  }
+}
+
+.white-bg-button {
+  background-color: #ffffff !important;
+  border-color: $gray-20 !important;
+
+  &:hover {
+    background-color: $gray-10 !important;
+  }
+}
+
+// Type Icon + Text
+.cell-type {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+  color: $secondary-blue-60; // Blue text for "Node", "Disk" etc.
+  font-weight: 500;
+
+  svg {
+    fill: $secondary-blue-60;
+  }
+}
+
+// Category Pill
+.cell-category {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &--compute {
+    background-color: rgba($primary-purple-60, 0.1);
+    color: $primary-purple-60;
+  }
+
+  &--storage {
+    background-color: rgba($secondary-blue-60, 0.1);
+    color: $secondary-blue-60;
+  }
+
+  &--network {
+    background-color: rgba($teal-60, 0.1);
+    color: $teal-60;
+  }
+
+  &--management {
+    background-color: rgba($magenta-60, 0.1);
+    color: $magenta-60;
+  }
+
+  &--other {
+    background-color: $gray-20;
+    color: $gray-70;
+  }
+}
+
+// Cost Bold
+.cell-cost {
+  font-weight: 700;
+  color: $gray-100;
+}
+
+// ============================================
+// State Containers
+// ============================================
+
+.loading-container,
+.empty-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: $white;
+  text-align: center;
+  padding: $spacing-09 $spacing-06;
+  border-radius: 4px; // Consistent rounded corners
+}
+
+.empty-container {
+  .empty-icon {
+    color: $gray-50;
+    margin-bottom: $spacing-05;
+  }
+
+  .empty-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $gray-100;
+    margin-bottom: $spacing-03;
+  }
+
+  .empty-message {
+    color: $gray-60;
+    margin-bottom: $spacing-05;
+  }
+}
+
+.error-container {
+  border-left: 4px solid $danger-60;
+
+  .error-icon {
+    color: $danger-60;
+    margin-bottom: $spacing-05;
+  }
+
+  .error-title {
+    color: $danger-60;
+    margin-bottom: $spacing-03;
+  }
+
+  .error-message {
+    color: $gray-60;
+    margin-bottom: $spacing-05;
+  }
+}
+
+// ============================================
+// Chart Styles
+// ============================================
+
+// Chart container styling with rounded corners
+.chart-card-container {
+  background-color: $white;
+  border: 1px solid $gray-20;
+  padding: $spacing-06;
+  border-radius: 4px;
+}
+
+.chart-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+  color: $gray-60;
+
+  .empty-icon {
+    margin-bottom: $spacing-04;
+    color: $gray-50;
+    fill: $gray-50;
+  }
+}
+
+.kpi-card-container {
+  @extend .asset-card;
+  background-color: $white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 120px;
+  box-shadow: none;
+  border: none;
+
+  &.outlier {
+    border-left: 4px solid var(--state-error);
+  }
+
+  .kpi-title {
+    font-size: 11px;
+    font-weight: 400;
+    color: $gray-60;
+    text-transform: uppercase;
+    letter-spacing: 0.32px;
+    margin-bottom: $spacing-03;
+  }
+
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: $spacing-02;
+    display: flex;
+    align-items: center;
+    gap: $spacing-03;
+    flex-wrap: wrap;
+  }
+
+  .kpi-subtitle {
+    font-size: 12px;
+    font-weight: 400;
+    color: $gray-60;
+    margin-top: 0;
+  }
+}
+
+.asset-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-06;
+  padding-bottom: $spacing-05;
+  border-bottom: 1px solid $gray-20;
+
+  .header-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: $gray-100;
+    letter-spacing: -0.02em;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: $spacing-05;
+    align-items: center;
+
+    .date-label {
+      font-size: 12px;
+      font-weight: 400;
+      color: $gray-60;
+      margin-right: $spacing-03;
+    }
+  }
+}
+
+// ============================================
+// Utility Classes
+// ============================================
+
+.margin-bottom-05 {
+  margin-bottom: $spacing-05 !important;
+}
+
+.margin-top-0 {
+  margin-top: 0 !important;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-05;
+}
+
+.search-container-width {
+  width: 300px;
+}
+
+.actions-container {
+  display: flex;
+  gap: $spacing-05;
+  align-items: center;
+}
+
+.dropdown-min-width {
+  min-width: 160px;
+}
+
+.button-border {
+  border: 1px solid $gray-20 !important;
+}
+
+.text-center-padding-24 {
+  text-align: center;
+  padding: 24px;
+}
+
+.margin-bottom-gap-3 {
+  margin-bottom: 3px !important;
+}
+
+.margin-top-gap-3 {
+  margin-top: 3px !important;
+}
+
+.chart-padding-provider {
+  padding: 1.5px 0 16px 0;
+}
+
+.chart-padding-category {
+  padding: 1.5px 1.5px 1.5px 0;
+}
+
+.chart-padding-emission {
+  padding: 1.5px 0 1.5px 1.5px;
+}
+
+.kpi-icon-container {
+  display: inline-flex;
+  margin-right: $spacing-03;
+}
+
+.kpi-arrow {
+  color: $gray-60;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.kpi-secondary-value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.margin-bottom-0 {
+  margin-bottom: 0 !important;
+}
+
+.margin-bottom-spacing-03 {
+  margin-bottom: $spacing-03 !important; // 8px
+}
+
+.margin-bottom-spacing-04 {
+  margin-bottom: $spacing-04 !important; // 12px
+}
+
+// ============================================
+// Cost Over Time Chart 
+// ============================================
+.cost-over-time-wrapper {
+
+  .cds--cc--chart-wrapper {
+    padding: 0 !important;
+  }
+
+}
+
+// ============================================
+// Service Chart Header (with dropdown)
+// ============================================
+.chart-card-service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-05;
+}
+
+// ============================================
+// Chart Animation
+// ============================================
+@keyframes chartFadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-animate-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.chart-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
+// Charts Grid Utilities
+// ============================================
+.charts-grid {
+
+  // Ensure equal height charts
+  .cds--col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-card-container {
+    flex: 1;
+  }
+}
+
+.chart-padding-half {
+  padding: 1.5px;
+}
+
+// ============================================
+// KPI Card Row layout
+// ============================================
+.kpi-col {
+  padding-left: 1.5px !important;
+  padding-right: 1.5px !important;
+}

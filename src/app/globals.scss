@@ -1,28 +1,14 @@
-@import '../../node_modules/material-design-icons-iconfont/dist/material-design-icons.css';
+@use '@carbon/react';
 
+/* Font Configuration */
 body {
-    background-color: #F3F3F3;
-    display: flex;
-    flex-flow: column;
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    margin: 0px;
-    overflow-y: scroll;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-body .page-container {
-    display: flex;
-    flex-flow: column;
-    flex-grow: 1;
-}
-
-.recharts-tooltip-wrapper {
-    z-index: 1000;
-}
-
-/* Custom styles for the new dashboard */
+/* Custom styles for the application */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

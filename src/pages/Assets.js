@@ -279,7 +279,7 @@ const AssetsPage = () => {
               }}
             >
               <TrophyFilled size={20} />
-              <h4 style={{ margin: 0 }}>Most Expensive Asset</h4>
+              <h4 style={{ margin: 0, backgroundColor: "#FFF1E6" }}>Most Expensive Asset</h4>
             </div>
             {mostExpensiveAsset ? (
               <>
@@ -295,17 +295,6 @@ const AssetsPage = () => {
                   }}
                 >
                   {mostExpensiveAsset.type || mostExpensiveAsset.category}
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    marginTop: 4,
-                    fontSize: 12,
-                    color: "#0f62fe",
-                    fontWeight: 600,
-                  }}
-                >
-                  Top cost driver
                 </p>
               </>
             ) : (

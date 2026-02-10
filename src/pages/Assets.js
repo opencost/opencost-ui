@@ -25,6 +25,9 @@ import {
   Network_4,
   Settings,
   Money,
+  CaretUp,
+  CaretDown,
+  ChartArea,
 } from "@carbon/icons-react";
 import { useLocation, useNavigate } from "react-router";
 import AssetsService from "../services/assets";
@@ -42,6 +45,8 @@ const AssetsPage = () => {
   const [dateRange, setDateRange] = React.useState([null, null]);
   const [selectedAsset, setSelectedAsset] = React.useState(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [lastTotalCost, setLastTotalCost] = React.useState(null);
+  const [previousTotalCost, setPreviousTotalCost] = React.useState(null);
 
   const routerLocation = useLocation();
   const navigate = useNavigate();
@@ -63,8 +68,17 @@ const AssetsPage = () => {
     try {
       const resp = await AssetsService.fetchAssets(winParam);
       if (resp && resp.data) {
+        // Compute total cost for this window for prediction/trend
+        let newTotal = 0;
+        Object.values(resp.data).forEach((asset) => {
+          newTotal += asset.totalCost || 0;
+        });
+        setPreviousTotalCost(lastTotalCost);
+        setLastTotalCost(newTotal);
         setAssetsData(resp.data);
       } else {
+        setPreviousTotalCost(lastTotalCost);
+        setLastTotalCost(0);
         setAssetsData({});
       }
     } catch (err) {
@@ -178,6 +192,16 @@ const AssetsPage = () => {
     };
   }, [assetsData]);
 
+  // Monthly bill prediction based on last 7 days cost
+  const sevenDayTotal =
+    lastTotalCost != null ? lastTotalCost : processData.totalCost || 0;
+  const monthlyPrediction = sevenDayTotal * (30 / 7);
+  const trendPercentage =
+    previousTotalCost != null && previousTotalCost > 0
+      ? ((sevenDayTotal - previousTotalCost) / previousTotalCost) * 100
+      : null;
+  const isTrendUp = trendPercentage != null && trendPercentage >= 0;
+
   return (
     <Page active="/assets">
       <Header headerTitle="Asset Costs">
@@ -233,6 +257,60 @@ const AssetsPage = () => {
               </h2>
             </Tile>
           ))}
+
+          {/* 6th card: Monthly Bill Prediction */}
+          <Tile style={{ flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 8,
+              }}
+            >
+              <ChartArea size={20} />
+              <h4 style={{ margin: 0 }}>Monthly Bill Prediction</h4>
+            </div>
+            <h2
+              style={{
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#0f62fe",
+              }}
+            >
+              {formatCurrency(monthlyPrediction)}
+              {trendPercentage != null && (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 12,
+                    color: isTrendUp ? "#24a148" : "#da1e28",
+                  }}
+                >
+                  {isTrendUp ? (
+                    <CaretUp size={16} />
+                  ) : (
+                    <CaretDown size={16} />
+                  )}
+                  {`${Math.abs(trendPercentage).toFixed(1)}%`}
+                </span>
+              )}
+            </h2>
+            <p
+              style={{
+                margin: 0,
+                marginTop: 4,
+                fontSize: 12,
+                color: "#6f6f6f",
+              }}
+            >
+              Based on 7-day trend
+            </p>
+          </Tile>
         </div>
 
         {/* Charts row: 4 charts in one row (25% width each) */}

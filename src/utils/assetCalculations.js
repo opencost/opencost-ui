@@ -158,10 +158,8 @@ export const CHART_PALETTE_DARK = [
   "#012749", // Cyan 90
 ];
 
-// Backward-compatible alias
 export const CHART_PALETTE = CHART_PALETTE_LIGHT;
 
-// Semantic status colors (green = good, yellow/blue = review, red = bad)
 export const STATUS_COLORS = {
   Efficient: "#24a148", // Green 50 — high contrast
   Healthy: "#4589ff",   // Blue 40  — high contrast

@@ -12,9 +12,6 @@ const ThemeToggle = () => {
       label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={toggleTheme}
       align="right"
-      style={{
-        color: isDark ? "#d12771" : "#ee538b",
-      }}
     >
       {isDark ? <Light size={20} /> : <Asleep size={20} />}
     </IconButton>

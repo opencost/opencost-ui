@@ -28,6 +28,7 @@ import {
   CaretUp,
   CaretDown,
   ChartArea,
+  TrophyFilled,
 } from "@carbon/icons-react";
 import { useLocation, useNavigate } from "react-router";
 import AssetsService from "../services/assets";
@@ -192,6 +193,16 @@ const AssetsPage = () => {
     };
   }, [assetsData]);
 
+  // Most expensive single asset across all categories
+  const mostExpensiveAsset = React.useMemo(() => {
+    if (!processData.all || processData.all.length === 0) {
+      return null;
+    }
+    return processData.all.reduce((max, current) =>
+      !max || current.cost > max.cost ? current : max
+    , null);
+  }, [processData.all]);
+
   // Monthly bill prediction based on last 7 days cost
   const sevenDayTotal =
     lastTotalCost != null ? lastTotalCost : processData.totalCost || 0;
@@ -238,7 +249,6 @@ const AssetsPage = () => {
             { name: "Compute", icon: VirtualMachine },
             { name: "Storage", icon: StoragePool },
             { name: "Network", icon: Network_4 },
-            { name: "Management", icon: Settings },
           ].map((cat) => (
             <Tile key={cat.name} style={{ flex: 1 }}>
               <div
@@ -257,6 +267,61 @@ const AssetsPage = () => {
               </h2>
             </Tile>
           ))}
+
+          {/* 5th card: Most Expensive Asset (replaces Management Cost) */}
+          <Tile style={{ flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 8,
+              }}
+            >
+              <TrophyFilled size={20} />
+              <h4 style={{ margin: 0 }}>Most Expensive Asset</h4>
+            </div>
+            {mostExpensiveAsset ? (
+              <>
+                <h2 style={{ margin: 0 }}>
+                  {mostExpensiveAsset.type || mostExpensiveAsset.category}
+                </h2>
+                <p
+                  style={{
+                    margin: 0,
+                    marginTop: 4,
+                    fontSize: 12,
+                    color: "#6f6f6f",
+                  }}
+                >
+                  {formatCurrency(mostExpensiveAsset.cost)}{" "}
+                  {mostExpensiveAsset.cluster &&
+                    `· ${mostExpensiveAsset.cluster}`}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    marginTop: 4,
+                    fontSize: 12,
+                    color: "#0f62fe",
+                    fontWeight: 600,
+                  }}
+                >
+                  Top cost driver
+                </p>
+              </>
+            ) : (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 12,
+                  color: "#6f6f6f",
+                }}
+              >
+                No asset data available
+              </p>
+            )}
+          </Tile>
 
           {/* 6th card: Monthly Bill Prediction */}
           <Tile style={{ flex: 1 }}>

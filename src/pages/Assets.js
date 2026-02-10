@@ -284,7 +284,9 @@ const AssetsPage = () => {
             {mostExpensiveAsset ? (
               <>
                 <h2 style={{ margin: 0 }}>
-                  {mostExpensiveAsset.type || mostExpensiveAsset.category}
+                  {formatCurrency(mostExpensiveAsset.cost)}{" "}
+                  {mostExpensiveAsset.cluster &&
+                    `· ${mostExpensiveAsset.cluster}`}
                 </h2>
                 <p
                   style={{
@@ -294,9 +296,7 @@ const AssetsPage = () => {
                     color: "#6f6f6f",
                   }}
                 >
-                  {formatCurrency(mostExpensiveAsset.cost)}{" "}
-                  {mostExpensiveAsset.cluster &&
-                    `· ${mostExpensiveAsset.cluster}`}
+                  {mostExpensiveAsset.type || mostExpensiveAsset.category}
                 </p>
                 <p
                   style={{

@@ -119,8 +119,8 @@ describe("assetCalculations", () => {
       expect(CHART_PALETTE_LIGHT[0]).toBe("#ee538b");
     });
 
-    it("dark palette leads with Magenta 60", () => {
-      expect(CHART_PALETTE_DARK[0]).toBe("#d12771");
+    it("dark palette leads with Magenta 40", () => {
+      expect(CHART_PALETTE_DARK[0]).toBe("#ff7eb6");
     });
   });
 });

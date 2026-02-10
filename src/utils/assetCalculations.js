@@ -26,9 +26,8 @@ export const getIdlePercentage = (asset) => {
 };
 
 export const getUsedPercentage = (asset) => {
-  if (!asset) return 0;
-  const idle = getIdlePercentage(asset) / 100;
-  return parseFloat(((1 - idle) * 100).toFixed(1));
+  if (!asset || !asset.breakdown) return 100;
+  return parseFloat(((1 - (asset.breakdown.idle || 0)) * 100).toFixed(1));
 };
 
 export const getTotalCost = (assets) => {
@@ -140,22 +139,22 @@ export const CHART_PALETTE_LIGHT = [
   "#012749", // Cyan 90
 ];
 
-// Dark-theme categorical palette
+// Dark-theme categorical palette (higher luminosity for dark backgrounds)
 export const CHART_PALETTE_DARK = [
-  "#d12771", // Magenta 60
-  "#1192e8", // Cyan 50
-  "#005d5d", // Teal 70
-  "#9f1853", // Magenta 70
-  "#fa4d56", // Red 50
-  "#570408", // Red 90
-  "#198038", // Green 60
-  "#002d9c", // Blue 80
-  "#6929c4", // Purple 70
-  "#b28600", // Yellow 50
-  "#8a3800", // Orange 70
+  "#ff7eb6", // Magenta 40
+  "#33b1ff", // Cyan 40
+  "#08bdba", // Teal 40
+  "#ee5396", // Magenta 50
+  "#ff8389", // Red 40
+  "#ff6168", // Red 50
+  "#42be65", // Green 50
   "#78a9ff", // Blue 40
-  "#009d9a", // Teal 50
-  "#012749", // Cyan 90
+  "#be95ff", // Purple 40
+  "#f1c21b", // Yellow 30
+  "#ff832b", // Orange 40
+  "#82cfff", // Blue 30
+  "#3ddbd9", // Teal 30
+  "#4589ff", // Cyan 40
 ];
 
 export const CHART_PALETTE = CHART_PALETTE_LIGHT;

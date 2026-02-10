@@ -13,16 +13,6 @@
   box-shadow: var(--shadow-lg);
 }
 
-.cds--btn--primary {
-  background-color: var(--color-primary);
-}
-
-.cds--btn--secondary {
-  background-color: transparent;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
 /* Asset Table */
 .asset-name-cell {
   transition: opacity 0.2s ease;
@@ -41,7 +31,6 @@
   padding: 2rem;
   background-color: var(--color-background);
   min-height: 100vh;
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .assets-loading,
@@ -61,63 +50,6 @@
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
-}
-
-.btn-retry,
-.btn-mock,
-.btn-refresh,
-.btn-clear-filters,
-.btn-action,
-.btn-pagination {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--color-primary);
-  color: var(--cds-text-on-color, #fff);
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.btn-retry:hover,
-.btn-mock:hover,
-.btn-refresh:hover {
-  background-color: var(--color-primary-hover);
-}
-
-.btn-clear-filters,
-.btn-action {
-  background-color: var(--color-warning);
-  color: var(--color-on-warning);
-  font-size: 0.875rem;
-  padding: 0.4rem 0.8rem;
-}
-
-.btn-clear-filters:hover,
-.btn-action:hover {
-  background-color: var(--cds-support-warning);
-}
-
-.btn-refresh {
-  padding: 0.3rem 0.6rem;
-  font-size: 1rem;
-  background-color: transparent;
-  color: var(--cds-interactive);
-  border: 1px solid var(--cds-interactive);
-}
-
-.btn-refresh:hover {
-  background-color: var(--cds-highlight);
-}
-
-.btn-pagination {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.875rem;
-}
-
-.btn-pagination:disabled {
-  background-color: var(--cds-text-disabled);
-  cursor: not-allowed;
 }
 
 .assets-header-controls {

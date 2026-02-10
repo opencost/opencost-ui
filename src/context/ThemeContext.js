@@ -47,10 +47,10 @@ export const ThemeProvider = ({ children }) => {
     });
   }, []);
 
-  // Sync body background since <body> is outside the Carbon Theme wrapper
+  // Sync body theme attribute since <body> is outside the Carbon Theme wrapper
   useEffect(() => {
-    document.body.style.backgroundColor = isDark ? "#262626" : "#f4f4f4";
-  }, [isDark]);
+    document.body.setAttribute("data-carbon-theme", theme);
+  }, [theme]);
 
   const value = useMemo(
     () => ({ theme, isDark, toggleTheme }),

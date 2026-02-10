@@ -40,7 +40,7 @@ class AssetsService {
             // Always use mock data when backend fails if USE_MOCK_DATA is true
             if (USE_MOCK_DATA) {
                 console.warn("Backend not available or failed, using mock asset data");
-                return getMockAssetData(window, options);
+                return getMockAssetData(window, options) as unknown as AssetResponse;
             }
             throw error;
         }
@@ -68,7 +68,7 @@ class AssetsService {
             // Always use mock data when backend fails if USE_MOCK_DATA is true
             if (USE_MOCK_DATA) {
                 console.warn("Backend not available or failed, using mock carbon data");
-                return getMockAssetCarbonData(window, options);
+                return getMockAssetCarbonData(window, options) as unknown as AssetResponse;
             }
             throw error;
         }
@@ -87,7 +87,7 @@ class AssetsService {
         } catch (error) {
             if (USE_MOCK_DATA) {
                 console.warn("Backend not available or failed, using mock cost over time data");
-                return getMockCostOverTimeData(window);
+                return getMockCostOverTimeData(window) as unknown as AssetResponse;
             }
             throw error;
         }
@@ -102,14 +102,14 @@ class AssetsService {
      */
     async fetchCostByService(window: string, breakdown: string = 'service', options: FetchOptions = {}): Promise<AssetResponse> {
         try {
-            const response = await client.get("/assets/costByService", { 
-                params: { window, breakdown } 
+            const response = await client.get("/assets/costByService", {
+                params: { window, breakdown }
             });
             return response.data;
         } catch (error) {
             if (USE_MOCK_DATA) {
                 console.warn("Backend not available or failed, using mock cost by service data");
-                return getMockCostByServiceData(window, breakdown);
+                return getMockCostByServiceData(window, breakdown) as unknown as AssetResponse;
             }
             throw error;
         }

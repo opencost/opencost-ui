@@ -169,7 +169,7 @@ const AssetsPage: React.FC = () => {
     const searchParams = new URLSearchParams(routerLocation.search);
     const navigate = useNavigate();
 
-    const win = searchParams.get('window') || '7d';
+    const win = searchParams.get('window') || '30d';
     const assetType = searchParams.get('type') || 'all';
 
     // Local filter state
@@ -194,8 +194,8 @@ const AssetsPage: React.FC = () => {
 
             setAssets(processAssets(assetsResponse));
             setCarbonData(processCarbonData(carbonResponse));
-            setCostOverTimeData(costTrendResponse.data || []);
-            setCostByServiceData(serviceResponse.data || []);
+            setCostOverTimeData((costTrendResponse.data as any[]) || []);
+            setCostByServiceData((serviceResponse.data as any[]) || []);
         } catch (err) {
             console.error('Failed to fetch assets:', err);
             setError(err instanceof Error ? err.message : 'Failed to fetch asset data');
@@ -217,7 +217,7 @@ const AssetsPage: React.FC = () => {
         setSelectedServiceBreakdown(item.id);
         try {
             const serviceResponse = await AssetsService.fetchCostByService(win, item.id);
-            setCostByServiceData(serviceResponse.data || []);
+            setCostByServiceData((serviceResponse.data as any[]) || []);
         } catch (err) {
             console.error('Failed to fetch service data:', err);
         }
@@ -245,7 +245,7 @@ const AssetsPage: React.FC = () => {
     // ============================================
     const kpiData = useMemo((): KPIData[] => {
         const totalCost = filteredAssets.reduce((sum, a) => sum + a.totalCost, 0);
-        
+
         // Find dominant class (most common type)
         const typeCounts: Record<string, number> = {};
         filteredAssets.forEach(a => {
@@ -253,9 +253,9 @@ const AssetsPage: React.FC = () => {
         });
         const dominantType = Object.entries(typeCounts)
             .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Node';
-        
+
         const totalCarbon = carbonData.reduce((sum, c) => sum + c.carbonKg, 0);
-        
+
         // Find cost outlier (highest cost single resource)
         const outlierAsset = filteredAssets.length > 0
             ? filteredAssets.reduce((max, a) => a.totalCost > max.totalCost ? a : max, filteredAssets[0])
@@ -274,7 +274,7 @@ const AssetsPage: React.FC = () => {
                 title: 'Dominant Class',
                 value: dominantType,
                 subtitle: 'Highest presence',
-                valueColor: 'var(--chart-category-compute)',
+                valueColor: 'var(--color-secondary-blue)',
             },
             {
                 id: 'carbon-emission',
@@ -396,7 +396,7 @@ const AssetsPage: React.FC = () => {
         <Page active="/assets">
             <Theme theme="white">
                 <div className="assets-page-container">
-                   
+
                     <AssetPageHeader
                         title="Assets Page"
                         dateRangeOptions={windowOptions}

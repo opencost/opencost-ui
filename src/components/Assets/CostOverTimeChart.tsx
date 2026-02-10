@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { StackedAreaChart } from '@carbon/charts-react';
 import { LoadingState, ErrorState, EmptyState } from '../core';
 import '@carbon/charts/styles.css';
@@ -16,14 +16,22 @@ const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
     error = null,
     height = '340px'
 }) => {
-    const [visible, setVisible] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // Fade-in animation on mount
-    useEffect(() => {
-        const timer = setTimeout(() => setVisible(true), 100);
-        return () => clearTimeout(timer);
-    }, []);
+    // Convert string dates to Date objects for time scale
+    const processedData = data.map((item: any) => {
+        if (item.date instanceof Date) return item;
+        // Parse 'Jan 1' style labels into Date objects
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const parts = String(item.date).split(' ');
+        if (parts.length === 2) {
+            const monthIdx = monthNames.indexOf(parts[0]);
+            const day = parseInt(parts[1], 10);
+            if (monthIdx >= 0 && !isNaN(day)) {
+                const year = new Date().getFullYear();
+                return { ...item, date: new Date(year, monthIdx, day) };
+            }
+        }
+        return item;
+    });
 
     const options: any = {
         title: '',
@@ -38,7 +46,14 @@ const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
             },
             bottom: {
                 mapsTo: 'date',
-                scaleType: 'labels',
+                scaleType: 'time',
+                ticks: {
+                    formatter: (date: Date) => {
+                        if (!(date instanceof Date) || isNaN(date.getTime())) return '';
+                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        return `${monthNames[date.getMonth()]} ${date.getDate()}`;
+                    },
+                },
             }
         },
         height,
@@ -70,7 +85,12 @@ const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
             customHTML: (dataItems: any[], html: string) => {
                 if (!dataItems || dataItems.length === 0) return '';
                 // Get the date from the first item
-                const date = dataItems[0]?.date || dataItems[0]?.label || '';
+                const rawDate = dataItems[0]?.date || dataItems[0]?.label || '';
+                let dateStr = rawDate;
+                if (rawDate instanceof Date && !isNaN(rawDate.getTime())) {
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    dateStr = `${monthNames[rawDate.getMonth()]} ${rawDate.getDate()}`;
+                }
                 // Calculate daily total
                 const total = dataItems.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
 
@@ -91,7 +111,7 @@ const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
 
                 return `
                     <div style="background:#fff;border:1px solid #e0e0e0;border-radius:4px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.12);min-width:170px;">
-                        <div style="font-size:11px;color:#6f6f6f;margin-bottom:2px;">${date}</div>
+                        <div style="font-size:11px;color:#6f6f6f;margin-bottom:2px;">${dateStr}</div>
                         <div style="font-size:14px;font-weight:600;color:#161616;margin-bottom:8px;border-bottom:1px solid #e0e0e0;padding-bottom:6px;">Daily: $${total.toFixed(2)}</div>
                         ${rows}
                     </div>`;
@@ -138,12 +158,9 @@ const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
     }
 
     return (
-        <div
-            ref={containerRef}
-            className={`chart-card-container cost-over-time-wrapper chart-animate-in ${visible ? 'chart-visible' : ''}`}
-        >
+        <div className="chart-card-container cost-over-time-wrapper cost-over-time-gradient">
             <div className="chart-title-large">Cost Over Time</div>
-            <StackedAreaChart data={data} options={options} />
+            <StackedAreaChart data={processedData} options={options} />
         </div>
     );
 };

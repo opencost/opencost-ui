@@ -432,7 +432,7 @@ export const getMockAssetData = (window: string, _options: FetchOptions = {}): M
             end: now.toISOString(),
             window: { start: startDate.toISOString(), end: now.toISOString() },
             adjustment: 0,
-            cost: 0, 
+            cost: 0,
         },
         {
             type: "ClusterManagement",
@@ -652,13 +652,13 @@ export const getMockAssetCarbonData = (window: string, _options: FetchOptions = 
  */
 export const getMockCostOverTimeData = (window: string): { data: any[] } => {
     const now = new Date();
-    let days = 7;
+    let days = 30;
     if (window === 'today' || window === '24h') days = 1;
     else if (window === 'yesterday') days = 1;
     else if (window === '48h') days = 2;
+    else if (window === '7d') days = 7;
     else if (window === '14d') days = 14;
     else if (window === '30d') days = 30;
-    if (days < 7) days = 7;
 
     const data: any[] = [];
     const groups: { name: string; base: number }[] = [
@@ -694,12 +694,12 @@ export const getMockCostOverTimeData = (window: string): { data: any[] } => {
  */
 export const getMockCostByServiceData = (window: string, breakdown: string = 'service'): { data: any[] } => {
     const now = new Date();
-    let days = 28;
+    let days = 30;
     if (window === 'today' || window === '24h') days = 1;
     else if (window === '48h') days = 2;
     else if (window === '7d') days = 7;
     else if (window === '14d') days = 14;
-    if (days < 7) days = 7;
+    else if (window === '30d') days = 30;
 
     const data: any[] = [];
 
@@ -765,12 +765,12 @@ export const getMockAssetDetailsData = (asset: any): AssetDetailsMockData => {
     const trendData = [];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 30; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
         const dateLabel = `${monthNames[date.getMonth()]} ${date.getDate()}`;
 
-        const avgDaily = (asset.totalCost || 10) / 7;
+        const avgDaily = (asset.totalCost || 10) / 30;
         const value = avgDaily * (0.8 + Math.random() * 0.4);
         trendData.push({ group: 'cost', date: dateLabel, value });
     }

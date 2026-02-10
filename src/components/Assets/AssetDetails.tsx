@@ -64,7 +64,9 @@ const AssetDetails: React.FC<AssetDetailsProps> = ({ asset, onBack }) => {
         },
         legend: {
             position: 'right'
-        }
+        },
+        toolbar: { enabled: false },
+        theme: 'white',
     };
 
     return (

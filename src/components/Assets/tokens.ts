@@ -9,6 +9,7 @@ export const windowOptions: DropdownOption[] = [
     { id: "Last week", text: "lastweek" },
     { id: "Last 7 days", text: "7d" },
     { id: "Last 14 days", text: "14d" },
+    { id: "Last 30 days", text: "30d" },
 ];
 
 export const assetTypeOptions: DropdownOption[] = [

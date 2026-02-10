@@ -96,7 +96,7 @@ $gray-40: #a8a8a8;
 $gray-30: #c6c6c6;
 $gray-20: #e0e0e0;
 // $gray-10: #f4f4f4; // Carbon default
-$gray-10: var(--table-header-bg); 
+$gray-10: var(--table-header-bg);
 $white: #ffffff;
 
 // ============================================
@@ -183,7 +183,7 @@ body {
 
 // Chart specific styles
 .chart-title-large {
-  font-size: 1.25rem !important; 
+  font-size: 1.25rem !important;
   font-weight: 600;
   color: $gray-100;
   margin-bottom: $spacing-05;
@@ -196,7 +196,7 @@ body {
   .cds--cc--legend {
     .cds--cc--legend-item {
       text {
-        font-size: 14px !important; 
+        font-size: 14px !important;
         font-weight: 500;
       }
     }
@@ -213,9 +213,9 @@ body {
 // ============================================
 
 .resource-table-container {
-  @extend .asset-card; 
+  @extend .asset-card;
   padding: $spacing-06;
-  margin-top: $spacing-06; 
+  margin-top: $spacing-06;
 }
 
 .resource-search-container {
@@ -427,7 +427,7 @@ body {
 
 .kpi-card-container {
   @extend .asset-card;
-  background-color: $white;
+  background-color: $white !important;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -609,29 +609,32 @@ body {
 }
 
 // ============================================
-// Chart Animation
+// Area Chart Gradient Overlay
 // ============================================
-@keyframes chartFadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
+// Makes the stacked area chart fade to transparent near the x-axis.
+.cost-over-time-gradient {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60%;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.289) 50%,
+        rgba(255, 255, 255, 0.85) 100%);
+    z-index: 1;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.chart-animate-in {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &.chart-visible {
-    opacity: 1;
-    transform: translateY(0);
+  // Keep legend and tooltip above gradient
+  .cds--cc--legend,
+  .cds--cc--tooltip {
+    position: relative;
+    z-index: 2;
   }
 }
 

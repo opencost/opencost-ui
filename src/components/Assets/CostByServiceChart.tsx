@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { StackedBarChart } from '@carbon/charts-react';
 import { Dropdown } from '@carbon/react';
 import { LoadingState, ErrorState, EmptyState } from '../core';
@@ -26,13 +26,6 @@ const CostByServiceChart: React.FC<CostByServiceChartProps> = ({
     selectedBreakdown = 'service',
     onBreakdownChange,
 }) => {
-    const [visible, setVisible] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setVisible(true), 150);
-        return () => clearTimeout(timer);
-    }, []);
-
     // Dynamic title based on selected breakdown
     const displayTitle = title || (selectedBreakdown === 'cluster'
         ? 'Daily Cost by Cluster'
@@ -137,7 +130,7 @@ const CostByServiceChart: React.FC<CostByServiceChartProps> = ({
     }
 
     return (
-        <div className={`chart-card-container chart-animate-in ${visible ? 'chart-visible' : ''}`}>
+        <div className="chart-card-container">
             <div className="chart-card-service-header">
                 <span className="chart-title-large" style={{ marginBottom: 0 }}>{displayTitle}</span>
                 {breakdownOptions.length > 0 && (

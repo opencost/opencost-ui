@@ -12,7 +12,7 @@ export const generateInsights = (assets) => {
   const unusedPvcs = assets.filter(
     (asset) =>
       asset.assetType === "PVC" &&
-      asset.local !== 1 &&
+      !asset.local &&
       (asset.breakdown?.idle || 0) === 1
   );
 
@@ -53,25 +53,26 @@ export const generateInsights = (assets) => {
     });
   }
 
-  // Fast-SSD disks with low usage (>60% idle)
-  const lowUsageFastSsd = assets.filter((asset) => {
-    if (asset.storageClass !== "fast-ssd") return false;
+  // SSD-class disks (e.g., gp2, premium-rwo, ssd-csi) with low usage (>60% idle)
+  const lowUsageSsd = assets.filter((asset) => {
+    const sc = asset.storageClass?.toLowerCase();
+    if (!sc?.includes("ssd") && !sc?.includes("premium")) return false;
     return (asset.breakdown?.idle || 0) > 0.6;
   });
 
-  if (lowUsageFastSsd.length > 0) {
-    const savings = lowUsageFastSsd.reduce((sum, asset) => sum + getWastedCostForAsset(asset), 0);
+  if (lowUsageSsd.length > 0) {
+    const savings = lowUsageSsd.reduce((sum, asset) => sum + getWastedCostForAsset(asset), 0);
     insights.push({
       id: "fast-ssd-downgrade",
       type: "info",
       severity: "low",
-      title: `Downgrade ${lowUsageFastSsd.length} Fast-SSD to Standard Storage`,
-      subtitle: "These fast disks have low usage and could use cheaper storage",
+      title: `Downgrade ${lowUsageSsd.length} SSD-Class Disk${lowUsageSsd.length > 1 ? "s" : ""} to Standard Storage`,
+      subtitle: "These high-performance disks have low usage and could use cheaper storage",
       savings,
       confidence: 60,
       action: "Downgrade",
-      affectedAssets: lowUsageFastSsd.length,
-      description: `Downgrading from fast-SSD to standard storage could save approximately $${savings.toFixed(2)} per month while maintaining performance.`,
+      affectedAssets: lowUsageSsd.length,
+      description: `Downgrading from SSD-class to standard storage could save approximately $${savings.toFixed(2)} per month while maintaining performance.`,
     });
   }
 

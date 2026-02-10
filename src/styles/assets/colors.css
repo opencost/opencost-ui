@@ -45,9 +45,9 @@
   --color-border-subtle: var(--cds-layer-accent-01);
   --color-border-strong: var(--cds-border-strong-01);
 
-  /* Chart tile surfaces (--cds-layer-02 is #fff in white theme, same as page) */
-  --chart-tile-bg: #e8e8e8;
-  --chart-stat-bg: #ffffff;
+  /* Chart tile surfaces — tokens auto-adapt to the active Carbon theme */
+  --chart-tile-bg: var(--cds-layer-02);
+  --chart-stat-bg: var(--cds-layer-01);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -70,7 +70,4 @@
   --color-warning-badge-bg: #f1c21b;
   --color-warning-badge-text: #161616;
 
-  /* Chart tile surfaces — defer to Carbon layer tokens in dark mode */
-  --chart-tile-bg: var(--cds-layer-02);
-  --chart-stat-bg: var(--cds-layer-01);
 }

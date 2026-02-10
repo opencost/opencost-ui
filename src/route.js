@@ -27,11 +27,11 @@ const ThemedApp = () => {
     >
       <BrowserRouter basename={basename}>
         <Routes>
-          <Route exact path="/" element={<Allocations />} />
-          <Route exact path="/allocation" element={<Allocations />} />
-          <Route exact path="/cloud" element={<CloudCosts />} />
-          <Route exact path="/external-costs" element={<ExternalCosts />} />
-          <Route exact path="/assets" element={<Assets />} />
+          <Route path="/" element={<Allocations />} />
+          <Route path="/allocation" element={<Allocations />} />
+          <Route path="/cloud" element={<CloudCosts />} />
+          <Route path="/external-costs" element={<ExternalCosts />} />
+          <Route path="/assets" element={<Assets />} />
         </Routes>
       </BrowserRouter>
     </Theme>

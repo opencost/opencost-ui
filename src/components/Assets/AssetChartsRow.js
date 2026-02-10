@@ -69,7 +69,7 @@ const AssetChartsRow = ({ assetsData, currency = "USD", loading = false }) => {
   if (loading) {
     return (
       <div className="asset-charts-row">
-        <Row className="asset-charts-row__grid" narrow>
+        <Row className="asset-charts-row__grid">
           {[1, 2, 3, 4].map((i) => (
             <Column key={i} lg={4} md={4} sm={4}>
               <Tile className="asset-charts-row__tile">
@@ -157,7 +157,7 @@ const AssetChartsRow = ({ assetsData, currency = "USD", loading = false }) => {
 
   return (
     <div className="asset-charts-row">
-      <Row className="asset-charts-row__grid" narrow>
+      <Row className="asset-charts-row__grid">
         {/* 1. Cost Distribution - 25% */}
         <Column lg={4} md={4} sm={4}>
           <Tile className="asset-charts-row__tile">

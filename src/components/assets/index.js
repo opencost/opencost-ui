@@ -6,3 +6,4 @@ export { default as AssetsHeader } from "./AssetsHeader";
 export { default as AssetTable } from "./AssetTable";
 export { default as AssetDetailPanel } from "./AssetDetailPanel";
 export { default as CostTrendChart } from "./CostTrendChart";
+export { default as EfficiencyOverview } from "./EfficiencyOverview";

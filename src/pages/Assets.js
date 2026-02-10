@@ -11,6 +11,7 @@ import {
   AssetTable,
   AssetDetailPanel,
   CostTrendChart,
+  EfficiencyOverview,
 } from "../components/assets";
 import AssetsService from "../services/assets";
 
@@ -271,7 +272,12 @@ const Assets = () => {
             />
           </Column>
 
-          {/* Row 2: Charts - 8 columns each */}
+          {/* Row 2: Efficiency Overview - Full width */}
+          <Column lg={16} md={8} sm={4} style={{ marginBottom: "1rem" }}>
+            <EfficiencyOverview window={window} />
+          </Column>
+
+          {/* Row 3: Charts - 8 columns each */}
           <Column lg={8} md={8} sm={4} style={{ marginBottom: "1rem" }}>
             <div
               style={{

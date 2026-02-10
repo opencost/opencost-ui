@@ -1,25 +1,23 @@
-@use "@carbon/react/scss/spacing" as *;
-@use "@carbon/react/scss/theme" as *;
-@use "@carbon/react/scss/breakpoint" as *;
+/* Standalone styles - no Carbon SCSS imports to avoid Parcel/SASS resolution issues with @carbon/layout */
 
 .asset-charts-row {
-  margin: $spacing-06 0;
+  margin: 1.5rem 0;
 
   &__grid {
-    gap: $spacing-05;
+    gap: 1rem;
   }
 
   &__tile {
     position: relative;
     height: 100%;
     min-height: 320px;
-    padding: $spacing-05;
-    background-color: $layer-01;
-    border: 1px solid $border-subtle-01;
+    padding: 1rem;
+    background-color: var(--cds-layer-01, #f4f4f4);
+    border: 1px solid var(--cds-border-subtle-00, #e0e0e0);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      border-color: $border-subtle-02;
+      border-color: var(--cds-border-subtle-01, #c6c6c6);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
   }
@@ -27,18 +25,18 @@
   &__tile-actions,
   &__tile-header {
     position: absolute;
-    top: $spacing-03;
-    right: $spacing-03;
+    top: 0.5rem;
+    right: 0.5rem;
     z-index: 2;
     display: flex;
     align-items: center;
-    gap: $spacing-03;
+    gap: 0.5rem;
   }
 
   &__chart {
     width: 100%;
     min-height: 260px;
-    margin-top: $spacing-05;
+    margin-top: 1rem;
 
     .cds--cc--chart-wrapper {
       height: 100%;
@@ -47,9 +45,9 @@
     .cds--cc--title {
       font-size: 0.875rem;
       font-weight: 600;
-      color: $text-primary;
-      margin-bottom: $spacing-03;
-      padding-right: $spacing-08;
+      color: var(--cds-text-primary, #161616);
+      margin-bottom: 0.5rem;
+      padding-right: 2.5rem;
     }
 
     .cds--cc--legend-item {
@@ -62,20 +60,20 @@
     align-items: center;
     justify-content: center;
     min-height: 240px;
-    color: $text-secondary;
+    color: var(--cds-text-secondary, #525252);
     font-size: 0.875rem;
   }
 
-  @include breakpoint-down(md) {
-    margin: $spacing-05 0;
+  @media (max-width: 1056px) {
+    margin: 1rem 0;
 
     .asset-charts-row__tile {
-      margin-bottom: $spacing-04;
+      margin-bottom: 0.75rem;
       min-height: 300px;
     }
   }
 
-  @include breakpoint-down(sm) {
+  @media (max-width: 672px) {
     .asset-charts-row__chart {
       min-height: 220px;
     }

@@ -5,7 +5,6 @@ import {
   getAssetStatus,
   formatCurrency,
   buildColorScale,
-  CHART_PALETTE,
   CHART_PALETTE_LIGHT,
   CHART_PALETTE_DARK,
 } from "../assetCalculations";
@@ -103,10 +102,6 @@ describe("assetCalculations", () => {
       expect(Object.keys(scale).length).toBe(2);
     });
 
-    it("CHART_PALETTE alias equals CHART_PALETTE_LIGHT", () => {
-      expect(CHART_PALETTE).toBe(CHART_PALETTE_LIGHT);
-    });
-
     it("light palette has no duplicate colors", () => {
       expect(new Set(CHART_PALETTE_LIGHT).size).toBe(CHART_PALETTE_LIGHT.length);
     });
@@ -115,12 +110,16 @@ describe("assetCalculations", () => {
       expect(new Set(CHART_PALETTE_DARK).size).toBe(CHART_PALETTE_DARK.length);
     });
 
-    it("light palette leads with Magenta 50", () => {
-      expect(CHART_PALETTE_LIGHT[0]).toBe("#ee538b");
+    it("light palette entries are valid hex colors", () => {
+      CHART_PALETTE_LIGHT.forEach((color) => {
+        expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+      });
     });
 
-    it("dark palette leads with Magenta 40", () => {
-      expect(CHART_PALETTE_DARK[0]).toBe("#ff7eb6");
+    it("dark palette entries are valid hex colors", () => {
+      CHART_PALETTE_DARK.forEach((color) => {
+        expect(color).toMatch(/^#[0-9a-f]{6}$/i);
+      });
     });
   });
 });

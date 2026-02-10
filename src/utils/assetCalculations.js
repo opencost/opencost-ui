@@ -157,8 +157,6 @@ export const CHART_PALETTE_DARK = [
   "#4589ff", // Cyan 40
 ];
 
-export const CHART_PALETTE = CHART_PALETTE_LIGHT;
-
 export const STATUS_COLORS = {
   Efficient: "#24a148", // Green 50 — high contrast
   Healthy: "#4589ff",   // Blue 40  — high contrast

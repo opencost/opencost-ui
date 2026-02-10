@@ -10,6 +10,7 @@ import {
   AssetsHeader,
   AssetTable,
   AssetDetailPanel,
+  CostTrendChart,
 } from "../components/assets";
 import AssetsService from "../services/assets";
 
@@ -22,24 +23,25 @@ const Assets = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rawData, setRawData] = useState(null);
+  const [trendData, setTrendData] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
 
   // Router integration for URL-based state
   const routerLocation = useLocation();
   const navigate = useNavigate();
-  
+
   // Memoize URL params to prevent unnecessary refetches on theme change
   const window = useMemo(() => {
     const params = new URLSearchParams(routerLocation.search);
     return params.get("window") || "7d";
   }, [routerLocation.search]);
-  
+
   const aggregate = useMemo(() => {
     const params = new URLSearchParams(routerLocation.search);
     return params.get("aggregate") || "type";
   }, [routerLocation.search]);
-  
+
   const currency = useMemo(() => {
     const params = new URLSearchParams(routerLocation.search);
     return params.get("currency") || "USD";
@@ -70,17 +72,28 @@ const Assets = () => {
     setError(null);
 
     try {
-      const response = await AssetsService.fetchAssets({
-        window,
-        aggregate,
-        accumulate: true,
-      });
+      // Fetch both accumulated data and time-series data in parallel
+      const [response, timeSeriesData] = await Promise.all([
+        AssetsService.fetchAssets({
+          window,
+          aggregate,
+          accumulate: true,
+        }),
+        AssetsService.fetchAssetsTimeSeries({ window }),
+      ]);
 
       // API returns the assets object directly (not wrapped in {data: ...})
       if (response && typeof response === "object") {
         setRawData(response);
       } else {
         setRawData({});
+      }
+
+      // Set trend data for the chart
+      if (timeSeriesData && Array.isArray(timeSeriesData)) {
+        setTrendData(timeSeriesData);
+      } else {
+        setTrendData([]);
       }
     } catch (err) {
       console.error("Failed to fetch assets:", err);
@@ -89,6 +102,7 @@ const Assets = () => {
         subtitle: err.message || "An unknown error occurred",
       });
       setRawData(null);
+      setTrendData([]);
     } finally {
       setLoading(false);
     }
@@ -223,7 +237,7 @@ const Assets = () => {
 
         {/* Main content grid - 16 column layout */}
         <Grid fullWidth style={{ padding: "0 1rem" }}>
-          
+
           {/* Row 1: KPI Tiles - 4 columns each */}
           <Column lg={4} md={4} sm={4} style={{ marginBottom: "1rem" }}>
             <KPITile
@@ -294,7 +308,16 @@ const Assets = () => {
             </div>
           </Column>
 
-          {/* Row 3: Data Table - Full 16 columns */}
+          {/* Row 3: Cost Trend Chart - Full width */}
+          <Column lg={16} md={8} sm={4} style={{ marginBottom: "1rem" }}>
+            <CostTrendChart
+              data={trendData}
+              currency={currency}
+              isLoading={loading}
+            />
+          </Column>
+
+          {/* Row 4: Data Table - Full 16 columns */}
           <Column lg={16} md={8} sm={4} style={{ marginBottom: "1rem" }}>
             <div
               style={{

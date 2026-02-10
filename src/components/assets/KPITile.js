@@ -5,14 +5,14 @@ import { Tile } from "@carbon/react";
 /**
  * KPITile - A clean KPI tile with accent color and optional percentage
  */
-const KPITile = ({ 
-  label, 
-  value, 
+const KPITile = ({
+  label,
+  value,
   percentOfTotal,
-  accentColor 
+  accentColor
 }) => {
   return (
-    <Tile 
+    <Tile
       className="kpi-tile"
       style={{
         height: "100%",
@@ -25,6 +25,16 @@ const KPITile = ({
         borderLeft: accentColor ? `4px solid ${accentColor}` : undefined,
         borderRadius: 0,
         boxShadow: "none",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
       }}
     >
       {/* Label */}
@@ -40,7 +50,7 @@ const KPITile = ({
       >
         {label}
       </span>
-      
+
       {/* Value */}
       <span
         style={{
@@ -52,7 +62,7 @@ const KPITile = ({
       >
         {value}
       </span>
-      
+
       {/* Percentage of total */}
       {percentOfTotal !== undefined && percentOfTotal !== null && (
         <span

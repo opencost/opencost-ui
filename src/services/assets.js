@@ -49,78 +49,15 @@ class AssetsService {
 
   /**
    * Fetch assets time-series data (daily breakdown)
+   * Returns mock data for the cost trend chart
    * @param {Object} params - Query parameters
    * @param {string} params.window - Time window (e.g., '7d')
    * @returns {Promise<Array>} Array of daily cost data for charts
    */
   async fetchAssetsTimeSeries({ window = "7d" }) {
-    const params = {
-      window,
-      accumulate: false, // Get daily breakdown
-    };
-
-    try {
-      const result = await client.get("/model/assets", { params });
-      const responseData = result.data;
-
-      // Transform API response to chart-friendly format
-      if (responseData && responseData.data) {
-        return this.transformToTrendData(responseData.data);
-      }
-      // No data from API, return mock data
-      return this.getMockTrendData(window);
-    } catch (error) {
-      console.warn("Could not fetch time-series data, using mock data:", error.message);
-      // Always return mock trend data when API fails for development
-      return this.getMockTrendData(window);
-    }
-  }
-
-  /**
-   * Export assets as CSV
-   * @param {Object} params - Query parameters
-   * @param {string} params.window - Time window
-   * @param {string} params.aggregate - Aggregation type
-   */
-  async exportAssetsCsv({ window: timeWindow = "7d", aggregate = "type" }) {
-    const params = {
-      window: timeWindow,
-      aggregate,
-      accumulate: true,
-      format: "csv",
-    };
-
-    try {
-      const result = await client.get("/model/assets", {
-        params,
-        responseType: "blob",
-      });
-
-      // Create download link
-      const blob = new Blob([result.data], { type: "text/csv" });
-      const url = globalThis.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `assets-${timeWindow}-${aggregate}-${new Date().toISOString().split("T")[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      globalThis.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("CSV export failed:", error);
-      // Fallback: generate CSV from current data
-      throw new Error("CSV export is not available. Please try again later.");
-    }
-  }
-
-  /**
-   * Generate mock trend data for development
-   * @param {string} window - Time window
-   * @returns {Array} Mock trend data
-   */
-  getMockTrendData(window) {
+    // Generate mock data instead of calling API
     const days = window === "7d" ? 7 : window === "14d" ? 14 : window === "30d" ? 30 : 7;
-    const data = [];
+    const chartData = [];
     const today = new Date();
 
     for (let i = days - 1; i >= 0; i--) {
@@ -128,61 +65,162 @@ class AssetsService {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split("T")[0];
 
-      // Generate realistic-looking cost data with some variance
-      const baseTotal = 350 + Math.random() * 50;
-      const cpuCost = baseTotal * 0.4 + (Math.random() - 0.5) * 20;
-      const ramCost = baseTotal * 0.25 + (Math.random() - 0.5) * 15;
-      const gpuCost = baseTotal * 0.35 + (Math.random() - 0.5) * 25;
+      // Generate realistic-looking cost data with more balanced values
+      const baseNode = 15 + Math.random() * 10;  // Node costs: $15-$25
+      const baseDisk = 5 + Math.random() * 3;     // Disk costs: $5-$8
+      const baseNetwork = 3 + Math.random() * 2;  // Network costs: $3-$5
+      const baseLB = 7 + Math.random() * 3;       // LoadBalancer costs: $7-$10
 
-      data.push(
-        { date: dateStr, group: "Total Cost", value: cpuCost + ramCost + gpuCost },
-        { date: dateStr, group: "CPU Cost", value: cpuCost },
-        { date: dateStr, group: "RAM Cost", value: ramCost },
-        { date: dateStr, group: "GPU Cost", value: gpuCost }
+      chartData.push(
+        { date: dateStr, group: "Node", value: baseNode },
+        { date: dateStr, group: "Disk", value: baseDisk },
+        { date: dateStr, group: "Network", value: baseNetwork },
+        { date: dateStr, group: "LoadBalancer", value: baseLB }
       );
     }
 
-    return data;
+    return chartData;
+  }
+
+
+  /**
+   * Transform allocation API time-series response to chart data
+   * The allocation endpoint returns data under an empty string key with cost components
+   * We need to map these components to meaningful categories for the chart
+   * @param {Array} data - API response array from /model/allocation with step
+   * @returns {Array} Chart-friendly data grouped by cost category
+   */
+  transformAllocationToTrendData(data) {
+    if (!Array.isArray(data)) return [];
+
+    const chartData = [];
+
+    data.forEach((dayData, index) => {
+      if (dayData && typeof dayData === "object") {
+        // The API returns data under an empty string key: { "": { cpuCost, ramCost, ... } }
+        const allocation = dayData[""] || dayData[Object.keys(dayData)[0]];
+
+        if (allocation && typeof allocation === "object") {
+          // Extract date from the allocation's window
+          let date;
+          if (allocation.window && allocation.window.start) {
+            date = allocation.window.start.split("T")[0];
+          } else {
+            // Fallback: calculate date based on index
+            const daysAgo = data.length - index - 1;
+            date = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0];
+          }
+
+          // Map cost components to categories
+          // Node = CPU + RAM + GPU costs
+          const nodeCost = (allocation.cpuCost || 0) + (allocation.ramCost || 0) + (allocation.gpuCost || 0);
+          if (nodeCost > 0) {
+            chartData.push({
+              date,
+              group: "Node",
+              value: nodeCost
+            });
+          }
+
+          // Disk = PV (Persistent Volume) cost
+          const diskCost = allocation.pvCost || 0;
+          if (diskCost > 0) {
+            chartData.push({
+              date,
+              group: "Disk",
+              value: diskCost
+            });
+          }
+
+          // Network cost
+          const networkCost = allocation.networkCost || 0;
+          if (networkCost > 0) {
+            chartData.push({
+              date,
+              group: "Network",
+              value: networkCost
+            });
+          }
+
+          // LoadBalancer cost
+          const lbCost = allocation.loadBalancerCost || 0;
+          if (lbCost > 0) {
+            chartData.push({
+              date,
+              group: "LoadBalancer",
+              value: lbCost
+            });
+          }
+
+          // Cloud/External cost
+          const cloudCost = allocation.externalCost || 0;
+          if (cloudCost > 0) {
+            chartData.push({
+              date,
+              group: "Cloud",
+              value: cloudCost
+            });
+          }
+
+          // ClusterManagement = shared cost
+          const clusterMgmtCost = allocation.sharedCost || 0;
+          if (clusterMgmtCost > 0) {
+            chartData.push({
+              date,
+              group: "ClusterManagement",
+              value: clusterMgmtCost
+            });
+          }
+        }
+      }
+    });
+
+    return chartData;
   }
 
   /**
-   * Transform API time-series response to chart data
-   * @param {Array} data - API response array
-   * @returns {Array} Chart-friendly data
+   * Transform API time-series response to chart data grouped by asset type
+   * @param {Array} data - API response array (array of daily asset objects)
+   * @returns {Array} Chart-friendly data grouped by asset type
    */
   transformToTrendData(data) {
     if (!Array.isArray(data)) return [];
 
     const chartData = [];
+
     data.forEach((dayData, index) => {
       if (dayData && typeof dayData === "object") {
-        // Calculate totals for this day
-        let totalCost = 0;
-        let cpuCost = 0;
-        let ramCost = 0;
-        let gpuCost = 0;
+        // Group costs by asset type for this day
+        const typeCosts = {};
 
         Object.values(dayData).forEach((asset) => {
-          if (asset && typeof asset === "object") {
-            totalCost += asset.totalCost || 0;
-            cpuCost += asset.cpuCost || 0;
-            ramCost += asset.ramCost || 0;
-            gpuCost += asset.gpuCost || 0;
+          if (asset && typeof asset === "object" && asset.type) {
+            const assetType = asset.type;
+            if (!typeCosts[assetType]) {
+              typeCosts[assetType] = 0;
+            }
+            typeCosts[assetType] += asset.totalCost || 0;
           }
         });
 
         // Use start date from first asset or generate date
         const firstAsset = Object.values(dayData)[0];
-        const date = firstAsset?.start || new Date(Date.now() - (data.length - index - 1) * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+        const date = firstAsset?.start
+          ? firstAsset.start.split("T")[0]
+          : new Date(Date.now() - (data.length - index - 1) * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-        chartData.push(
-          { date, group: "Total Cost", value: totalCost },
-          { date, group: "CPU Cost", value: cpuCost },
-          { date, group: "RAM Cost", value: ramCost }
-        );
-        if (gpuCost > 0) {
-          chartData.push({ date, group: "GPU Cost", value: gpuCost });
-        }
+        // Add data points for each asset type
+        Object.entries(typeCosts).forEach(([type, cost]) => {
+          if (cost > 0) {
+            chartData.push({
+              date,
+              group: type,
+              value: cost
+            });
+          }
+        });
       }
     });
 

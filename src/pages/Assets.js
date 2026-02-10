@@ -279,7 +279,7 @@ const AssetsPage = () => {
               }}
             >
               <TrophyFilled size={20} />
-              <h4 style={{ margin: 0, backgroundColor: "#FFF1E6" }}>Most Expensive Asset</h4>
+              <h4 style={{ margin: 0, color: "#FF0000", fontWeight: 600 }}>Most Expensive Asset</h4>
             </div>
             {mostExpensiveAsset ? (
               <>

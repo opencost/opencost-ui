@@ -15,11 +15,11 @@ const RouteSet = () => {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <BrowserRouter basename={basename}>
         <Routes>
-          <Route exact path="/" element={<Allocations />} />
+          <Route exact path="/" element={<Assets />} />
+          <Route exact path="/assets" element={<Assets />} />
           <Route exact path="/allocation" element={<Allocations />} />
           <Route exact path="/cloud" element={<CloudCosts />} />
           <Route exact path="/external-costs" element={<ExternalCosts />} />
-          <Route exact path="/assets" element={<Assets />} />
         </Routes>
       </BrowserRouter>
     </LocalizationProvider>

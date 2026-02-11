@@ -18,3 +18,13 @@ body .page-container {
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+/* Increase padding and make click target feel bigger */
+.cds--overflow-menu-options__option-content {
+  padding-block: 0.25rem;
+  padding-inline: 0.75rem;
+}
+
+/* Ensure the option row has a visible hover background */
+.cds--overflow-menu-options__btn:hover {
+  background-color: var(--cds-layer-hover, #e5e5e5);
+}

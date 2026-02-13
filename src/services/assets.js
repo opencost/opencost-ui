@@ -11,9 +11,7 @@ const AssetsService = {
       typeof process !== "undefined" &&
       process.env.NODE_ENV === "development";
 
-    // Use mock for:
-    // - Local development
-    // - Netlify PR Deploy Preview
+    // Use mock for local dev or Netlify PR deploy
     if (isLocalDevelopment || isDeployPreview) {
       return Promise.resolve(mockAssets);
     }
@@ -21,14 +19,7 @@ const AssetsService = {
     try {
       const response = await client.get('/assets', { params: { window } });
 
-      /**
-       *  OpenCost Transformation
-       * Handles both:
-       * - Array response
-       * - Object map response (OpenCost style)
-       */
       const rawData = response.data?.data || response.data;
-
       let normalizedData = [];
 
       if (Array.isArray(rawData)) {
@@ -37,7 +28,6 @@ const AssetsService = {
         normalizedData = Object.values(rawData);
       }
 
-      //  Safety fallback if API returns empty
       if (!normalizedData || normalizedData.length === 0) {
         console.warn("API returned empty dataset. Falling back to mock.");
         return mockAssets;
@@ -51,14 +41,10 @@ const AssetsService = {
     }
   },
 
-  /**
-   * Prevents CSV injection & handles commas safely
-   */
   downloadCSV: (data) => {
     if (!data || data.length === 0) return;
 
     const headers = ["Name", "Category", "Type", "Cluster", "Total Cost"];
-
     const rows = data.map(a => [
       `"${(a.name || '').replace(/"/g, '""')}"`,
       `"${(a.category || '').replace(/"/g, '""')}"`,
@@ -69,10 +55,7 @@ const AssetsService = {
 
     const csvContent = [headers.join(","), ...rows].join("\n");
 
-    const blob = new Blob([csvContent], {
-      type: 'text/csv;charset=utf-8;'
-    });
-
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');

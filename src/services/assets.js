@@ -11,15 +11,19 @@ const AssetsService = {
       typeof process !== "undefined" &&
       process.env.NODE_ENV === "development";
 
-    // Use mock for local dev or Netlify PR deploy
-    if (isLocalDevelopment || isDeployPreview) {
+    const isMockEnabled =
+      process.env.REACT_APP_USE_MOCK_DATA === 'true' ||
+      isLocalDevelopment ||
+      isDeployPreview;
+
+    if (isMockEnabled) {
       return Promise.resolve(mockAssets);
     }
 
     try {
       const response = await client.get('/assets', { params: { window } });
-
       const rawData = response.data?.data || response.data;
+
       let normalizedData = [];
 
       if (Array.isArray(rawData)) {
@@ -45,6 +49,7 @@ const AssetsService = {
     if (!data || data.length === 0) return;
 
     const headers = ["Name", "Category", "Type", "Cluster", "Total Cost"];
+
     const rows = data.map(a => [
       `"${(a.name || '').replace(/"/g, '""')}"`,
       `"${(a.category || '').replace(/"/g, '""')}"`,

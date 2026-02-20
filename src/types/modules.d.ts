@@ -6,6 +6,13 @@ declare module '*.js' {
     export default content;
 }
 
+// Axios API client (JavaScript – no types shipped)
+declare module './api_client' {
+    import { AxiosInstance } from 'axios';
+    const client: AxiosInstance;
+    export default client;
+}
+
 // Page component
 declare module 'components/Page' {
     import { FC, ReactNode } from 'react';

@@ -5,7 +5,7 @@ import { SimpleBarChart, DonutChart } from '@carbon/charts-react';
 import { Asset } from '../../types/assets';
 import { getMockAssetDetailsData } from '../../services/assets.mock';
 import '@carbon/charts/styles.css';
-import { ScaleTypes } from '@carbon/charts/interfaces';
+import { ScaleTypes } from '@carbon/charts/dist/interfaces';
 
 interface AssetDetailsProps {
     asset: Asset;

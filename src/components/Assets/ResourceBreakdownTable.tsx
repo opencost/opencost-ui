@@ -14,6 +14,9 @@ import {
     DataTableSkeleton,
     InlineNotification,
     Search,
+    type DataTableHeader,
+    type DataTableRow,
+    type DataTableCell,
 } from '@carbon/react';
 import {
     Export,
@@ -175,7 +178,7 @@ const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
                             items={typeFilterOptions}
                             itemToString={(item: DropdownOption) => item?.text || ''}
                             selectedItem={typeFilterOptions.find((o) => o.id === selectedType)}
-                            onChange={onTypeChange ? (e) => e.selectedItem && onTypeChange(e.selectedItem) : undefined}
+                            onChange={onTypeChange ? (e: { selectedItem: DropdownOption }) => e.selectedItem && onTypeChange(e.selectedItem) : undefined}
                             size="md"
                             className="white-bg-dropdown dropdown-min-width"
                         />
@@ -208,12 +211,12 @@ const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
                             getTableProps,
                             getHeaderProps,
                             getRowProps,
-                        }) => (
+                        }: any) => (
                             <TableContainer>
                                 <Table {...getTableProps()} className="styled-data-table">
                                     <TableHead>
                                         <TableRow>
-                                            {tableHeaders.map((header) => (
+                                            {tableHeaders.map((header: DataTableHeader) => (
                                                 <TableHeader
                                                     {...getHeaderProps({ header })}
                                                     key={header.key}
@@ -232,7 +235,7 @@ const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            tableDataRows.map((row) => (
+                                            tableDataRows.map((row: DataTableRow<any>) => (
                                                 <TableRow
                                                     {...getRowProps({ row })}
                                                     key={row.id}
@@ -240,7 +243,7 @@ const ResourceBreakdownTable: React.FC<ResourceBreakdownTableProps> = ({
                                                     className="clickable-row"
                                                     style={{ cursor: onRowClick ? 'pointer' : 'default' }}
                                                 >
-                                                    {row.cells.map((cell) => {
+                                                    {row.cells.map((cell: DataTableCell<any>) => {
                                                         // Custom Cell Rendering
                                                         if (cell.info.header === 'type') {
                                                             return (

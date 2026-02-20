@@ -428,14 +428,11 @@ export function parseFilters(filters) {
   // Use "+" directly, axios will handle URL encoding
   // Escape quotes in values by replacing " with \"
   return (
-    [
-      ...new Set(
-        filters.map((f) => {
-          const escapedValue = String(f.value).replace(/"/g, '\\"');
-          return `${f.property}:"${escapedValue}"`;
-        }),
-      ),
-    ].join("+") || ""
+    [...new Set(filters.map((f) => {
+      const escapedValue = String(f.value).replace(/"/g, '\\"');
+      return `${f.property}:"${escapedValue}"`;
+    }))].join("+") ||
+    ""
   );
 }
 

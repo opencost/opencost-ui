@@ -75,7 +75,11 @@ const SummaryChart = ({ top, other, idle, currency, height }) => {
   };
 
   return (
-    <PieChart responsive width="100%" height={height}>
+    <PieChart
+      responsive
+      width="100%"
+      height={height}
+    >
       <Pie
         data={pieData}
         dataKey="value"

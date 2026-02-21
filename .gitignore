@@ -16,3 +16,6 @@ node_modules/
 
 # tilt
 tilt_config.json
+
+# Lighthouse CI
+.lighthouseci/

@@ -41,7 +41,7 @@ jobs:
 
       - name: Run Lighthouse CI
         id: lighthouse
-        run: npx @lhci/cli@0.14.x autorun --config=./.lighthouserc.json
+        run: npx @lhci/cli@0.14.x autorun --config=./lighthouserc.json
 
       - name: Parse Lighthouse Results
         id: parse

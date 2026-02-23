@@ -37,7 +37,7 @@ const windowOptions = [
   { name: "Last 14 days", value: "14d" },
 ];
 
-const aggregationOptions = [
+const baseAggregationOptions = [
   { name: "Cluster", value: "cluster" },
   { name: "Node", value: "node" },
   { name: "Namespace", value: "namespace" },
@@ -51,6 +51,34 @@ const aggregationOptions = [
   { name: "Pod", value: "pod" },
   { name: "Container", value: "container" },
 ];
+
+// Injected at runtime: entrypoint replaces the placeholder with env CUSTOM_AGGREGATION_OPTIONS (JSON map).
+// In local dev, set CUSTOM_AGGREGATION_OPTIONS to test (e.g. CUSTOM_AGGREGATION_OPTIONS='{"Label: team":"label:team"}' npm run serve).
+const customAggregationsJson =
+  (typeof process !== "undefined" && process.env?.CUSTOM_AGGREGATION_OPTIONS) ||
+  'PLACEHOLDER_CUSTOM_AGGREGATIONS';
+const aggregationOptions = (() => {
+  if (
+    !customAggregationsJson ||
+    customAggregationsJson.startsWith("PLACEHOLDER_") 
+  ) {
+    return baseAggregationOptions;
+  }
+  try {
+    const map = JSON.parse(customAggregationsJson);
+    const custom =
+      typeof map === "object" && map !== null && !Array.isArray(map)
+        ? Object.entries(map).map(([name, value]) => ({
+            name,
+            value: String(value),
+          }))
+        : [];
+    return [...baseAggregationOptions, ...custom];
+  } catch {
+    return baseAggregationOptions;
+  }
+})();
+
 
 const accumulateOptions = [
   { name: "Entire window", value: true },
@@ -200,6 +228,18 @@ const ReportsPage = () => {
   useEffect(() => {
     fetchData();
   }, [win, aggregateBy, accumulate, filters, includeIdle]);
+
+  // Update currency warning whenever currency changes
+  useEffect(() => {
+    if (currency !== "USD") {
+      setErrors([{
+        primary: "Currency Conversion in Use",
+        secondary: "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill."
+      }]);
+    } else {
+      setErrors([]);
+    }
+  }, [currency]);
 
   async function fetchData() {
     setLoading(true);

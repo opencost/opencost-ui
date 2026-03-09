@@ -1,31 +1,50 @@
 {
   "name": "opencost-ui",
-  "description": "Open source UI for OpenCost",
-  "version": "0.1.0",
-  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "clean": "rm -rf .next/*",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "react-router build",
+    "build:legacy": "VITE_LEGACY_MODE=true react-router build",
+    "dev": "react-router dev",
+    "legacy": "VITE_LEGACY_MODE=true react-router dev",
+    "start": "serve build/client -s",
+    "typecheck": "react-router typegen && tsc"
   },
-  "browserslist": [
-    "defaults"
-  ],
   "dependencies": {
-    "@carbon/charts": "^1.13.0",
-    "@carbon/charts-react": "^1.13.0",
-    "@carbon/icons-react": "^11.14.0",
-    "@carbon/react": "1.36.0",
-    "next": "13.4.9",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "sass": "^1.69.5"
+    "@carbon/charts": "^1.27.2",
+    "@carbon/charts-react": "^1.27.2",
+    "@carbon/icons-react": "^11.76.0",
+    "@carbon/react": "^1.102.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/material": "^7.3.9",
+    "@mui/x-date-pickers": "^8.27.2",
+    "@react-router/node": "7.12.0",
+    "@react-router/serve": "7.12.0",
+    "axios": "^1.13.6",
+    "date-fns": "^4.1.0",
+    "isbot": "^5.1.31",
+    "lodash": "^4.17.23",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router": "7.12.0",
+    "recharts": "^3.8.0",
+    "sass": "^1.97.3"
   },
   "devDependencies": {
-    "eslint": "8.44.0",
-    "eslint-config-next": "13.4.9"
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "eslint": "^8",
+    "eslint-plugin-react-hooks": "^5",
+    "@react-router/dev": "7.12.0",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^22",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7",
+    "serve": "^14",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

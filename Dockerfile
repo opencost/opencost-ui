@@ -1,9 +1,9 @@
-FROM node:18.3.0 as builder
-ADD package*.json /opt/ui/
+FROM node:20-alpine as builder
 WORKDIR /opt/ui
+ADD package*.json ./
 RUN npm install
-ADD src /opt/ui/src
-RUN npx parcel build src/index.html
+ADD . ./
+RUN npm run build
 
 FROM nginx:alpine
 
@@ -23,11 +23,10 @@ ENV API_PORT=9003
 ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
 
-COPY --from=builder /opt/ui/dist /opt/ui/dist
 RUN mkdir -p /var/www
 
 COPY THIRD_PARTY_LICENSES.txt /THIRD_PARTY_LICENSES.txt
-COPY --from=builder /opt/ui/dist /var/www
+COPY --from=builder /opt/ui/build/client /var/www
 
 COPY default.nginx.conf.template /etc/nginx/conf.d/default.nginx.conf.template
 COPY nginx.conf /etc/nginx/

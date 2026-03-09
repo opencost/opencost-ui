@@ -18,3 +18,7 @@ node_modules/
 tilt_config.json
 .next
 
+# React Router
+/.react-router/
+/build/
+

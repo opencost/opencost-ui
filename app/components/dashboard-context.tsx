@@ -37,12 +37,14 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       description: "Overall cloud cost analysis",
       widgets: [
         { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },
+        { id: "2", type: "cloud-costs-chart", title: "Cloud Costs Chart", gridSize: "4" },
+        { id: "3", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "4" },
         {
-          id: "6",
-          type: "assets-visualization",
-          title: "Infrastructure Assets",
+          id: "4",
+          type: "cost-table",
+          title: "Cost Breakdown Table",
           gridSize: "4",
-        },
+        }
       ],
       tags: ["default"],
       starred: true,

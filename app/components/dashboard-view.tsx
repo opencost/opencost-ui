@@ -2,18 +2,19 @@ import { useState } from "react";
 import { Button, Tile, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 import { ArrowLeft, OverflowMenuVertical, Edit, Filter } from "@carbon/icons-react";
 import DashboardBuilder from "./dashboard-builder";
-import ScopedViews from "./scoped-views";
+import ScopedViews, { DEFAULT_ALLOCATION_FILTERS, type Filters } from "./scoped-views";
 import CostSummaryCards from "./cost-summary-cards";
 import CostAllocationChart from "./cost-allocation-chart";
+import CostAllocationTable from "./cost-allocation-table";
 import CostByServiceChart from "./cost-by-service-chart";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
 import type { Widget, Dashboard } from "./dashboard-context";
 
-function WidgetRenderer({ widget }: { widget: Widget }) {
+function WidgetRenderer({ widget, allocationFilters }: { widget: Widget; allocationFilters: { window: string; aggregateBy: string; accumulate: boolean; includeIdle: boolean } }) {
   switch (widget.type) {
     case "summary-cards":
-      return <CostSummaryCards />;
+      return <CostSummaryCards {...allocationFilters} />;
     case "cloud-costs-chart":
       return (
         <Tile style={{ padding: "1rem" }}>
@@ -28,8 +29,8 @@ function WidgetRenderer({ widget }: { widget: Widget }) {
       return (
         <Tile style={{ padding: "1rem" }}>
           <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Cost breakdown by namespace</p>
-          <CostAllocationChart />
+          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Cost breakdown by cluster, namespace, pod, or other dimension</p>
+          <CostAllocationChart {...allocationFilters} />
         </Tile>
       );
     case "external-services-chart":
@@ -47,7 +48,10 @@ function WidgetRenderer({ widget }: { widget: Widget }) {
       return (
         <Tile style={{ padding: "1rem" }}>
           <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <div style={{ padding: "2rem", textAlign: "center", color: "#525252" }}>Cost table widget</div>
+          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>
+            Cost allocation breakdown by cluster, namespace, pod, or other dimension
+          </p>
+          <CostAllocationTable {...allocationFilters} />
         </Tile>
       );
     case "anomaly-detection":
@@ -75,10 +79,22 @@ interface DashboardViewProps {
   onUpdateWidgets: (widgets: Widget[]) => void;
 }
 
+const defaultFilters: Filters = {
+  ...DEFAULT_ALLOCATION_FILTERS,
+};
+
 export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(dashboard.widgets);
+  const [filters, setFilters] = useState<Filters>(defaultFilters);
+
+  const allocationFilters = {
+    window: filters.allocationWindow ?? DEFAULT_ALLOCATION_FILTERS.allocationWindow,
+    aggregateBy: filters.allocationAggregateBy ?? DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
+    accumulate: filters.allocationAccumulate ?? DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
+    includeIdle: filters.allocationIncludeIdle ?? DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
+  };
 
   const handleSaveLayout = (newWidgets: Widget[]) => {
     setCurrentWidgets(newWidgets);
@@ -135,17 +151,14 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
       </div>
 
       {showFilters && (
-        <ScopedViews
-          onFiltersChanged={() => {}}
-          onViewSaved={(name, filters) => console.log(`Saved view: ${name}`, filters)}
-        />
+        <ScopedViews filters={filters} onFiltersChanged={setFilters} />
       )}
 
       {currentWidgets.length > 0 ? (
         <div className="dashboard-grid">
           {currentWidgets.map((widget) => (
             <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
-              <WidgetRenderer widget={widget} />
+              <WidgetRenderer widget={widget} allocationFilters={allocationFilters} />
             </div>
           ))}
         </div>

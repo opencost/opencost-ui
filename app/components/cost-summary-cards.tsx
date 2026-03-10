@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, Currency, ChartLine, ChartLineSmooth, Activity } fr
 import AllocationService from "~/services/allocation";
 import CloudCostService from "~/services/cloud-cost";
 import ExternalCostsService from "~/services/external-costs";
-import { toCurrency } from "~/lib/legacy-util";
+import { toCurrency, rangeToCumulative, cumulativeToTotals } from "~/lib/legacy-util";
 
 interface SummaryData {
   totalCost: number;
@@ -38,7 +38,23 @@ function MetricCard({
   );
 }
 
-export default function CostSummaryCards({ window = "7d" }: { window?: string }) {
+const EMPTY_FILTERS: { property: string; value: string }[] = [];
+
+export interface CostSummaryCardsProps {
+  window?: string;
+  aggregateBy?: string;
+  accumulate?: boolean;
+  includeIdle?: boolean;
+  filters?: { property: string; value: string }[];
+}
+
+export default function CostSummaryCards({
+  window = "7d",
+  aggregateBy = "cluster",
+  accumulate = true,
+  includeIdle = true,
+  filters = EMPTY_FILTERS,
+}: CostSummaryCardsProps) {
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +65,7 @@ export default function CostSummaryCards({ window = "7d" }: { window?: string })
       setLoading(true);
       try {
         const [allocResp, cloudResp, externalResp] = await Promise.allSettled([
-          AllocationService.fetchAllocation(window, "cluster", { accumulate: true }),
+          AllocationService.fetchAllocation(window, aggregateBy, { accumulate, includeIdle, filters: filters.length ? filters : undefined }),
           CloudCostService.fetchCloudCostData(window, "provider", "AmortizedNetCost", []),
           ExternalCostsService.fetchExternalTableCosts(window, "domain", [], "blended", "cost", "desc"),
         ]);
@@ -58,12 +74,14 @@ export default function CostSummaryCards({ window = "7d" }: { window?: string })
 
         let totalCost = 0;
         let totalEfficiency = 0;
-        if (allocResp.status === "fulfilled" && allocResp.value?.data) {
-          for (const set of allocResp.value.data) {
-            for (const alloc of Object.values(set) as any[]) {
-              totalCost += alloc.totalCost ?? 0;
-              totalEfficiency = alloc.totalEfficiency ?? totalEfficiency;
-            }
+        const rawAlloc = allocResp.status === "fulfilled" ? allocResp.value : null;
+        const allocData = Array.isArray(rawAlloc?.data) ? rawAlloc.data : Array.isArray(rawAlloc) ? rawAlloc : null;
+        if (allocData && allocData.length > 0) {
+          const cumulative = rangeToCumulative(allocData, aggregateBy);
+          if (cumulative) {
+            const totals = cumulativeToTotals(cumulative);
+            totalCost = totals.totalCost ?? 0;
+            totalEfficiency = (totals.totalEfficiency ?? 0) * 100;
           }
         }
 
@@ -77,7 +95,7 @@ export default function CostSummaryCards({ window = "7d" }: { window?: string })
           externalCost = (externalResp.value as any[]).reduce((sum, row) => sum + (row.cost ?? 0), 0);
         }
 
-        setData({ totalCost, cloudCost, externalCost, efficiency: totalEfficiency * 100 });
+        setData({ totalCost, cloudCost, externalCost, efficiency: totalEfficiency });
       } catch {
         // silently fall back to empty
       } finally {
@@ -87,7 +105,7 @@ export default function CostSummaryCards({ window = "7d" }: { window?: string })
 
     load();
     return () => { cancelled = true; };
-  }, [window]);
+  }, [window, aggregateBy, accumulate, includeIdle, filters]);
 
   return (
     <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, 1fr)" }}>

@@ -89,7 +89,7 @@ const ReportsPage = () => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
     setCumulativeData(toArray(cumulative));
     setTotalData(cumulativeToTotals(cumulative));
-  }, [allocationData]);
+  }, [allocationData, aggregateBy]);
 
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);

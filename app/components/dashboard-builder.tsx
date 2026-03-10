@@ -6,7 +6,7 @@ import type { Widget } from "./dashboard-context";
 const WIDGET_TYPES = [
   { value: "summary-cards", label: "Cost Summary", description: "Key metrics overview" },
   { value: "cloud-costs-chart", label: "Cloud Costs Chart", description: "Cloud infrastructure costs over time" },
-  { value: "cost-allocation-chart", label: "Cost Allocation by Namespace", description: "Cost breakdown by namespace" },
+  { value: "cost-allocation-chart", label: "Cost Allocation", description: "Cost breakdown by cluster, namespace, pod, or other dimension" },
   { value: "external-services-chart", label: "External Services Costs", description: "Third-party service costs" },
   { value: "cost-table", label: "Cost Breakdown Table", description: "Detailed cost breakdown by resource" },
   { value: "anomaly-detection", label: "Anomaly Detection", description: "Unusual spending patterns" },
@@ -34,6 +34,7 @@ export default function DashboardBuilder({
           { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },
           { id: "2", type: "cloud-costs-chart", title: "Cloud Costs", gridSize: "2" },
           { id: "3", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "2" },
+          {id: "4", type: "external-services-chart", title: "External Services Costs", gridSize: "2"},
         ]
   );
   const [selectedWidget, setSelectedWidget] = useState<Widget | null>(null);

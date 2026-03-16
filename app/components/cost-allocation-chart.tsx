@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { StackedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
 import AllocationService from "~/services/allocation";
-import { checkCustomWindow, toVerboseTimeRange } from "~/lib/legacy-util";
+import { checkCustomWindow, toVerboseTimeRange, toCurrency } from "~/lib/legacy-util";
 import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS } from "./scoped-views";
-
+import { primary, greyscale, browns } from "~/constants/colors";
 interface ChartPoint {
-  group: string;
-  key: string;
+  group: string; 
+  key: string; 
   value: number;
+}
+
+interface AllocationLike {
+  name?: string;
+  totalCost?: number;
+  start?: string;
+  window?: { start?: string };
+  [k: string]: unknown;
 }
 
 function generateTitle(window: string, aggregateBy: string, accumulate: boolean): string {
@@ -27,38 +35,85 @@ function generateTitle(window: string, aggregateBy: string, accumulate: boolean)
   return str;
 }
 
-function buildChartData(rawData: any[]): ChartPoint[] {
-  const points: ChartPoint[] = [];
-  const TOP_N = 10;
+function isIdle(alloc: AllocationLike): boolean {
+  return ((alloc.name ?? "") as string).indexOf("__idle__") >= 0;
+}
 
-  const totals: Record<string, number> = {};
+function aggregateAllocs(allocs: AllocationLike[], name: string): AllocationLike | null {
+  if (allocs.length === 0) return null;
+  const first = allocs[0];
+  const totalCost = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
+  const start = first?.window?.start ?? first?.start;
+  return { name, totalCost, start, window: first?.window };
+}
+
+function topNPerDay(
+  allocations: AllocationLike[],
+  n: number,
+  by: (a: AllocationLike) => number
+): { top: AllocationLike[]; other: AllocationLike[]; idle: AllocationLike[] } {
+  const sorted = [...allocations].sort((a, b) => by(b) - by(a));
+  const active = sorted.filter((a) => !isIdle(a));
+  const idle = sorted.filter((a) => isIdle(a));
+  const top = active.slice(0, n);
+  const rest = active.slice(n);
+  const other: AllocationLike[] = rest.length > 0 && aggregateAllocs(rest, "other") ? [aggregateAllocs(rest, "other")!] : [];
+  return { top, other, idle };
+}
+
+function getDateLabel(alloc: AllocationLike): string {
+  const start = alloc?.window?.start ?? alloc?.start;
+  if (!start) return "?";
+  return new Date(start).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" });
+}
+
+function buildChartData(rawData: any[], topN: number, includeIdle: boolean): ChartPoint[] {
+  const points: ChartPoint[] = [];
+  const totalsByKey: Record<string, number> = {};
+
   for (const set of rawData) {
-    for (const alloc of Object.values(set) as any[]) {
-      if (alloc.name === "__idle__") continue;
-      totals[alloc.name] = (totals[alloc.name] ?? 0) + (alloc.totalCost ?? 0);
+    const allocs: AllocationLike[] = Array.isArray(set) ? set : (Object.values(set) as AllocationLike[]);
+    if (!allocs.length) continue;
+
+    const { top, other, idle } = topNPerDay(allocs, topN, (a) => a.totalCost ?? 0);
+    const date = getDateLabel(allocs[0]);
+
+    for (const a of top) {
+      const k = a.name ?? "?";
+      points.push({ group: date, key: k, value: a.totalCost ?? 0 });
+      totalsByKey[k] = (totalsByKey[k] ?? 0) + (a.totalCost ?? 0);
+    }
+    for (const a of other) {
+      points.push({ group: date, key: "other", value: a.totalCost ?? 0 });
+      totalsByKey["other"] = (totalsByKey["other"] ?? 0) + (a.totalCost ?? 0);
+    }
+    if (includeIdle && idle.length > 0) {
+      const idleCost = idle.reduce((s, a) => s + (a.totalCost ?? 0), 0);
+      if (idleCost > 0) {
+        points.push({ group: date, key: "idle", value: idleCost });
+        totalsByKey["idle"] = (totalsByKey["idle"] ?? 0) + idleCost;
+      }
     }
   }
 
-  const topNames = Object.entries(totals)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, TOP_N)
-    .map(([name]) => name);
-
-  for (const set of rawData) {
-    const allocValues = Object.values(set) as any[];
-    if (!allocValues.length) continue;
-    const sampleAlloc = allocValues[0];
-    const date = sampleAlloc?.window?.start
-      ? new Date(sampleAlloc.window.start).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
-      : "?";
-
-    for (const name of topNames) {
-      const alloc = allocValues.find((a: any) => a.name === name);
-      points.push({ group: date, key: name, value: alloc?.totalCost ?? 0 });
-    }
+  for (const [key, value] of Object.entries(totalsByKey)) {
+    if (value > 0) points.push({ group: "Total", key, value });
   }
 
   return points;
+}
+
+function buildColorScale(points: ChartPoint[]): Record<string, string> {
+  const keys = [...new Set(points.map((p) => p.key))]; // keys = stack segments
+  const scale: Record<string, string> = {};
+  let p = 0;
+  for (const k of keys) {
+    if (k === "idle") scale[k] = greyscale[1];
+    else if (k === "total") scale[k] = greyscale[2];
+    else if (k === "other") scale[k] = browns[0];
+    else scale[k] = primary[p++ % primary.length];
+  }
+  return scale;
 }
 
 export interface CostAllocationChartProps {
@@ -66,6 +121,7 @@ export interface CostAllocationChartProps {
   aggregateBy?: string;
   accumulate?: boolean;
   includeIdle?: boolean;
+  topN?: number;
 }
 
 export default function CostAllocationChart({
@@ -73,6 +129,7 @@ export default function CostAllocationChart({
   aggregateBy = "namespace",
   accumulate = false,
   includeIdle = true,
+  topN = 10,
 }: CostAllocationChartProps) {
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,7 +147,7 @@ export default function CostAllocationChart({
         });
         const raw = Array.isArray(resp?.data) ? resp.data : Array.isArray(resp) ? resp : [];
         if (!cancelled && raw.length > 0) {
-          setChartData(buildChartData(raw));
+          setChartData(buildChartData(raw, topN, includeIdle));
         } else {
           setChartData([]);
         }
@@ -102,16 +159,51 @@ export default function CostAllocationChart({
     }
     load();
     return () => { cancelled = true; };
-  }, [window, aggregateBy, accumulate, includeIdle]);
+  }, [window, aggregateBy, accumulate, includeIdle, topN]);
 
-  const chartOptions = {
-    title,
-    axes: {
-      left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
-      bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+  const chartOptions = useMemo(
+    () => {
+      const colorScale = buildColorScale(chartData);
+      return {
+        title,
+        axes: {
+          left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+          bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+        },
+        data: { groupMapsTo: "key" },
+        height: "400px",
+        color: { scale: colorScale },
+        bars: {
+          maxWidth: 48,
+          spacingFactor: 0.65,
+        },
+        tooltip: {
+          totalLabel: "Total:",
+          valueFormatter: (value: number) => toCurrency(value, "USD"),
+          showTotal: true,
+          groupLabel: "Date",
+          alwaysShowRulerTooltip: true,
+          customHTML: (data: any, defaultHTML: string) => {
+            let items: any[] = [];
+            if (Array.isArray(data)) items = data;
+            else if (data?.value !== undefined || data?.label !== undefined) items = [data];
+            else if (data?.data && Array.isArray(data.data)) items = data.data;
+            if (items.length === 0) return defaultHTML;
+            let total = 0;
+            const lines = items.map((item: any) => {
+              const val = typeof item.value === "number" ? item.value : parseFloat(item.value) || 0;
+              total += val;
+              const name = item.label ?? item.key ?? item.name ?? item.group ?? "—";
+              const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";
+              return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, "USD")}</span></p>`;
+            }).join("");
+            return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, "USD")}</p></div>`;
+          },
+        },
+      };
     },
-    height: "400px",
-  };
+    [title, chartData]
+  );
 
   if (loading) {
     return (
@@ -122,7 +214,10 @@ export default function CostAllocationChart({
   }
 
   return (
-    <div style={{ width: "100%", height: "400px" }}>
+    <div
+      className="cost-allocation-chart"
+      style={{ width: "100%", height: "400px", padding: "0 8px" }}
+    >
       <StackedBarChart data={chartData} options={chartOptions} />
     </div>
   );

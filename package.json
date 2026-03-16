@@ -5,6 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "build:legacy": "VITE_LEGACY_MODE=true react-router build",
+    "build:all": "npm run build && npm run build:legacy",
     "dev": "react-router dev",
     "legacy": "VITE_LEGACY_MODE=true react-router dev",
     "start": "serve build/client -s",

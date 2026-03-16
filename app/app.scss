@@ -98,3 +98,10 @@ body {
   font-size: 0.875rem;
   color: #525252;
 }
+
+.cost-allocation-chart {
+  .cds--chart-holder svg rect[fill]:not([class*='zoom']):not([class*='skeleton']) {
+    stroke: transparent;
+    stroke-width: 8;
+  }
+}

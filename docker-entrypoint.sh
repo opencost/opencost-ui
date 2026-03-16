@@ -1,28 +1,39 @@
 #!/bin/sh
 set -e
 
+# Set document root based on LEGACY_MODE (run with -e LEGACY_MODE=true for legacy UI)
+if [ "$LEGACY_MODE" = "true" ] || [ "$LEGACY_MODE" = "1" ] || [ "$LEGACY_MODE" = "yes" ]; then
+    export NGINX_ROOT=/var/www/legacy
+    WWW_ROOT=/var/www/legacy
+    echo "Serving legacy UI from $WWW_ROOT"
+else
+    export NGINX_ROOT=/var/www
+    WWW_ROOT=/var/www
+    echo "Serving default UI from $WWW_ROOT"
+fi
+
 # Copy build output to /var/www if present (Dockerfile.cross flow)
 if [ -d /opt/ui/dist ]; then
-    cp -rv /opt/ui/dist/* /var/www
+    cp -rv /opt/ui/dist/* "$WWW_ROOT"
 fi
 
+# Replace placeholders in all .js files (including assets/*.js)
 if [ -n "$BASE_URL_OVERRIDE" ]; then
     echo "running with BASE_URL=${BASE_URL_OVERRIDE}"
-    sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL_OVERRIDE^g" /var/www/*.js
+    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL_OVERRIDE^g" {} \; 2>/dev/null || true
 else
     echo "running with BASE_URL=${BASE_URL}"
-    sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL^g" /var/www/*.js
+    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL^g" {} \; 2>/dev/null || true
 fi
 
-# export your OPENCOST_FOOTER_CONTENT='<a href="https://opencost.io">OpenCost</a>' in your Dockerfile to set
 if [ -n "$OPENCOST_FOOTER_CONTENT" ]; then
-    sed -i "s^PLACEHOLDER_FOOTER_CONTENT^$OPENCOST_FOOTER_CONTENT^g" /var/www/*.js
+    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_FOOTER_CONTENT^$OPENCOST_FOOTER_CONTENT^g" {} \; 2>/dev/null || true
 else
-    sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" /var/www/*.js
+    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" {} \; 2>/dev/null || true
 fi
 
-if [[ ! -e /etc/nginx/conf.d/default.nginx.conf ]];then
-    envsubst '$API_PORT $API_SERVER $UI_PORT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
+if [ ! -e /etc/nginx/conf.d/default.nginx.conf ]; then
+    envsubst '$API_PORT $API_SERVER $UI_PORT $NGINX_ROOT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
 fi
 echo "Starting OpenCost UI version $VERSION ($HEAD)"
 

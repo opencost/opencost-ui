@@ -1,9 +1,16 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 WORKDIR /opt/ui
 ADD package*.json ./
 RUN npm install
 ADD . ./
-RUN npm run build
+# Build both UIs: regular -> /var/www, legacy -> /var/www/legacy
+# Save first build outside build/ so build:legacy (which overwrites build/) doesn't remove it
+RUN npm run build && cp -r build/client /opt/standard
+RUN npm run build:legacy
+# Verify both builds produced output
+RUN test -f /opt/standard/index.html && test -f /opt/ui/build/client/index.html && \
+    test -d /opt/standard/assets && test -d /opt/ui/build/client/assets && \
+    echo "Both builds OK" && ls -la /opt/standard/ && ls -la /opt/ui/build/client/
 
 FROM nginx:alpine
 
@@ -23,10 +30,11 @@ ENV API_PORT=9003
 ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
 
-RUN mkdir -p /var/www
+RUN mkdir -p /var/www /var/www/legacy
 
 COPY THIRD_PARTY_LICENSES.txt /THIRD_PARTY_LICENSES.txt
-COPY --from=builder /opt/ui/build/client /var/www
+COPY --from=builder /opt/standard /var/www
+COPY --from=builder /opt/ui/build/client /var/www/legacy
 
 COPY default.nginx.conf.template /etc/nginx/conf.d/default.nginx.conf.template
 COPY nginx.conf /etc/nginx/
@@ -40,6 +48,7 @@ RUN chown 1001:1000 -R /etc/nginx
 RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
 ENV BASE_URL=/model
+ENV LEGACY_MODE=false
 
 USER 1001
 

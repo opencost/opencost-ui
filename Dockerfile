@@ -21,8 +21,9 @@ LABEL org.opencontainers.image.source=https://github.com/opencost/opencost-ui
 LABEL org.opencontainers.image.title=opencost-ui
 LABEL org.opencontainers.image.url=https://opencost.io
 
+ARG ui_path=/
 ARG version=dev
-ARG	commit=HEAD
+ARG commit=HEAD
 ENV VERSION=${version}
 ENV HEAD=${commit}
 

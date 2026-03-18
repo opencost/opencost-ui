@@ -2,16 +2,16 @@
 
 # OpenCost UI
 
-<img src="./opencost-header.png"/>
+<img src="src/images/logo.png"/>
 
 This is the web UI for the [OpenCost](http://github.com/opencost/opencost) project. You can learn more about the [User Interface](https://www.opencost.io/docs/installation/ui) in the OpenCost docs.
 
-[![OpenCost UI Walkthrough](./ui/src/thumbnail.png)](https://youtu.be/lCP4Ci9Kcdg)
+[![OpenCost UI Walkthrough](./src/thumbnail.png)](https://youtu.be/lCP4Ci9Kcdg)
 *OpenCost UI Walkthrough*
 
 ## Installing
 
-See https://www.opencost.io/docs/install for the full instructions.
+See [Installation Guide](https://opencost.io/docs/installation/install) for the full instructions.
 
 ## Using
 
@@ -62,3 +62,16 @@ For some use cases such as the case of [OpenCost deployed behind an ingress cont
 ```sh
 $ docker run -p 9091:9090 -e BASE_URL_OVERRIDE=anything -d opencost-ui:latest
 ```
+
+## Overriding the Base UI URL Path
+
+To serve the web interface under a path other than the root (`/`), you need to build a custom image using the `ui_path` build argument.  
+For example, you can clone this project and run:
+
+```sh
+$ docker build --build-arg ui_path=/anything --tag opencost-ui:latest .
+```
+
+This ensures that all static assets are served from the specified path.
+
+Once the container is running, the UI will be accessible at `<domain>/{ui_path}`.

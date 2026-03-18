@@ -32,8 +32,19 @@ else
     find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" {} \; 2>/dev/null || true
 fi
 
+# Custom aggregation options: JSON object (map string:string), e.g. {"Label: team":"label:team"}
+if [[ ! -z "$CUSTOM_AGGREGATION_OPTIONS" ]]; then
+    echo "injecting CUSTOM_AGGREGATION_OPTIONS"
+    esc=$(printf '%s' "$CUSTOM_AGGREGATION_OPTIONS" | sed 's/\\/\\\\/g; s/&/\\&/g; s/"/\\"/g')
+    sed -i "s^PLACEHOLDER_CUSTOM_AGGREGATIONS^$esc^g" /var/www/*.js
+else
+    sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" /var/www/*.js
+fi
+
 if [ ! -e /etc/nginx/conf.d/default.nginx.conf ]; then
-    envsubst '$API_PORT $API_SERVER $UI_PORT $NGINX_ROOT' < /etc/nginx/conf.d/default.nginx.conf.template > /etc/nginx/conf.d/default.nginx.conf
+    envsubst '$API_PORT $API_SERVER $UI_PORT $NGINX_ROOT $UI_PATH $BASE_URL $PROXY_CONNECT_TIMEOUT $PROXY_SEND_TIMEOUT $PROXY_READ_TIMEOUT' \
+        < /etc/nginx/conf.d/default.nginx.conf.template \
+        > /etc/nginx/conf.d/default.nginx.conf
 fi
 echo "Starting OpenCost UI version $VERSION ($HEAD)"
 

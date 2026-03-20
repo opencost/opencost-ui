@@ -6,9 +6,10 @@ import type { Widget } from "./dashboard-context";
 const WIDGET_TYPES = [
   { value: "summary-cards", label: "Cost Summary", description: "Key metrics overview" },
   { value: "cloud-costs-chart", label: "Cloud Costs Chart", description: "Cloud infrastructure costs over time" },
+  { value: "cloud-costs-table", label: "Cloud Costs Table", description: "Cloud service spend with utilization and totals" },
   { value: "cost-allocation-chart", label: "Cost Allocation", description: "Cost breakdown by cluster, namespace, pod, or other dimension" },
   { value: "external-services-chart", label: "External Services Costs", description: "Third-party service costs" },
-  { value: "cost-table", label: "Cost Breakdown Table", description: "Detailed cost breakdown by resource" },
+  { value: "cost-allocation-table", label: "Allocation Breakdown Table", description: "Detailed allocation breakdown by resource" },
   { value: "anomaly-detection", label: "Anomaly Detection", description: "Unusual spending patterns" },
   { value: "carbon-metrics", label: "Carbon & Sustainability", description: "Environmental impact tracking" },
   { value: "assets-visualization", label: "Infrastructure Assets", description: "Cost, utilization, and carbon emissions by asset" },
@@ -33,8 +34,9 @@ export default function DashboardBuilder({
       : [
           { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },
           { id: "2", type: "cloud-costs-chart", title: "Cloud Costs", gridSize: "2" },
+          { id: "5", type: "cloud-costs-table", title: "Cloud Costs Table", gridSize: "2" },
           { id: "3", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "2" },
-          {id: "4", type: "external-services-chart", title: "External Services Costs", gridSize: "2"},
+          { id: "4", type: "external-services-chart", title: "External Services Costs", gridSize: "2" },
         ]
   );
   const [selectedWidget, setSelectedWidget] = useState<Widget | null>(null);

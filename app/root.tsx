@@ -7,6 +7,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import type { Route } from "./+types/root";
 import "./app.scss";
@@ -42,13 +44,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  if (isLegacyMode) {
-    return <Outlet />;
-  }
-  return (
+  const content = isLegacyMode ? <Outlet /> : (
     <Suspense fallback={null}>
       <DashboardApp />
     </Suspense>
+  );
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      {content}
+    </LocalizationProvider>
   );
 }
 

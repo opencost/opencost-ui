@@ -2,27 +2,50 @@ import { useState } from "react";
 import { Button, Tile, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 import { ArrowLeft, OverflowMenuVertical, Edit, Filter } from "@carbon/icons-react";
 import DashboardBuilder from "./dashboard-builder";
-import ScopedViews, { DEFAULT_ALLOCATION_FILTERS, type Filters } from "./scoped-views";
+import ScopedViews, { DEFAULT_ALLOCATION_FILTERS, DEFAULT_CLOUD_FILTERS, type Filters } from "./scoped-views";
 import CostSummaryCards from "./cost-summary-cards";
 import CostAllocationChart from "./cost-allocation-chart";
 import CostAllocationTable from "./cost-allocation-table";
-import CostByServiceChart from "./cost-by-service-chart";
+import CloudCostWidget from "./cloud-cost-widget";
+import CloudCostTableWidget from "./cloud-cost-table-widget";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
 import type { Widget, Dashboard } from "./dashboard-context";
 
-function WidgetRenderer({ widget, allocationFilters }: { widget: Widget; allocationFilters: { window: string; aggregateBy: string; accumulate: boolean; includeIdle: boolean } }) {
+function WidgetRenderer({
+  widget,
+  allocationFilters,
+  cloudFilters,
+}: {
+  widget: Widget;
+  allocationFilters: { window: string; aggregateBy: string; accumulate: boolean; includeIdle: boolean };
+  cloudFilters: { window: string; aggregateBy: string; costMetric: string; currency: string };
+}) {
   switch (widget.type) {
     case "summary-cards":
       return <CostSummaryCards {...allocationFilters} />;
     case "cloud-costs-chart":
       return (
         <Tile style={{ padding: "1rem" }}>
+          <CloudCostWidget
+            window={cloudFilters.window}
+            aggregateBy={cloudFilters.aggregateBy}
+            costMetric={cloudFilters.costMetric}
+            currency={cloudFilters.currency}
+          />
+        </Tile>
+      );
+    case "cloud-costs-table":
+      return (
+        <Tile style={{ padding: "1rem" }}>
           <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>
-            Cloud infrastructure costs over time
-          </p>
-          <CostByServiceChart />
+          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Cloud service spend with utilization and totals</p>
+          <CloudCostTableWidget
+            window={cloudFilters.window}
+            aggregateBy={cloudFilters.aggregateBy}
+            costMetric={cloudFilters.costMetric}
+            currency={cloudFilters.currency}
+          />
         </Tile>
       );
     case "cost-allocation-chart":
@@ -44,6 +67,7 @@ function WidgetRenderer({ widget, allocationFilters }: { widget: Widget; allocat
       );
     case "assets-visualization":
       return <AssetsVisualization />;
+    case "cost-allocation-table":
     case "cost-table":
       return (
         <Tile style={{ padding: "1rem" }}>
@@ -81,6 +105,7 @@ interface DashboardViewProps {
 
 const defaultFilters: Filters = {
   ...DEFAULT_ALLOCATION_FILTERS,
+  ...DEFAULT_CLOUD_FILTERS,
 };
 
 export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {
@@ -94,6 +119,13 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
     aggregateBy: filters.allocationAggregateBy ?? DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
     accumulate: filters.allocationAccumulate ?? DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: filters.allocationIncludeIdle ?? DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
+  };
+
+  const cloudFilters = {
+    window: filters.cloudWindow ?? DEFAULT_CLOUD_FILTERS.cloudWindow,
+    aggregateBy: filters.cloudAggregateBy ?? DEFAULT_CLOUD_FILTERS.cloudAggregateBy,
+    costMetric: filters.cloudCostMetric ?? DEFAULT_CLOUD_FILTERS.cloudCostMetric,
+    currency: filters.cloudCurrency ?? DEFAULT_CLOUD_FILTERS.cloudCurrency,
   };
 
   const handleSaveLayout = (newWidgets: Widget[]) => {
@@ -151,14 +183,20 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
       </div>
 
       {showFilters && (
-        <ScopedViews filters={filters} onFiltersChanged={setFilters} />
+        <ScopedViews
+          filters={filters}
+          onFiltersChanged={setFilters}
+          hasCloudWidgets={currentWidgets.some(
+            (w) => w.type === "cloud-costs-chart" || w.type === "cloud-costs-table"
+          )}
+        />
       )}
 
       {currentWidgets.length > 0 ? (
         <div className="dashboard-grid">
           {currentWidgets.map((widget) => (
             <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
-              <WidgetRenderer widget={widget} allocationFilters={allocationFilters} />
+              <WidgetRenderer widget={widget} allocationFilters={allocationFilters} cloudFilters={cloudFilters} />
             </div>
           ))}
         </div>

@@ -85,12 +85,6 @@ const ReportsPage = () => {
   const [errors, setErrors] = useState([]);
   const [includeIdle, setIncludeIdle] = useState();
 
-  useEffect(() => {
-    const cumulative = rangeToCumulative(allocationData, aggregateBy);
-    setCumulativeData(toArray(cumulative));
-    setTotalData(cumulativeToTotals(cumulative));
-  }, [allocationData, aggregateBy]);
-
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
@@ -103,6 +97,12 @@ const ReportsPage = () => {
 
   const filterParam = searchParams.get("filter");
   const filters = useMemo(() => (filterParam ? parseFiltersFromUrl(filterParam) : []), [filterParam]);
+
+  useEffect(() => {
+    const cumulative = rangeToCumulative(allocationData, aggregateBy);
+    setCumulativeData(toArray(cumulative));
+    setTotalData(cumulativeToTotals(cumulative));
+  }, [allocationData, aggregateBy]);
 
   useEffect(() => {
     const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];

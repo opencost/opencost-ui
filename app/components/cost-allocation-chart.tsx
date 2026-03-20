@@ -87,6 +87,9 @@ function buildChartData(rawData: any[], topN: number, includeIdle: boolean): Cha
       points.push({ group: date, key: "other", value: a.totalCost ?? 0 });
       totalsByKey["other"] = (totalsByKey["other"] ?? 0) + (a.totalCost ?? 0);
     }
+    const totalCost = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
+    points.push({ group: date, key: "total", value: totalCost });
+    totalsByKey["total"] = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
     if (includeIdle && idle.length > 0) {
       const idleCost = idle.reduce((s, a) => s + (a.totalCost ?? 0), 0);
       if (idleCost > 0) {
@@ -94,10 +97,6 @@ function buildChartData(rawData: any[], topN: number, includeIdle: boolean): Cha
         totalsByKey["idle"] = (totalsByKey["idle"] ?? 0) + idleCost;
       }
     }
-  }
-
-  for (const [key, value] of Object.entries(totalsByKey)) {
-    if (value > 0) points.push({ group: "Total", key, value });
   }
 
   return points;
@@ -192,6 +191,7 @@ export default function CostAllocationChart({
             let total = 0;
             const lines = items.map((item: any) => {
               const val = typeof item.value === "number" ? item.value : parseFloat(item.value) || 0;
+              if (item.key === "total") return null;
               total += val;
               const name = item.label ?? item.key ?? item.name ?? item.group ?? "—";
               const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";

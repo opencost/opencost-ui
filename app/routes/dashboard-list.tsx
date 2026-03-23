@@ -1,9 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { Button, Header, HeaderName, Tag } from "@carbon/react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
 import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
-import { useDashboard } from "~/components/dashboard-context";
+import { useDashboard, type Widget } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
+
+interface SharedDashboardPayload {
+  name: string;
+  description: string;
+  widgets: Widget[];
+  tags: string[];
+}
+
+function decodeShareParam(encoded: string): SharedDashboardPayload | null {
+  try {
+    return JSON.parse(atob(encoded)) as SharedDashboardPayload;
+  } catch {
+    return null;
+  }
+}
 
 export function meta() {
   return [
@@ -14,8 +29,36 @@ export function meta() {
 
 export default function DashboardList() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { dashboards } = useDashboard();
+  const [sharedPayload, setSharedPayload] = useState<SharedDashboardPayload | null>(null);
+  const { dashboards, createDashboard } = useDashboard();
+
+  useEffect(() => {
+    const shareParam = searchParams.get("share");
+    if (shareParam) {
+      const decoded = decodeShareParam(shareParam);
+      if (decoded) setSharedPayload(decoded);
+      setSearchParams((prev) => { prev.delete("share"); return prev; }, { replace: true });
+    }
+  }, []);
+
+  const handleImportShared = () => {
+    if (!sharedPayload) return;
+    const newId = `dashboard-${Date.now()}`;
+    createDashboard({
+      id: newId,
+      name: sharedPayload.name,
+      description: sharedPayload.description,
+      widgets: sharedPayload.widgets,
+      tags: sharedPayload.tags ?? [],
+      starred: false,
+      updatedAt: "just now",
+      owner: "You",
+    });
+    setSharedPayload(null);
+    navigate(`/dashboard/${newId}`);
+  };
 
   return (
     <>
@@ -192,6 +235,50 @@ export default function DashboardList() {
           }}
         />
       )}
+
+      <Modal
+        open={!!sharedPayload}
+        modalHeading="Import Shared Dashboard"
+        primaryButtonText="Import Dashboard"
+        secondaryButtonText="Dismiss"
+        onRequestSubmit={handleImportShared}
+        onRequestClose={() => setSharedPayload(null)}
+        onSecondarySubmit={() => setSharedPayload(null)}
+      >
+        {sharedPayload && (
+          <div>
+            <p style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "#525252" }}>
+              Someone shared a dashboard configuration with you. Would you like to import it?
+            </p>
+            <div
+              style={{
+                padding: "1rem",
+                backgroundColor: "#f4f4f4",
+                borderLeft: "4px solid #0f62fe",
+                marginBottom: "1rem",
+              }}
+            >
+              <p style={{ fontWeight: "600", fontSize: "1rem", marginBottom: "0.25rem" }}>
+                {sharedPayload.name}
+              </p>
+              {sharedPayload.description && (
+                <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "0.5rem" }}>
+                  {sharedPayload.description}
+                </p>
+              )}
+              <p style={{ fontSize: "0.75rem", color: "#8d8d8d" }}>
+                {sharedPayload.widgets.length} widget{sharedPayload.widgets.length !== 1 ? "s" : ""}
+                {sharedPayload.tags?.length
+                  ? ` · ${sharedPayload.tags.join(", ")}`
+                  : ""}
+              </p>
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "#8d8d8d" }}>
+              This will be added as a new dashboard in your workspace. No existing dashboards will be affected.
+            </p>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

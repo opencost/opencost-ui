@@ -96,9 +96,20 @@ interface DashboardViewProps {
 
 const DEFAULT_DASHBOARD_ID = "1";
 
+function encodeDashboardShare(dashboard: Dashboard): string {
+  const payload = {
+    name: dashboard.name,
+    description: dashboard.description,
+    widgets: dashboard.widgets,
+    tags: dashboard.tags,
+  };
+  return btoa(JSON.stringify(payload));
+}
+
 export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(dashboard.widgets);
+  const [shareToast, setShareToast] = useState<"copied" | "error" | null>(null);
   const isDefaultDashboard = dashboard.id === DEFAULT_DASHBOARD_ID;
 
   const hasAllocationChart = currentWidgets.some((w) => w.type === "cost-allocation-chart");
@@ -109,6 +120,19 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
     setCurrentWidgets(newWidgets);
     onUpdateWidgets(newWidgets);
     setIsEditMode(false);
+  };
+
+  const handleShareDashboard = async () => {
+    try {
+      const encoded = encodeDashboardShare({ ...dashboard, widgets: currentWidgets });
+      const url = `${window.location.origin}/?share=${encoded}`;
+      await navigator.clipboard.writeText(url);
+      setShareToast("copied");
+      setTimeout(() => setShareToast(null), 4000);
+    } catch {
+      setShareToast("error");
+      setTimeout(() => setShareToast(null), 4000);
+    }
   };
 
   if (isEditMode) {
@@ -124,17 +148,19 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
   }
 
   return (
-    <div style={{ padding: "1.5rem" }}>
+    <div style={{ padding: "1.5rem 1.5rem 2rem", maxWidth: "1584px", margin: "0 auto" }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           marginBottom: "1.5rem",
+          paddingTop: "0.5rem",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Button kind="ghost" size="sm" onClick={onBack} renderIcon={ArrowLeft} iconDescription="Back">
+          <Button kind="ghost" size="sm" onClick={onBack} iconDescription="Back">
+            <ArrowLeft style={{ marginRight: "0.375rem" }} />
             Back
           </Button>
           <div>
@@ -145,7 +171,7 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <OverflowMenu renderIcon={OverflowMenuVertical} iconDescription="More options" flipped size="sm">
             <OverflowMenuItem itemText="Edit Layout" onClick={() => setIsEditMode(true)} />
-            <OverflowMenuItem itemText="Share Dashboard" />
+            <OverflowMenuItem itemText="Share Dashboard" onClick={handleShareDashboard} />
             <OverflowMenuItem
               itemText="Delete Dashboard"
               hasDivider

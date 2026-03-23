@@ -44,6 +44,7 @@ export default function DashboardBuilder({
   const [selectedWidget, setSelectedWidget] = useState<Widget | null>(null);
   const [showAddWidget, setShowAddWidget] = useState(false);
   const [newWidgetType, setNewWidgetType] = useState("summary-cards");
+  const [newWidgetGridSize, setNewWidgetGridSize] = useState("4");
 
   const addWidget = () => {
     const widgetInfo = WIDGET_TYPES.find((w) => w.value === newWidgetType);
@@ -51,7 +52,7 @@ export default function DashboardBuilder({
       id: `widget-${Date.now()}`,
       type: newWidgetType,
       title: widgetInfo?.label || "New Widget",
-      gridSize: "2",
+      gridSize: newWidgetGridSize,
     };
     setWidgets([...widgets, widget]);
     setShowAddWidget(false);
@@ -72,7 +73,7 @@ export default function DashboardBuilder({
   };
 
   return (
-    <div style={{ padding: "1.5rem" }}>
+    <div style={{ padding: "1.5rem 1.5rem 2rem", maxWidth: "1584px", margin: "0 auto" }}>
       <div
         style={{
           display: "flex",
@@ -82,7 +83,8 @@ export default function DashboardBuilder({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Button kind="ghost" size="sm" onClick={onCancel} renderIcon={ArrowLeft}>
+          <Button kind="ghost" size="sm" onClick={onCancel} iconDescription="Back">
+            <ArrowLeft style={{ marginRight: "0.375rem" }} />
             Back
           </Button>
           <div>
@@ -206,6 +208,22 @@ export default function DashboardBuilder({
           <p style={{ fontSize: "0.875rem", color: "#525252", marginTop: "0.5rem" }}>
             {WIDGET_TYPES.find((w) => w.value === newWidgetType)?.description}
           </p>
+          <div style={{ marginTop: "1.5rem" }}>
+            <Select
+              id="widget-size"
+              labelText="Column span"
+              value={newWidgetGridSize}
+              onChange={(e) => setNewWidgetGridSize(e.target.value)}
+            >
+              <SelectItem value="1" text="1 column (¼ width)" />
+              <SelectItem value="2" text="2 columns (½ width)" />
+              <SelectItem value="3" text="3 columns (¾ width)" />
+              <SelectItem value="4" text="4 columns (full width)" />
+            </Select>
+            <p style={{ fontSize: "0.75rem", color: "#6f6f6f", marginTop: "0.25rem" }}>
+              How much horizontal space should this widget occupy?
+            </p>
+          </div>
         </div>
       </Modal>
     </div>

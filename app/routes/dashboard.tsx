@@ -59,7 +59,7 @@ export default function DashboardPage() {
           OpenCost
         </HeaderName>
       </Header>
-      <main style={{ paddingTop: "3rem", minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
+      <main style={{ paddingTop: "5rem", paddingBottom: "2rem", minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
         <DashboardView
           dashboard={dashboard}
           onBack={() => navigate("/")}

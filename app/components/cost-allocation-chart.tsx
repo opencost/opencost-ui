@@ -130,10 +130,14 @@ export default function CostAllocationChart({
   includeIdle = true,
   topN = 10,
 }: CostAllocationChartProps) {
-  const [chartData, setChartData] = useState<ChartPoint[]>([]);
+  const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const title = generateTitle(window, aggregateBy, accumulate);
+  const chartData = useMemo(
+    () => (rawData.length > 0 ? buildChartData(rawData, topN, includeIdle) : []),
+    [rawData, topN, includeIdle],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -146,19 +150,19 @@ export default function CostAllocationChart({
         });
         const raw = Array.isArray(resp?.data) ? resp.data : Array.isArray(resp) ? resp : [];
         if (!cancelled && raw.length > 0) {
-          setChartData(buildChartData(raw, topN, includeIdle));
+          setRawData(raw);
         } else {
-          setChartData([]);
+          setRawData([]);
         }
       } catch {
-        setChartData([]);
+        setRawData([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [window, aggregateBy, accumulate, includeIdle, topN]);
+  }, [window, aggregateBy, accumulate, includeIdle]);
 
   const chartOptions = useMemo(
     () => {

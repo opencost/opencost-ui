@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Button, Tile, OverflowMenu, OverflowMenuItem } from "@carbon/react";
-import { ArrowLeft, OverflowMenuVertical, Edit, Filter } from "@carbon/icons-react";
+import { ArrowLeft, OverflowMenuVertical, Edit } from "@carbon/icons-react";
 import DashboardBuilder from "./dashboard-builder";
-import ScopedViews, { DEFAULT_ALLOCATION_FILTERS, DEFAULT_CLOUD_FILTERS, type Filters } from "./scoped-views";
 import CostSummaryCards from "./cost-summary-cards";
 import CostAllocationChart from "./cost-allocation-chart";
 import CostAllocationTable from "./cost-allocation-table";
@@ -10,50 +9,42 @@ import CloudCostWidget from "./cloud-cost-widget";
 import CloudCostTableWidget from "./cloud-cost-table-widget";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
+import { AllocationFiltersProvider } from "./allocation-filters-context";
 import type { Widget, Dashboard } from "./dashboard-context";
 
 function WidgetRenderer({
   widget,
-  allocationFilters,
-  cloudFilters,
+  useSharedAllocationFilters,
 }: {
   widget: Widget;
-  allocationFilters: { window: string; aggregateBy: string; accumulate: boolean; includeIdle: boolean };
-  cloudFilters: { window: string; aggregateBy: string; costMetric: string; currency: string };
+  useSharedAllocationFilters: boolean;
 }) {
   switch (widget.type) {
     case "summary-cards":
-      return <CostSummaryCards {...allocationFilters} />;
+      return <CostSummaryCards title={widget.title} />;
     case "cloud-costs-chart":
       return (
         <Tile style={{ padding: "1rem" }}>
-          <CloudCostWidget
-            window={cloudFilters.window}
-            aggregateBy={cloudFilters.aggregateBy}
-            costMetric={cloudFilters.costMetric}
-            currency={cloudFilters.currency}
-          />
+          <CloudCostWidget />
         </Tile>
       );
     case "cloud-costs-table":
       return (
         <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Cloud service spend with utilization and totals</p>
           <CloudCostTableWidget
-            window={cloudFilters.window}
-            aggregateBy={cloudFilters.aggregateBy}
-            costMetric={cloudFilters.costMetric}
-            currency={cloudFilters.currency}
+            title={widget.title}
+            description="Cloud service spend with utilization and totals"
           />
         </Tile>
       );
     case "cost-allocation-chart":
       return (
         <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Cost breakdown by cluster, namespace, pod, or other dimension</p>
-          <CostAllocationChart {...allocationFilters} />
+          <CostAllocationChart
+            title={widget.title}
+            description="Cost breakdown by cluster, namespace, pod, or other dimension"
+            useSharedFilters={useSharedAllocationFilters}
+          />
         </Tile>
       );
     case "external-services-chart":
@@ -71,11 +62,11 @@ function WidgetRenderer({
     case "cost-table":
       return (
         <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>
-            Cost allocation breakdown by cluster, namespace, pod, or other dimension
-          </p>
-          <CostAllocationTable {...allocationFilters} />
+          <CostAllocationTable
+            title={widget.title}
+            description="Cost allocation breakdown by cluster, namespace, pod, or other dimension"
+            useSharedFilters={useSharedAllocationFilters}
+          />
         </Tile>
       );
     case "anomaly-detection":
@@ -103,30 +94,16 @@ interface DashboardViewProps {
   onUpdateWidgets: (widgets: Widget[]) => void;
 }
 
-const defaultFilters: Filters = {
-  ...DEFAULT_ALLOCATION_FILTERS,
-  ...DEFAULT_CLOUD_FILTERS,
-};
+const DEFAULT_DASHBOARD_ID = "1";
 
 export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(dashboard.widgets);
-  const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const isDefaultDashboard = dashboard.id === DEFAULT_DASHBOARD_ID;
 
-  const allocationFilters = {
-    window: filters.allocationWindow ?? DEFAULT_ALLOCATION_FILTERS.allocationWindow,
-    aggregateBy: filters.allocationAggregateBy ?? DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
-    accumulate: filters.allocationAccumulate ?? DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
-    includeIdle: filters.allocationIncludeIdle ?? DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
-  };
-
-  const cloudFilters = {
-    window: filters.cloudWindow ?? DEFAULT_CLOUD_FILTERS.cloudWindow,
-    aggregateBy: filters.cloudAggregateBy ?? DEFAULT_CLOUD_FILTERS.cloudAggregateBy,
-    costMetric: filters.cloudCostMetric ?? DEFAULT_CLOUD_FILTERS.cloudCostMetric,
-    currency: filters.cloudCurrency ?? DEFAULT_CLOUD_FILTERS.cloudCurrency,
-  };
+  const hasAllocationChart = currentWidgets.some((w) => w.type === "cost-allocation-chart");
+  const hasAllocationTable = currentWidgets.some((w) => w.type === "cost-allocation-table" || w.type === "cost-table");
+  const useSharedAllocationFilters = hasAllocationChart && hasAllocationTable;
 
   const handleSaveLayout = (newWidgets: Widget[]) => {
     setCurrentWidgets(newWidgets);
@@ -141,6 +118,7 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
         initialWidgets={currentWidgets}
         onSave={handleSaveLayout}
         onCancel={() => setIsEditMode(false)}
+        isDefaultDashboard={isDefaultDashboard}
       />
     );
   }
@@ -165,41 +143,39 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Button
-            kind={showFilters ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            renderIcon={Filter}
-          >
-            Filters
-          </Button>
           <OverflowMenu renderIcon={OverflowMenuVertical} iconDescription="More options" flipped size="sm">
             <OverflowMenuItem itemText="Edit Layout" onClick={() => setIsEditMode(true)} />
             <OverflowMenuItem itemText="Share Dashboard" />
-            <OverflowMenuItem itemText="Make Homepage" />
-            <OverflowMenuItem itemText="Delete Dashboard" hasDivider isDelete />
+            <OverflowMenuItem
+              itemText="Delete Dashboard"
+              hasDivider
+              disabled={isDefaultDashboard}
+              isDelete
+            />
           </OverflowMenu>
         </div>
       </div>
 
-      {showFilters && (
-        <ScopedViews
-          filters={filters}
-          onFiltersChanged={setFilters}
-          hasCloudWidgets={currentWidgets.some(
-            (w) => w.type === "cloud-costs-chart" || w.type === "cloud-costs-table"
-          )}
-        />
-      )}
-
       {currentWidgets.length > 0 ? (
-        <div className="dashboard-grid">
-          {currentWidgets.map((widget) => (
-            <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
-              <WidgetRenderer widget={widget} allocationFilters={allocationFilters} cloudFilters={cloudFilters} />
+        useSharedAllocationFilters ? (
+          <AllocationFiltersProvider>
+            <div className="dashboard-grid">
+              {currentWidgets.map((widget) => (
+                <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
+                  <WidgetRenderer widget={widget} useSharedAllocationFilters={true} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </AllocationFiltersProvider>
+        ) : (
+          <div className="dashboard-grid">
+            {currentWidgets.map((widget) => (
+              <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
+                <WidgetRenderer widget={widget} useSharedAllocationFilters={false} />
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <Tile style={{ padding: "3rem", textAlign: "center" }}>
           <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>

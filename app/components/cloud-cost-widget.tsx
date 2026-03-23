@@ -18,6 +18,7 @@ import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
 } from "~/constants/cloud-cost-options";
+import { CloudFilterControls, DEFAULT_CLOUD_FILTERS, FilterableWidgetHeader } from "./scoped-views";
 
 interface ChartPoint {
   group: string;
@@ -123,15 +124,22 @@ export interface CloudCostWidgetProps {
 }
 
 export default function CloudCostWidget({
-  window: windowProp = "7d",
-  aggregateBy: aggregateByProp = "provider",
-  costMetric: costMetricProp = "AmortizedNetCost",
-  currency: currencyProp = "USD",
+  window: windowProp,
+  aggregateBy: aggregateByProp,
+  costMetric: costMetricProp,
+  currency: currencyProp,
 }: CloudCostWidgetProps) {
-  const window = windowProp;
-  const aggregateBy = aggregateByProp;
-  const costMetric = costMetricProp;
-  const currency = currencyProp;
+  const [showFilters, setShowFilters] = useState(false);
+  const [localFilters, setLocalFilters] = useState({
+    window: DEFAULT_CLOUD_FILTERS.cloudWindow,
+    aggregateBy: DEFAULT_CLOUD_FILTERS.cloudAggregateBy,
+    costMetric: DEFAULT_CLOUD_FILTERS.cloudCostMetric,
+    currency: DEFAULT_CLOUD_FILTERS.cloudCurrency,
+  });
+  const window = windowProp ?? localFilters.window;
+  const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
+  const costMetric = costMetricProp ?? localFilters.costMetric;
+  const currency = currencyProp ?? localFilters.currency;
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableRows, setTableRows] = useState<CloudCostRow[]>([]);
   const [tableTotal, setTableTotal] = useState<CloudCostRow | null>(null);
@@ -245,28 +253,31 @@ export default function CloudCostWidget({
     };
   }, [chartData, currency]);
 
+  const setFilter = (key: keyof typeof localFilters, value: string) => {
+    setLocalFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div id="cloud-cost" style={{ width: "100%" }}>
-      {/* Header row: title + controls */}
-      <div
-        style={{
-          display: "flex",
-          flexFlow: "row wrap",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <div style={{ flexGrow: 1 }}>
-          <h2 style={{ fontSize: "1.5rem", fontWeight: 600, margin: 0 }}>
-            Cloud Cost
-          </h2>
-          <h3 style={{ fontSize: "1rem", margin: "0.5rem 0 0 0" }}>
-            {title}
-          </h3>
-        </div>
-      </div>
+      <FilterableWidgetHeader
+        title="Cloud Cost"
+        description={title}
+        expanded={showFilters}
+        onToggle={() => setShowFilters((s) => !s)}
+        filterContent={
+          <CloudFilterControls
+            window={window}
+            aggregateBy={aggregateBy}
+            costMetric={costMetric}
+            currency={currency}
+            onWindowChange={(v) => setFilter("window", v)}
+            onAggregateByChange={(v) => setFilter("aggregateBy", v)}
+            onCostMetricChange={(v) => setFilter("costMetric", v)}
+            onCurrencyChange={(v) => setFilter("currency", v)}
+            idPrefix="cloud-widget"
+          />
+        }
+      />
 
       {/* Chart */}
       <div id="cloud-graph" style={{ marginBottom: "1.5rem" }}>

@@ -20,6 +20,7 @@ interface DashboardBuilderProps {
   initialWidgets?: Widget[];
   onSave: (widgets: Widget[]) => void;
   onCancel: () => void;
+  isDefaultDashboard?: boolean;
 }
 
 export default function DashboardBuilder({
@@ -27,6 +28,7 @@ export default function DashboardBuilder({
   initialWidgets = [],
   onSave,
   onCancel,
+  isDefaultDashboard = false,
 }: DashboardBuilderProps) {
   const [widgets, setWidgets] = useState<Widget[]>(
     initialWidgets.length > 0
@@ -85,7 +87,11 @@ export default function DashboardBuilder({
           </Button>
           <div>
             <h2 style={{ fontSize: "1.5rem", fontWeight: "700" }}>Edit Dashboard Layout</h2>
-            <p style={{ fontSize: "0.875rem", color: "#525252" }}>Customize your dashboard widgets</p>
+            <p style={{ fontSize: "0.875rem", color: "#525252" }}>
+              {isDefaultDashboard
+                ? "Default dashboard layout is fixed and cannot be modified"
+                : "Customize your dashboard widgets"}
+            </p>
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -116,47 +122,51 @@ export default function DashboardBuilder({
                 {WIDGET_TYPES.find((w) => w.value === widget.type)?.description}
               </p>
             </div>
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-              <Button
-                kind="ghost"
-                size="sm"
-                renderIcon={Copy}
-                onClick={(e) => { e.stopPropagation(); duplicateWidget(widget); }}
-              >
-                Duplicate
-              </Button>
-              <Button
-                kind="danger--ghost"
-                size="sm"
-                renderIcon={TrashCan}
-                onClick={(e) => { e.stopPropagation(); deleteWidget(widget.id); }}
-              >
-                Remove
-              </Button>
-            </div>
+            {!isDefaultDashboard && (
+              <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+                <Button
+                  kind="ghost"
+                  size="sm"
+                  renderIcon={Copy}
+                  onClick={(e) => { e.stopPropagation(); duplicateWidget(widget); }}
+                >
+                  Duplicate
+                </Button>
+                <Button
+                  kind="danger--ghost"
+                  size="sm"
+                  renderIcon={TrashCan}
+                  onClick={(e) => { e.stopPropagation(); deleteWidget(widget.id); }}
+                >
+                  Remove
+                </Button>
+              </div>
+            )}
           </Tile>
         ))}
 
-        <Tile
-          style={{
-            padding: "1rem",
-            border: "2px dashed #0f62fe",
-            cursor: "pointer",
-            minHeight: "200px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={() => setShowAddWidget(true)}
-        >
-          <div style={{ textAlign: "center" }}>
-            <Add size={32} style={{ color: "#0f62fe", marginBottom: "0.5rem" }} />
-            <p style={{ fontSize: "0.875rem", fontWeight: "600", color: "#0f62fe" }}>Add Widget</p>
-          </div>
-        </Tile>
+        {!isDefaultDashboard && (
+          <Tile
+            style={{
+              padding: "1rem",
+              border: "2px dashed #0f62fe",
+              cursor: "pointer",
+              minHeight: "200px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={() => setShowAddWidget(true)}
+          >
+            <div style={{ textAlign: "center" }}>
+              <Add size={32} style={{ color: "#0f62fe", marginBottom: "0.5rem" }} />
+              <p style={{ fontSize: "0.875rem", fontWeight: "600", color: "#0f62fe" }}>Add Widget</p>
+            </div>
+          </Tile>
+        )}
       </div>
 
-      {selectedWidget && (
+      {selectedWidget && !isDefaultDashboard && (
         <Tile style={{ padding: "1.5rem", backgroundColor: "#f4f4f4" }}>
           <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem" }}>Configure Widget</h3>
           <Select

@@ -11,6 +11,7 @@ import {
 } from "@carbon/react";
 import CloudCostService from "~/services/cloud-cost";
 import { toCurrency } from "~/lib/legacy-util";
+import { CloudFilterControls, DEFAULT_CLOUD_FILTERS, FilterableWidgetHeader } from "./scoped-views";
 
 interface CloudCostRow {
   name?: string;
@@ -27,6 +28,8 @@ const headers = [
 ];
 
 export interface CloudCostTableWidgetProps {
+  title?: string;
+  description?: string;
   window?: string;
   aggregateBy?: string;
   costMetric?: string;
@@ -34,11 +37,25 @@ export interface CloudCostTableWidgetProps {
 }
 
 export default function CloudCostTableWidget({
-  window = "7d",
-  aggregateBy = "service",
-  costMetric = "AmortizedNetCost",
-  currency = "USD",
+  title = "Cloud Costs Table",
+  description = "Cloud service spend with utilization and totals",
+  window: windowProp,
+  aggregateBy: aggregateByProp,
+  costMetric: costMetricProp,
+  currency: currencyProp,
 }: CloudCostTableWidgetProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  const [localFilters, setLocalFilters] = useState({
+    window: DEFAULT_CLOUD_FILTERS.cloudWindow,
+    aggregateBy: "service",
+    costMetric: DEFAULT_CLOUD_FILTERS.cloudCostMetric,
+    currency: DEFAULT_CLOUD_FILTERS.cloudCurrency,
+  });
+  const window = windowProp ?? localFilters.window;
+  const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
+  const costMetric = costMetricProp ?? localFilters.costMetric;
+  const currency = currencyProp ?? localFilters.currency;
+
   const [rows, setRows] = useState<CloudCostRow[]>([]);
   const [totals, setTotals] = useState<CloudCostRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,17 +117,38 @@ export default function CloudCostTableWidget({
     setPage(1);
   }, [window, aggregateBy, costMetric, totalRows, sortConfig.key, sortConfig.direction]);
 
-  if (loading) {
-    return <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>Loading...</div>;
-  }
-
-  if (rows.length === 0) {
-    return <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>No cloud cost data available.</div>;
-  }
+  const setFilter = (key: keyof typeof localFilters, value: string) => {
+    setLocalFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <div style={{ width: "100%" }}>
-      <TableContainer>
+      <FilterableWidgetHeader
+        title={title}
+        description={description}
+        expanded={showFilters}
+        onToggle={() => setShowFilters((s) => !s)}
+        filterContent={
+          <CloudFilterControls
+            window={window}
+            aggregateBy={aggregateBy}
+            costMetric={costMetric}
+            currency={currency}
+            onWindowChange={(v) => setFilter("window", v)}
+            onAggregateByChange={(v) => setFilter("aggregateBy", v)}
+            onCostMetricChange={(v) => setFilter("costMetric", v)}
+            onCurrencyChange={(v) => setFilter("currency", v)}
+            idPrefix="cloud-table"
+          />
+        }
+      />
+      {loading ? (
+        <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>Loading...</div>
+      ) : rows.length === 0 ? (
+        <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>No cloud cost data available.</div>
+      ) : (
+        <>
+        <TableContainer>
         <Table size="md" useZebraStyles>
           <TableHead>
             <TableRow>
@@ -163,6 +201,8 @@ export default function CloudCostTableWidget({
             if (nextPageSize !== undefined) setPageSize(nextPageSize);
           }}
         />
+      )}
+        </>
       )}
     </div>
   );

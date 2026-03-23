@@ -4,6 +4,7 @@ import AllocationService from "~/services/allocation";
 import CloudCostService from "~/services/cloud-cost";
 import ExternalCostsService from "~/services/external-costs";
 import { toCurrency, rangeToCumulative, cumulativeToTotals } from "~/lib/legacy-util";
+import { AllocationFilterControls, DEFAULT_ALLOCATION_FILTERS, FilterableWidgetHeader } from "./scoped-views";
 
 interface SummaryData {
   totalCost: number;
@@ -41,6 +42,7 @@ function MetricCard({
 const EMPTY_FILTERS: { property: string; value: string }[] = [];
 
 export interface CostSummaryCardsProps {
+  title?: string;
   window?: string;
   aggregateBy?: string;
   accumulate?: boolean;
@@ -49,12 +51,25 @@ export interface CostSummaryCardsProps {
 }
 
 export default function CostSummaryCards({
-  window = "7d",
-  aggregateBy = "cluster",
-  accumulate = true,
-  includeIdle = true,
+  title = "Cost Summary",
+  window: windowProp,
+  aggregateBy: aggregateByProp,
+  accumulate: accumulateProp,
+  includeIdle: includeIdleProp,
   filters = EMPTY_FILTERS,
 }: CostSummaryCardsProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  const [localFilters, setLocalFilters] = useState({
+    window: DEFAULT_ALLOCATION_FILTERS.allocationWindow,
+    aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
+    accumulate: true,
+    includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
+  });
+  const window = windowProp ?? localFilters.window;
+  const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
+  const accumulate = accumulateProp ?? localFilters.accumulate;
+  const includeIdle = includeIdleProp ?? localFilters.includeIdle;
+
   const [data, setData] = useState<SummaryData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -107,8 +122,31 @@ export default function CostSummaryCards({
     return () => { cancelled = true; };
   }, [window, aggregateBy, accumulate, includeIdle, filters]);
 
+  const setFilter = (key: keyof typeof localFilters, value: string | boolean) => {
+    setLocalFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
-    <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, 1fr)" }}>
+    <div style={{ width: "100%" }}>
+      <FilterableWidgetHeader
+        title={title}
+        expanded={showFilters}
+        onToggle={() => setShowFilters((s) => !s)}
+        filterContent={
+          <AllocationFilterControls
+            window={window}
+            aggregateBy={aggregateBy}
+            accumulate={accumulate}
+            includeIdle={includeIdle}
+            onWindowChange={(v) => setFilter("window", v)}
+            onAggregateByChange={(v) => setFilter("aggregateBy", v)}
+            onAccumulateChange={(v) => setFilter("accumulate", v)}
+            onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+            idPrefix="summary-alloc"
+          />
+        }
+      />
+      <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, 1fr)" }}>
       <MetricCard
         label="Total Cluster Cost"
         value={data ? toCurrency(data.totalCost, "USD", 2) : "—"}
@@ -133,6 +171,7 @@ export default function CostSummaryCards({
         icon={Activity}
         loading={loading}
       />
+      </div>
     </div>
   );
 }

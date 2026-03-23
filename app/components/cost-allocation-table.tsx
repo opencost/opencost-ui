@@ -18,7 +18,8 @@ import {
   checkCustomWindow,
   toVerboseTimeRange,
 } from "~/lib/legacy-util";
-import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS } from "./scoped-views";
+import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS, AllocationFilterControls, FilterableWidgetHeader } from "./scoped-views";
+import { useAllocationFilters } from "./allocation-filters-context";
 
 function generateTitle(window: string, aggregateBy: string, accumulate: boolean): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
@@ -60,20 +61,33 @@ const headers = [
 ];
 
 export interface CostAllocationTableProps {
+  title?: string;
+  description?: string;
   window?: string;
   aggregateBy?: string;
   accumulate?: boolean;
   includeIdle?: boolean;
   currency?: string;
+  useSharedFilters?: boolean;
 }
 
 export default function CostAllocationTable({
-  window = "7d",
-  aggregateBy: globalAggregateBy = "namespace",
-  accumulate = true,
-  includeIdle = true,
+  title = "Allocation Breakdown",
+  description = "Cost allocation breakdown by cluster, namespace, pod, or other dimension",
+  window: windowProp,
+  aggregateBy: globalAggregateByProp,
+  accumulate: accumulateProp,
+  includeIdle: includeIdleProp,
   currency = "USD",
+  useSharedFilters = false,
 }: CostAllocationTableProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  const [sharedFilters, setSharedFilters] = useAllocationFilters(useSharedFilters);
+  const window = windowProp ?? sharedFilters.window;
+  const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
+  const accumulate = accumulateProp ?? sharedFilters.accumulate;
+  const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+
   const [drilldownFilters, setDrilldownFilters] = useState<{ property: string; value: string }[]>([]);
   const [effectiveAggregateBy, setEffectiveAggregateBy] = useState(globalAggregateBy);
 
@@ -90,7 +104,7 @@ export default function CostAllocationTable({
   const [pageSize, setPageSize] = useState(25);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "totalCost", direction: "desc" });
 
-  const title = generateTitle(window, aggregateBy, accumulate);
+  const dataTitle = generateTitle(window, aggregateBy, accumulate);
 
   const cumulativeData = useMemo(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
@@ -242,8 +256,40 @@ export default function CostAllocationTable({
     );
   }
 
+  const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
+    setSharedFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div style={{ width: "100%" }}>
+      {useSharedFilters ? (
+        <div style={{ marginBottom: "1rem" }}>
+          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", margin: 0 }}>{title}</h3>
+          {description && (
+            <p style={{ fontSize: "0.875rem", color: "#525252", margin: "0.25rem 0 0 0" }}>{description}</p>
+          )}
+        </div>
+      ) : (
+        <FilterableWidgetHeader
+          title={title}
+          description={description}
+          expanded={showFilters}
+          onToggle={() => setShowFilters((s) => !s)}
+          filterContent={
+            <AllocationFilterControls
+              window={window}
+              aggregateBy={globalAggregateBy}
+              accumulate={accumulate}
+              includeIdle={includeIdle}
+              onWindowChange={(v) => setFilter("window", v)}
+              onAggregateByChange={(v) => setFilter("aggregateBy", v)}
+              onAccumulateChange={(v) => setFilter("accumulate", v)}
+              onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+              idPrefix="table-alloc"
+            />
+          }
+        />
+      )}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end", marginBottom: "1rem" }}>
         {drilldownFilters.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -276,7 +322,7 @@ export default function CostAllocationTable({
         )}
       </div>
 
-      <p style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.75rem" }}>{title}</p>
+      <p style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.75rem" }}>{dataTitle}</p>
 
       <TableContainer>
         <Table size="md" useZebraStyles>

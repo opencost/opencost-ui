@@ -3,7 +3,8 @@ import { StackedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
 import AllocationService from "~/services/allocation";
 import { checkCustomWindow, toVerboseTimeRange, toCurrency } from "~/lib/legacy-util";
-import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS } from "./scoped-views";
+import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS, AllocationFilterControls, FilterableWidgetHeader } from "./scoped-views";
+import { useAllocationFilters } from "./allocation-filters-context";
 import { primary, greyscale, browns } from "~/constants/colors";
 interface ChartPoint {
   group: string; 
@@ -116,24 +117,37 @@ function buildColorScale(points: ChartPoint[]): Record<string, string> {
 }
 
 export interface CostAllocationChartProps {
+  title?: string;
+  description?: string;
   window?: string;
   aggregateBy?: string;
   accumulate?: boolean;
   includeIdle?: boolean;
   topN?: number;
+  useSharedFilters?: boolean;
 }
 
 export default function CostAllocationChart({
-  window = "7d",
-  aggregateBy = "namespace",
-  accumulate = false,
-  includeIdle = true,
+  title = "Cost Allocation",
+  description = "Cost breakdown by cluster, namespace, pod, or other dimension",
+  window: windowProp,
+  aggregateBy: aggregateByProp,
+  accumulate: accumulateProp,
+  includeIdle: includeIdleProp,
   topN = 10,
+  useSharedFilters = false,
 }: CostAllocationChartProps) {
+  const [showFilters, setShowFilters] = useState(false);
+  const [sharedFilters, setSharedFilters] = useAllocationFilters(useSharedFilters);
+  const window = windowProp ?? sharedFilters.window;
+  const aggregateBy = aggregateByProp ?? sharedFilters.aggregateBy;
+  const accumulate = accumulateProp ?? sharedFilters.accumulate;
+  const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+
   const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const title = generateTitle(window, aggregateBy, accumulate);
+  const chartTitle = generateTitle(window, aggregateBy, accumulate);
   const chartData = useMemo(
     () => (rawData.length > 0 ? buildChartData(rawData, topN, includeIdle) : []),
     [rawData, topN, includeIdle],
@@ -168,7 +182,7 @@ export default function CostAllocationChart({
     () => {
       const colorScale = buildColorScale(chartData);
       return {
-        title,
+        title: chartTitle,
         axes: {
           left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
           bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
@@ -206,23 +220,46 @@ export default function CostAllocationChart({
         },
       };
     },
-    [title, chartData]
+    [chartTitle, chartData]
   );
 
-  if (loading) {
-    return (
-      <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>
-        Loading…
-      </div>
-    );
-  }
+  const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
+    setSharedFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
-    <div
-      className="cost-allocation-chart"
-      style={{ width: "100%", height: "400px", padding: "0 8px" }}
-    >
-      <StackedBarChart data={chartData} options={chartOptions} />
+    <div style={{ width: "100%" }}>
+      <FilterableWidgetHeader
+        title={title}
+        description={description}
+        expanded={showFilters}
+        onToggle={() => setShowFilters((s) => !s)}
+        filterContent={
+          <AllocationFilterControls
+            window={window}
+            aggregateBy={aggregateBy}
+            accumulate={accumulate}
+            includeIdle={includeIdle}
+            onWindowChange={(v) => setFilter("window", v)}
+            onAggregateByChange={(v) => setFilter("aggregateBy", v)}
+            onAccumulateChange={(v) => setFilter("accumulate", v)}
+            onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+            idPrefix="chart-alloc"
+          />
+        }
+      />
+      {loading ? (
+        <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>
+          Loading…
+        </div>
+      ) : (
+        <div
+          className="cost-allocation-chart"
+          style={{ width: "100%", height: "400px", padding: "0 8px" }}
+        >
+          <StackedBarChart data={chartData} options={chartOptions} />
+        </div>
+      )}
     </div>
   );
 }

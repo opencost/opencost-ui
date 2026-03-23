@@ -3,7 +3,6 @@ WORKDIR /opt/ui
 ADD package*.json ./
 RUN npm install
 ADD . ./
-# Build both UIs: regular -> /var/www, legacy -> /var/www/legacy
 # Save first build outside build/ so build:legacy (which overwrites build/) doesn't remove it
 RUN npm run build && cp -r build/client /opt/standard
 RUN npm run build:legacy
@@ -50,6 +49,9 @@ RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
 ENV BASE_URL=/model
 ENV LEGACY_MODE=false
+ENV PROXY_CONNECT_TIMEOUT=60s
+ENV PROXY_SEND_TIMEOUT=60s
+ENV PROXY_READ_TIMEOUT=60s
 
 USER 1001
 

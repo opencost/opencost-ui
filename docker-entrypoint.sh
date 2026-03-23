@@ -33,12 +33,10 @@ else
 fi
 
 # Custom aggregation options: JSON object (map string:string), e.g. {"Label: team":"label:team"}
-if [[ ! -z "$CUSTOM_AGGREGATION_OPTIONS" ]]; then
+if [ -n "$CUSTOM_AGGREGATION_OPTIONS" ]; then
     echo "injecting CUSTOM_AGGREGATION_OPTIONS"
     esc=$(printf '%s' "$CUSTOM_AGGREGATION_OPTIONS" | sed 's/\\/\\\\/g; s/&/\\&/g; s/"/\\"/g')
-    sed -i "s^PLACEHOLDER_CUSTOM_AGGREGATIONS^$esc^g" /var/www/*.js
-else
-    sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" /var/www/*.js
+    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_CUSTOM_AGGREGATIONS^$esc^g" {} \; 2>/dev/null || true
 fi
 
 if [ ! -e /etc/nginx/conf.d/default.nginx.conf ]; then

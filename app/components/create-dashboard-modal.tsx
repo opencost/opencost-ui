@@ -40,7 +40,7 @@ export default function CreateDashboardModal({
         widgets: [],
         tags,
         starred: false,
-        updatedAt: "just now",
+        updatedAt: new Date().toISOString(),
         owner: "You",
       };
       createDashboard(newDashboard);

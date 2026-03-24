@@ -78,7 +78,7 @@ export default function CostAllocationTable({
   aggregateBy: globalAggregateByProp,
   accumulate: accumulateProp,
   includeIdle: includeIdleProp,
-  currency = "USD",
+  currency: currencyProp,
   useSharedFilters = false,
 }: CostAllocationTableProps) {
   const [showFilters, setShowFilters] = useState(false);
@@ -87,6 +87,7 @@ export default function CostAllocationTable({
   const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
 
   const [drilldownFilters, setDrilldownFilters] = useState<{ property: string; value: string }[]>([]);
   const [effectiveAggregateBy, setEffectiveAggregateBy] = useState(globalAggregateBy);
@@ -281,10 +282,12 @@ export default function CostAllocationTable({
               aggregateBy={globalAggregateBy}
               accumulate={accumulate}
               includeIdle={includeIdle}
+              currency={currency}
               onWindowChange={(v) => setFilter("window", v)}
               onAggregateByChange={(v) => setFilter("aggregateBy", v)}
               onAccumulateChange={(v) => setFilter("accumulate", v)}
               onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+              onCurrencyChange={(v) => setFilter("currency", v)}
               idPrefix="table-alloc"
             />
           }

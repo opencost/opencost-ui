@@ -38,6 +38,7 @@ export const DEFAULT_ALLOCATION_FILTERS = {
   allocationAggregateBy: "namespace",
   allocationAccumulate: false,
   allocationIncludeIdle: true,
+  allocationCurrency: "USD",
 };
 
 export const DEFAULT_CLOUD_FILTERS = {
@@ -52,6 +53,7 @@ export interface AllocationFilterValues {
   aggregateBy: string;
   accumulate: boolean;
   includeIdle: boolean;
+  currency: string;
 }
 
 export interface CloudFilterValues {
@@ -120,10 +122,12 @@ interface AllocationFilterControlsProps {
   aggregateBy: string;
   accumulate: boolean;
   includeIdle: boolean;
+  currency: string;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
   onAccumulateChange: (v: boolean) => void;
   onIncludeIdleChange: (v: boolean) => void;
+  onCurrencyChange: (v: string) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -133,10 +137,12 @@ export function AllocationFilterControls({
   aggregateBy,
   accumulate,
   includeIdle,
+  currency,
   onWindowChange,
   onAggregateByChange,
   onAccumulateChange,
   onIncludeIdleChange,
+  onCurrencyChange,
   idPrefix = "alloc",
   compact = true,
 }: AllocationFilterControlsProps) {
@@ -176,6 +182,17 @@ export function AllocationFilterControls({
       >
         <SelectItem value="false" text="Daily" />
         <SelectItem value="true" text="Entire window" />
+      </Select>
+      <Select
+        id={`${idPrefix}-currency`}
+        labelText="Currency"
+        value={currency}
+        size="sm"
+        onChange={(e) => onCurrencyChange(e.target.value)}
+      >
+        {currencyCodes.map((c) => (
+          <SelectItem key={c} value={c} text={c} />
+        ))}
       </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
         <input

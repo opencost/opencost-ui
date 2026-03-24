@@ -220,7 +220,11 @@ export default function CloudCostWidget({
     return {
       title: "",
       axes: {
-        left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+        left: {
+          mapsTo: "value",
+          scaleType: ScaleTypes.LINEAR,
+          ticks: { formatter: (v: number | Date) => toCurrency(typeof v === "number" ? v : v.getTime(), currency) },
+        },
         bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
       },
       data: { groupMapsTo: "key" },
@@ -229,7 +233,7 @@ export default function CloudCostWidget({
       bars: { maxWidth: 48, spacingFactor: 0.65 },
       tooltip: {
         totalLabel: "Total:",
-        valueFormatter: (value: number) => toCurrency(value, "USD"),
+        valueFormatter: (value: number) => toCurrency(value, currency),
         showTotal: true,
         groupLabel: "Date",
         alwaysShowRulerTooltip: true,
@@ -245,9 +249,9 @@ export default function CloudCostWidget({
             total += val;
             const name = item.label ?? item.key ?? item.name ?? item.group ?? "—";
             const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";
-            return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, "USD")}</span></p>`;
+            return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
           }).join("");
-          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, "USD")}</p></div>`;
+          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
         },
       },
     };

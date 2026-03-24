@@ -123,6 +123,7 @@ export interface CostAllocationChartProps {
   aggregateBy?: string;
   accumulate?: boolean;
   includeIdle?: boolean;
+  currency?: string;
   topN?: number;
   useSharedFilters?: boolean;
 }
@@ -134,6 +135,7 @@ export default function CostAllocationChart({
   aggregateBy: aggregateByProp,
   accumulate: accumulateProp,
   includeIdle: includeIdleProp,
+  currency: currencyProp,
   topN = 10,
   useSharedFilters = false,
 }: CostAllocationChartProps) {
@@ -143,6 +145,7 @@ export default function CostAllocationChart({
   const aggregateBy = aggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
 
   const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -184,7 +187,11 @@ export default function CostAllocationChart({
       return {
         title: chartTitle,
         axes: {
-          left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+          left: {
+            mapsTo: "value",
+            scaleType: ScaleTypes.LINEAR,
+            ticks: { formatter: (v: number | Date) => toCurrency(typeof v === "number" ? v : v.getTime(), currency) },
+          },
           bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
         },
         data: { groupMapsTo: "key" },
@@ -196,7 +203,7 @@ export default function CostAllocationChart({
         },
         tooltip: {
           totalLabel: "Total:",
-          valueFormatter: (value: number) => toCurrency(value, "USD"),
+          valueFormatter: (value: number) => toCurrency(value, currency),
           showTotal: true,
           groupLabel: "Date",
           alwaysShowRulerTooltip: true,
@@ -213,14 +220,14 @@ export default function CostAllocationChart({
               total += val;
               const name = item.label ?? item.key ?? item.name ?? item.group ?? "—";
               const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";
-              return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, "USD")}</span></p>`;
+              return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
             }).join("");
-            return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, "USD")}</p></div>`;
+            return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
           },
         },
       };
     },
-    [chartTitle, chartData]
+    [chartTitle, chartData, currency]
   );
 
   const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
@@ -240,10 +247,12 @@ export default function CostAllocationChart({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
+            currency={currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="chart-alloc"
           />
         }

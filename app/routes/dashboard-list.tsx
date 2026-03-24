@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
 import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
-import { useDashboard, type Widget } from "~/components/dashboard-context";
+import { useDashboard, timeAgo, type Widget } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
 
 interface SharedDashboardPayload {
@@ -53,7 +53,7 @@ export default function DashboardList() {
       widgets: sharedPayload.widgets,
       tags: sharedPayload.tags ?? [],
       starred: false,
-      updatedAt: "just now",
+      updatedAt: new Date().toISOString(),
       owner: "You",
     });
     setSharedPayload(null);
@@ -145,7 +145,7 @@ export default function DashboardList() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-[#e0e0e0]">
                   <span className="text-xs text-[#8d8d8d]">
-                    Updated {dashboard.updatedAt}
+                    Updated {timeAgo(dashboard.updatedAt)}
                   </span>
                   <span className="text-xs text-[#8d8d8d]">by {dashboard.owner}</span>
                 </div>

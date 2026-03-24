@@ -64,7 +64,7 @@ export default function DashboardList() {
     <>
       <Header aria-label="OpenCost Platform">
         <HeaderName href="/" prefix="">
-          OpenCost
+          <img src="/logo.png" alt="OpenCost" className="h-6" />
         </HeaderName>
         <div className="ml-auto flex items-center pr-4">
           <Button onClick={() => setShowCreateModal(true)} renderIcon={Add} size="sm">

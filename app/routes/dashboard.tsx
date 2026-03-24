@@ -20,7 +20,7 @@ export default function DashboardPage() {
       <>
         <Header aria-label="OpenCost Platform">
           <HeaderName href="/" prefix="">
-            OpenCost
+            <img src="/logo.png" alt="OpenCost" className="h-6" />
           </HeaderName>
         </Header>
         <main className="pt-12 p-[4rem_2rem] text-center">
@@ -49,7 +49,7 @@ export default function DashboardPage() {
     <>
       <Header aria-label="OpenCost Platform">
         <HeaderName href="/" prefix="">
-          OpenCost
+          <img src="/logo.png" alt="OpenCost" className="h-6" />
         </HeaderName>
       </Header>
       <main className="pt-20 pb-8 min-h-screen bg-[#f4f4f4]">

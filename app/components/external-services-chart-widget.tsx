@@ -108,7 +108,7 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
   }, [window]);
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       <Tabs>
         <TabList aria-label="External Services Tabs">
           <Tab>Chart</Tab>
@@ -116,24 +116,24 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
         </TabList>
         <TabPanels>
           <TabPanel>
-            <div style={{ width: "100%", height: "400px", marginTop: "1rem" }}>
+            <div className="w-full h-[400px] mt-4">
               {loading ? (
-                <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>Loading…</div>
+                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">Loading…</div>
               ) : chartData.length > 0 ? (
                 <SimpleBarChart data={chartData} options={chartOptions} />
               ) : (
-                <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>
+                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
                   No external cost data available. Configure external cost integrations to see data here.
                 </div>
               )}
             </div>
           </TabPanel>
           <TabPanel>
-            <div style={{ marginTop: "1rem" }}>
+            <div className="mt-4">
               {loading ? (
-                <p style={{ color: "#8d8d8d" }}>Loading…</p>
+                <p className="text-[#8d8d8d]">Loading…</p>
               ) : tableData.length === 0 ? (
-                <p style={{ color: "#8d8d8d" }}>No external cost data available.</p>
+                <p className="text-[#8d8d8d]">No external cost data available.</p>
               ) : (
                 <DataTable rows={tableData} headers={headers}>
                   {({ rows, headers, getTableProps, getHeaderProps, getRowProps }: any) => (
@@ -154,7 +154,7 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
                               {...getRowProps({ row })}
                               key={row.id}
                               onClick={() => setSelectedService(row.cells[0].value)}
-                              style={{ cursor: "pointer" }}
+                              className="cursor-pointer"
                             >
                               {row.cells.map((cell: any) => (
                                 <TableCell key={cell.id}>
@@ -175,9 +175,9 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
               )}
 
               {selectedService && (
-                <Tile style={{ marginTop: "1rem", padding: "1rem", backgroundColor: "#f4f4f4" }}>
-                  <h4 style={{ fontWeight: "600", marginBottom: "0.5rem" }}>{selectedService} Details</h4>
-                  <p style={{ fontSize: "0.875rem", color: "#525252" }}>Service: {selectedService}</p>
+                <Tile className="mt-4 p-4 bg-[#f4f4f4]">
+                  <h4 className="font-semibold mb-2">{selectedService} Details</h4>
+                  <p className="text-sm text-[#525252]">Service: {selectedService}</p>
                 </Tile>
               )}
             </div>

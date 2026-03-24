@@ -242,7 +242,7 @@ export default function CostAllocationTable({
 
   if (loading) {
     return (
-      <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>
+      <div className="p-8 text-center text-[#8d8d8d]">
         Loading…
       </div>
     );
@@ -250,8 +250,8 @@ export default function CostAllocationTable({
 
   if (allocationData.length === 0) {
     return (
-      <div style={{ width: "100%" }}>
-        <p style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>No allocation data available.</p>
+      <div className="w-full">
+        <p className="p-8 text-center text-[#8d8d8d]">No allocation data available.</p>
       </div>
     );
   }
@@ -261,12 +261,12 @@ export default function CostAllocationTable({
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       {useSharedFilters ? (
-        <div style={{ marginBottom: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", margin: 0 }}>{title}</h3>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold m-0">{title}</h3>
           {description && (
-            <p style={{ fontSize: "0.875rem", color: "#525252", margin: "0.25rem 0 0 0" }}>{description}</p>
+            <p className="text-sm text-[#525252] mt-1 mb-0">{description}</p>
           )}
         </div>
       ) : (
@@ -290,23 +290,16 @@ export default function CostAllocationTable({
           }
         />
       )}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end", marginBottom: "1rem" }}>
+      <div className="flex flex-wrap gap-4 items-end mb-4">
         {drilldownFilters.length > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.875rem", color: "#525252" }}>Filters:</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-[#525252]">Filters:</span>
             {drilldownFilters.map((f, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleBreadcrumb(i)}
-                style={{
-                  fontSize: "0.75rem",
-                  padding: "2px 8px",
-                  borderRadius: 4,
-                  border: "1px solid #e0e0e0",
-                  background: "#f4f4f4",
-                  cursor: "pointer",
-                }}
+                className="text-xs px-2 py-[2px] rounded border border-[#e0e0e0] bg-[#f4f4f4] cursor-pointer"
               >
                 {f.property}: {f.value} ×
               </button>
@@ -314,7 +307,7 @@ export default function CostAllocationTable({
             <button
               type="button"
               onClick={() => handleBreadcrumb(-1)}
-              style={{ fontSize: "0.75rem", color: "#0f62fe", background: "none", border: "none", cursor: "pointer" }}
+              className="text-xs text-[#0f62fe] bg-transparent border-none cursor-pointer"
             >
               Clear all
             </button>
@@ -322,7 +315,7 @@ export default function CostAllocationTable({
         )}
       </div>
 
-      <p style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.75rem" }}>{dataTitle}</p>
+      <p className="text-sm font-semibold mb-3">{dataTitle}</p>
 
       <TableContainer>
         <Table size="md" useZebraStyles>
@@ -347,7 +340,7 @@ export default function CostAllocationTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow style={{ fontWeight: 600 }}>
+            <TableRow className="font-semibold">
               <TableCell>Totals</TableCell>
               <TableCell>{toCurrency(totalData.cpuCost ?? 0, currency)}</TableCell>
               <TableCell>{toCurrency(totalData.gpuCost ?? 0, currency)}</TableCell>
@@ -360,7 +353,7 @@ export default function CostAllocationTable({
               <TableRow
                 key={row.id}
                 onClick={() => row.canDrilldown && handleDrilldown(row._raw)}
-                style={{ cursor: row.canDrilldown ? "pointer" : undefined }}
+                className={row.canDrilldown ? "cursor-pointer" : ""}
               >
                 <TableCell>{row.name}</TableCell>
                 <TableCell>{row.cpuCost}</TableCell>

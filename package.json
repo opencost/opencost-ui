@@ -35,18 +35,20 @@
     "sass": "^1.97.3"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8",
-    "@typescript-eslint/parser": "^8",
-    "eslint": "^8",
-    "eslint-plugin-react-hooks": "^5",
     "@react-router/dev": "7.12.0",
+    "@tailwindcss/vite": "^4.2.2",
     "@types/lodash": "^4.17.24",
     "@types/node": "^22",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "eslint": "^8",
+    "eslint-plugin-react-hooks": "^5",
+    "serve": "^14",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
-    "serve": "^14",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

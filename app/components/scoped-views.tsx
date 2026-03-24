@@ -88,20 +88,12 @@ export function FilterableWidgetHeader({
   filterContent,
 }: FilterableWidgetHeaderProps) {
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "0.75rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", margin: 0 }}>{title}</h3>
+    <div className="mb-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold m-0">{title}</h3>
           {description && (
-            <p style={{ fontSize: "0.875rem", color: "#525252", margin: "0.25rem 0 0 0" }}>{description}</p>
+            <p className="text-sm text-[#525252] mt-1 mb-0">{description}</p>
           )}
         </div>
         <Button
@@ -115,7 +107,7 @@ export function FilterableWidgetHeader({
         </Button>
       </div>
       {expanded && filterContent && (
-        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #e0e0e0" }}>
+        <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
           {filterContent}
         </div>
       )}
@@ -150,13 +142,8 @@ export function AllocationFilterControls({
 }: AllocationFilterControlsProps) {
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))",
-        gap: compact ? "0.75rem" : "1rem",
-        alignItems: "flex-end",
-        marginBottom: compact ? "0.75rem" : "1rem",
-      }}
+      className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
+      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))" }}
     >
       <Select
         id={`${idPrefix}-window`}
@@ -190,16 +177,7 @@ export function AllocationFilterControls({
         <SelectItem value="false" text="Daily" />
         <SelectItem value="true" text="Entire window" />
       </Select>
-      <label
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "0.5rem",
-          fontSize: "0.875rem",
-          cursor: "pointer",
-          paddingBottom: "0.5rem",
-        }}
-      >
+      <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
         <input
           type="checkbox"
           checked={!!includeIdle}
@@ -238,13 +216,8 @@ export function CloudFilterControls({
 }: CloudFilterControlsProps) {
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(140px, 1fr))",
-        gap: compact ? "0.75rem" : "1rem",
-        alignItems: "flex-end",
-        marginBottom: compact ? "0.75rem" : "1rem",
-      }}
+      className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
+      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(140px, 1fr))" }}
     >
       <Select
         id={`${idPrefix}-window`}

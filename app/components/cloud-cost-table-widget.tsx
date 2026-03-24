@@ -122,7 +122,7 @@ export default function CloudCostTableWidget({
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       <FilterableWidgetHeader
         title={title}
         description={description}
@@ -143,9 +143,9 @@ export default function CloudCostTableWidget({
         }
       />
       {loading ? (
-        <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>Loading...</div>
+        <div className="p-8 text-center text-[#8d8d8d]">Loading...</div>
       ) : rows.length === 0 ? (
-        <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>No cloud cost data available.</div>
+        <div className="p-8 text-center text-[#8d8d8d]">No cloud cost data available.</div>
       ) : (
         <>
         <TableContainer>
@@ -170,7 +170,7 @@ export default function CloudCostTableWidget({
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow style={{ fontWeight: 600 }}>
+            <TableRow className="font-semibold">
               <TableCell>{totals?.name || "Totals"}</TableCell>
               <TableCell>{Math.round((totals?.kubernetesPercent ?? 0) * 100)}%</TableCell>
               <TableCell>{toCurrency(Number(totals?.cost ?? 0), currency)}</TableCell>

@@ -258,7 +258,7 @@ export default function CloudCostWidget({
   };
 
   return (
-    <div id="cloud-cost" style={{ width: "100%" }}>
+    <div id="cloud-cost" className="w-full">
       <FilterableWidgetHeader
         title="Cloud Cost"
         description={title}
@@ -280,33 +280,17 @@ export default function CloudCostWidget({
       />
 
       {/* Chart */}
-      <div id="cloud-graph" style={{ marginBottom: "1.5rem" }}>
+      <div id="cloud-graph" className="mb-6">
         {loading ? (
-          <div
-            style={{
-              height: 300,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#8d8d8d",
-            }}
-          >
+          <div className="h-[300px] flex items-center justify-center text-[#8d8d8d]">
             Loading…
           </div>
         ) : chartData.length === 0 ? (
-          <div
-            style={{
-              height: 300,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#8d8d8d",
-            }}
-          >
+          <div className="h-[300px] flex items-center justify-center text-[#8d8d8d]">
             No cloud cost data available.
           </div>
         ) : (
-          <div style={{ width: "100%", height: "300px" }}>
+          <div className="w-full h-[300px]">
             <StackedBarChart data={chartData} options={chartOptions} />
           </div>
         )}
@@ -315,11 +299,11 @@ export default function CloudCostWidget({
       {/* Table */}
       <div id="cloud-cost-table">
         {loading ? (
-          <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>
+          <div className="p-8 text-center text-[#8d8d8d]">
             Loading…
           </div>
         ) : tableRows.length === 0 ? (
-          <div style={{ padding: "2rem", textAlign: "center", color: "#8d8d8d" }}>
+          <div className="p-8 text-center text-[#8d8d8d]">
             No results
           </div>
         ) : (
@@ -355,7 +339,7 @@ export default function CloudCostWidget({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow style={{ fontWeight: 600 }}>
+                  <TableRow className="font-semibold">
                     <TableCell>{tableTotal?.name || "Totals"}</TableCell>
                     <TableCell>
                       {Math.round((Number(tableTotal?.kubernetesPercent) ?? 0) * 100)}%
@@ -369,7 +353,7 @@ export default function CloudCostWidget({
                       key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
                     >
                       <TableCell>
-                        <span style={{ color: "#0f62fe", cursor: "pointer" }}>
+                        <span className="text-[#0f62fe] cursor-pointer">
                           {String(row.labelName ?? row.name ?? "")}
                         </span>
                       </TableCell>

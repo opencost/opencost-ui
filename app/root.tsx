@@ -12,6 +12,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import type { Route } from "./+types/root";
 import "./app.scss";
+import "./tailwind.css";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
@@ -73,20 +74,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main style={{ padding: "4rem 2rem", maxWidth: "600px", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "2rem", fontWeight: "700", marginBottom: "1rem" }}>
+    <main className="p-[4rem_2rem] max-w-[600px] mx-auto">
+      <h1 className="text-[2rem] font-bold mb-4">
         {message}
       </h1>
-      <p style={{ color: "#525252", marginBottom: "1rem" }}>{details}</p>
+      <p className="text-[#525252] mb-4">{details}</p>
       {stack && (
-        <pre
-          style={{
-            background: "#f4f4f4",
-            padding: "1rem",
-            overflowX: "auto",
-            fontSize: "0.8rem",
-          }}
-        >
+        <pre className="bg-[#f4f4f4] p-4 overflow-x-auto text-[0.8rem]">
           <code>{stack}</code>
         </pre>
       )}

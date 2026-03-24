@@ -23,23 +23,16 @@ export default function DashboardPage() {
             OpenCost
           </HeaderName>
         </Header>
-        <main style={{ paddingTop: "3rem", padding: "4rem 2rem", textAlign: "center" }}>
-          <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>
+        <main className="pt-12 p-[4rem_2rem] text-center">
+          <h2 className="text-2xl font-semibold mb-4">
             Dashboard not found
           </h2>
-          <p style={{ color: "#525252", marginBottom: "1.5rem" }}>
+          <p className="text-[#525252] mb-6">
             The dashboard you are looking for does not exist.
           </p>
           <button
             onClick={() => navigate("/")}
-            style={{
-              background: "#0f62fe",
-              color: "white",
-              border: "none",
-              padding: "0.75rem 1.5rem",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-            }}
+            className="bg-[#0f62fe] text-white border-none py-3 px-6 cursor-pointer text-sm"
           >
             Back to Dashboards
           </button>
@@ -59,7 +52,7 @@ export default function DashboardPage() {
           OpenCost
         </HeaderName>
       </Header>
-      <main style={{ paddingTop: "5rem", paddingBottom: "2rem", minHeight: "100vh", backgroundColor: "#f4f4f4" }}>
+      <main className="pt-20 pb-8 min-h-screen bg-[#f4f4f4]">
         <DashboardView
           dashboard={dashboard}
           onBack={() => navigate("/")}

@@ -228,7 +228,7 @@ export default function CostAllocationChart({
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       <FilterableWidgetHeader
         title={title}
         description={description}
@@ -249,14 +249,11 @@ export default function CostAllocationChart({
         }
       />
       {loading ? (
-        <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>
+        <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
           Loading…
         </div>
       ) : (
-        <div
-          className="cost-allocation-chart"
-          style={{ width: "100%", height: "400px", padding: "0 8px" }}
-        >
+        <div className="cost-allocation-chart w-full h-[400px] px-2">
           <StackedBarChart data={chartData} options={chartOptions} />
         </div>
       )}

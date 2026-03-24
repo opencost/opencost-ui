@@ -73,104 +73,87 @@ export default function DashboardBuilder({
   };
 
   return (
-    <div style={{ padding: "1.5rem 1.5rem 2rem", maxWidth: "1584px", margin: "0 auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+    <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center gap-4">
           <Button kind="ghost" size="sm" onClick={onCancel} iconDescription="Back">
-            <ArrowLeft style={{ marginRight: "0.375rem" }} />
+            <ArrowLeft className="mr-[0.375rem]" />
             Back
           </Button>
           <div>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: "700" }}>Edit Dashboard Layout</h2>
-            <p style={{ fontSize: "0.875rem", color: "#525252" }}>
+            <h2 className="text-2xl font-bold">Edit Dashboard Layout</h2>
+            <p className="text-sm text-[#525252]">
               {isDefaultDashboard
                 ? "Default dashboard layout is fixed and cannot be modified"
                 : "Customize your dashboard widgets"}
             </p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div className="flex gap-2">
           <Button kind="secondary" onClick={onCancel}>Cancel</Button>
           <Button kind="primary" onClick={() => onSave(widgets)}>Save Layout</Button>
         </div>
       </div>
 
-      <div className="dashboard-grid" style={{ marginBottom: "2rem" }}>
+      <div className="dashboard-grid mb-8">
         {widgets.map((widget) => (
           <Tile
             key={widget.id}
             className={`dashboard-grid-item-${widget.gridSize}`}
             style={{
-              padding: "1rem",
               border: selectedWidget?.id === widget.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
-              cursor: "pointer",
-              minHeight: "200px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
             }}
             onClick={() => setSelectedWidget(widget)}
           >
-            <div>
-              <h3 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-              <p style={{ fontSize: "0.875rem", color: "#525252" }}>
-                {WIDGET_TYPES.find((w) => w.value === widget.type)?.description}
-              </p>
-            </div>
-            {!isDefaultDashboard && (
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-                <Button
-                  kind="ghost"
-                  size="sm"
-                  renderIcon={Copy}
-                  onClick={(e) => { e.stopPropagation(); duplicateWidget(widget); }}
-                >
-                  Duplicate
-                </Button>
-                <Button
-                  kind="danger--ghost"
-                  size="sm"
-                  renderIcon={TrashCan}
-                  onClick={(e) => { e.stopPropagation(); deleteWidget(widget.id); }}
-                >
-                  Remove
-                </Button>
+            <div className="p-4 cursor-pointer min-h-[200px] flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-semibold mb-2">{widget.title}</h3>
+                <p className="text-sm text-[#525252]">
+                  {WIDGET_TYPES.find((w) => w.value === widget.type)?.description}
+                </p>
               </div>
-            )}
+              {!isDefaultDashboard && (
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    kind="ghost"
+                    size="sm"
+                    renderIcon={Copy}
+                    onClick={(e) => { e.stopPropagation(); duplicateWidget(widget); }}
+                  >
+                    Duplicate
+                  </Button>
+                  <Button
+                    kind="danger--ghost"
+                    size="sm"
+                    renderIcon={TrashCan}
+                    onClick={(e) => { e.stopPropagation(); deleteWidget(widget.id); }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
+            </div>
           </Tile>
         ))}
 
         {!isDefaultDashboard && (
           <Tile
-            style={{
-              padding: "1rem",
-              border: "2px dashed #0f62fe",
-              cursor: "pointer",
-              minHeight: "200px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={{ border: "2px dashed #0f62fe" }}
             onClick={() => setShowAddWidget(true)}
           >
-            <div style={{ textAlign: "center" }}>
-              <Add size={32} style={{ color: "#0f62fe", marginBottom: "0.5rem" }} />
-              <p style={{ fontSize: "0.875rem", fontWeight: "600", color: "#0f62fe" }}>Add Widget</p>
+            <div className="p-4 cursor-pointer min-h-[200px] flex items-center justify-center">
+              <div className="text-center">
+                <Add size={32} style={{ color: "#0f62fe" }} className="mb-2" />
+                <p className="text-sm font-semibold text-[#0f62fe]">Add Widget</p>
+              </div>
             </div>
           </Tile>
         )}
       </div>
 
       {selectedWidget && !isDefaultDashboard && (
-        <Tile style={{ padding: "1.5rem", backgroundColor: "#f4f4f4" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem" }}>Configure Widget</h3>
+        <Tile className="p-6 bg-[#f4f4f4]">
+          <h3 className="text-lg font-semibold mb-4">Configure Widget</h3>
           <Select
             id="widget-size"
             labelText="Widget Size"
@@ -194,7 +177,7 @@ export default function DashboardBuilder({
         onRequestSubmit={addWidget}
         size="sm"
       >
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="mb-4">
           <Select
             id="widget-type"
             labelText="Widget Type"
@@ -205,10 +188,10 @@ export default function DashboardBuilder({
               <SelectItem key={type.value} value={type.value} text={type.label} />
             ))}
           </Select>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginTop: "0.5rem" }}>
+          <p className="text-sm text-[#525252] mt-2">
             {WIDGET_TYPES.find((w) => w.value === newWidgetType)?.description}
           </p>
-          <div style={{ marginTop: "1.5rem" }}>
+          <div className="mt-6">
             <Select
               id="widget-size"
               labelText="Column span"
@@ -220,7 +203,7 @@ export default function DashboardBuilder({
               <SelectItem value="3" text="3 columns (¾ width)" />
               <SelectItem value="4" text="4 columns (full width)" />
             </Select>
-            <p style={{ fontSize: "0.75rem", color: "#6f6f6f", marginTop: "0.25rem" }}>
+            <p className="text-xs text-[#6f6f6f] mt-1">
               How much horizontal space should this widget occupy?
             </p>
           </div>

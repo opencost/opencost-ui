@@ -121,19 +121,19 @@ export default function CostByServiceChart({
   }, [chartData, currency]);
 
   if (loading) {
-    return <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>Loading...</div>;
+    return <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">Loading...</div>;
   }
 
   if (chartData.length === 0) {
     return (
-      <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", color: "#8d8d8d" }}>
+      <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
         No cloud cost data available.
       </div>
     );
   }
 
   return (
-    <div style={{ width: "100%", height: "400px" }}>
+    <div className="w-full h-[400px]">
       <AreaChart data={chartData} options={chartOptions} />
     </div>
   );

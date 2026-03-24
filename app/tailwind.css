@@ -1,0 +1,3 @@
+/* Tailwind utilities only — skips preflight to avoid conflicts with Carbon Design System base styles */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";

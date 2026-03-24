@@ -26,12 +26,12 @@ function MetricCard({
 }) {
   return (
     <div className="metric-card">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+      <div className="flex items-center justify-between mb-3">
         <div className="metric-label">{label}</div>
         <Icon size={16} style={{ color: "#525252" }} />
       </div>
       {loading ? (
-        <div className="metric-value" style={{ color: "#8d8d8d" }}>—</div>
+        <div className="metric-value text-[#8d8d8d]">—</div>
       ) : (
         <div className="metric-value">{value}</div>
       )}
@@ -127,7 +127,7 @@ export default function CostSummaryCards({
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       <FilterableWidgetHeader
         title={title}
         expanded={showFilters}
@@ -146,7 +146,7 @@ export default function CostSummaryCards({
           />
         }
       />
-      <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, 1fr)" }}>
+      <div className="grid gap-4 grid-cols-4">
       <MetricCard
         label="Total Cluster Cost"
         value={data ? toCurrency(data.totalCost, "USD", 2) : "—"}

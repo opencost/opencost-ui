@@ -24,13 +24,13 @@ function WidgetRenderer({
       return <CostSummaryCards title={widget.title} />;
     case "cloud-costs-chart":
       return (
-        <Tile style={{ padding: "1rem" }}>
+        <Tile className="p-4">
           <CloudCostWidget />
         </Tile>
       );
     case "cloud-costs-table":
       return (
-        <Tile style={{ padding: "1rem" }}>
+        <Tile className="p-4">
           <CloudCostTableWidget
             title={widget.title}
             description="Cloud service spend with utilization and totals"
@@ -39,7 +39,7 @@ function WidgetRenderer({
       );
     case "cost-allocation-chart":
       return (
-        <Tile style={{ padding: "1rem" }}>
+        <Tile className="p-4">
           <CostAllocationChart
             title={widget.title}
             description="Cost breakdown by cluster, namespace, pod, or other dimension"
@@ -50,9 +50,9 @@ function WidgetRenderer({
     case "external-services-chart":
     case "external-costs-chart":
       return (
-        <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>Third-party service costs</p>
+        <Tile className="p-4">
+          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
+          <p className="text-sm text-[#525252] mb-4">Third-party service costs</p>
           <ExternalServicesChartWidget />
         </Tile>
       );
@@ -61,7 +61,7 @@ function WidgetRenderer({
     case "cost-allocation-table":
     case "cost-table":
       return (
-        <Tile style={{ padding: "1rem" }}>
+        <Tile className="p-4">
           <CostAllocationTable
             title={widget.title}
             description="Cost allocation breakdown by cluster, namespace, pod, or other dimension"
@@ -71,16 +71,16 @@ function WidgetRenderer({
       );
     case "anomaly-detection":
       return (
-        <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <div style={{ padding: "2rem", textAlign: "center", color: "#525252" }}>Anomaly detection widget</div>
+        <Tile className="p-4">
+          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
+          <div className="p-8 text-center text-[#525252]">Anomaly detection widget</div>
         </Tile>
       );
     case "carbon-metrics":
       return (
-        <Tile style={{ padding: "1rem" }}>
-          <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.5rem" }}>{widget.title}</h3>
-          <div style={{ padding: "2rem", textAlign: "center", color: "#525252" }}>Carbon metrics widget</div>
+        <Tile className="p-4">
+          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
+          <div className="p-8 text-center text-[#525252]">Carbon metrics widget</div>
         </Tile>
       );
     default:
@@ -148,27 +148,19 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
   }
 
   return (
-    <div style={{ padding: "1.5rem 1.5rem 2rem", maxWidth: "1584px", margin: "0 auto" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-          paddingTop: "0.5rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+    <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
+      <div className="flex items-center justify-between mb-6 pt-2">
+        <div className="flex items-center gap-4">
           <Button kind="ghost" size="sm" onClick={onBack} iconDescription="Back">
-            <ArrowLeft style={{ marginRight: "0.375rem" }} />
+            <ArrowLeft className="mr-[0.375rem]" />
             Back
           </Button>
           <div>
-            <h1 style={{ fontSize: "1.875rem", fontWeight: "700" }}>{dashboard.name}</h1>
-            <p style={{ fontSize: "0.875rem", color: "#525252" }}>{dashboard.description}</p>
+            <h1 className="text-3xl font-bold">{dashboard.name}</h1>
+            <p className="text-sm text-[#525252]">{dashboard.description}</p>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div className="flex items-center gap-2">
           <OverflowMenu renderIcon={OverflowMenuVertical} iconDescription="More options" flipped size="sm">
             <OverflowMenuItem itemText="Edit Layout" onClick={() => setIsEditMode(true)} />
             <OverflowMenuItem itemText="Share Dashboard" onClick={handleShareDashboard} />
@@ -203,8 +195,8 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
           </div>
         )
       ) : (
-        <Tile style={{ padding: "3rem", textAlign: "center" }}>
-          <p style={{ fontSize: "0.875rem", color: "#525252", marginBottom: "1rem" }}>
+        <Tile className="p-12 text-center">
+          <p className="text-sm text-[#525252] mb-4">
             No widgets added to this dashboard
           </p>
           <Button onClick={() => setIsEditMode(true)} renderIcon={Edit}>

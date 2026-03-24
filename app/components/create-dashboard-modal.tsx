@@ -71,12 +71,12 @@ export default function CreateDashboardModal({
       primaryButtonDisabled={!name.trim()}
       size="sm"
     >
-      <div style={{ marginBottom: "1rem" }}>
-        <p style={{ marginBottom: "1.5rem", color: "#525252" }}>
+      <div className="mb-4">
+        <p className="mb-6 text-[#525252]">
           Create a new custom dashboard to monitor your cloud costs
         </p>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="mb-4">
           <TextInput
             id="dashboard-name"
             labelText="Dashboard Name"
@@ -86,7 +86,7 @@ export default function CreateDashboardModal({
           />
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="mb-4">
           <TextArea
             id="dashboard-description"
             labelText="Description"
@@ -97,9 +97,9 @@ export default function CreateDashboardModal({
           />
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
-            <div style={{ flex: 1 }}>
+        <div className="mb-4">
+          <div className="flex gap-2 mb-2">
+            <div className="flex-1">
               <TextInput
                 id="dashboard-tags"
                 labelText="Tags"
@@ -110,7 +110,7 @@ export default function CreateDashboardModal({
               />
             </div>
             <Button
-              style={{ marginTop: "1.5rem" }}
+              className="mt-6"
               kind="secondary"
               onClick={handleAddTag}
               disabled={!tagInput.trim()}
@@ -120,7 +120,7 @@ export default function CreateDashboardModal({
           </div>
 
           {tags.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", paddingTop: "0.5rem" }}>
+            <div className="flex flex-wrap gap-2 pt-2">
               {tags.map((tag) => (
                 <Tag key={tag} type="gray" filter onClose={() => handleRemoveTag(tag)}>
                   {tag}

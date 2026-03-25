@@ -6,14 +6,15 @@ export interface Asset {
   cluster: string;
   region: string;
   category: string;
+  nodeType?: string;
   cpuCores: number;
   ramBytes: number;
   cpuCoreHours: number;
   cpuCost: number;
   ramCost: number;
   totalCost: number;
-  cpuUtilization: number;
-  ramUtilization: number;
+  cpuUtilization: number | null;
+  ramUtilization: number | null;
   carbonEmissions: number;
   preemptible: boolean;
   lastModified: string;
@@ -22,18 +23,50 @@ export interface Asset {
   ip?: string;
 }
 
+function isLikelyIPv4(s: string): boolean {
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(s.trim());
+}
+
+function utilizationFromBreakdown(breakdown: {
+  idle?: number;
+  user?: number;
+  system?: number;
+  other?: number;
+} | undefined): number | null {
+  if (!breakdown || typeof breakdown.idle !== "number") return null;
+  const { idle } = breakdown;
+  const used = (breakdown.user ?? 0) + (breakdown.system ?? 0) + (breakdown.other ?? 0);
+  if (idle >= 1 && used === 0) {
+    return null;
+  }
+  return Math.round(Math.max(0, Math.min(100, (1 - idle) * 100)));
+}
+
+function pickDisplayName(labels: Record<string, string> | undefined, propertiesName: string): string {
+  const fromLabels =
+    labels?.displayName?.trim() ||
+    labels?.hostname?.trim() ||
+    "";
+  if (fromLabels) return fromLabels;
+  if (propertiesName && !isLikelyIPv4(propertiesName)) return propertiesName;
+  return propertiesName || "";
+}
+
 export function parseAssetsResponse(response: { data: Record<string, any> }): Asset[] {
   return Object.entries(response.data)
     .filter(([, asset]) => asset.totalCost !== undefined && asset.type !== undefined)
     .map(([key, asset]) => {
-      const hasComputeMetrics =
-        asset.cpuBreakdown !== undefined && asset.ramBreakdown !== undefined;
-      const cpuUtilization = hasComputeMetrics
-        ? Math.round((1 - asset.cpuBreakdown.idle) * 100)
-        : 0;
-      const ramUtilization = hasComputeMetrics
-        ? Math.round((1 - asset.ramBreakdown.idle) * 100)
-        : 0;
+      const labels = asset.labels as Record<string, string> | undefined;
+      const propertiesName = String(asset.properties?.name ?? "").trim();
+      const name =
+        pickDisplayName(labels, propertiesName) || asset.type || key;
+
+      const internalAddr = labels?.internal_addr?.trim();
+      const ipFromName = propertiesName && isLikelyIPv4(propertiesName) ? propertiesName : undefined;
+      const ip = internalAddr || ipFromName || (typeof asset.ip === "string" ? asset.ip : undefined);
+
+      const cpuUtilization = utilizationFromBreakdown(asset.cpuBreakdown);
+      const ramUtilization = utilizationFromBreakdown(asset.ramBreakdown);
 
       const carbonEmissions = asset.totalCost * 0.5;
 
@@ -45,12 +78,13 @@ export function parseAssetsResponse(response: { data: Record<string, any> }): As
 
       return {
         id: key,
-        name: asset.properties?.name || asset.type,
+        name,
         type: asset.type,
         provider: asset.properties?.provider || "Unknown",
         cluster: asset.properties?.cluster || "Unknown",
         region,
         category: asset.properties?.category || "Unknown",
+        nodeType: typeof asset.nodeType === "string" ? asset.nodeType : undefined,
         cpuCores: asset.cpuCores || 0,
         ramBytes: asset.ramBytes || 0,
         cpuCoreHours: asset.cpuCoreHours || 0,
@@ -64,7 +98,7 @@ export function parseAssetsResponse(response: { data: Record<string, any> }): As
         lastModified: new Date(asset.end).toISOString().split("T")[0],
         bytes: asset.bytes,
         storageClass: asset.storageClass,
-        ip: asset.ip,
+        ip,
       };
     });
 }

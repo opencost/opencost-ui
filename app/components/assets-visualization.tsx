@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Tabs,
   TabList,
@@ -11,138 +11,130 @@ import {
 } from "@carbon/react";
 import { PieChart, SimpleBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
-import { Filter, Download } from "@carbon/icons-react";
+import { Download } from "@carbon/icons-react";
 import "@carbon/charts-react/styles.css";
-import { fetchAssets, type Asset } from "~/lib/assets-api";
+import { type Asset } from "~/lib/assets-api";
+import AssetsService from "~/services/assets";
+import {
+  AssetsFilterControls,
+  DEFAULT_ASSETS_FILTERS,
+  FilterableWidgetHeader,
+  type AssetsFilterValues,
+} from "./scoped-views";
 
-function getDemoAssets(): Asset[] {
-  return [
-    {
-      id: "node-oracle-1",
-      name: "10.0.147.137",
-      type: "Node",
-      provider: "Oracle",
-      cluster: "default-cluster",
-      region: "iad",
-      category: "Compute",
-      cpuCores: 4,
-      ramBytes: 33347035136,
-      cpuCoreHours: 66,
-      cpuCost: 1.782,
-      ramCost: 0.768657,
-      totalCost: 2.550657,
-      cpuUtilization: 0,
-      ramUtilization: 0,
-      carbonEmissions: 1.275,
-      preemptible: true,
-      lastModified: "2026-01-10",
-    },
-    {
-      id: "node-oracle-2",
-      name: "10.0.153.45",
-      type: "Node",
-      provider: "Oracle",
-      cluster: "default-cluster",
-      region: "iad",
-      category: "Compute",
-      cpuCores: 4,
-      ramBytes: 33347035136,
-      cpuCoreHours: 73.2,
-      cpuCost: 1.9764,
-      ramCost: 0.85251,
-      totalCost: 2.82891,
-      cpuUtilization: 0,
-      ramUtilization: 0,
-      carbonEmissions: 1.414,
-      preemptible: true,
-      lastModified: "2026-01-13",
-    },
-    {
-      id: "pod-1",
-      name: "web-pod-1",
-      type: "Pod",
-      provider: "Oracle",
-      cluster: "default-cluster",
-      region: "iad",
-      category: "Compute",
-      cpuCores: 2,
-      ramBytes: 8589934592,
-      cpuCoreHours: 48,
-      cpuCost: 1.296,
-      ramCost: 0.384,
-      totalCost: 1.68,
-      cpuUtilization: 45,
-      ramUtilization: 62,
-      carbonEmissions: 0.84,
-      preemptible: false,
-      lastModified: "2026-01-15",
-    },
-  ];
+function formatUtilPct(v: number | null): string {
+  return v === null ? "N/A" : `${v}%`;
+}
+
+function formatRamGb(ramBytes: number): string {
+  if (!ramBytes) return "0 GB";
+  const gb = ramBytes / 1024 ** 3;
+  return `${gb >= 10 ? Math.round(gb) : Math.round(gb * 10) / 10} GB`;
 }
 
 export default function AssetsVisualization() {
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterValues, setFilterValues] = useState<AssetsFilterValues>({
+    window: DEFAULT_ASSETS_FILTERS.assetsWindow,
+    aggregateBy: DEFAULT_ASSETS_FILTERS.assetsAggregateBy,
+    accumulate: DEFAULT_ASSETS_FILTERS.assetsAccumulate,
+    includeIdle: DEFAULT_ASSETS_FILTERS.assetsIncludeIdle,
+  });
+
   const [selectedAssetType, setSelectedAssetType] = useState<string | null>(null);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadAssets = async () => {
+    let cancelled = false;
+    const load = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        const fetchedAssets = await fetchAssets(
-          "https://demo.infra.opencost.io/model/assets?window=7d&aggregate=namespace&includeIdle=true&step=1d&accumulate=false"
+        const fetched = await AssetsService.fetchAssets(
+          filterValues.window,
+          filterValues.aggregateBy,
+          {
+            accumulate: filterValues.accumulate,
+            includeIdle: filterValues.includeIdle,
+          },
         );
-        if (fetchedAssets.length > 0) {
-          setAssets(fetchedAssets);
-          setError(null);
-        } else {
-          setAssets(getDemoAssets());
-          setError("Using demo data — connect to OpenCost API for real data");
+        if (!cancelled) {
+          setAssets(fetched);
+          if (fetched.length === 0) {
+            setError(
+              "No assets returned for this window — check OpenCost API connection and filters.",
+            );
+          }
         }
       } catch {
-        setAssets(getDemoAssets());
-        setError("Using demo data — connect to OpenCost API");
+        if (!cancelled) {
+          setAssets([]);
+          setError("Could not load assets — check OpenCost API connection.");
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
+    load();
+    return () => { cancelled = true; };
+  }, [
+    filterValues.window,
+    filterValues.aggregateBy,
+    filterValues.accumulate,
+    filterValues.includeIdle,
+  ]);
 
-    loadAssets();
-  }, []);
+  useEffect(() => {
+    setSelectedAssetType(null);
+  }, [filterValues.aggregateBy]);
 
   const filteredAssets = selectedAssetType
     ? assets.filter((a) => a.type === selectedAssetType)
     : assets;
 
-  const assetsByType = assets.reduce<
-    Record<string, { type: string; count: number; totalCost: number; totalCarbon: number }>
-  >((acc, asset) => {
-    if (!acc[asset.type]) {
-      acc[asset.type] = { type: asset.type, count: 0, totalCost: 0, totalCarbon: 0 };
-    }
-    acc[asset.type].count += 1;
-    acc[asset.type].totalCost += asset.totalCost;
-    acc[asset.type].totalCarbon += asset.carbonEmissions;
-    return acc;
-  }, {});
+  const assetsByType = useMemo(
+    () =>
+      assets.reduce<Record<string, { type: string; count: number; totalCost: number; totalCarbon: number }>>(
+        (acc, asset) => {
+          if (!acc[asset.type]) {
+            acc[asset.type] = { type: asset.type, count: 0, totalCost: 0, totalCarbon: 0 };
+          }
+          acc[asset.type].count += 1;
+          acc[asset.type].totalCost += asset.totalCost;
+          acc[asset.type].totalCarbon += asset.carbonEmissions;
+          return acc;
+        },
+        {},
+      ),
+    [assets],
+  );
 
   const typeData = Object.values(assetsByType);
   const totalCost = filteredAssets.reduce((sum, a) => sum + a.totalCost, 0);
   const totalCarbon = filteredAssets.reduce((sum, a) => sum + a.carbonEmissions, 0);
-  const avgUtilization =
-    filteredAssets.length > 0
-      ? Math.round(
-          (filteredAssets.reduce(
-            (sum, a) => sum + a.cpuUtilization + a.ramUtilization,
-            0
-          ) /
-            (filteredAssets.length * 2)) *
-            100
-        ) / 100
-      : 0;
+  const avgUtilization = useMemo(() => {
+    let sum = 0;
+    let n = 0;
+    for (const a of filteredAssets) {
+      if (a.cpuUtilization != null) {
+        sum += a.cpuUtilization;
+        n++;
+      }
+      if (a.ramUtilization != null) {
+        sum += a.ramUtilization;
+        n++;
+      }
+    }
+    if (n === 0) return null;
+    return Math.round((sum / n) * 100) / 100;
+  }, [filteredAssets]);
 
-  const sortedAssets = [...filteredAssets].sort((a, b) => b.totalCost - a.totalCost);
+  const sortedAssets = useMemo(
+    () => [...filteredAssets].sort((a, b) => b.totalCost - a.totalCost),
+    [filteredAssets],
+  );
 
   const pieChartData = typeData.map((item) => ({ group: item.type, value: item.totalCost }));
   const barChartData = sortedAssets
@@ -177,17 +169,26 @@ export default function AssetsVisualization() {
   const AssetRow = ({ asset }: { asset: Asset }) => (
     <div className="p-3 rounded border border-[#e0e0e0] mb-2 hover:bg-[#f4f4f4] transition-colors">
       <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-sm">{asset.name}</h4>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h4 className="font-medium text-sm truncate" title={asset.name}>{asset.name}</h4>
             <Tag type="blue" size="sm">{asset.type}</Tag>
             {asset.preemptible && <Tag type="outline" size="sm">Preemptible</Tag>}
           </div>
-          <div className="flex gap-4 text-xs text-[#8d8d8d]">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8d8d8d]">
+            {asset.ip && <span title="Internal / node IP">{asset.ip}</span>}
             <span>{asset.cluster}</span>
             <span>{asset.region}</span>
-            <span>CPU: {asset.cpuUtilization}%</span>
-            <span>RAM: {asset.ramUtilization}%</span>
+            {(asset.cpuCores > 0 || asset.ramBytes > 0) && (
+              <span>
+                {asset.cpuCores > 0 ? `${asset.cpuCores} vCPU` : ""}
+                {asset.cpuCores > 0 && asset.ramBytes > 0 ? " · " : ""}
+                {asset.ramBytes > 0 ? formatRamGb(asset.ramBytes) : ""}
+              </span>
+            )}
+            {asset.nodeType && <span className="truncate max-w-[200px]" title={asset.nodeType}>{asset.nodeType}</span>}
+            <span>CPU: {formatUtilPct(asset.cpuUtilization)}</span>
+            <span>RAM: {formatUtilPct(asset.ramUtilization)}</span>
           </div>
         </div>
         <div className="text-right">
@@ -198,12 +199,73 @@ export default function AssetsVisualization() {
     </div>
   );
 
+  const handleExport = () => {
+    const csv = [
+      [
+        "Name",
+        "IP",
+        "Node type",
+        "Type",
+        "Provider",
+        "Cluster",
+        "Region",
+        "Category",
+        "CPU %",
+        "RAM %",
+        "CPU Cost",
+        "RAM Cost",
+        "Total Cost",
+        "Carbon (kg CO2e)",
+      ].join(","),
+      ...sortedAssets.map((a) =>
+        [
+          a.name,
+          a.ip ?? "",
+          a.nodeType ?? "",
+          a.type,
+          a.provider,
+          a.cluster,
+          a.region,
+          a.category,
+          a.cpuUtilization === null ? "" : String(a.cpuUtilization),
+          a.ramUtilization === null ? "" : String(a.ramUtilization),
+          a.cpuCost.toFixed(4),
+          a.ramCost.toFixed(4),
+          a.totalCost.toFixed(4),
+          a.carbonEmissions.toFixed(4),
+        ].join(","),
+      ),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `assets-${filterValues.window}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="section-card w-full">
-      <div className="mb-6">
-        <h3 className="section-title">Infrastructure Assets</h3>
-        <p className="section-description">Infrastructure assets with cost and carbon tracking</p>
-      </div>
+      <FilterableWidgetHeader
+        title="Infrastructure Assets"
+        description="Infrastructure assets with cost and carbon tracking"
+        expanded={showFilters}
+        onToggle={() => setShowFilters((s) => !s)}
+        filterContent={
+          <AssetsFilterControls
+            window={filterValues.window}
+            aggregateBy={filterValues.aggregateBy}
+            accumulate={filterValues.accumulate}
+            includeIdle={filterValues.includeIdle}
+            onWindowChange={(v) => setFilterValues((p) => ({ ...p, window: v }))}
+            onAggregateByChange={(v) => setFilterValues((p) => ({ ...p, aggregateBy: v }))}
+            onAccumulateChange={(v) => setFilterValues((p) => ({ ...p, accumulate: v }))}
+            onIncludeIdleChange={(v) => setFilterValues((p) => ({ ...p, includeIdle: v }))}
+            idPrefix="assets-widget"
+          />
+        }
+      />
 
       {error && (
         <div className="p-3 bg-[#f1c21b] text-black rounded mb-4 text-sm">
@@ -229,8 +291,8 @@ export default function AssetsVisualization() {
         </div>
         <div className="metric-card">
           <div className="metric-label">Avg Utilization</div>
-          <div className="metric-value">{avgUtilization}%</div>
-          <p className="metric-change text-[#525252]">CPU + Memory</p>
+          <div className="metric-value">{avgUtilization === null ? "—" : `${avgUtilization}%`}</div>
+          <p className="metric-change text-[#525252]">CPU + Memory (where reported)</p>
         </div>
       </div>
 
@@ -249,10 +311,9 @@ export default function AssetsVisualization() {
             <h4 className="text-base font-semibold text-[#161616]">All Assets</h4>
             <p className="text-sm text-[#525252]">View and manage infrastructure resources</p>
           </div>
-          <div className="flex gap-2">
-            <Button kind="ghost" size="sm" renderIcon={Filter}>Filter</Button>
-            <Button kind="ghost" size="sm" renderIcon={Download}>Export</Button>
-          </div>
+          <Button kind="ghost" size="sm" renderIcon={Download} onClick={handleExport}>
+            Export CSV
+          </Button>
         </div>
 
         <Tabs>
@@ -267,7 +328,9 @@ export default function AssetsVisualization() {
           <TabPanels>
             <TabPanel>
               <div className="mt-4 max-h-[400px] overflow-y-auto">
-                {sortedAssets.map((asset) => <AssetRow key={asset.id} asset={asset} />)}
+                {sortedAssets.map((asset) => (
+                  <AssetRow key={asset.id} asset={asset} />
+                ))}
               </div>
             </TabPanel>
             {typeData.map((type) => (
@@ -275,7 +338,9 @@ export default function AssetsVisualization() {
                 <div className="mt-4 max-h-[400px] overflow-y-auto">
                   {sortedAssets
                     .filter((a) => a.type === type.type)
-                    .map((asset) => <AssetRow key={asset.id} asset={asset} />)}
+                    .map((asset) => (
+                      <AssetRow key={asset.id} asset={asset} />
+                    ))}
                 </div>
               </TabPanel>
             ))}

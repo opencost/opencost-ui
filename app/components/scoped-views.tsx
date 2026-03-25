@@ -63,6 +63,40 @@ export interface CloudFilterValues {
   currency: string;
 }
 
+export const ASSETS_WINDOW_OPTIONS = [
+  { name: "Today", value: "today" },
+  { name: "Yesterday", value: "yesterday" },
+  { name: "Last 24h", value: "24h" },
+  { name: "Last 7 days", value: "7d" },
+  { name: "Last 14 days", value: "14d" },
+  { name: "Last 30 days", value: "30d" },
+];
+
+export const ASSETS_AGGREGATE_OPTIONS = [
+  { name: "Asset Type", value: "assetType" },
+  { name: "Category", value: "category" },
+  { name: "Cluster", value: "cluster" },
+  { name: "Provider", value: "provider" },
+  { name: "Account", value: "account" },
+  { name: "Service", value: "service" },
+  { name: "Project", value: "project" },
+  { name: "Provider ID", value: "providerID" },
+];
+
+export const DEFAULT_ASSETS_FILTERS = {
+  assetsWindow: "7d",
+  assetsAggregateBy: "assetType",
+  assetsAccumulate: true,
+  assetsIncludeIdle: true,
+};
+
+export interface AssetsFilterValues {
+  window: string;
+  aggregateBy: string;
+  accumulate: boolean;
+  includeIdle: boolean;
+}
+
 export interface Filters {
   allocationWindow?: string;
   allocationAggregateBy?: string;
@@ -280,6 +314,80 @@ export function CloudFilterControls({
           <SelectItem key={c} value={c} text={c} />
         ))}
       </Select>
+    </div>
+  );
+}
+
+interface AssetsFilterControlsProps {
+  window: string;
+  aggregateBy: string;
+  accumulate: boolean;
+  includeIdle: boolean;
+  onWindowChange: (v: string) => void;
+  onAggregateByChange: (v: string) => void;
+  onAccumulateChange: (v: boolean) => void;
+  onIncludeIdleChange: (v: boolean) => void;
+  idPrefix?: string;
+  compact?: boolean;
+}
+
+export function AssetsFilterControls({
+  window,
+  aggregateBy,
+  accumulate,
+  includeIdle,
+  onWindowChange,
+  onAggregateByChange,
+  onAccumulateChange,
+  onIncludeIdleChange,
+  idPrefix = "assets",
+  compact = true,
+}: AssetsFilterControlsProps) {
+  return (
+    <div
+      className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
+      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))" }}
+    >
+      <Select
+        id={`${idPrefix}-window`}
+        labelText="Window"
+        value={window}
+        size="sm"
+        onChange={(e) => onWindowChange(e.target.value)}
+      >
+        {ASSETS_WINDOW_OPTIONS.map((o) => (
+          <SelectItem key={o.value} value={o.value} text={o.name} />
+        ))}
+      </Select>
+      <Select
+        id={`${idPrefix}-aggregate`}
+        labelText="Aggregate by"
+        value={aggregateBy}
+        size="sm"
+        onChange={(e) => onAggregateByChange(e.target.value)}
+      >
+        {ASSETS_AGGREGATE_OPTIONS.map((o) => (
+          <SelectItem key={o.value} value={o.value} text={o.name} />
+        ))}
+      </Select>
+      <Select
+        id={`${idPrefix}-accumulate`}
+        labelText="Time"
+        value={String(accumulate)}
+        size="sm"
+        onChange={(e) => onAccumulateChange(e.target.value === "true")}
+      >
+        <SelectItem value="true" text="Entire window" />
+        <SelectItem value="false" text="Daily" />
+      </Select>
+      <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
+        <input
+          type="checkbox"
+          checked={!!includeIdle}
+          onChange={(e) => onIncludeIdleChange(e.target.checked)}
+        />
+        Include idle
+      </label>
     </div>
   );
 }

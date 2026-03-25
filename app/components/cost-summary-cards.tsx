@@ -64,6 +64,7 @@ export default function CostSummaryCards({
     aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
     accumulate: true,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
+    currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
   });
   const window = windowProp ?? localFilters.window;
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
@@ -138,10 +139,12 @@ export default function CostSummaryCards({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
+            currency={localFilters.currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="summary-alloc"
           />
         }

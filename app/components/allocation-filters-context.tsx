@@ -19,6 +19,8 @@ export function useAllocationFilters(useShared: boolean): [
     accumulate: DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
     currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
+    drilldownAggregateBy: undefined,
+    drilldownFilters: [],
   });
 
   if (useShared && ctx) {
@@ -38,6 +40,8 @@ export function AllocationFiltersProvider({ children }: AllocationFiltersProvide
     accumulate: DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
     currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
+    drilldownAggregateBy: undefined,
+    drilldownFilters: [],
   });
 
   const setFiltersStable = useCallback((updater: AllocationFilterValues | ((prev: AllocationFilterValues) => AllocationFilterValues)) => {

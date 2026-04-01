@@ -9,6 +9,7 @@ import {
   TableCell,
   Pagination,
 } from "@carbon/react";
+import { Close } from "@carbon/icons-react";
 import { get, round, toArray, sortBy, reverse } from "lodash";
 import AllocationService from "~/services/allocation";
 import {
@@ -89,13 +90,28 @@ export default function CostAllocationTable({
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
   const currency = currencyProp ?? sharedFilters.currency ?? "USD";
 
-  const [drilldownFilters, setDrilldownFilters] = useState<{ property: string; value: string }[]>([]);
+  const [localDrilldownFilters, setLocalDrilldownFilters] = useState<{ property: string; value: string }[]>([]);
   const [effectiveAggregateBy, setEffectiveAggregateBy] = useState(globalAggregateBy);
+  const drilldownFilters = useSharedFilters ? (sharedFilters.drilldownFilters ?? []) : localDrilldownFilters;
+
+  const setDrilldownFilters = (filters: { property: string; value: string }[]) => {
+    if (useSharedFilters) {
+      setSharedFilters((prev) => ({ ...prev, drilldownFilters: filters }));
+      return;
+    }
+    setLocalDrilldownFilters(filters);
+  };
+
+  const setDrilldownAggregateBy = (nextAggregateBy: string | undefined) => {
+    if (!useSharedFilters) return;
+    setSharedFilters((prev) => ({ ...prev, drilldownAggregateBy: nextAggregateBy }));
+  };
 
   // Sync effective aggregate when global changes; reset drilldown
   useEffect(() => {
     setEffectiveAggregateBy(globalAggregateBy);
     setDrilldownFilters([]);
+    setDrilldownAggregateBy(undefined);
   }, [globalAggregateBy]);
 
   const aggregateBy = effectiveAggregateBy;
@@ -189,6 +205,7 @@ export default function CostAllocationTable({
     const newFilters = [...updatedFilters, { property: filterProperty, value: filterValue }];
     setDrilldownFilters(newFilters);
     setEffectiveAggregateBy(nextAgg);
+    setDrilldownAggregateBy(nextAgg);
     setPage(1);
   }
 
@@ -196,13 +213,17 @@ export default function CostAllocationTable({
     if (level === -1) {
       setDrilldownFilters([]);
       setEffectiveAggregateBy(globalAggregateBy);
+      setDrilldownAggregateBy(undefined);
       setPage(1);
       return;
     }
-    const trimmed = drilldownFilters.slice(0, level + 1);
+    // Remove the selected filter chip and any deeper drilldown levels.
+    const trimmed = drilldownFilters.slice(0, level);
     setDrilldownFilters(trimmed);
     const aggHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
-    setEffectiveAggregateBy(aggHierarchy[trimmed.length] ?? globalAggregateBy);
+    const nextAgg = aggHierarchy[trimmed.length] ?? globalAggregateBy;
+    setEffectiveAggregateBy(nextAgg);
+    setDrilldownAggregateBy(trimmed.length > 0 ? nextAgg : undefined);
     setPage(1);
   }
 
@@ -258,7 +279,12 @@ export default function CostAllocationTable({
   }
 
   const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
-    setSharedFilters((prev) => ({ ...prev, [key]: value }));
+    setSharedFilters((prev) => ({
+      ...prev,
+      [key]: value,
+      drilldownAggregateBy: undefined,
+      drilldownFilters: [],
+    }));
   };
 
   return (
@@ -302,9 +328,11 @@ export default function CostAllocationTable({
                 key={i}
                 type="button"
                 onClick={() => handleBreadcrumb(i)}
-                className="text-xs px-2 py-[2px] rounded border border-[#e0e0e0] bg-[#f4f4f4] cursor-pointer"
+                className="text-xs px-2 py-[2px] rounded border border-[#e0e0e0] bg-[#f4f4f4] cursor-pointer inline-flex items-center gap-1"
+                aria-label={`Remove filter ${f.property}: ${f.value}`}
               >
-                {f.property}: {f.value} ×
+                <span>{f.property}: {f.value}</span>
+                <Close size={12} aria-hidden="true" />
               </button>
             ))}
             <button

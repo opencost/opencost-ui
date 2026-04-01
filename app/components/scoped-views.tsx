@@ -54,6 +54,8 @@ export interface AllocationFilterValues {
   accumulate: boolean;
   includeIdle: boolean;
   currency: string;
+  drilldownAggregateBy?: string;
+  drilldownFilters?: { property: string; value: string }[];
 }
 
 export interface CloudFilterValues {

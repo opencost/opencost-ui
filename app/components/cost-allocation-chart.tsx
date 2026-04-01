@@ -137,10 +137,11 @@ export default function CostAllocationChart({
   const [showFilters, setShowFilters] = useState(false);
   const [sharedFilters, setSharedFilters] = useAllocationFilters(useSharedFilters);
   const window = windowProp ?? sharedFilters.window;
-  const aggregateBy = aggregateByProp ?? sharedFilters.aggregateBy;
+  const aggregateBy = aggregateByProp ?? sharedFilters.drilldownAggregateBy ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
   const currency = currencyProp ?? sharedFilters.currency ?? "USD";
+  const drilldownFilters = useSharedFilters ? (sharedFilters.drilldownFilters ?? []) : [];
 
   const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,6 +160,7 @@ export default function CostAllocationChart({
         const resp = await AllocationService.fetchAllocation(window, aggregateBy, {
           accumulate,
           includeIdle,
+          filters: drilldownFilters.length > 0 ? drilldownFilters : undefined,
         });
         const raw = Array.isArray(resp?.data) ? resp.data : Array.isArray(resp) ? resp : [];
         if (!cancelled && raw.length > 0) {
@@ -174,7 +176,7 @@ export default function CostAllocationChart({
     }
     load();
     return () => { cancelled = true; };
-  }, [window, aggregateBy, accumulate, includeIdle]);
+  }, [window, aggregateBy, accumulate, includeIdle, drilldownFilters]);
 
   const chartOptions = useMemo(
     () => {
@@ -226,7 +228,12 @@ export default function CostAllocationChart({
   );
 
   const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
-    setSharedFilters((prev) => ({ ...prev, [key]: value }));
+    setSharedFilters((prev) => ({
+      ...prev,
+      [key]: value,
+      drilldownAggregateBy: undefined,
+      drilldownFilters: [],
+    }));
   };
 
   return (

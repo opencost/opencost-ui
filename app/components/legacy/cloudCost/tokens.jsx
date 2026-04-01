@@ -1,4 +1,3 @@
- 
 const windowOptions = [
   { name: "Today", value: "today" },
   { name: "Yesterday", value: "yesterday" },

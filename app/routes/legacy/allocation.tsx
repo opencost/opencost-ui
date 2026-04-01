@@ -1,4 +1,3 @@
- 
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
@@ -70,8 +69,13 @@ function generateTitle({ window, aggregateBy, accumulate }) {
     if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window);
     else console.warn(`unknown window: ${window}`);
   }
-  let aggregationName = get(find(aggregationOptions, { value: aggregateBy }), "name", "").toLowerCase();
-  if (aggregationName === "") console.warn(`unknown aggregation: ${aggregateBy}`);
+  let aggregationName = get(
+    find(aggregationOptions, { value: aggregateBy }),
+    "name",
+    "",
+  ).toLowerCase();
+  if (aggregationName === "")
+    console.warn(`unknown aggregation: ${aggregateBy}`);
   let str = `${windowName} by ${aggregationName}`;
   if (!accumulate) str = `${str} daily`;
   return str;
@@ -93,10 +97,15 @@ const ReportsPage = () => {
   const aggregateBy = searchParams.get("agg") || "namespace";
   const accumulate = searchParams.get("acc") === "true";
   const currency = searchParams.get("currency") || "USD";
-  const title = searchParams.get("title") || generateTitle({ window: win, aggregateBy, accumulate });
+  const title =
+    searchParams.get("title") ||
+    generateTitle({ window: win, aggregateBy, accumulate });
 
   const filterParam = searchParams.get("filter");
-  const filters = useMemo(() => (filterParam ? parseFiltersFromUrl(filterParam) : []), [filterParam]);
+  const filters = useMemo(
+    () => (filterParam ? parseFiltersFromUrl(filterParam) : []),
+    [filterParam],
+  );
 
   useEffect(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
@@ -105,9 +114,27 @@ const ReportsPage = () => {
   }, [allocationData, aggregateBy]);
 
   useEffect(() => {
-    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
-    const filterHierarchy = ["namespace", "controllerKind", "controllerName", "pod", "container"];
-    const aggregateToFilterCount = { namespace: 0, controllerKind: 1, controller: 2, pod: 3, container: 4 };
+    const aggregateHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controller",
+      "pod",
+      "container",
+    ];
+    const filterHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controllerName",
+      "pod",
+      "container",
+    ];
+    const aggregateToFilterCount = {
+      namespace: 0,
+      controllerKind: 1,
+      controller: 2,
+      pod: 3,
+      container: 4,
+    };
     const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
     const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
@@ -116,35 +143,50 @@ const ReportsPage = () => {
       const np = new URLSearchParams(routerLocation.search);
       np.delete("filter");
       const ns = `?${np.toString()}`;
-      if (routerLocation.search !== ns) navigate({ search: ns }, { replace: true });
+      if (routerLocation.search !== ns)
+        navigate({ search: ns }, { replace: true });
       return;
     }
     if (currentFilters.length > expectedFilterCount) {
       const trimmed = currentFilters.slice(0, expectedFilterCount);
       const np = new URLSearchParams(routerLocation.search);
-      trimmed.length > 0 ? np.set("filter", parseFilters(trimmed)) : np.delete("filter");
+      trimmed.length > 0
+        ? np.set("filter", parseFilters(trimmed))
+        : np.delete("filter");
       const ns = `?${np.toString()}`;
-      if (routerLocation.search !== ns) navigate({ search: ns }, { replace: true });
+      if (routerLocation.search !== ns)
+        navigate({ search: ns }, { replace: true });
       return;
     }
     for (let i = 0; i < currentFilters.length; i++) {
       if (currentFilters[i].property !== filterHierarchy[i]) {
         const trimmed = currentFilters.slice(0, i);
         const np = new URLSearchParams(routerLocation.search);
-        trimmed.length > 0 ? np.set("filter", parseFilters(trimmed)) : np.delete("filter");
+        trimmed.length > 0
+          ? np.set("filter", parseFilters(trimmed))
+          : np.delete("filter");
         const ns = `?${np.toString()}`;
-        if (routerLocation.search !== ns) navigate({ search: ns }, { replace: true });
+        if (routerLocation.search !== ns)
+          navigate({ search: ns }, { replace: true });
         return;
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routerLocation.search, aggregateBy]);
 
-  useEffect(() => { fetchData(); }, [win, aggregateBy, accumulate, filters, includeIdle]);
+  useEffect(() => {
+    fetchData();
+  }, [win, aggregateBy, accumulate, filters, includeIdle]);
 
   useEffect(() => {
     if (currency !== "USD") {
-      setErrors([{ primary: "Currency Conversion in Use", secondary: "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill." }]);
+      setErrors([
+        {
+          primary: "Currency Conversion in Use",
+          secondary:
+            "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill.",
+        },
+      ]);
     } else {
       setErrors([]);
     }
@@ -154,7 +196,11 @@ const ReportsPage = () => {
     setLoading(true);
     setErrors([]);
     try {
-      const resp = await AllocationService.fetchAllocation(win, aggregateBy, { accumulate, filters, includeIdle });
+      const resp = await AllocationService.fetchAllocation(win, aggregateBy, {
+        accumulate,
+        filters,
+        includeIdle,
+      });
       if (resp.data && resp.data.length > 0) {
         const allocationRange = resp.data;
         for (const i in allocationRange) {
@@ -165,16 +211,32 @@ const ReportsPage = () => {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
-          if (match && match.length > 0) secondary = `${match[1]}. ${secondary}`;
-          setErrors([{ primary: "Data unavailable while ETL is building", secondary }]);
+          if (match && match.length > 0)
+            secondary = `${match[1]}. ${secondary}`;
+          setErrors([
+            { primary: "Data unavailable while ETL is building", secondary },
+          ]);
         }
         setAllocationData([]);
       }
     } catch (err) {
       if (err.message.indexOf("404") === 0) {
-        setErrors([{ primary: "Failed to load report data", secondary: "Please update OpenCost to the latest version, then open an Issue on GitHub if problems persist." }]);
+        setErrors([
+          {
+            primary: "Failed to load report data",
+            secondary:
+              "Please update OpenCost to the latest version, then open an Issue on GitHub if problems persist.",
+          },
+        ]);
       } else {
-        setErrors([{ primary: "Failed to load report data", secondary: err.message || "Please open an Issue on GitHub if problems persist." }]);
+        setErrors([
+          {
+            primary: "Failed to load report data",
+            secondary:
+              err.message ||
+              "Please open an Issue on GitHub if problems persist.",
+          },
+        ]);
       }
       setAllocationData([]);
     }
@@ -182,33 +244,54 @@ const ReportsPage = () => {
   }
 
   function handleBreadcrumbNavigate(level) {
-    const aggregateHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const aggregateHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controller",
+      "pod",
+      "container",
+    ];
     if (level === -1) {
       const np = new URLSearchParams(routerLocation.search);
-      np.set("agg", "namespace"); np.delete("filter");
+      np.set("agg", "namespace");
+      np.delete("filter");
       navigate({ search: `?${np.toString()}` });
       return;
     }
     const trimmedFilters = filters.slice(0, level + 1);
     if (trimmedFilters.length === 0) {
       const np = new URLSearchParams(routerLocation.search);
-      np.set("agg", "namespace"); np.delete("filter");
+      np.set("agg", "namespace");
+      np.delete("filter");
       navigate({ search: `?${np.toString()}` });
       return;
     }
     const targetAgg = aggregateHierarchy[trimmedFilters.length] || "namespace";
     const np = new URLSearchParams(routerLocation.search);
     np.set("agg", targetAgg);
-    trimmedFilters.length > 0 ? np.set("filter", parseFilters(trimmedFilters)) : np.delete("filter");
+    trimmedFilters.length > 0
+      ? np.set("filter", parseFilters(trimmedFilters))
+      : np.delete("filter");
     navigate({ search: `?${np.toString()}` });
   }
 
   function drilldown(row) {
-    const drilldownHierarchy = { namespace: "controllerKind", controllerKind: "controller", controller: "pod", pod: "container" };
+    const drilldownHierarchy = {
+      namespace: "controllerKind",
+      controllerKind: "controller",
+      controller: "pod",
+      pod: "container",
+    };
     const nextAgg = drilldownHierarchy[aggregateBy];
     if (!nextAgg) return;
     if (!row.name || String(row.name).trim() === "") return;
-    const filterPropertyMap = { namespace: "namespace", controllerKind: "controllerKind", controller: "controllerName", pod: "pod", container: "container" };
+    const filterPropertyMap = {
+      namespace: "namespace",
+      controllerKind: "controllerKind",
+      controller: "controllerName",
+      pod: "pod",
+      container: "container",
+    };
     const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
     let filterValue = String(row.name).trim();
     let updatedFilters = [...filters];
@@ -217,14 +300,25 @@ const ReportsPage = () => {
       const trimmedName = nameParts.join(":").trim();
       if (trimmedName.length > 0) filterValue = trimmedName;
       const normalizedKind = maybeKind.trim();
-      if (normalizedKind.length > 0 && !updatedFilters.some((f) => f.property === "controllerKind")) {
-        updatedFilters = [...updatedFilters, { property: "controllerKind", value: normalizedKind }];
+      if (
+        normalizedKind.length > 0 &&
+        !updatedFilters.some((f) => f.property === "controllerKind")
+      ) {
+        updatedFilters = [
+          ...updatedFilters,
+          { property: "controllerKind", value: normalizedKind },
+        ];
       }
     }
-    const newFilters = [...updatedFilters, { property: filterProperty, value: filterValue }];
+    const newFilters = [
+      ...updatedFilters,
+      { property: filterProperty, value: filterValue },
+    ];
     const np = new URLSearchParams(routerLocation.search);
     np.set("agg", nextAgg);
-    newFilters.length > 0 ? np.set("filter", parseFilters(newFilters)) : np.delete("filter");
+    newFilters.length > 0
+      ? np.set("filter", parseFilters(newFilters))
+      : np.delete("filter");
     navigate({ search: `?${np.toString()}` });
   }
 
@@ -233,10 +327,18 @@ const ReportsPage = () => {
       <Header headerTitle="Cost Allocation">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <input type="checkbox" checked={includeIdle ?? true} onChange={(e) => setIncludeIdle(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={includeIdle ?? true}
+              onChange={(e) => setIncludeIdle(e.target.checked)}
+            />
             Include idle costs
           </label>
-          <IconButton aria-label="refresh" onClick={() => fetchData()} style={{ padding: 12 }}>
+          <IconButton
+            aria-label="refresh"
+            onClick={() => fetchData()}
+            style={{ padding: 12 }}
+          >
             <RefreshIcon />
           </IconButton>
         </div>
@@ -251,24 +353,41 @@ const ReportsPage = () => {
         <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
           <div style={{ flexGrow: 1 }}>
             <Typography variant="h5">{title}</Typography>
-            <FilterBreadcrumb filters={filters} onNavigate={handleBreadcrumbNavigate} />
+            <FilterBreadcrumb
+              filters={filters}
+              onNavigate={handleBreadcrumbNavigate}
+            />
             <Subtitle report={{ window: win, aggregateBy, accumulate }} />
           </div>
           <Controls
             windowOptions={windowOptions}
             window={win}
-            setWindow={(win) => { searchParams.set("window", win); navigate({ search: `?${searchParams.toString()}` }); }}
+            setWindow={(win) => {
+              searchParams.set("window", win);
+              navigate({ search: `?${searchParams.toString()}` });
+            }}
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
-            setAggregateBy={(agg) => { const np = new URLSearchParams(routerLocation.search); np.set("agg", agg); np.delete("filter"); navigate({ search: `?${np.toString()}` }); }}
+            setAggregateBy={(agg) => {
+              const np = new URLSearchParams(routerLocation.search);
+              np.set("agg", agg);
+              np.delete("filter");
+              navigate({ search: `?${np.toString()}` });
+            }}
             accumulateOptions={accumulateOptions}
             accumulate={accumulate}
-            setAccumulate={(acc) => { searchParams.set("acc", acc); navigate({ search: `?${searchParams.toString()}` }); }}
+            setAccumulate={(acc) => {
+              searchParams.set("acc", acc);
+              navigate({ search: `?${searchParams.toString()}` });
+            }}
             title={title}
             cumulativeData={cumulativeData}
             currency={currency}
             currencyOptions={currencyCodes}
-            setCurrency={(curr) => { searchParams.set("currency", curr); navigate({ search: `?${searchParams.toString()}` }); }}
+            setCurrency={(curr) => {
+              searchParams.set("currency", curr);
+              navigate({ search: `?${searchParams.toString()}` });
+            }}
           />
         </div>
 

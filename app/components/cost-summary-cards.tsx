@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
-import { Currency, ChartLine, ChartLineSmooth, Activity } from "@carbon/icons-react";
+import {
+  Currency,
+  ChartLine,
+  ChartLineSmooth,
+  Activity,
+} from "@carbon/icons-react";
 import AllocationService from "~/services/allocation";
 import CloudCostService from "~/services/cloud-cost";
 import ExternalCostsService from "~/services/external-costs";
-import { toCurrency, rangeToCumulative, cumulativeToTotals } from "~/lib/legacy-util";
-import { AllocationFilterControls, DEFAULT_ALLOCATION_FILTERS, FilterableWidgetHeader } from "./scoped-views";
+import {
+  toCurrency,
+  rangeToCumulative,
+  cumulativeToTotals,
+} from "~/lib/legacy-util";
+import {
+  AllocationFilterControls,
+  DEFAULT_ALLOCATION_FILTERS,
+  FilterableWidgetHeader,
+} from "./scoped-views";
 
 interface SummaryData {
   totalCost: number;
@@ -81,17 +94,38 @@ export default function CostSummaryCards({
       setLoading(true);
       try {
         const [allocResp, cloudResp, externalResp] = await Promise.allSettled([
-          AllocationService.fetchAllocation(window, aggregateBy, { accumulate, includeIdle, filters: filters.length ? filters : undefined }),
-          CloudCostService.fetchCloudCostData(window, "provider", "AmortizedNetCost", []),
-          ExternalCostsService.fetchExternalTableCosts(window, "domain", [], "blended", "cost", "desc"),
+          AllocationService.fetchAllocation(window, aggregateBy, {
+            accumulate,
+            includeIdle,
+            filters: filters.length ? filters : undefined,
+          }),
+          CloudCostService.fetchCloudCostData(
+            window,
+            "provider",
+            "AmortizedNetCost",
+            [],
+          ),
+          ExternalCostsService.fetchExternalTableCosts(
+            window,
+            "domain",
+            [],
+            "blended",
+            "cost",
+            "desc",
+          ),
         ]);
 
         if (cancelled) return;
 
         let totalCost = 0;
         let totalEfficiency = 0;
-        const rawAlloc = allocResp.status === "fulfilled" ? allocResp.value : null;
-        const allocData = Array.isArray(rawAlloc?.data) ? rawAlloc.data : Array.isArray(rawAlloc) ? rawAlloc : null;
+        const rawAlloc =
+          allocResp.status === "fulfilled" ? allocResp.value : null;
+        const allocData = Array.isArray(rawAlloc?.data)
+          ? rawAlloc.data
+          : Array.isArray(rawAlloc)
+            ? rawAlloc
+            : null;
         if (allocData && allocData.length > 0) {
           const cumulative = rangeToCumulative(allocData, aggregateBy);
           if (cumulative) {
@@ -107,11 +141,22 @@ export default function CostSummaryCards({
         }
 
         let externalCost = 0;
-        if (externalResp.status === "fulfilled" && Array.isArray(externalResp.value)) {
-          externalCost = (externalResp.value as any[]).reduce((sum, row) => sum + (row.cost ?? 0), 0);
+        if (
+          externalResp.status === "fulfilled" &&
+          Array.isArray(externalResp.value)
+        ) {
+          externalCost = (externalResp.value as any[]).reduce(
+            (sum, row) => sum + (row.cost ?? 0),
+            0,
+          );
         }
 
-        setData({ totalCost, cloudCost, externalCost, efficiency: totalEfficiency });
+        setData({
+          totalCost,
+          cloudCost,
+          externalCost,
+          efficiency: totalEfficiency,
+        });
       } catch {
         // silently fall back to empty
       } finally {
@@ -120,10 +165,15 @@ export default function CostSummaryCards({
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [window, aggregateBy, accumulate, includeIdle, filters]);
 
-  const setFilter = (key: keyof typeof localFilters, value: string | boolean) => {
+  const setFilter = (
+    key: keyof typeof localFilters,
+    value: string | boolean,
+  ) => {
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -150,30 +200,30 @@ export default function CostSummaryCards({
         }
       />
       <div className="grid gap-4 grid-cols-4">
-      <MetricCard
-        label="Total Cluster Cost"
-        value={data ? toCurrency(data.totalCost, "USD", 2) : "—"}
-        icon={Currency}
-        loading={loading}
-      />
-      <MetricCard
-        label="Cloud Costs"
-        value={data ? toCurrency(data.cloudCost, "USD", 2) : "—"}
-        icon={ChartLine}
-        loading={loading}
-      />
-      <MetricCard
-        label="External Costs"
-        value={data ? toCurrency(data.externalCost, "USD", 2) : "—"}
-        icon={ChartLineSmooth}
-        loading={loading}
-      />
-      <MetricCard
-        label="Efficiency"
-        value={data ? `${data.efficiency.toFixed(1)}%` : "—"}
-        icon={Activity}
-        loading={loading}
-      />
+        <MetricCard
+          label="Total Cluster Cost"
+          value={data ? toCurrency(data.totalCost, "USD", 2) : "—"}
+          icon={Currency}
+          loading={loading}
+        />
+        <MetricCard
+          label="Cloud Costs"
+          value={data ? toCurrency(data.cloudCost, "USD", 2) : "—"}
+          icon={ChartLine}
+          loading={loading}
+        />
+        <MetricCard
+          label="External Costs"
+          value={data ? toCurrency(data.externalCost, "USD", 2) : "—"}
+          icon={ChartLineSmooth}
+          loading={loading}
+        />
+        <MetricCard
+          label="Efficiency"
+          value={data ? `${data.efficiency.toFixed(1)}%` : "—"}
+          icon={Activity}
+          loading={loading}
+        />
       </div>
     </div>
   );

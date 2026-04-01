@@ -12,13 +12,21 @@ import {
 import { StackedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
 import CloudCostService from "~/services/cloud-cost";
-import { toCurrency, checkCustomWindow, toVerboseTimeRange } from "~/lib/legacy-util";
+import {
+  toCurrency,
+  checkCustomWindow,
+  toVerboseTimeRange,
+} from "~/lib/legacy-util";
 import { primary, greyscale, browns } from "~/constants/colors";
 import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
 } from "~/constants/cloud-cost-options";
-import { CloudFilterControls, DEFAULT_CLOUD_FILTERS, FilterableWidgetHeader } from "./scoped-views";
+import {
+  CloudFilterControls,
+  DEFAULT_CLOUD_FILTERS,
+  FilterableWidgetHeader,
+} from "./scoped-views";
 
 interface ChartPoint {
   group: string;
@@ -53,19 +61,31 @@ function getItemCost(item: { value?: number; cost?: number }): number {
   return item.value ?? item.cost ?? 0;
 }
 
-function buildChartData(graphData: CloudGraphEntry[], topN: number): ChartPoint[] {
+function buildChartData(
+  graphData: CloudGraphEntry[],
+  topN: number,
+): ChartPoint[] {
   if (!Array.isArray(graphData)) return [];
   const points: ChartPoint[] = [];
   for (const entry of graphData) {
     if (!Array.isArray(entry.items) || entry.items.length === 0) continue;
     const date = toDateLabel(entry.start);
-    const sorted = [...entry.items].sort((a, b) => getItemCost(b) - getItemCost(a));
+    const sorted = [...entry.items].sort(
+      (a, b) => getItemCost(b) - getItemCost(a),
+    );
     const top = sorted.slice(0, topN);
     const remainder = sorted.slice(topN);
-    const otherCost = remainder.reduce((sum, item) => sum + getItemCost(item), 0);
+    const otherCost = remainder.reduce(
+      (sum, item) => sum + getItemCost(item),
+      0,
+    );
 
     for (const item of top) {
-      points.push({ group: date, key: item.name ?? "unknown", value: getItemCost(item) });
+      points.push({
+        group: date,
+        key: item.name ?? "unknown",
+        value: getItemCost(item),
+      });
     }
     if (otherCost > 0) {
       points.push({ group: date, key: "other", value: otherCost });
@@ -95,7 +115,7 @@ function buildColorScale(points: ChartPoint[]): Record<string, string> {
 function generateTitle(
   window: string,
   aggregateBy: string,
-  costMetric: string
+  costMetric: string,
 ): string {
   const winOpt = CLOUD_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
@@ -146,7 +166,10 @@ export default function CloudCostWidget({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({
     key: "cost",
     direction: "desc",
   });
@@ -162,7 +185,7 @@ export default function CloudCostWidget({
           window,
           aggregateBy,
           costMetric,
-          []
+          [],
         );
         if (!cancelled && resp) {
           setChartData(buildChartData(resp.graphData ?? [], 10));
@@ -213,7 +236,14 @@ export default function CloudCostWidget({
 
   useEffect(() => {
     setPage(1);
-  }, [window, aggregateBy, costMetric, totalRows, sortConfig.key, sortConfig.direction]);
+  }, [
+    window,
+    aggregateBy,
+    costMetric,
+    totalRows,
+    sortConfig.key,
+    sortConfig.direction,
+  ]);
 
   const chartOptions = useMemo(() => {
     const colorScale = buildColorScale(chartData);
@@ -223,7 +253,10 @@ export default function CloudCostWidget({
         left: {
           mapsTo: "value",
           scaleType: ScaleTypes.LINEAR,
-          ticks: { formatter: (v: number | Date) => toCurrency(typeof v === "number" ? v : v.getTime(), currency) },
+          ticks: {
+            formatter: (v: number | Date) =>
+              toCurrency(typeof v === "number" ? v : v.getTime(), currency),
+          },
         },
         bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
       },
@@ -240,17 +273,24 @@ export default function CloudCostWidget({
         customHTML: (data: any, defaultHTML: string) => {
           let items: any[] = [];
           if (Array.isArray(data)) items = data;
-          else if (data?.value !== undefined || data?.label !== undefined) items = [data];
+          else if (data?.value !== undefined || data?.label !== undefined)
+            items = [data];
           else if (data?.data && Array.isArray(data.data)) items = data.data;
           if (items.length === 0) return defaultHTML;
           let total = 0;
-          const lines = items.map((item: any) => {
-            const val = typeof item.value === "number" ? item.value : parseFloat(item.value) || 0;
-            total += val;
-            const name = item.label ?? item.key ?? item.name ?? item.group ?? "—";
-            const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";
-            return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
-          }).join("");
+          const lines = items
+            .map((item: any) => {
+              const val =
+                typeof item.value === "number"
+                  ? item.value
+                  : parseFloat(item.value) || 0;
+              total += val;
+              const name =
+                item.label ?? item.key ?? item.name ?? item.group ?? "—";
+              const fill = item.fill ?? colorScale[name] ?? "#8d8d8d";
+              return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
+            })
+            .join("");
           return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
         },
       },
@@ -303,13 +343,9 @@ export default function CloudCostWidget({
       {/* Table */}
       <div id="cloud-cost-table">
         {loading ? (
-          <div className="p-8 text-center text-[#8d8d8d]">
-            Loading…
-          </div>
+          <div className="p-8 text-center text-[#8d8d8d]">Loading…</div>
         ) : tableRows.length === 0 ? (
-          <div className="p-8 text-center text-[#8d8d8d]">
-            No results
-          </div>
+          <div className="p-8 text-center text-[#8d8d8d]">No results</div>
         ) : (
           <>
             <TableContainer>
@@ -331,7 +367,8 @@ export default function CloudCostWidget({
                           setSortConfig((prev) => ({
                             key: header.key,
                             direction:
-                              prev.key === header.key && prev.direction === "desc"
+                              prev.key === header.key &&
+                              prev.direction === "desc"
                                 ? "asc"
                                 : "desc",
                           }))
@@ -346,7 +383,10 @@ export default function CloudCostWidget({
                   <TableRow className="font-semibold">
                     <TableCell>{tableTotal?.name || "Totals"}</TableCell>
                     <TableCell>
-                      {Math.round((Number(tableTotal?.kubernetesPercent) ?? 0) * 100)}%
+                      {Math.round(
+                        (Number(tableTotal?.kubernetesPercent) ?? 0) * 100,
+                      )}
+                      %
                     </TableCell>
                     <TableCell>
                       {toCurrency(Number(tableTotal?.cost ?? 0), currency)}
@@ -362,9 +402,12 @@ export default function CloudCostWidget({
                         </span>
                       </TableCell>
                       <TableCell>
-                        {Math.round((Number(row.kubernetesPercent) || 0) * 100)}%
+                        {Math.round((Number(row.kubernetesPercent) || 0) * 100)}
+                        %
                       </TableCell>
-                      <TableCell>{toCurrency(Number(row.cost ?? 0), currency)}</TableCell>
+                      <TableCell>
+                        {toCurrency(Number(row.cost ?? 0), currency)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

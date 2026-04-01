@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
 import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
-import { useDashboard, timeAgo, type Widget } from "~/components/dashboard-context";
+import {
+  useDashboard,
+  timeAgo,
+  type Widget,
+} from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
 
 interface SharedDashboardPayload {
@@ -14,7 +18,9 @@ interface SharedDashboardPayload {
 
 function decodeShareParam(encoded: string): SharedDashboardPayload | null {
   try {
-    return JSON.parse(atob(decodeURIComponent(encoded))) as SharedDashboardPayload;
+    return JSON.parse(
+      atob(decodeURIComponent(encoded)),
+    ) as SharedDashboardPayload;
   } catch {
     return null;
   }
@@ -31,7 +37,8 @@ export default function DashboardList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [sharedPayload, setSharedPayload] = useState<SharedDashboardPayload | null>(null);
+  const [sharedPayload, setSharedPayload] =
+    useState<SharedDashboardPayload | null>(null);
   const { dashboards, createDashboard } = useDashboard();
 
   useEffect(() => {
@@ -39,11 +46,14 @@ export default function DashboardList() {
     if (shareParam) {
       const decoded = decodeShareParam(shareParam);
       if (decoded) setSharedPayload(decoded);
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete("share");
-        return next;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("share");
+          return next;
+        },
+        { replace: true },
+      );
     }
   }, [searchParams, setSearchParams]);
 
@@ -71,7 +81,11 @@ export default function DashboardList() {
           <img src="/logo.png" alt="OpenCost" className="h-6" />
         </HeaderName>
         <div className="ml-auto flex items-center pr-4">
-          <Button onClick={() => setShowCreateModal(true)} renderIcon={Add} size="sm">
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            renderIcon={Add}
+            size="sm"
+          >
             Create Dashboard
           </Button>
         </div>
@@ -140,9 +154,7 @@ export default function DashboardList() {
                   </div>
                 </div>
 
-                <h3 className="font-semibold text-lg mb-2">
-                  {dashboard.name}
-                </h3>
+                <h3 className="font-semibold text-lg mb-2">{dashboard.name}</h3>
                 <p className="text-sm text-[#525252] mb-4">
                   {dashboard.description}
                 </p>
@@ -151,7 +163,9 @@ export default function DashboardList() {
                   <span className="text-xs text-[#8d8d8d]">
                     Updated {timeAgo(dashboard.updatedAt)}
                   </span>
-                  <span className="text-xs text-[#8d8d8d]">by {dashboard.owner}</span>
+                  <span className="text-xs text-[#8d8d8d]">
+                    by {dashboard.owner}
+                  </span>
                 </div>
               </Link>
             ))}
@@ -182,7 +196,8 @@ export default function DashboardList() {
         {sharedPayload && (
           <div>
             <p className="mb-4 text-sm text-[#525252]">
-              Someone shared a dashboard configuration with you. Would you like to import it?
+              Someone shared a dashboard configuration with you. Would you like
+              to import it?
             </p>
             <div className="p-4 bg-[#f4f4f4] border-l-4 border-[#0f62fe] mb-4">
               <p className="font-semibold text-base mb-1">
@@ -194,14 +209,16 @@ export default function DashboardList() {
                 </p>
               )}
               <p className="text-xs text-[#8d8d8d]">
-                {sharedPayload.widgets.length} widget{sharedPayload.widgets.length !== 1 ? "s" : ""}
+                {sharedPayload.widgets.length} widget
+                {sharedPayload.widgets.length !== 1 ? "s" : ""}
                 {sharedPayload.tags?.length
                   ? ` · ${sharedPayload.tags.join(", ")}`
                   : ""}
               </p>
             </div>
             <p className="text-xs text-[#8d8d8d]">
-              This will be added as a new dashboard in your workspace. No existing dashboards will be affected.
+              This will be added as a new dashboard in your workspace. No
+              existing dashboards will be affected.
             </p>
           </div>
         )}

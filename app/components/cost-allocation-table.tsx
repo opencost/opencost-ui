@@ -19,17 +19,28 @@ import {
   checkCustomWindow,
   toVerboseTimeRange,
 } from "~/lib/legacy-util";
-import { ALLOCATION_WINDOW_OPTIONS, ALLOCATION_AGGREGATE_OPTIONS, AllocationFilterControls, FilterableWidgetHeader } from "./scoped-views";
+import {
+  ALLOCATION_WINDOW_OPTIONS,
+  ALLOCATION_AGGREGATE_OPTIONS,
+  AllocationFilterControls,
+  FilterableWidgetHeader,
+} from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
 
-function generateTitle(window: string, aggregateBy: string, accumulate: boolean): string {
+function generateTitle(
+  window: string,
+  aggregateBy: string,
+  accumulate: boolean,
+): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
   if (windowName === "" && checkCustomWindow(window)) {
     windowName = toVerboseTimeRange(window) ?? window;
   }
   if (windowName === "") windowName = window;
-  const aggOpt = ALLOCATION_AGGREGATE_OPTIONS.find((o) => o.value === aggregateBy);
+  const aggOpt = ALLOCATION_AGGREGATE_OPTIONS.find(
+    (o) => o.value === aggregateBy,
+  );
   const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
   let str = `${windowName} by ${aggregationName}`;
   if (!accumulate) str = `${str} daily`;
@@ -83,18 +94,26 @@ export default function CostAllocationTable({
   useSharedFilters = false,
 }: CostAllocationTableProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const [sharedFilters, setSharedFilters] = useAllocationFilters(useSharedFilters);
+  const [sharedFilters, setSharedFilters] =
+    useAllocationFilters(useSharedFilters);
   const window = windowProp ?? sharedFilters.window;
   const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
   const currency = currencyProp ?? sharedFilters.currency ?? "USD";
 
-  const [localDrilldownFilters, setLocalDrilldownFilters] = useState<{ property: string; value: string }[]>([]);
-  const [effectiveAggregateBy, setEffectiveAggregateBy] = useState(globalAggregateBy);
-  const drilldownFilters = useSharedFilters ? (sharedFilters.drilldownFilters ?? []) : localDrilldownFilters;
+  const [localDrilldownFilters, setLocalDrilldownFilters] = useState<
+    { property: string; value: string }[]
+  >([]);
+  const [effectiveAggregateBy, setEffectiveAggregateBy] =
+    useState(globalAggregateBy);
+  const drilldownFilters = useSharedFilters
+    ? (sharedFilters.drilldownFilters ?? [])
+    : localDrilldownFilters;
 
-  const setDrilldownFilters = (filters: { property: string; value: string }[]) => {
+  const setDrilldownFilters = (
+    filters: { property: string; value: string }[],
+  ) => {
     if (useSharedFilters) {
       setSharedFilters((prev) => ({ ...prev, drilldownFilters: filters }));
       return;
@@ -104,7 +123,10 @@ export default function CostAllocationTable({
 
   const setDrilldownAggregateBy = (nextAggregateBy: string | undefined) => {
     if (!useSharedFilters) return;
-    setSharedFilters((prev) => ({ ...prev, drilldownAggregateBy: nextAggregateBy }));
+    setSharedFilters((prev) => ({
+      ...prev,
+      drilldownAggregateBy: nextAggregateBy,
+    }));
   };
 
   // Sync effective aggregate when global changes; reset drilldown
@@ -119,7 +141,10 @@ export default function CostAllocationTable({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "totalCost", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "totalCost", direction: "desc" });
 
   const dataTitle = generateTitle(window, aggregateBy, accumulate);
 
@@ -151,12 +176,20 @@ export default function CostAllocationTable({
     async function load() {
       setLoading(true);
       try {
-        const resp = await AllocationService.fetchAllocation(window, aggregateBy, {
-          accumulate,
-          includeIdle,
-          filters: drilldownFilters.length > 0 ? drilldownFilters : undefined,
-        });
-        const raw = Array.isArray(resp?.data) ? resp.data : Array.isArray(resp) ? resp : [];
+        const resp = await AllocationService.fetchAllocation(
+          window,
+          aggregateBy,
+          {
+            accumulate,
+            includeIdle,
+            filters: drilldownFilters.length > 0 ? drilldownFilters : undefined,
+          },
+        );
+        const raw = Array.isArray(resp?.data)
+          ? resp.data
+          : Array.isArray(resp)
+            ? resp
+            : [];
         if (!cancelled && raw.length > 0) {
           const sorted = sortBy(raw, (set: any) => {
             const arr = Object.values(set) as any[];
@@ -173,7 +206,9 @@ export default function CostAllocationTable({
       }
     }
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [window, aggregateBy, accumulate, includeIdle, drilldownFilters]);
 
   useEffect(() => {
@@ -185,7 +220,14 @@ export default function CostAllocationTable({
     const isUnallocated = String(row.name).indexOf("__unallocated__") >= 0;
     const isUnmounted = row.name === "Unmounted PVs";
     const hasNextLevel = drilldownHierarchy[aggregateBy];
-    if (isIdle || isUnallocated || isUnmounted || !hasNextLevel || !row.name?.trim()) return;
+    if (
+      isIdle ||
+      isUnallocated ||
+      isUnmounted ||
+      !hasNextLevel ||
+      !row.name?.trim()
+    )
+      return;
 
     const nextAgg = drilldownHierarchy[aggregateBy];
     const filterProperty = filterPropertyMap[aggregateBy];
@@ -197,12 +239,21 @@ export default function CostAllocationTable({
       const maybeKind = parts[0]?.trim() ?? "";
       const trimmedName = parts.slice(1).join(":").trim();
       if (trimmedName) filterValue = trimmedName;
-      if (maybeKind && !updatedFilters.some((f) => f.property === "controllerKind")) {
-        updatedFilters = [...updatedFilters, { property: "controllerKind", value: maybeKind }];
+      if (
+        maybeKind &&
+        !updatedFilters.some((f) => f.property === "controllerKind")
+      ) {
+        updatedFilters = [
+          ...updatedFilters,
+          { property: "controllerKind", value: maybeKind },
+        ];
       }
     }
 
-    const newFilters = [...updatedFilters, { property: filterProperty, value: filterValue }];
+    const newFilters = [
+      ...updatedFilters,
+      { property: filterProperty, value: filterValue },
+    ];
     setDrilldownFilters(newFilters);
     setEffectiveAggregateBy(nextAgg);
     setDrilldownAggregateBy(nextAgg);
@@ -220,7 +271,13 @@ export default function CostAllocationTable({
     // Remove the selected filter chip and any deeper drilldown levels.
     const trimmed = drilldownFilters.slice(0, level);
     setDrilldownFilters(trimmed);
-    const aggHierarchy = ["namespace", "controllerKind", "controller", "pod", "container"];
+    const aggHierarchy = [
+      "namespace",
+      "controllerKind",
+      "controller",
+      "pod",
+      "container",
+    ];
     const nextAgg = aggHierarchy[trimmed.length] ?? globalAggregateBy;
     setEffectiveAggregateBy(nextAgg);
     setDrilldownAggregateBy(trimmed.length > 0 ? nextAgg : undefined);
@@ -230,18 +287,29 @@ export default function CostAllocationTable({
   const formatEfficiency = (row: any) => {
     if (String(row.name).indexOf("__idle__") >= 0) return "—";
     const eff = row.totalEfficiency;
-    if (eff == 1.0 && get(row, "cpuReqCoreHrs", 0) == 0 && get(row, "ramReqByteHrs", 0) == 0) return "Inf%";
+    if (
+      eff == 1.0 &&
+      get(row, "cpuReqCoreHrs", 0) == 0 &&
+      get(row, "ramReqByteHrs", 0) == 0
+    )
+      return "Inf%";
     return `${round((eff ?? 0) * 100, 1)}%`;
   };
 
   const formatTotalsEfficiency = () => {
     const t = totalData;
-    if (t.totalEfficiency == 1.0 && get(t, "cpuReqCoreHrs", 0) == 0 && get(t, "ramReqByteHrs", 0) == 0) return "Inf%";
+    if (
+      t.totalEfficiency == 1.0 &&
+      get(t, "cpuReqCoreHrs", 0) == 0 &&
+      get(t, "ramReqByteHrs", 0) == 0
+    )
+      return "Inf%";
     return `${round((t.totalEfficiency ?? 0) * 100, 1)}%`;
   };
 
   const rowsForTable = pageRows.map((row, i) => {
-    const displayName = row.name === "__unmounted__" ? "Unmounted PVs" : row.name;
+    const displayName =
+      row.name === "__unmounted__" ? "Unmounted PVs" : row.name;
     const canDrilldown =
       !String(row.name).includes("__idle__") &&
       !String(row.name).includes("__unallocated__") &&
@@ -263,22 +331,23 @@ export default function CostAllocationTable({
   });
 
   if (loading) {
-    return (
-      <div className="p-8 text-center text-[#8d8d8d]">
-        Loading…
-      </div>
-    );
+    return <div className="p-8 text-center text-[#8d8d8d]">Loading…</div>;
   }
 
   if (allocationData.length === 0) {
     return (
       <div className="w-full">
-        <p className="p-8 text-center text-[#8d8d8d]">No allocation data available.</p>
+        <p className="p-8 text-center text-[#8d8d8d]">
+          No allocation data available.
+        </p>
       </div>
     );
   }
 
-  const setFilter = (key: keyof typeof sharedFilters, value: string | boolean) => {
+  const setFilter = (
+    key: keyof typeof sharedFilters,
+    value: string | boolean,
+  ) => {
     setSharedFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -331,7 +400,9 @@ export default function CostAllocationTable({
                 className="text-xs px-2 py-[2px] rounded border border-[#e0e0e0] bg-[#f4f4f4] cursor-pointer inline-flex items-center gap-1"
                 aria-label={`Remove filter ${f.property}: ${f.value}`}
               >
-                <span>{f.property}: {f.value}</span>
+                <span>
+                  {f.property}: {f.value}
+                </span>
                 <Close size={12} aria-hidden="true" />
               </button>
             ))}
@@ -356,12 +427,21 @@ export default function CostAllocationTable({
                 <TableHeader
                   key={header.key}
                   isSortable={header.isSortable}
-                  sortDirection={sortConfig.key === header.key ? (sortConfig.direction === "desc" ? "DESC" : "ASC") : "NONE"}
+                  sortDirection={
+                    sortConfig.key === header.key
+                      ? sortConfig.direction === "desc"
+                        ? "DESC"
+                        : "ASC"
+                      : "NONE"
+                  }
                   onClick={() =>
                     header.isSortable &&
                     setSortConfig((s) => ({
                       key: header.key,
-                      direction: s.key === header.key && s.direction === "desc" ? "asc" : "desc",
+                      direction:
+                        s.key === header.key && s.direction === "desc"
+                          ? "asc"
+                          : "desc",
                     }))
                   }
                 >
@@ -373,12 +453,22 @@ export default function CostAllocationTable({
           <TableBody>
             <TableRow className="font-semibold">
               <TableCell>Totals</TableCell>
-              <TableCell>{toCurrency(totalData.cpuCost ?? 0, currency)}</TableCell>
-              <TableCell>{toCurrency(totalData.gpuCost ?? 0, currency)}</TableCell>
-              <TableCell>{toCurrency(totalData.ramCost ?? 0, currency)}</TableCell>
-              <TableCell>{toCurrency(totalData.pvCost ?? 0, currency)}</TableCell>
+              <TableCell>
+                {toCurrency(totalData.cpuCost ?? 0, currency)}
+              </TableCell>
+              <TableCell>
+                {toCurrency(totalData.gpuCost ?? 0, currency)}
+              </TableCell>
+              <TableCell>
+                {toCurrency(totalData.ramCost ?? 0, currency)}
+              </TableCell>
+              <TableCell>
+                {toCurrency(totalData.pvCost ?? 0, currency)}
+              </TableCell>
               <TableCell>{formatTotalsEfficiency()}</TableCell>
-              <TableCell>{toCurrency(totalData.totalCost ?? 0, currency)}</TableCell>
+              <TableCell>
+                {toCurrency(totalData.totalCost ?? 0, currency)}
+              </TableCell>
             </TableRow>
             {rowsForTable.map((row) => (
               <TableRow

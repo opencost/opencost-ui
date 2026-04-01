@@ -16,11 +16,15 @@ export function createLogger(level: LogLevel = defaultLogLevel): LoggerType {
     console.warn(
       `Attempting to initialize a logger with an invalid log level: ${level}. Valid levels are: ${logLevels.join(", ")}.`,
     );
-    console.warn(`Initializing logger with default log level: ${defaultLogLevel}.`);
+    console.warn(
+      `Initializing logger with default log level: ${defaultLogLevel}.`,
+    );
     initialLevel = defaultLogLevel;
   }
 
-  const handler: ProxyHandler<Console & { _logLevel: LogLevel; getLogLevel(): LogLevel }> = {
+  const handler: ProxyHandler<
+    Console & { _logLevel: LogLevel; getLogLevel(): LogLevel }
+  > = {
     get(target, prop, receiver) {
       const currentLevel = target.getLogLevel();
       if (
@@ -46,7 +50,9 @@ export function createLogger(level: LogLevel = defaultLogLevel): LoggerType {
     if (logLevels.includes(logLevel)) {
       this._logLevel = logLevel;
     } else {
-      console.warn(`Attempting to set unrecognized log level: ${logLevel}. Skipping.`);
+      console.warn(
+        `Attempting to set unrecognized log level: ${logLevel}. Skipping.`,
+      );
       console.warn(`Valid log levels are ${logLevels.join(", ")}`);
     }
   };
@@ -55,4 +61,3 @@ export function createLogger(level: LogLevel = defaultLogLevel): LoggerType {
 }
 
 export const Logger: LoggerType = createLogger();
-

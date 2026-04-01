@@ -2,7 +2,10 @@ import { forEach, get, round } from "lodash";
 
 // rangeToCumulative takes an AllocationSetRange (array of AllocationSet)
 // and accumulates the values into a single AllocationSet (object).
-export function rangeToCumulative(allocationSetRange: any[], aggregateBy: string) {
+export function rangeToCumulative(
+  allocationSetRange: any[],
+  aggregateBy: string,
+) {
   if (!allocationSetRange || allocationSetRange.length === 0) {
     return null;
   }
@@ -42,10 +45,14 @@ export function rangeToCumulative(allocationSetRange: any[], aggregateBy: string
         result[alloc.name].sharedCost += get(alloc, "sharedCost", 0);
         result[alloc.name].externalCost += get(alloc, "externalCost", 0);
         result[alloc.name].totalCost += get(alloc, "totalCost", 0);
-        result[alloc.name].cpuUseCoreHrs += get(alloc, "cpuCoreUsageAverage", 0) * hrs;
-        result[alloc.name].cpuReqCoreHrs += get(alloc, "cpuCoreRequestAverage", 0) * hrs;
-        result[alloc.name].ramUseByteHrs += get(alloc, "ramByteUsageAverage", 0) * hrs;
-        result[alloc.name].ramReqByteHrs += get(alloc, "ramByteRequestAverage", 0) * hrs;
+        result[alloc.name].cpuUseCoreHrs +=
+          get(alloc, "cpuCoreUsageAverage", 0) * hrs;
+        result[alloc.name].cpuReqCoreHrs +=
+          get(alloc, "cpuCoreRequestAverage", 0) * hrs;
+        result[alloc.name].ramUseByteHrs +=
+          get(alloc, "ramByteUsageAverage", 0) * hrs;
+        result[alloc.name].ramReqByteHrs +=
+          get(alloc, "ramByteRequestAverage", 0) * hrs;
       }
     });
   });
@@ -53,11 +60,13 @@ export function rangeToCumulative(allocationSetRange: any[], aggregateBy: string
   if (allocationSetRange.length > 1) {
     forEach(result, (alloc, name) => {
       let cpuEfficiency = 0.0;
-      if (alloc.cpuReqCoreHrs > 0) cpuEfficiency = alloc.cpuUseCoreHrs / alloc.cpuReqCoreHrs;
+      if (alloc.cpuReqCoreHrs > 0)
+        cpuEfficiency = alloc.cpuUseCoreHrs / alloc.cpuReqCoreHrs;
       else if (alloc.cpuUseCoreHrs > 0) cpuEfficiency = 1.0;
 
       let ramEfficiency = 0.0;
-      if (alloc.ramReqByteHrs > 0) ramEfficiency = alloc.ramUseByteHrs / alloc.ramReqByteHrs;
+      if (alloc.ramReqByteHrs > 0)
+        ramEfficiency = alloc.ramUseByteHrs / alloc.ramReqByteHrs;
       else if (alloc.ramUseByteHrs > 0) ramEfficiency = 1.0;
 
       let totalEfficiency = 0.0;
@@ -91,7 +100,12 @@ export function cumulativeToTotals(allocationSet: Record<string, any>) {
     totalEfficiency: 0,
   };
 
-  let cpuReqCoreHrs = 0, cpuUseCoreHrs = 0, ramReqByteHrs = 0, ramUseByteHrs = 0, cpuCost = 0, ramCost = 0;
+  let cpuReqCoreHrs = 0,
+    cpuUseCoreHrs = 0,
+    ramReqByteHrs = 0,
+    ramUseByteHrs = 0,
+    cpuCost = 0,
+    ramCost = 0;
 
   forEach(allocationSet, (alloc, name) => {
     if (name !== "__idle__") {
@@ -120,7 +134,8 @@ export function cumulativeToTotals(allocationSet: Record<string, any>) {
 
   if (cpuCost + ramCost > 0) {
     totals.totalEfficiency =
-      (cpuCost * totals.cpuEfficiency + ramCost * totals.ramEfficiency) / (cpuCost + ramCost);
+      (cpuCost * totals.cpuEfficiency + ramCost * totals.ramEfficiency) /
+      (cpuCost + ramCost);
   }
 
   totals.cpuReqCoreHrs = cpuReqCoreHrs;
@@ -133,8 +148,18 @@ export function cumulativeToTotals(allocationSet: Record<string, any>) {
 
 export function toVerboseTimeRange(window: string): string | null {
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const start = new Date();
@@ -212,9 +237,15 @@ export function bytesToString(bytes: number): string {
 
 const currencyLocale = "en-US";
 
-export function toCurrency(amount: number, currency = "USD", precision?: number): string {
+export function toCurrency(
+  amount: number,
+  currency = "USD",
+  precision?: number,
+): string {
   if (typeof amount !== "number") {
-    console.warn(`Tried to convert "${amount}" to currency, but it is not a number`);
+    console.warn(
+      `Tried to convert "${amount}" to currency, but it is not a number`,
+    );
     return "";
   }
   if (!currency) currency = "USD";
@@ -227,70 +258,137 @@ export function toCurrency(amount: number, currency = "USD", precision?: number)
 }
 
 export function checkCustomWindow(window: string): boolean {
-  const customDateRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z,\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
+  const customDateRegex =
+    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z,\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
   return customDateRegex.test(window);
 }
 
-export function parseFilters(filters: { property: string; value: string }[] | string): string {
+export function parseFilters(
+  filters: { property: string; value: string }[] | string,
+): string {
   if (typeof filters === "string") return filters;
   return (
-    [...new Set(filters.map((f) => {
-      const escapedValue = String(f.value).replace(/"/g, '\\"');
-      return `${f.property}:"${escapedValue}"`;
-    }))].join("+") || ""
+    [
+      ...new Set(
+        filters.map((f) => {
+          const escapedValue = String(f.value).replace(/"/g, '\\"');
+          return `${f.property}:"${escapedValue}"`;
+        }),
+      ),
+    ].join("+") || ""
   );
 }
 
-export function parseFiltersFromUrl(filterString: string): { property: string; value: string }[] {
+export function parseFiltersFromUrl(
+  filterString: string,
+): { property: string; value: string }[] {
   if (!filterString || typeof filterString !== "string") return [];
   const filters: { property: string; value: string }[] = [];
   const parts = filterString.split("+");
   for (const part of parts) {
     const match = part.match(/^([^:]+):"((?:[^"\\]|\\.)*)"$/);
     if (match) {
-      filters.push({ property: match[1].trim(), value: match[2].replace(/\\"/g, '"') });
+      filters.push({
+        property: match[1].trim(),
+        value: match[2].replace(/\\"/g, '"'),
+      });
     }
   }
   return filters;
 }
 
-export function formatSampleItemsForGraph({ data, costMetric }: { data: any; costMetric?: string }) {
+export function formatSampleItemsForGraph({
+  data,
+  costMetric,
+}: {
+  data: any;
+  costMetric?: string;
+}) {
   const costMetricPropName = costMetric
-    ? (costMetricToPropName as Record<string, string>)[costMetric] ?? "amortizedNetCost"
+    ? ((costMetricToPropName as Record<string, string>)[costMetric] ??
+      "amortizedNetCost")
     : "amortizedNetCost";
-  const graphData = data.sets.map(({ cloudCosts, window: { end, start } }: any) => ({
-    end,
-    items: Object.entries(cloudCosts).map(([name, item]: [string, any]) => ({
-      name,
-      value: item.netCost.cost,
-    })),
-    start,
-  }));
+  const graphData = data.sets.map(
+    ({ cloudCosts, window: { end, start } }: any) => ({
+      end,
+      items: Object.entries(cloudCosts).map(([name, item]: [string, any]) => ({
+        name,
+        value: item.netCost.cost,
+      })),
+      start,
+    }),
+  );
 
   const accumulator: Record<string, any> = {};
   data.sets.forEach(({ cloudCosts, window }: any) => {
-    Object.entries(cloudCosts).forEach(([name, cloudCostItem]: [string, any]) => {
-      const { properties } = cloudCostItem;
-      accumulator[name] ||= { cost: 0, start: "", end: "", providerID: "", labelName: "", kubernetesCost: 0, kubernetesPercent: 0 };
-      accumulator[name].cost += cloudCostItem[costMetricPropName].cost;
-      accumulator[name].kubernetesCost += cloudCostItem[costMetricPropName].cost * cloudCostItem[costMetricPropName].kubernetesPercent;
-      accumulator[name].start = window.start;
-      accumulator[name].end = window.end;
-      accumulator[name].providerID = properties.providerID;
-      accumulator[name].labelName = properties.labels?.name;
-      accumulator[name].kubernetesPercent = cloudCostItem[costMetricPropName].kubernetesPercent;
-    });
+    Object.entries(cloudCosts).forEach(
+      ([name, cloudCostItem]: [string, any]) => {
+        const { properties } = cloudCostItem;
+        accumulator[name] ||= {
+          cost: 0,
+          start: "",
+          end: "",
+          providerID: "",
+          labelName: "",
+          kubernetesCost: 0,
+          kubernetesPercent: 0,
+        };
+        accumulator[name].cost += cloudCostItem[costMetricPropName].cost;
+        accumulator[name].kubernetesCost +=
+          cloudCostItem[costMetricPropName].cost *
+          cloudCostItem[costMetricPropName].kubernetesPercent;
+        accumulator[name].start = window.start;
+        accumulator[name].end = window.end;
+        accumulator[name].providerID = properties.providerID;
+        accumulator[name].labelName = properties.labels?.name;
+        accumulator[name].kubernetesPercent =
+          cloudCostItem[costMetricPropName].kubernetesPercent;
+      },
+    );
   });
 
   const tableRows = Object.entries(accumulator)
-    .map(([name, { cost, start, end, providerID, kubernetesCost, kubernetesPercent, labelName }]) => ({
-      cost, name, kubernetesCost, kubernetesPercent, start, end, providerID, labelName,
-    }))
+    .map(
+      ([
+        name,
+        {
+          cost,
+          start,
+          end,
+          providerID,
+          kubernetesCost,
+          kubernetesPercent,
+          labelName,
+        },
+      ]) => ({
+        cost,
+        name,
+        kubernetesCost,
+        kubernetesPercent,
+        start,
+        end,
+        providerID,
+        labelName,
+      }),
+    )
     .sort((a, b) => (a.cost > b.cost ? -1 : 1));
 
   const tableTotal = tableRows.reduce(
-    (tr1: any, tr2: any) => ({ ...tr1, cost: tr1.cost + tr2.cost, kubernetesCost: tr1.kubernetesCost + tr2.kubernetesCost }),
-    { cost: 0, name: "", kubernetesCost: 0, kubernetesPercent: 0, end: "", start: "", labelName: "", providerID: "" },
+    (tr1: any, tr2: any) => ({
+      ...tr1,
+      cost: tr1.cost + tr2.cost,
+      kubernetesCost: tr1.kubernetesCost + tr2.kubernetesCost,
+    }),
+    {
+      cost: 0,
+      name: "",
+      kubernetesCost: 0,
+      kubernetesPercent: 0,
+      end: "",
+      start: "",
+      labelName: "",
+      providerID: "",
+    },
   );
 
   return { graphData, tableRows, tableTotal };

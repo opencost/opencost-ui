@@ -15,4 +15,6 @@ const newUIRoutes: RouteConfig = [
   route("*", "routes/$.tsx"),
 ];
 
-export default (isLegacyMode ? legacyRoutes : newUIRoutes) satisfies RouteConfig;
+export default (isLegacyMode
+  ? legacyRoutes
+  : newUIRoutes) satisfies RouteConfig;

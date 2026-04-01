@@ -6,7 +6,6 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import Typography from "@mui/material/Typography";
 import { toVerboseTimeRange } from "../../lib/legacy-util";
 
-
 const useStyles = makeStyles({
   root: {
     "& > * + *": {

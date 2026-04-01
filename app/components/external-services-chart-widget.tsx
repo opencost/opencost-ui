@@ -40,11 +40,21 @@ function buildChartData(timeseriesData: any[]): ChartPoint[] {
   const points: ChartPoint[] = [];
   for (const entry of timeseriesData) {
     const date = entry.window?.start
-      ? new Date(entry.window.start).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
+      ? new Date(entry.window.start).toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+        })
       : "?";
     if (entry.externalCosts) {
-      for (const [name, item] of Object.entries(entry.externalCosts) as [string, any][]) {
-        points.push({ group: date, key: name, value: item.blendedCost ?? item.cost ?? 0 });
+      for (const [name, item] of Object.entries(entry.externalCosts) as [
+        string,
+        any,
+      ][]) {
+        points.push({
+          group: date,
+          key: name,
+          value: item.blendedCost ?? item.cost ?? 0,
+        });
       }
     }
   }
@@ -78,7 +88,11 @@ const headers = [
   { key: "status", header: "Status" },
 ];
 
-export default function ExternalServicesChartWidget({ window = "7d" }: { window?: string }) {
+export default function ExternalServicesChartWidget({
+  window = "7d",
+}: {
+  window?: string;
+}) {
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableData, setTableData] = useState<ExternalCostTableRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,12 +104,28 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
       setLoading(true);
       try {
         const [timeseries, totals] = await Promise.allSettled([
-          ExternalCostsService.fetchExternalGraphCosts(window, "domain", [], "blended", "cost", "desc"),
-          ExternalCostsService.fetchExternalTableCosts(window, "domain", [], "blended", "cost", "desc"),
+          ExternalCostsService.fetchExternalGraphCosts(
+            window,
+            "domain",
+            [],
+            "blended",
+            "cost",
+            "desc",
+          ),
+          ExternalCostsService.fetchExternalTableCosts(
+            window,
+            "domain",
+            [],
+            "blended",
+            "cost",
+            "desc",
+          ),
         ]);
         if (!cancelled) {
-          if (timeseries.status === "fulfilled") setChartData(buildChartData(timeseries.value ?? []));
-          if (totals.status === "fulfilled") setTableData(buildTableData(totals.value ?? []));
+          if (timeseries.status === "fulfilled")
+            setChartData(buildChartData(timeseries.value ?? []));
+          if (totals.status === "fulfilled")
+            setTableData(buildTableData(totals.value ?? []));
         }
       } catch {
         // leave empty
@@ -104,7 +134,9 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
       }
     }
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [window]);
 
   return (
@@ -118,12 +150,15 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
           <TabPanel>
             <div className="w-full h-[400px] mt-4">
               {loading ? (
-                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">Loading…</div>
+                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
+                  Loading…
+                </div>
               ) : chartData.length > 0 ? (
                 <SimpleBarChart data={chartData} options={chartOptions} />
               ) : (
                 <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
-                  No external cost data available. Configure external cost integrations to see data here.
+                  No external cost data available. Configure external cost
+                  integrations to see data here.
                 </div>
               )}
             </div>
@@ -133,16 +168,27 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
               {loading ? (
                 <p className="text-[#8d8d8d]">Loading…</p>
               ) : tableData.length === 0 ? (
-                <p className="text-[#8d8d8d]">No external cost data available.</p>
+                <p className="text-[#8d8d8d]">
+                  No external cost data available.
+                </p>
               ) : (
                 <DataTable rows={tableData} headers={headers}>
-                  {({ rows, headers, getTableProps, getHeaderProps, getRowProps }: any) => (
+                  {({
+                    rows,
+                    headers,
+                    getTableProps,
+                    getHeaderProps,
+                    getRowProps,
+                  }: any) => (
                     <TableContainer>
                       <Table {...getTableProps()}>
                         <TableHead>
                           <TableRow>
                             {headers.map((header: any) => (
-                              <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                              <TableHeader
+                                {...getHeaderProps({ header })}
+                                key={header.key}
+                              >
                                 {header.header}
                               </TableHeader>
                             ))}
@@ -153,7 +199,9 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
                             <TableRow
                               {...getRowProps({ row })}
                               key={row.id}
-                              onClick={() => setSelectedService(row.cells[0].value)}
+                              onClick={() =>
+                                setSelectedService(row.cells[0].value)
+                              }
                               className="cursor-pointer"
                             >
                               {row.cells.map((cell: any) => (
@@ -176,8 +224,12 @@ export default function ExternalServicesChartWidget({ window = "7d" }: { window?
 
               {selectedService && (
                 <Tile className="mt-4 p-4 bg-[#f4f4f4]">
-                  <h4 className="font-semibold mb-2">{selectedService} Details</h4>
-                  <p className="text-sm text-[#525252]">Service: {selectedService}</p>
+                  <h4 className="font-semibold mb-2">
+                    {selectedService} Details
+                  </h4>
+                  <p className="text-sm text-[#525252]">
+                    Service: {selectedService}
+                  </p>
                 </Tile>
               )}
             </div>

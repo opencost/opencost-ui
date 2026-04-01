@@ -11,14 +11,19 @@ export interface AssetFetchOptions {
   filters?: { property: string; value: string }[];
 }
 
-function buildCacheKey(win: string, aggregate: string, options: AssetFetchOptions): string {
+function buildCacheKey(
+  win: string,
+  aggregate: string,
+  options: AssetFetchOptions,
+): string {
   const { accumulate, includeIdle = true, step = "1d", filters } = options;
   const filterKey =
     filters && filters.length > 0
       ? JSON.stringify(
           [...filters].sort(
             (a, b) =>
-              a.property.localeCompare(b.property) || a.value.localeCompare(b.value),
+              a.property.localeCompare(b.property) ||
+              a.value.localeCompare(b.value),
           ),
         )
       : "";
@@ -61,7 +66,12 @@ class AssetsService {
     aggregate: string,
     options: AssetFetchOptions,
   ): Promise<Asset[]> {
-    const { accumulate = true, includeIdle = true, step = "1d", filters } = options;
+    const {
+      accumulate = true,
+      includeIdle = true,
+      step = "1d",
+      filters,
+    } = options;
 
     const params: Record<string, any> = {
       window: win,

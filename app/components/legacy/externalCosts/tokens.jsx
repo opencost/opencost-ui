@@ -1,4 +1,3 @@
- 
 const costTypeOptions = [
   { name: "Blended", value: "blended" },
   { name: "Billed", value: "billed" },

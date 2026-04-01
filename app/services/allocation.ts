@@ -3,20 +3,32 @@ import client from "./api-client";
 import { getMockData } from "./allocation-mock";
 
 const USE_MOCK_DATA =
-  (import.meta.env.VITE_REACT_APP_USE_MOCK_DATA as string | undefined) === "true" ||
+  (import.meta.env.VITE_REACT_APP_USE_MOCK_DATA as string | undefined) ===
+    "true" ||
   (import.meta.env.REACT_APP_USE_MOCK_DATA as string | undefined) === "true";
 
-const CACHE_TTL_MS = 30_000; 
+const CACHE_TTL_MS = 30_000;
 
 function buildCacheKey(
   win: string,
   aggregate: string,
-  options: { accumulate?: boolean; filters?: { property: string; value: string }[]; includeIdle?: boolean },
-  ): string {
+  options: {
+    accumulate?: boolean;
+    filters?: { property: string; value: string }[];
+    includeIdle?: boolean;
+  },
+): string {
   const { accumulate, filters, includeIdle = true } = options;
-  const filterKey = filters && filters.length > 0
-    ? JSON.stringify([...filters].sort((a, b) => a.property.localeCompare(b.property) || a.value.localeCompare(b.value)))
-    : "";
+  const filterKey =
+    filters && filters.length > 0
+      ? JSON.stringify(
+          [...filters].sort(
+            (a, b) =>
+              a.property.localeCompare(b.property) ||
+              a.value.localeCompare(b.value),
+          ),
+        )
+      : "";
   return `${win}|${aggregate}|${accumulate}|${includeIdle}|${filterKey}`;
 }
 
@@ -27,7 +39,11 @@ class AllocationService {
   async fetchAllocation(
     win: string,
     aggregate: string,
-    options: { accumulate?: boolean; filters?: { property: string; value: string }[]; includeIdle?: boolean },
+    options: {
+      accumulate?: boolean;
+      filters?: { property: string; value: string }[];
+      includeIdle?: boolean;
+    },
   ): Promise<any> {
     const key = buildCacheKey(win, aggregate, options);
 
@@ -58,7 +74,11 @@ class AllocationService {
   private async _doFetch(
     win: string,
     aggregate: string,
-    options: { accumulate?: boolean; filters?: { property: string; value: string }[]; includeIdle?: boolean },
+    options: {
+      accumulate?: boolean;
+      filters?: { property: string; value: string }[];
+      includeIdle?: boolean;
+    },
   ) {
     const { accumulate, filters, includeIdle = true } = options;
     const params: Record<string, any> = {
@@ -81,9 +101,12 @@ class AllocationService {
       if (
         USE_MOCK_DATA &&
         typeof error?.message === "string" &&
-        (error.message.includes("Network Error") || error.message.includes("ECONNREFUSED"))
+        (error.message.includes("Network Error") ||
+          error.message.includes("ECONNREFUSED"))
       ) {
-        console.warn("Backend not available, using mock data (mock data flag is enabled)");
+        console.warn(
+          "Backend not available, using mock data (mock data flag is enabled)",
+        );
         return getMockData(aggregate, filters);
       }
       throw error;

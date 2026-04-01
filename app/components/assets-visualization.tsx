@@ -45,7 +45,9 @@ export default function AssetsVisualization() {
     includeIdle: DEFAULT_ASSETS_FILTERS.assetsIncludeIdle,
   });
 
-  const [selectedAssetType, setSelectedAssetType] = useState<string | null>(null);
+  const [selectedAssetType, setSelectedAssetType] = useState<string | null>(
+    null,
+  );
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +84,9 @@ export default function AssetsVisualization() {
       }
     };
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [
     filterValues.window,
     filterValues.aggregateBy,
@@ -100,24 +104,39 @@ export default function AssetsVisualization() {
 
   const assetsByType = useMemo(
     () =>
-      assets.reduce<Record<string, { type: string; count: number; totalCost: number; totalCarbon: number }>>(
-        (acc, asset) => {
-          if (!acc[asset.type]) {
-            acc[asset.type] = { type: asset.type, count: 0, totalCost: 0, totalCarbon: 0 };
+      assets.reduce<
+        Record<
+          string,
+          {
+            type: string;
+            count: number;
+            totalCost: number;
+            totalCarbon: number;
           }
-          acc[asset.type].count += 1;
-          acc[asset.type].totalCost += asset.totalCost;
-          acc[asset.type].totalCarbon += asset.carbonEmissions;
-          return acc;
-        },
-        {},
-      ),
+        >
+      >((acc, asset) => {
+        if (!acc[asset.type]) {
+          acc[asset.type] = {
+            type: asset.type,
+            count: 0,
+            totalCost: 0,
+            totalCarbon: 0,
+          };
+        }
+        acc[asset.type].count += 1;
+        acc[asset.type].totalCost += asset.totalCost;
+        acc[asset.type].totalCarbon += asset.carbonEmissions;
+        return acc;
+      }, {}),
     [assets],
   );
 
   const typeData = Object.values(assetsByType);
   const totalCost = filteredAssets.reduce((sum, a) => sum + a.totalCost, 0);
-  const totalCarbon = filteredAssets.reduce((sum, a) => sum + a.carbonEmissions, 0);
+  const totalCarbon = filteredAssets.reduce(
+    (sum, a) => sum + a.carbonEmissions,
+    0,
+  );
   const avgUtilization = useMemo(() => {
     let sum = 0;
     let n = 0;
@@ -140,7 +159,10 @@ export default function AssetsVisualization() {
     [filteredAssets],
   );
 
-  const pieChartData = typeData.map((item) => ({ group: item.type, value: item.totalCost }));
+  const pieChartData = typeData.map((item) => ({
+    group: item.type,
+    value: item.totalCost,
+  }));
   const barChartData = sortedAssets
     .slice(0, 5)
     .map((asset) => ({ group: asset.name, value: asset.totalCost }));
@@ -175,9 +197,17 @@ export default function AssetsVisualization() {
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h4 className="font-medium text-sm truncate" title={asset.name}>{asset.name}</h4>
-            <Tag type="blue" size="sm">{asset.type}</Tag>
-            {asset.preemptible && <Tag type="outline" size="sm">Preemptible</Tag>}
+            <h4 className="font-medium text-sm truncate" title={asset.name}>
+              {asset.name}
+            </h4>
+            <Tag type="blue" size="sm">
+              {asset.type}
+            </Tag>
+            {asset.preemptible && (
+              <Tag type="outline" size="sm">
+                Preemptible
+              </Tag>
+            )}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8d8d8d]">
             {asset.ip && <span title="Internal / node IP">{asset.ip}</span>}
@@ -190,14 +220,22 @@ export default function AssetsVisualization() {
                 {asset.ramBytes > 0 ? formatRamGb(asset.ramBytes) : ""}
               </span>
             )}
-            {asset.nodeType && <span className="truncate max-w-[200px]" title={asset.nodeType}>{asset.nodeType}</span>}
+            {asset.nodeType && (
+              <span className="truncate max-w-[200px]" title={asset.nodeType}>
+                {asset.nodeType}
+              </span>
+            )}
             <span>CPU: {formatUtilPct(asset.cpuUtilization)}</span>
             <span>RAM: {formatUtilPct(asset.ramUtilization)}</span>
           </div>
         </div>
         <div className="text-right">
-          <div className="font-semibold text-sm">${asset.totalCost.toFixed(2)}</div>
-          <div className="text-xs text-[#8d8d8d]">{asset.carbonEmissions.toFixed(2)} kg CO₂e</div>
+          <div className="font-semibold text-sm">
+            ${asset.totalCost.toFixed(2)}
+          </div>
+          <div className="text-xs text-[#8d8d8d]">
+            {asset.carbonEmissions.toFixed(2)} kg CO₂e
+          </div>
         </div>
       </div>
     </div>
@@ -262,10 +300,18 @@ export default function AssetsVisualization() {
             aggregateBy={filterValues.aggregateBy}
             accumulate={filterValues.accumulate}
             includeIdle={filterValues.includeIdle}
-            onWindowChange={(v) => setFilterValues((p) => ({ ...p, window: v }))}
-            onAggregateByChange={(v) => setFilterValues((p) => ({ ...p, aggregateBy: v }))}
-            onAccumulateChange={(v) => setFilterValues((p) => ({ ...p, accumulate: v }))}
-            onIncludeIdleChange={(v) => setFilterValues((p) => ({ ...p, includeIdle: v }))}
+            onWindowChange={(v) =>
+              setFilterValues((p) => ({ ...p, window: v }))
+            }
+            onAggregateByChange={(v) =>
+              setFilterValues((p) => ({ ...p, aggregateBy: v }))
+            }
+            onAccumulateChange={(v) =>
+              setFilterValues((p) => ({ ...p, accumulate: v }))
+            }
+            onIncludeIdleChange={(v) =>
+              setFilterValues((p) => ({ ...p, includeIdle: v }))
+            }
             idPrefix="assets-widget"
           />
         }
@@ -281,7 +327,9 @@ export default function AssetsVisualization() {
         <div className="metric-card">
           <div className="metric-label">Total Assets</div>
           <div className="metric-value">{assets.length}</div>
-          <p className="metric-change text-[#525252]">{typeData.length} types</p>
+          <p className="metric-change text-[#525252]">
+            {typeData.length} types
+          </p>
         </div>
         <div className="metric-card">
           <div className="metric-label">Total Cost</div>
@@ -295,8 +343,12 @@ export default function AssetsVisualization() {
         </div>
         <div className="metric-card">
           <div className="metric-label">Avg Utilization</div>
-          <div className="metric-value">{avgUtilization === null ? "—" : `${avgUtilization}%`}</div>
-          <p className="metric-change text-[#525252]">CPU + Memory (where reported)</p>
+          <div className="metric-value">
+            {avgUtilization === null ? "—" : `${avgUtilization}%`}
+          </div>
+          <p className="metric-change text-[#525252]">
+            CPU + Memory (where reported)
+          </p>
         </div>
       </div>
 
@@ -312,19 +364,33 @@ export default function AssetsVisualization() {
       <div>
         <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e0e0e0]">
           <div>
-            <h4 className="text-base font-semibold text-[#161616]">All Assets</h4>
-            <p className="text-sm text-[#525252]">View and manage infrastructure resources</p>
+            <h4 className="text-base font-semibold text-[#161616]">
+              All Assets
+            </h4>
+            <p className="text-sm text-[#525252]">
+              View and manage infrastructure resources
+            </p>
           </div>
-          <Button kind="ghost" size="sm" renderIcon={Download} onClick={handleExport}>
+          <Button
+            kind="ghost"
+            size="sm"
+            renderIcon={Download}
+            onClick={handleExport}
+          >
             Export CSV
           </Button>
         </div>
 
         <Tabs>
           <TabList aria-label="Asset type tabs">
-            <Tab onClick={() => setSelectedAssetType(null)}>All ({assets.length})</Tab>
+            <Tab onClick={() => setSelectedAssetType(null)}>
+              All ({assets.length})
+            </Tab>
             {typeData.map((type) => (
-              <Tab key={type.type} onClick={() => setSelectedAssetType(type.type)}>
+              <Tab
+                key={type.type}
+                onClick={() => setSelectedAssetType(type.type)}
+              >
                 {type.type} ({type.count})
               </Tab>
             ))}

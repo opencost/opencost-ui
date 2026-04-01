@@ -97,37 +97,37 @@ jobs:
       - name: Run Trivy SBOM for Source Code (SPDX)
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'spdx-json'
-          output: 'opencost-ui-source-sbom.spdx.json'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "spdx-json"
+          output: "opencost-ui-source-sbom.spdx.json"
 
       - name: Run Trivy SBOM for Source Code (CycloneDX)
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'cyclonedx'
-          output: 'opencost-ui-source-sbom.cyclonedx.json'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "cyclonedx"
+          output: "opencost-ui-source-sbom.cyclonedx.json"
 
       # Generate SBOM for container image using Trivy
       - name: Run Trivy SBOM for Container Image (SPDX)
         if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'image'
+          scan-type: "image"
           image-ref: ${{ steps.image_tag.outputs.IMAGE_TAG }}
-          format: 'spdx-json'
-          output: 'opencost-ui-container-sbom.spdx.json'
+          format: "spdx-json"
+          output: "opencost-ui-container-sbom.spdx.json"
 
       - name: Run Trivy SBOM for Container Image (CycloneDX)
         if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'image'
+          scan-type: "image"
           image-ref: ${{ steps.image_tag.outputs.IMAGE_TAG }}
-          format: 'cyclonedx'
-          output: 'opencost-ui-container-sbom.cyclonedx.json'
+          format: "cyclonedx"
+          output: "opencost-ui-container-sbom.cyclonedx.json"
 
       # Display SBOM contents on PRs for review
       - name: Display SBOM Contents

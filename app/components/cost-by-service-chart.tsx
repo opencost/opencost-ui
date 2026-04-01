@@ -24,22 +24,37 @@ interface CloudGraphEntry {
 
 function toDateLabel(start?: string): string {
   if (!start) return "?";
-  return new Date(start).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" });
+  return new Date(start).toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 
-function buildChartData(graphData: CloudGraphEntry[], topN: number): ChartPoint[] {
+function buildChartData(
+  graphData: CloudGraphEntry[],
+  topN: number,
+): ChartPoint[] {
   if (!Array.isArray(graphData)) return [];
   const points: ChartPoint[] = [];
   for (const entry of graphData) {
     if (!Array.isArray(entry.items) || entry.items.length === 0) continue;
     const date = toDateLabel(entry.start);
-    const sorted = [...entry.items].sort((a, b) => (b.cost ?? 0) - (a.cost ?? 0));
+    const sorted = [...entry.items].sort(
+      (a, b) => (b.cost ?? 0) - (a.cost ?? 0),
+    );
     const top = sorted.slice(0, topN);
     const remainder = sorted.slice(topN);
-    const otherCost = remainder.reduce((sum, item) => sum + (item.cost ?? 0), 0);
+    const otherCost = remainder.reduce(
+      (sum, item) => sum + (item.cost ?? 0),
+      0,
+    );
 
     for (const item of top) {
-      points.push({ group: date, key: item.name ?? "unknown", value: item.cost ?? 0 });
+      points.push({
+        group: date,
+        key: item.name ?? "unknown",
+        value: item.cost ?? 0,
+      });
     }
     if (otherCost > 0) {
       points.push({ group: date, key: "other", value: otherCost });
@@ -85,7 +100,12 @@ export default function CostByServiceChart({
     async function load() {
       setLoading(true);
       try {
-        const resp = await CloudCostService.fetchCloudCostData(window, "service", "AmortizedNetCost", []);
+        const resp = await CloudCostService.fetchCloudCostData(
+          window,
+          "service",
+          "AmortizedNetCost",
+          [],
+        );
         if (!cancelled && resp?.graphData) {
           setChartData(buildChartData(resp.graphData, topN));
         } else if (!cancelled) {
@@ -98,7 +118,9 @@ export default function CostByServiceChart({
       }
     }
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [window, topN]);
 
   const chartOptions = useMemo(() => {

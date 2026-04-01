@@ -1,9 +1,13 @@
 import client from "./api-client";
 
-function parseExternalCostFilters(filters: { property: string; value: string }[] | string): string {
+function parseExternalCostFilters(
+  filters: { property: string; value: string }[] | string,
+): string {
   if (typeof filters === "string") return filters;
-  return [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))]
-    .join("+") || "";
+  return (
+    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join("+") ||
+    ""
+  );
 }
 
 class ExternalCostsService {
@@ -15,7 +19,14 @@ class ExternalCostsService {
     sortBy: string,
     sortDirection: string,
   ) {
-    const params = { window: win, aggregate, costType, filter: parseExternalCostFilters(filters), sortBy, sortDirection };
+    const params = {
+      window: win,
+      aggregate,
+      costType,
+      filter: parseExternalCostFilters(filters),
+      sortBy,
+      sortDirection,
+    };
     const result = await client.get("/customCost/timeseries", { params });
     return result.data.data;
   }
@@ -28,7 +39,14 @@ class ExternalCostsService {
     sortBy: string,
     sortDirection: string,
   ) {
-    const params = { window: win, aggregate, costType, filter: parseExternalCostFilters(filters), sortBy, sortDirection };
+    const params = {
+      window: win,
+      aggregate,
+      costType,
+      filter: parseExternalCostFilters(filters),
+      sortBy,
+      sortDirection,
+    };
     const result = await client.get("/customCost/total", { params });
     return result.data.data;
   }

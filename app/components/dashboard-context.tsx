@@ -41,7 +41,7 @@ interface DashboardContextValue {
 }
 
 const DashboardContext = createContext<DashboardContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 const DEFAULT_DASHBOARDS: Dashboard[] = [
@@ -51,9 +51,24 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     description: "Overall cloud cost analysis",
     widgets: [
       { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },
-      { id: "2", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "4" },
-      { id: "3", type: "cost-allocation-table", title: "Cost Breakdown Table", gridSize: "4" },
-      { id: "4", type: "cloud-costs-chart", title: "Cloud Costs", gridSize: "4" },
+      {
+        id: "2",
+        type: "cost-allocation-chart",
+        title: "Cost Allocation",
+        gridSize: "4",
+      },
+      {
+        id: "3",
+        type: "cost-allocation-table",
+        title: "Cost Breakdown Table",
+        gridSize: "4",
+      },
+      {
+        id: "4",
+        type: "cloud-costs-chart",
+        title: "Cloud Costs",
+        gridSize: "4",
+      },
     ],
     tags: ["default"],
     starred: true,
@@ -63,10 +78,21 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
   {
     id: "2",
     name: "Allocations",
-    description: "Cost allocation breakdown by cluster, namespace, and workload",
+    description:
+      "Cost allocation breakdown by cluster, namespace, and workload",
     widgets: [
-      { id: "1", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "4" },
-      { id: "2", type: "cost-allocation-table", title: "Allocation Breakdown Table", gridSize: "4" },
+      {
+        id: "1",
+        type: "cost-allocation-chart",
+        title: "Cost Allocation",
+        gridSize: "4",
+      },
+      {
+        id: "2",
+        type: "cost-allocation-table",
+        title: "Allocation Breakdown Table",
+        gridSize: "4",
+      },
     ],
     tags: ["allocations"],
     starred: false,
@@ -78,8 +104,18 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     name: "Cloud Cost",
     description: "Cloud infrastructure spend and service-level cost breakdown",
     widgets: [
-      { id: "1", type: "cloud-costs-chart", title: "Cloud Costs Chart", gridSize: "4" },
-      { id: "2", type: "cloud-costs-table", title: "Cloud Costs Table", gridSize: "4" },
+      {
+        id: "1",
+        type: "cloud-costs-chart",
+        title: "Cloud Costs Chart",
+        gridSize: "4",
+      },
+      {
+        id: "2",
+        type: "cloud-costs-table",
+        title: "Cloud Costs Table",
+        gridSize: "4",
+      },
     ],
     tags: ["cloud"],
     starred: false,
@@ -89,9 +125,15 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
   {
     id: "4",
     name: "Infra Assets",
-    description: "Infrastructure asset costs, utilization, and carbon emissions",
+    description:
+      "Infrastructure asset costs, utilization, and carbon emissions",
     widgets: [
-      { id: "1", type: "assets-visualization", title: "Infrastructure Assets", gridSize: "4" },
+      {
+        id: "1",
+        type: "assets-visualization",
+        title: "Infrastructure Assets",
+        gridSize: "4",
+      },
     ],
     tags: ["infrastructure"],
     starred: false,
@@ -102,7 +144,8 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
 
 function loadDashboardsFromStorage(): Dashboard[] {
   try {
-    const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    const stored =
+      typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (stored) {
       const parsed = JSON.parse(stored) as Dashboard[];
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -120,8 +163,7 @@ function saveDashboardsToStorage(dashboards: Dashboard[]) {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dashboards));
     }
-  } catch {
-  }
+  } catch {}
 }
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
@@ -150,7 +192,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const updateDashboard = (id: string, updates: Partial<Dashboard>) => {
     setDashboards((prev) => {
       const next = prev.map((d) =>
-        d.id === id ? { ...d, ...updates, updatedAt: new Date().toISOString() } : d
+        d.id === id
+          ? { ...d, ...updates, updatedAt: new Date().toISOString() }
+          : d,
       );
       saveDashboardsToStorage(next);
       return next;

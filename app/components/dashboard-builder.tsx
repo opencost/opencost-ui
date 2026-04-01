@@ -4,15 +4,40 @@ import { Add, TrashCan, Copy, ArrowLeft } from "@carbon/icons-react";
 import type { Widget } from "./dashboard-context";
 
 const WIDGET_TYPES = [
-  { value: "summary-cards", label: "Cost Summary", description: "Key metrics overview" },
-  { value: "cloud-costs-chart", label: "Cloud Costs Chart", description: "Cloud infrastructure costs over time" },
-  { value: "cloud-costs-table", label: "Cloud Costs Table", description: "Cloud service spend with utilization and totals" },
-  { value: "cost-allocation-chart", label: "Cost Allocation", description: "Cost breakdown by cluster, namespace, pod, or other dimension" },
+  {
+    value: "summary-cards",
+    label: "Cost Summary",
+    description: "Key metrics overview",
+  },
+  {
+    value: "cloud-costs-chart",
+    label: "Cloud Costs Chart",
+    description: "Cloud infrastructure costs over time",
+  },
+  {
+    value: "cloud-costs-table",
+    label: "Cloud Costs Table",
+    description: "Cloud service spend with utilization and totals",
+  },
+  {
+    value: "cost-allocation-chart",
+    label: "Cost Allocation",
+    description:
+      "Cost breakdown by cluster, namespace, pod, or other dimension",
+  },
   // { value: "external-services-chart", label: "External Services Costs", description: "Third-party service costs" },
-  { value: "cost-allocation-table", label: "Allocation Breakdown Table", description: "Detailed allocation breakdown by resource" },
+  {
+    value: "cost-allocation-table",
+    label: "Allocation Breakdown Table",
+    description: "Detailed allocation breakdown by resource",
+  },
   // { value: "anomaly-detection", label: "Anomaly Detection", description: "Unusual spending patterns" },
   // { value: "carbon-metrics", label: "Carbon & Sustainability", description: "Environmental impact tracking" },
-  { value: "assets-visualization", label: "Infrastructure Assets", description: "Cost, utilization, and carbon emissions by asset" },
+  {
+    value: "assets-visualization",
+    label: "Infrastructure Assets",
+    description: "Cost, utilization, and carbon emissions by asset",
+  },
 ];
 
 interface DashboardBuilderProps {
@@ -34,12 +59,22 @@ export default function DashboardBuilder({
     initialWidgets.length > 0
       ? initialWidgets
       : [
-          { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },
-          { id: "2", type: "cloud-costs-chart", title: "Cloud Costs", gridSize: "2" },
+          {
+            id: "1",
+            type: "summary-cards",
+            title: "Cost Summary",
+            gridSize: "4",
+          },
+          {
+            id: "2",
+            type: "cloud-costs-chart",
+            title: "Cloud Costs",
+            gridSize: "2",
+          },
           // { id: "5", type: "cloud-costs-table", title: "Cloud Costs Table", gridSize: "2" },
           // { id: "3", type: "cost-allocation-chart", title: "Cost Allocation", gridSize: "2" },
           // { id: "4", type: "external-services-chart", title: "External Services Costs", gridSize: "2" },
-        ]
+        ],
   );
   const [selectedWidget, setSelectedWidget] = useState<Widget | null>(null);
   const [showAddWidget, setShowAddWidget] = useState(false);
@@ -76,7 +111,12 @@ export default function DashboardBuilder({
     <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
-          <Button kind="ghost" size="sm" onClick={onCancel} iconDescription="Back">
+          <Button
+            kind="ghost"
+            size="sm"
+            onClick={onCancel}
+            iconDescription="Back"
+          >
             <ArrowLeft className="mr-[0.375rem]" />
             Back
           </Button>
@@ -90,8 +130,12 @@ export default function DashboardBuilder({
           </div>
         </div>
         <div className="flex gap-2">
-          <Button kind="secondary" onClick={onCancel}>Cancel</Button>
-          <Button kind="primary" onClick={() => onSave(widgets)}>Save Layout</Button>
+          <Button kind="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button kind="primary" onClick={() => onSave(widgets)}>
+            Save Layout
+          </Button>
         </div>
       </div>
 
@@ -101,7 +145,10 @@ export default function DashboardBuilder({
             key={widget.id}
             className={`dashboard-grid-item-${widget.gridSize}`}
             style={{
-              border: selectedWidget?.id === widget.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
+              border:
+                selectedWidget?.id === widget.id
+                  ? "2px solid #0f62fe"
+                  : "1px solid #e0e0e0",
             }}
             onClick={() => setSelectedWidget(widget)}
           >
@@ -109,7 +156,10 @@ export default function DashboardBuilder({
               <div>
                 <h3 className="text-base font-semibold mb-2">{widget.title}</h3>
                 <p className="text-sm text-[#525252]">
-                  {WIDGET_TYPES.find((w) => w.value === widget.type)?.description}
+                  {
+                    WIDGET_TYPES.find((w) => w.value === widget.type)
+                      ?.description
+                  }
                 </p>
               </div>
               {!isDefaultDashboard && (
@@ -118,7 +168,10 @@ export default function DashboardBuilder({
                     kind="ghost"
                     size="sm"
                     renderIcon={Copy}
-                    onClick={(e) => { e.stopPropagation(); duplicateWidget(widget); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateWidget(widget);
+                    }}
                   >
                     Duplicate
                   </Button>
@@ -126,7 +179,10 @@ export default function DashboardBuilder({
                     kind="danger--ghost"
                     size="sm"
                     renderIcon={TrashCan}
-                    onClick={(e) => { e.stopPropagation(); deleteWidget(widget.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteWidget(widget.id);
+                    }}
                   >
                     Remove
                   </Button>
@@ -144,7 +200,9 @@ export default function DashboardBuilder({
             <div className="p-4 cursor-pointer min-h-[200px] flex items-center justify-center">
               <div className="text-center">
                 <Add size={32} style={{ color: "#0f62fe" }} className="mb-2" />
-                <p className="text-sm font-semibold text-[#0f62fe]">Add Widget</p>
+                <p className="text-sm font-semibold text-[#0f62fe]">
+                  Add Widget
+                </p>
               </div>
             </div>
           </Tile>
@@ -158,7 +216,9 @@ export default function DashboardBuilder({
             id="widget-size"
             labelText="Widget Size"
             value={selectedWidget.gridSize}
-            onChange={(e) => updateWidget(selectedWidget.id, { gridSize: e.target.value })}
+            onChange={(e) =>
+              updateWidget(selectedWidget.id, { gridSize: e.target.value })
+            }
           >
             <SelectItem value="1" text="1 Column" />
             <SelectItem value="2" text="2 Columns" />
@@ -185,7 +245,11 @@ export default function DashboardBuilder({
             onChange={(e) => setNewWidgetType(e.target.value)}
           >
             {WIDGET_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value} text={type.label} />
+              <SelectItem
+                key={type.value}
+                value={type.value}
+                text={type.label}
+              />
             ))}
           </Select>
           <p className="text-sm text-[#525252] mt-2">

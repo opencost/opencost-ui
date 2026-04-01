@@ -1,4 +1,3 @@
- 
 import * as React from "react";
 import Page from "~/components/legacy/Page";
 import Header from "~/components/legacy/Header";
@@ -32,7 +31,9 @@ const ExternalCosts = () => {
   const [costType, setCostType] = React.useState(costTypeOptions[0].value);
   const [sortBy, setSortBy] = React.useState("cost");
   const [sortDirection, setSortDirection] = React.useState("desc");
-  const [aggregateBy, setAggregateBy] = React.useState(aggregationOptions[0].value);
+  const [aggregateBy, setAggregateBy] = React.useState(
+    aggregationOptions[0].value,
+  );
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
 
@@ -49,28 +50,58 @@ const ExternalCosts = () => {
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
 
-  async function initialize() { setInit(true); }
+  async function initialize() {
+    setInit(true);
+  }
 
   async function fetchChartData() {
     try {
-      const resp = await ExternalCostsService.fetchExternalGraphCosts(window, aggregateBy, filters, costType, sortBy, sortDirection);
+      const resp = await ExternalCostsService.fetchExternalGraphCosts(
+        window,
+        aggregateBy,
+        filters,
+        costType,
+        sortBy,
+        sortDirection,
+      );
       if (resp) setExternalCostData(resp);
       else setExternalCostData([]);
     } catch (err) {
       console.log(err);
-      setErrors([{ primary: "Failed to load report data", secondary: err.message || "Please open an Issue with OpenCost if problems persist." }]);
+      setErrors([
+        {
+          primary: "Failed to load report data",
+          secondary:
+            err.message ||
+            "Please open an Issue with OpenCost if problems persist.",
+        },
+      ]);
       setExternalCostData([]);
     }
   }
 
   async function fetchTableData() {
     try {
-      const resp = await ExternalCostsService.fetchExternalTableCosts(window, aggregateBy, filters, costType, sortBy, sortDirection);
+      const resp = await ExternalCostsService.fetchExternalTableCosts(
+        window,
+        aggregateBy,
+        filters,
+        costType,
+        sortBy,
+        sortDirection,
+      );
       if (resp) setExternalCostTableData(resp);
       else setExternalCostTableData([]);
     } catch (err) {
       console.log(err);
-      setErrors([{ primary: "Failed to load report data", secondary: err.message || "Please open an Issue with OpenCost if problems persist." }]);
+      setErrors([
+        {
+          primary: "Failed to load report data",
+          secondary:
+            err.message ||
+            "Please open an Issue with OpenCost if problems persist.",
+        },
+      ]);
       setExternalCostTableData([]);
     }
   }
@@ -84,8 +115,18 @@ const ExternalCosts = () => {
   }
 
   function drilldown(row) {
-    if (["domain", "accountName", "resourceType", "resourceName"].includes(aggregateBy)) {
-      setFilters([...filters, { property: aggregateBy, value: row[aggToKeyMapExternalCosts[aggregateBy]] }]);
+    if (
+      ["domain", "accountName", "resourceType", "resourceName"].includes(
+        aggregateBy,
+      )
+    ) {
+      setFilters([
+        ...filters,
+        {
+          property: aggregateBy,
+          value: row[aggToKeyMapExternalCosts[aggregateBy]],
+        },
+      ]);
       if (aggregateBy === "domain") setAggregateBy("accountName");
       else if (aggregateBy === "accountName") setAggregateBy("resourceType");
       else if (aggregateBy === "resourceType") setAggregateBy("resourceName");
@@ -107,12 +148,18 @@ const ExternalCosts = () => {
     if (init || fetch) fetchData();
   }, [init, fetch]);
 
-  React.useEffect(() => { setFetch(!fetch); }, [window, aggregateBy, filters, costType, sortBy, sortDirection]);
+  React.useEffect(() => {
+    setFetch(!fetch);
+  }, [window, aggregateBy, filters, costType, sortBy, sortDirection]);
 
   return (
     <Page active="cloud.html">
       <Header headerTitle="External Costs">
-        <IconButton aria-label="refresh" onClick={() => setFetch(true)} style={{ padding: 12 }}>
+        <IconButton
+          aria-label="refresh"
+          onClick={() => setFetch(true)}
+          style={{ padding: 12 }}
+        >
           <RefreshIcon />
         </IconButton>
       </Header>
@@ -126,11 +173,21 @@ const ExternalCosts = () => {
           <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
             <ExternalCostsControls
               costType={costType}
-              setCostType={(type) => { searchParams.set("costType", type); navigate({ search: `?${searchParams.toString()}` }); }}
+              setCostType={(type) => {
+                searchParams.set("costType", type);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
               window={window}
-              setWindow={(win) => { searchParams.set("window", win); navigate({ search: `?${searchParams.toString()}` }); }}
+              setWindow={(win) => {
+                searchParams.set("window", win);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
               aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => { setFilters([]); searchParams.set("agg", agg); navigate({ search: `?${searchParams.toString()}` }); }}
+              setAggregateBy={(agg) => {
+                setFilters([]);
+                searchParams.set("agg", agg);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
             />
           </div>
 
@@ -150,7 +207,11 @@ const ExternalCosts = () => {
               aggregateBy={aggregateBy}
             />
           )}
-          <Button style={{ margin: ".5em" }} variant="outlined" onClick={() => setFilters([])}>
+          <Button
+            style={{ margin: ".5em" }}
+            variant="outlined"
+            onClick={() => setFilters([])}
+          >
             Clear Filters
           </Button>
           {!loading && (
@@ -161,7 +222,10 @@ const ExternalCosts = () => {
             />
           )}
           {showModal && (
-            <ExternalCostDetails row={showModal} onClose={() => setShowModal(null)} />
+            <ExternalCostDetails
+              row={showModal}
+              onClose={() => setShowModal(null)}
+            />
           )}
         </Paper>
       )}

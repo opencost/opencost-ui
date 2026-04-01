@@ -185,7 +185,11 @@ export function AllocationFilterControls({
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
-      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))" }}
+      style={{
+        gridTemplateColumns: compact
+          ? "repeat(auto-fit, minmax(120px, 1fr))"
+          : "repeat(auto-fit, minmax(160px, 1fr))",
+      }}
     >
       <Select
         id={`${idPrefix}-window`}
@@ -270,7 +274,11 @@ export function CloudFilterControls({
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
-      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(140px, 1fr))" }}
+      style={{
+        gridTemplateColumns: compact
+          ? "repeat(auto-fit, minmax(120px, 1fr))"
+          : "repeat(auto-fit, minmax(140px, 1fr))",
+      }}
     >
       <Select
         id={`${idPrefix}-window`}
@@ -348,7 +356,11 @@ export function AssetsFilterControls({
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
-      style={{ gridTemplateColumns: compact ? "repeat(auto-fit, minmax(120px, 1fr))" : "repeat(auto-fit, minmax(160px, 1fr))" }}
+      style={{
+        gridTemplateColumns: compact
+          ? "repeat(auto-fit, minmax(120px, 1fr))"
+          : "repeat(auto-fit, minmax(160px, 1fr))",
+      }}
     >
       <Select
         id={`${idPrefix}-window`}

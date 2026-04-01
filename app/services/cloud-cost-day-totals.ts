@@ -8,11 +8,18 @@ const costMetricToPropName: Record<string, string> = {
   InvoicedCost: "invoicedCost",
 };
 
-function formatItemsForCost({ data, costType }: { data: any; costType?: string }) {
+function formatItemsForCost({
+  data,
+  costType,
+}: {
+  data: any;
+  costType?: string;
+}) {
   return data.sets.map(({ cloudCosts, window }: any) => ({
     date: window.start,
     cost: Object.values(cloudCosts).reduce(
-      (acc: number, costs: any) => acc + costs[costType || "amortizedNetCost"].cost,
+      (acc: number, costs: any) =>
+        acc + costs[costType || "amortizedNetCost"].cost,
       0,
     ),
   }));
@@ -31,7 +38,9 @@ class CloudCostDayTotalsService {
       );
       const costMetricProp = costMetricToPropName[costMetric];
       const result = resp.data;
-      return { data: formatItemsForCost({ data: result, costType: costMetricProp }) };
+      return {
+        data: formatItemsForCost({ data: result, costType: costMetricProp }),
+      };
     }
     return [];
   }

@@ -11,7 +11,11 @@ import {
 } from "@carbon/react";
 import CloudCostService from "~/services/cloud-cost";
 import { toCurrency } from "~/lib/legacy-util";
-import { CloudFilterControls, DEFAULT_CLOUD_FILTERS, FilterableWidgetHeader } from "./scoped-views";
+import {
+  CloudFilterControls,
+  DEFAULT_CLOUD_FILTERS,
+  FilterableWidgetHeader,
+} from "./scoped-views";
 
 interface CloudCostRow {
   name?: string;
@@ -61,7 +65,10 @@ export default function CloudCostTableWidget({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({
     key: "cost",
     direction: "desc",
   });
@@ -71,7 +78,12 @@ export default function CloudCostTableWidget({
     async function load() {
       setLoading(true);
       try {
-        const resp = await CloudCostService.fetchCloudCostData(window, aggregateBy, costMetric, []);
+        const resp = await CloudCostService.fetchCloudCostData(
+          window,
+          aggregateBy,
+          costMetric,
+          [],
+        );
         if (!cancelled) {
           setRows(Array.isArray(resp?.tableRows) ? resp.tableRows : []);
           setTotals(resp?.tableTotal ?? null);
@@ -115,7 +127,14 @@ export default function CloudCostTableWidget({
 
   useEffect(() => {
     setPage(1);
-  }, [window, aggregateBy, costMetric, totalRows, sortConfig.key, sortConfig.direction]);
+  }, [
+    window,
+    aggregateBy,
+    costMetric,
+    totalRows,
+    sortConfig.key,
+    sortConfig.direction,
+  ]);
 
   const setFilter = (key: keyof typeof localFilters, value: string) => {
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
@@ -145,63 +164,92 @@ export default function CloudCostTableWidget({
       {loading ? (
         <div className="p-8 text-center text-[#8d8d8d]">Loading...</div>
       ) : rows.length === 0 ? (
-        <div className="p-8 text-center text-[#8d8d8d]">No cloud cost data available.</div>
+        <div className="p-8 text-center text-[#8d8d8d]">
+          No cloud cost data available.
+        </div>
       ) : (
         <>
-        <TableContainer>
-        <Table size="md" useZebraStyles>
-          <TableHead>
-            <TableRow>
-              {headers.map((header) => (
-                <TableHeader
-                  key={header.key}
-                  isSortable={header.isSortable}
-                  sortDirection={sortConfig.key === header.key ? (sortConfig.direction === "desc" ? "DESC" : "ASC") : "NONE"}
-                  onClick={() =>
-                    setSortConfig((prev) => ({
-                      key: header.key,
-                      direction: prev.key === header.key && prev.direction === "desc" ? "asc" : "desc",
-                    }))
-                  }
-                >
-                  {header.header}
-                </TableHeader>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow className="font-semibold">
-              <TableCell>{totals?.name || "Totals"}</TableCell>
-              <TableCell>{Math.round((totals?.kubernetesPercent ?? 0) * 100)}%</TableCell>
-              <TableCell>{toCurrency(Number(totals?.cost ?? 0), currency)}</TableCell>
-            </TableRow>
-            {pageRows.map((row, index) => (
-              <TableRow key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}>
-                <TableCell>{String(row.labelName ?? row.name ?? "")}</TableCell>
-                <TableCell>{Math.round((Number(row.kubernetesPercent) || 0) * 100)}%</TableCell>
-                <TableCell>{toCurrency(Number(row.cost ?? 0), currency)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          <TableContainer>
+            <Table size="md" useZebraStyles>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => (
+                    <TableHeader
+                      key={header.key}
+                      isSortable={header.isSortable}
+                      sortDirection={
+                        sortConfig.key === header.key
+                          ? sortConfig.direction === "desc"
+                            ? "DESC"
+                            : "ASC"
+                          : "NONE"
+                      }
+                      onClick={() =>
+                        setSortConfig((prev) => ({
+                          key: header.key,
+                          direction:
+                            prev.key === header.key && prev.direction === "desc"
+                              ? "asc"
+                              : "desc",
+                        }))
+                      }
+                    >
+                      {header.header}
+                    </TableHeader>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow className="font-semibold">
+                  <TableCell>{totals?.name || "Totals"}</TableCell>
+                  <TableCell>
+                    {Math.round((totals?.kubernetesPercent ?? 0) * 100)}%
+                  </TableCell>
+                  <TableCell>
+                    {toCurrency(Number(totals?.cost ?? 0), currency)}
+                  </TableCell>
+                </TableRow>
+                {pageRows.map((row, index) => (
+                  <TableRow
+                    key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
+                  >
+                    <TableCell>
+                      {String(row.labelName ?? row.name ?? "")}
+                    </TableCell>
+                    <TableCell>
+                      {Math.round((Number(row.kubernetesPercent) || 0) * 100)}%
+                    </TableCell>
+                    <TableCell>
+                      {toCurrency(Number(row.cost ?? 0), currency)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-      {totalPages > 1 && (
-        <Pagination
-          backwardText="Previous"
-          forwardText="Next"
-          itemsPerPageText="Items per page:"
-          page={page}
-          pageNumberText="Page"
-          pageSize={pageSize}
-          pageSizes={[10, 25, 50]}
-          totalItems={totalRows}
-          onChange={({ page: nextPage, pageSize: nextPageSize }: { page?: number; pageSize?: number }) => {
-            if (nextPage !== undefined) setPage(nextPage);
-            if (nextPageSize !== undefined) setPageSize(nextPageSize);
-          }}
-        />
-      )}
+          {totalPages > 1 && (
+            <Pagination
+              backwardText="Previous"
+              forwardText="Next"
+              itemsPerPageText="Items per page:"
+              page={page}
+              pageNumberText="Page"
+              pageSize={pageSize}
+              pageSizes={[10, 25, 50]}
+              totalItems={totalRows}
+              onChange={({
+                page: nextPage,
+                pageSize: nextPageSize,
+              }: {
+                page?: number;
+                pageSize?: number;
+              }) => {
+                if (nextPage !== undefined) setPage(nextPage);
+                if (nextPageSize !== undefined) setPageSize(nextPageSize);
+              }}
+            />
+          )}
         </>
       )}
     </div>

@@ -52,7 +52,9 @@ function WidgetRenderer({
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <p className="text-sm text-[#525252] mb-4">Third-party service costs</p>
+          <p className="text-sm text-[#525252] mb-4">
+            Third-party service costs
+          </p>
           <ExternalServicesChartWidget />
         </Tile>
       );
@@ -73,14 +75,18 @@ function WidgetRenderer({
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[#525252]">Anomaly detection widget</div>
+          <div className="p-8 text-center text-[#525252]">
+            Anomaly detection widget
+          </div>
         </Tile>
       );
     case "carbon-metrics":
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[#525252]">Carbon metrics widget</div>
+          <div className="p-8 text-center text-[#525252]">
+            Carbon metrics widget
+          </div>
         </Tile>
       );
     default:
@@ -106,14 +112,24 @@ function encodeDashboardShare(dashboard: Dashboard): string {
   return encodeURIComponent(btoa(JSON.stringify(payload)));
 }
 
-export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {
+export default function DashboardView({
+  dashboard,
+  onBack,
+  onUpdateWidgets,
+}: DashboardViewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(dashboard.widgets);
+  const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(
+    dashboard.widgets,
+  );
   const [shareToast, setShareToast] = useState<"copied" | "error" | null>(null);
   const isDefaultDashboard = dashboard.id === DEFAULT_DASHBOARD_ID;
 
-  const hasAllocationChart = currentWidgets.some((w) => w.type === "cost-allocation-chart");
-  const hasAllocationTable = currentWidgets.some((w) => w.type === "cost-allocation-table" || w.type === "cost-table");
+  const hasAllocationChart = currentWidgets.some(
+    (w) => w.type === "cost-allocation-chart",
+  );
+  const hasAllocationTable = currentWidgets.some(
+    (w) => w.type === "cost-allocation-table" || w.type === "cost-table",
+  );
   const useSharedAllocationFilters = hasAllocationChart && hasAllocationTable;
 
   const handleSaveLayout = (newWidgets: Widget[]) => {
@@ -124,7 +140,10 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
 
   const handleShareDashboard = async () => {
     try {
-      const encoded = encodeDashboardShare({ ...dashboard, widgets: currentWidgets });
+      const encoded = encodeDashboardShare({
+        ...dashboard,
+        widgets: currentWidgets,
+      });
       const url = `${window.location.origin}/?share=${encoded}`;
       await navigator.clipboard.writeText(url);
       setShareToast("copied");
@@ -151,7 +170,12 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
     <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
       <div className="flex items-center justify-between mb-6 pt-2">
         <div className="flex items-center gap-4">
-          <Button kind="ghost" size="sm" onClick={onBack} iconDescription="Back">
+          <Button
+            kind="ghost"
+            size="sm"
+            onClick={onBack}
+            iconDescription="Back"
+          >
             <ArrowLeft className="mr-[0.375rem]" />
             Back
           </Button>
@@ -161,9 +185,20 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <OverflowMenu renderIcon={OverflowMenuVertical} iconDescription="More options" flipped size="sm">
-            <OverflowMenuItem itemText="Edit Layout" onClick={() => setIsEditMode(true)} />
-            <OverflowMenuItem itemText="Share Dashboard" onClick={handleShareDashboard} />
+          <OverflowMenu
+            renderIcon={OverflowMenuVertical}
+            iconDescription="More options"
+            flipped
+            size="sm"
+          >
+            <OverflowMenuItem
+              itemText="Edit Layout"
+              onClick={() => setIsEditMode(true)}
+            />
+            <OverflowMenuItem
+              itemText="Share Dashboard"
+              onClick={handleShareDashboard}
+            />
             <OverflowMenuItem
               itemText="Delete Dashboard"
               hasDivider
@@ -179,8 +214,14 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
           <AllocationFiltersProvider>
             <div className="dashboard-grid">
               {currentWidgets.map((widget) => (
-                <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
-                  <WidgetRenderer widget={widget} useSharedAllocationFilters={true} />
+                <div
+                  key={widget.id}
+                  className={`dashboard-grid-item-${widget.gridSize}`}
+                >
+                  <WidgetRenderer
+                    widget={widget}
+                    useSharedAllocationFilters={true}
+                  />
                 </div>
               ))}
             </div>
@@ -188,8 +229,14 @@ export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: Da
         ) : (
           <div className="dashboard-grid">
             {currentWidgets.map((widget) => (
-              <div key={widget.id} className={`dashboard-grid-item-${widget.gridSize}`}>
-                <WidgetRenderer widget={widget} useSharedAllocationFilters={false} />
+              <div
+                key={widget.id}
+                className={`dashboard-grid-item-${widget.gridSize}`}
+              >
+                <WidgetRenderer
+                  widget={widget}
+                  useSharedAllocationFilters={false}
+                />
               </div>
             ))}
           </div>

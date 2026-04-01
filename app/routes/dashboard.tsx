@@ -24,9 +24,7 @@ export default function DashboardPage() {
           </HeaderName>
         </Header>
         <main className="pt-12 p-[4rem_2rem] text-center">
-          <h2 className="text-2xl font-semibold mb-4">
-            Dashboard not found
-          </h2>
+          <h2 className="text-2xl font-semibold mb-4">Dashboard not found</h2>
           <p className="text-[#525252] mb-6">
             The dashboard you are looking for does not exist.
           </p>

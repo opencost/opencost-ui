@@ -23,7 +23,7 @@ const DashboardApp = lazy(() =>
         <Outlet />
       </m.DashboardProvider>
     ),
-  }))
+  })),
 );
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -45,7 +45,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const content = isLegacyMode ? <Outlet /> : (
+  const content = isLegacyMode ? (
+    <Outlet />
+  ) : (
     <Suspense fallback={null}>
       <DashboardApp />
     </Suspense>
@@ -75,9 +77,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <main className="p-[4rem_2rem] max-w-[600px] mx-auto">
-      <h1 className="text-[2rem] font-bold mb-4">
-        {message}
-      </h1>
+      <h1 className="text-[2rem] font-bold mb-4">{message}</h1>
       <p className="text-[#525252] mb-4">{details}</p>
       {stack && (
         <pre className="bg-[#f4f4f4] p-4 overflow-x-auto text-[0.8rem]">

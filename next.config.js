@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   sassOptions: {
-    includePaths: ['./node_modules'],
+    includePaths: ["./node_modules"],
   },
 };
 

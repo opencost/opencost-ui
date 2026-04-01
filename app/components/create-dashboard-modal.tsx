@@ -122,7 +122,12 @@ export default function CreateDashboardModal({
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-2">
               {tags.map((tag) => (
-                <Tag key={tag} type="gray" filter onClose={() => handleRemoveTag(tag)}>
+                <Tag
+                  key={tag}
+                  type="gray"
+                  filter
+                  onClose={() => handleRemoveTag(tag)}
+                >
                   {tag}
                 </Tag>
               ))}

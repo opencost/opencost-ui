@@ -1,7 +1,7 @@
 import { formatSampleItemsForGraph, parseFilters } from "~/lib/legacy-util";
 import client from "./api-client";
 
-const CACHE_TTL_MS = 30_000; 
+const CACHE_TTL_MS = 30_000;
 
 function buildCacheKey(
   window: string,
@@ -13,7 +13,9 @@ function buildCacheKey(
     filters && filters.length > 0
       ? JSON.stringify(
           [...filters].sort(
-            (a, b) => a.property.localeCompare(b.property) || a.value.localeCompare(b.value),
+            (a, b) =>
+              a.property.localeCompare(b.property) ||
+              a.value.localeCompare(b.value),
           ),
         )
       : "";

@@ -1,4 +1,3 @@
- 
 import * as React from "react";
 import Page from "~/components/legacy/Page";
 import Header from "~/components/legacy/Header";
@@ -31,10 +30,16 @@ export function meta() {
 }
 
 const CloudCosts = () => {
-  const [title, setTitle] = React.useState("Cumulative cost for last 7 days by account");
+  const [title, setTitle] = React.useState(
+    "Cumulative cost for last 7 days by account",
+  );
   const [window, setWindow] = React.useState(windowOptions[0].value);
-  const [aggregateBy, setAggregateBy] = React.useState(aggregationOptions[0].value);
-  const [costMetric, setCostMetric] = React.useState(costMetricOptions[0].value);
+  const [aggregateBy, setAggregateBy] = React.useState(
+    aggregationOptions[0].value,
+  );
+  const [costMetric, setCostMetric] = React.useState(
+    costMetricOptions[0].value,
+  );
   const [filters, setFilters] = React.useState([]);
   const [currency, setCurrency] = React.useState("USD");
   const [selectedProviderId, setSelectedProviderId] = React.useState("");
@@ -53,8 +58,13 @@ const CloudCosts = () => {
       if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window);
       else console.warn(`unknown window: ${window}`);
     }
-    let aggregationName = get(find(aggregationOptions, { value: aggregateBy }), "name", "").toLowerCase();
-    if (aggregationName === "") console.warn(`unknown aggregation: ${aggregateBy}`);
+    let aggregationName = get(
+      find(aggregationOptions, { value: aggregateBy }),
+      "name",
+      "",
+    ).toLowerCase();
+    if (aggregationName === "")
+      console.warn(`unknown aggregation: ${aggregateBy}`);
     let str = `Cumulative cost for ${windowName} by ${aggregationName}`;
     if (!costMetric) str = `${str} amoritizedNetCost`;
     return str;
@@ -64,29 +74,52 @@ const CloudCosts = () => {
   const searchParams = new URLSearchParams(routerLocation.search);
   const navigate = useNavigate();
 
-  async function initialize() { setInit(true); }
+  async function initialize() {
+    setInit(true);
+  }
 
   async function fetchData() {
     setLoading(true);
     setErrors([]);
     try {
-      const resp = await CloudCostService.fetchCloudCostData(window, aggregateBy, costMetric, filters);
+      const resp = await CloudCostService.fetchCloudCostData(
+        window,
+        aggregateBy,
+        costMetric,
+        filters,
+      );
       if (resp) {
         setCloudCostData(resp);
       } else {
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
-          if (match && match.length > 0) secondary = `${match[1]}. ${secondary}`;
-          setErrors([{ primary: "Data unavailable while ETL is building", secondary }]);
+          if (match && match.length > 0)
+            secondary = `${match[1]}. ${secondary}`;
+          setErrors([
+            { primary: "Data unavailable while ETL is building", secondary },
+          ]);
         }
         setCloudCostData([]);
       }
     } catch (err) {
       if (err.message.indexOf("404") === 0) {
-        setErrors([{ primary: "Failed to load report data", secondary: "Please update OpenCost to the latest version, and open an Issue if problems persist." }]);
+        setErrors([
+          {
+            primary: "Failed to load report data",
+            secondary:
+              "Please update OpenCost to the latest version, and open an Issue if problems persist.",
+          },
+        ]);
       } else {
-        setErrors([{ primary: "Failed to load report data", secondary: err.message || "Please open an Issue with OpenCost if problems persist." }]);
+        setErrors([
+          {
+            primary: "Failed to load report data",
+            secondary:
+              err.message ||
+              "Please open an Issue with OpenCost if problems persist.",
+          },
+        ]);
       }
       setCloudCostData([]);
     }
@@ -98,13 +131,18 @@ const CloudCosts = () => {
       try {
         setSelectedProviderId(row.providerID);
         setselectedItemName(row.labelName ?? row.name);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
       return;
     }
     const nameParts = row.name.split("/");
     const nextAgg = aggregateBy.includes("service") ? "item" : "service";
     const aggToString = [aggregateBy];
-    const newFilters = aggToString.map((property, i) => ({ property, value: nameParts[i] }));
+    const newFilters = aggToString.map((property, i) => ({
+      property,
+      value: nameParts[i],
+    }));
     setFilters(newFilters);
     setAggregateBy(nextAgg);
   }
@@ -128,13 +166,21 @@ const CloudCosts = () => {
 
   React.useEffect(() => {
     if (currency !== "USD") {
-      setErrors([{ primary: "Currency Conversion in Use", secondary: "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill." }]);
+      setErrors([
+        {
+          primary: "Currency Conversion in Use",
+          secondary:
+            "Forex rates may differ between the API and your cloud provider, potentially causing cost discrepancies. Always verify with your actual cloud bill.",
+        },
+      ]);
     } else {
       setErrors([]);
     }
   }, [currency]);
 
-  const hasCloudCostEnabled = aggregateBy.includes("item") ? true : !!cloudCostData.cloudCostStatus?.length;
+  const hasCloudCostEnabled = aggregateBy.includes("item")
+    ? true
+    : !!cloudCostData.cloudCostStatus?.length;
 
   const enabledWarnings = [
     {
@@ -142,7 +188,10 @@ const CloudCosts = () => {
       secondary: (
         <>
           Learn more about setting up Cloud Costs{" "}
-          <Link href={"https://www.opencost.io/docs/configuration/#cloud-costs"} target="_blank">
+          <Link
+            href={"https://www.opencost.io/docs/configuration/#cloud-costs"}
+            target="_blank"
+          >
             here
           </Link>
         </>
@@ -180,17 +229,30 @@ const CloudCosts = () => {
             <CloudCostEditControls
               windowOptions={windowOptions}
               window={window}
-              setWindow={(win) => { searchParams.set("window", win); navigate({ search: `?${searchParams.toString()}` }); }}
+              setWindow={(win) => {
+                searchParams.set("window", win);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
               aggregationOptions={aggregationOptions}
               aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => { setFilters([]); searchParams.set("agg", agg); navigate({ search: `?${searchParams.toString()}` }); }}
+              setAggregateBy={(agg) => {
+                setFilters([]);
+                searchParams.set("agg", agg);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
               costMetricOptions={costMetricOptions}
               costMetric={costMetric}
-              setCostMetric={(c) => { searchParams.set("costMetric", c); navigate({ search: `?${searchParams.toString()}` }); }}
+              setCostMetric={(c) => {
+                searchParams.set("costMetric", c);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
               title={title}
               currency={currency}
               currencyOptions={currencyCodes}
-              setCurrency={(curr) => { searchParams.set("currency", curr); navigate({ search: `?${searchParams.toString()}` }); }}
+              setCurrency={(curr) => {
+                searchParams.set("currency", curr);
+                navigate({ search: `?${searchParams.toString()}` });
+              }}
             />
           </div>
 
@@ -214,7 +276,10 @@ const CloudCosts = () => {
           )}
           {selectedProviderId && selectedItemName && (
             <CloudCostDetails
-              onClose={() => { setSelectedProviderId(""); setselectedItemName(""); }}
+              onClose={() => {
+                setSelectedProviderId("");
+                setselectedItemName("");
+              }}
               selectedProviderId={selectedProviderId}
               selectedItem={selectedItemName}
               agg={aggregateBy}

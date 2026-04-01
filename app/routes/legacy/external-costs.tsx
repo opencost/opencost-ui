@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import * as React from "react";
 import Page from "~/components/legacy/Page";
 import Header from "~/components/legacy/Header";

@@ -29,6 +29,7 @@ ENV HEAD=${commit}
 ENV API_PORT=9003
 ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
+ENV UI_PATH=${ui_path}
 
 RUN mkdir -p /var/www /var/www/legacy
 

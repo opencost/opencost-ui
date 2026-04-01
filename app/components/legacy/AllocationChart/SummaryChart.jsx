@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import React from "react";
 import { PieChart, Pie, Cell } from "recharts";
 import { primary, greyscale, browns } from "../../../constants/colors";

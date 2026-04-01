@@ -51,10 +51,10 @@ server {
     }
 
     add_header Cache-Control "max-age=300";
-    location / {
-        root ${NGINX_ROOT};
+    location ${UI_PATH} {
+        alias ${NGINX_ROOT}/;
         index index.html index.htm;
-        try_files $uri /index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     add_header ETag "1.96.0";

@@ -12,7 +12,7 @@ build IMAGE_TAG RELEASE_VERSION:
     docker buildx build \
         --rm \
         --platform "linux/amd64" \
-        -f 'Dockerfile' \
+        -f 'Dockerfile.cross' \
         --provenance=false \
         -t {{IMAGE_TAG}}-amd64 \
         --build-arg version={{RELEASE_VERSION}} \

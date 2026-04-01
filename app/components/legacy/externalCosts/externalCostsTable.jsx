@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import * as React from "react";
 import {
   Typography,

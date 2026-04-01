@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import React, { memo, useEffect, useState } from "react";
 import { forEach, get, reverse, round, sortBy } from "lodash";
 import CircularProgress from "@mui/material/CircularProgress";

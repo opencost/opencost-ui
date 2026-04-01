@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
 import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
 import { useDashboard, timeAgo, type Widget } from "~/components/dashboard-context";
@@ -14,7 +14,7 @@ interface SharedDashboardPayload {
 
 function decodeShareParam(encoded: string): SharedDashboardPayload | null {
   try {
-    return JSON.parse(atob(encoded)) as SharedDashboardPayload;
+    return JSON.parse(atob(decodeURIComponent(encoded))) as SharedDashboardPayload;
   } catch {
     return null;
   }
@@ -39,9 +39,13 @@ export default function DashboardList() {
     if (shareParam) {
       const decoded = decodeShareParam(shareParam);
       if (decoded) setSharedPayload(decoded);
-      setSearchParams((prev) => { prev.delete("share"); return prev; }, { replace: true });
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("share");
+        return next;
+      }, { replace: true });
     }
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   const handleImportShared = () => {
     if (!sharedPayload) return;
@@ -120,10 +124,10 @@ export default function DashboardList() {
           {/* Dashboard Cards Grid */}
           <div className="grid gap-4 grid-cols-3">
             {dashboards.map((dashboard) => (
-              <div
+              <Link
                 key={dashboard.id}
-                className="card-enhanced p-6 cursor-pointer"
-                onClick={() => navigate(`/dashboard/${dashboard.id}`)}
+                to={`/dashboard/${dashboard.id}`}
+                className="card-enhanced p-6 cursor-pointer block no-underline text-inherit hover:no-underline focus:no-underline"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-[0.625rem] bg-[#e0e0e0] rounded-lg flex">
@@ -149,7 +153,7 @@ export default function DashboardList() {
                   </span>
                   <span className="text-xs text-[#8d8d8d]">by {dashboard.owner}</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

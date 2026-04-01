@@ -21,6 +21,7 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "resolveJsonModule": true,
+    "allowJs": true,
     "skipLibCheck": true,
     "strict": true
   }

@@ -1,38 +1,37 @@
 import {
   blue,
-  brown,
   cyan,
-  deepOrange,
-  deepPurple,
   green,
-  grey,
-  indigo,
+  gray,
+  magenta,
   orange,
+  purple,
   red,
   teal,
+  warmGray,
   yellow,
-} from "@mui/material/colors";
+} from "@carbon/colors";
 
 export const primary = [
-  blue[500],
-  red[500],
-  green[500],
-  yellow[500],
-  cyan[500],
-  orange[500],
-  teal[500],
-  indigo[500],
-  deepOrange[500],
-  deepPurple[500],
+  blue[60],
+  red[60],
+  green[50],
+  yellow[30],
+  cyan[50],
+  orange[40],
+  teal[50],
+  purple[50],
+  magenta[50],
+  blue[80],
 ];
 
 export const greyscale = [
-  grey[300],
-  grey[400],
-  grey[200],
-  grey[500],
-  grey[100],
-  grey[600],
+  gray[30],
+  gray[40],
+  gray[20],
+  gray[50],
+  gray[10],
+  gray[60],
 ];
 
-export const browns = [brown[500]];
+export const browns = [warmGray[60]];

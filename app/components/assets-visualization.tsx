@@ -22,8 +22,12 @@ import {
   type AssetsFilterValues,
 } from "./scoped-views";
 
+const utilPctFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 2,
+});
+
 function formatUtilPct(v: number | null): string {
-  return v === null ? "N/A" : `${v}%`;
+  return v === null ? "N/A" : `${utilPctFormatter.format(v)}%`;
 }
 
 function formatRamGb(ramBytes: number): string {

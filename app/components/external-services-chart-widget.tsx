@@ -27,7 +27,7 @@ interface ChartPoint {
   value: number;
 }
 
-interface TableRow {
+interface ExternalCostTableRow {
   id: string;
   name: string;
   cost: string;
@@ -51,7 +51,7 @@ function buildChartData(timeseriesData: any[]): ChartPoint[] {
   return points;
 }
 
-function buildTableData(tableData: any[]): TableRow[] {
+function buildTableData(tableData: any[]): ExternalCostTableRow[] {
   if (!Array.isArray(tableData)) return [];
   return tableData.slice(0, 20).map((item, i) => ({
     id: String(i),
@@ -80,7 +80,7 @@ const headers = [
 
 export default function ExternalServicesChartWidget({ window = "7d" }: { window?: string }) {
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
-  const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [tableData, setTableData] = useState<ExternalCostTableRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<string | null>(null);
 

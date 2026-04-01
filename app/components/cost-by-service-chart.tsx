@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AreaChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
+import { Loading } from "@carbon/react";
 import CloudCostService from "~/services/cloud-cost";
 import { primary, greyscale, browns } from "~/constants/colors";
 import { toCurrency } from "~/lib/legacy-util";
@@ -121,7 +122,11 @@ export default function CostByServiceChart({
   }, [chartData, currency]);
 
   if (loading) {
-    return <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">Loading...</div>;
+    return (
+      <div className="h-[400px] flex items-center justify-center">
+        <Loading description="Loading chart..." withOverlay={false} />
+      </div>
+    );
   }
 
   if (chartData.length === 0) {

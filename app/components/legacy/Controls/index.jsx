@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import React from "react";
 import EditControl from "./Edit";
 import DownloadControl from "./Download";

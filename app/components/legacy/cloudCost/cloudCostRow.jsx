@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import { TableCell, TableRow } from "@mui/material";
 
 import { toCurrency } from "../../../lib/legacy-util";

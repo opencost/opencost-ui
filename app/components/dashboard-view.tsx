@@ -103,7 +103,7 @@ function encodeDashboardShare(dashboard: Dashboard): string {
     widgets: dashboard.widgets,
     tags: dashboard.tags,
   };
-  return btoa(JSON.stringify(payload));
+  return encodeURIComponent(btoa(JSON.stringify(payload)));
 }
 
 export default function DashboardView({ dashboard, onBack, onUpdateWidgets }: DashboardViewProps) {

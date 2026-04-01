@@ -70,7 +70,6 @@ function getDateLabel(alloc: AllocationLike): string {
 
 function buildChartData(rawData: any[], topN: number, includeIdle: boolean): ChartPoint[] {
   const points: ChartPoint[] = [];
-  const totalsByKey: Record<string, number> = {};
 
   for (const set of rawData) {
     const allocs: AllocationLike[] = Array.isArray(set) ? set : (Object.values(set) as AllocationLike[]);
@@ -82,20 +81,16 @@ function buildChartData(rawData: any[], topN: number, includeIdle: boolean): Cha
     for (const a of top) {
       const k = a.name ?? "?";
       points.push({ group: date, key: k, value: a.totalCost ?? 0 });
-      totalsByKey[k] = (totalsByKey[k] ?? 0) + (a.totalCost ?? 0);
     }
     for (const a of other) {
       points.push({ group: date, key: "other", value: a.totalCost ?? 0 });
-      totalsByKey["other"] = (totalsByKey["other"] ?? 0) + (a.totalCost ?? 0);
     }
     const totalCost = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
     points.push({ group: date, key: "total", value: totalCost });
-    totalsByKey["total"] = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
     if (includeIdle && idle.length > 0) {
       const idleCost = idle.reduce((s, a) => s + (a.totalCost ?? 0), 0);
       if (idleCost > 0) {
         points.push({ group: date, key: "idle", value: idleCost });
-        totalsByKey["idle"] = (totalsByKey["idle"] ?? 0) + idleCost;
       }
     }
   }

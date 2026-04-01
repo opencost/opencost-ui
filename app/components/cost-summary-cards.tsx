@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Currency, ChartLine, ChartLineSmooth, Activity } from "@carbon/icons-react";
+import { Currency, ChartLine, ChartLineSmooth, Activity } from "@carbon/icons-react";
 import AllocationService from "~/services/allocation";
 import CloudCostService from "~/services/cloud-cost";
 import ExternalCostsService from "~/services/external-costs";

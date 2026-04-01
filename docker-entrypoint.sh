@@ -1,6 +1,24 @@
 #!/bin/sh
 set -e
 
+# Escape replacement text for sed ("&" has special meaning)
+escape_sed_replacement() {
+    printf '%s' "$1" | sed 's/&/\\&/g'
+}
+
+replace_placeholder_in_js() {
+    placeholder="$1"
+    replacement="$2"
+
+    js_files=$(find "$WWW_ROOT" -type f -name "*.js" 2>/dev/null)
+    [ -z "$js_files" ] && return 0
+
+    escaped_replacement=$(escape_sed_replacement "$replacement")
+    printf '%s\n' "$js_files" | while IFS= read -r file; do
+        sed -i "s^${placeholder}^${escaped_replacement}^g" "$file"
+    done
+}
+
 # Set document root based on LEGACY_MODE (run with -e LEGACY_MODE=true for legacy UI)
 if [ "$LEGACY_MODE" = "true" ] || [ "$LEGACY_MODE" = "1" ] || [ "$LEGACY_MODE" = "yes" ]; then
     export NGINX_ROOT=/var/www/legacy
@@ -20,23 +38,23 @@ fi
 # Replace placeholders in all .js files (including assets/*.js)
 if [ -n "$BASE_URL_OVERRIDE" ]; then
     echo "running with BASE_URL=${BASE_URL_OVERRIDE}"
-    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL_OVERRIDE^g" {} \; 2>/dev/null || true
+    replace_placeholder_in_js "{PLACEHOLDER_BASE_URL}" "$BASE_URL_OVERRIDE"
 else
     echo "running with BASE_URL=${BASE_URL}"
-    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^{PLACEHOLDER_BASE_URL}^$BASE_URL^g" {} \; 2>/dev/null || true
+    replace_placeholder_in_js "{PLACEHOLDER_BASE_URL}" "$BASE_URL"
 fi
 
 if [ -n "$OPENCOST_FOOTER_CONTENT" ]; then
-    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_FOOTER_CONTENT^$OPENCOST_FOOTER_CONTENT^g" {} \; 2>/dev/null || true
+    replace_placeholder_in_js "PLACEHOLDER_FOOTER_CONTENT" "$OPENCOST_FOOTER_CONTENT"
 else
-    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_FOOTER_CONTENT^OpenCost version: $VERSION ($HEAD)^g" {} \; 2>/dev/null || true
+    replace_placeholder_in_js "PLACEHOLDER_FOOTER_CONTENT" "OpenCost version: $VERSION ($HEAD)"
 fi
 
 # Custom aggregation options: JSON object (map string:string), e.g. {"Label: team":"label:team"}
 if [ -n "$CUSTOM_AGGREGATION_OPTIONS" ]; then
     echo "injecting CUSTOM_AGGREGATION_OPTIONS"
-    esc=$(printf '%s' "$CUSTOM_AGGREGATION_OPTIONS" | sed 's/\\/\\\\/g; s/&/\\&/g; s/"/\\"/g')
-    find "$WWW_ROOT" -name "*.js" -exec sed -i "s^PLACEHOLDER_CUSTOM_AGGREGATIONS^$esc^g" {} \; 2>/dev/null || true
+    esc=$(printf '%s' "$CUSTOM_AGGREGATION_OPTIONS" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    replace_placeholder_in_js "PLACEHOLDER_CUSTOM_AGGREGATIONS" "$esc"
 fi
 
 if [ ! -e /etc/nginx/conf.d/default.nginx.conf ]; then

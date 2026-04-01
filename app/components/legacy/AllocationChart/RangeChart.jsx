@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import { reverse } from "lodash";
 import {
   BarChart,

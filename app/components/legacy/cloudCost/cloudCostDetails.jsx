@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import * as React from "react";
 import { Modal, Paper, Typography } from "@mui/material";
 import Warnings from "../Warnings";

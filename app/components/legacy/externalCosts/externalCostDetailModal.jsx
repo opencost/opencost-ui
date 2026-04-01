@@ -1,4 +1,4 @@
-// @ts-nocheck
+ 
 import { Modal, Paper } from "@mui/material";
 import {
   TableContainer,

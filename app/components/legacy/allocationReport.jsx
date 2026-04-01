@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import React, { useEffect, useState } from "react";
 import { get, round } from "lodash";
 import Table from "@mui/material/Table";

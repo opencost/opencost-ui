@@ -51,10 +51,16 @@ server {
     }
 
     add_header Cache-Control "max-age=300";
+    # try_files fallback to /index.html with alias + location / causes an internal redirect loop
+    # in nginx; use a named location + rewrite once (see nginx try_files + alias behavior).
     location ${UI_PATH} {
         alias ${NGINX_ROOT}/;
         index index.html index.htm;
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ @ui_spa_fallback;
+    }
+
+    location @ui_spa_fallback {
+        rewrite ^ ${UI_PATH}index.html last;
     }
 
     add_header ETag "1.96.0";

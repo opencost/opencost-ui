@@ -8,7 +8,7 @@ build-local:
     npm ci
     npm run build:all
 
-build IMAGE_TAG RELEASE_VERSION:
+build IMAGE_TAG RELEASE_VERSION: build-local
     docker buildx build \
         --rm \
         --platform "linux/amd64" \

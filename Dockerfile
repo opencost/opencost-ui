@@ -1,14 +1,15 @@
-FROM node:18.3.0 AS builder
-
-ADD package*.json /opt/ui/
+FROM node:20-alpine AS builder
 WORKDIR /opt/ui
+ADD package*.json ./
 RUN npm install
-ADD src /opt/ui/src
-
-ARG ui_path=/
-ENV UI_PATH=${ui_path}
-
-RUN npx parcel build src/index.html --public-url ${UI_PATH}
+ADD . ./
+# Save first build outside build/ so build:legacy (which overwrites build/) doesn't remove it
+RUN npm run build && cp -r build/client /opt/standard
+RUN npm run build:legacy
+# Verify both builds produced output
+RUN test -f /opt/standard/index.html && test -f /opt/ui/build/client/index.html && \
+    test -d /opt/standard/assets && test -d /opt/ui/build/client/assets && \
+    echo "Both builds OK" && ls -la /opt/standard/ && ls -la /opt/ui/build/client/
 
 FROM nginx:alpine
 
@@ -30,16 +31,11 @@ ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
 ENV UI_PATH=${ui_path}
 
-# Nginx proxy timeout configuration (in seconds)
-ENV PROXY_CONNECT_TIMEOUT=180
-ENV PROXY_SEND_TIMEOUT=180
-ENV PROXY_READ_TIMEOUT=180
-
-COPY --from=builder /opt/ui/dist /opt/ui/dist
-RUN mkdir -p /var/www
+RUN mkdir -p /var/www /var/www/legacy
 
 COPY THIRD_PARTY_LICENSES.txt /THIRD_PARTY_LICENSES.txt
-COPY --from=builder /opt/ui/dist /var/www
+COPY --from=builder /opt/standard /var/www
+COPY --from=builder /opt/ui/build/client /var/www/legacy
 
 COPY default.nginx.conf.template /etc/nginx/conf.d/default.nginx.conf.template
 COPY nginx.conf /etc/nginx/
@@ -52,7 +48,11 @@ RUN chown 1001:1000 -R /var/www
 RUN chown 1001:1000 -R /etc/nginx
 RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
-ENV BASE_URL=${UI_PATH%/}/model
+ENV BASE_URL=/model
+ENV LEGACY_MODE=false
+ENV PROXY_CONNECT_TIMEOUT=60s
+ENV PROXY_SEND_TIMEOUT=60s
+ENV PROXY_READ_TIMEOUT=60s
 
 USER 1001
 

@@ -40,7 +40,7 @@ upstream model {
 
 server {
     server_name _;
-    root /var/www;
+    root ${NGINX_ROOT};
     index index.html;
     large_client_header_buffers 4 32k;
     add_header Cache-Control "must-revalidate";
@@ -51,10 +51,10 @@ server {
     }
 
     add_header Cache-Control "max-age=300";
-
     location ${UI_PATH} {
-        alias /var/www/;
-        try_files $uri /index.html;
+        alias ${NGINX_ROOT}/;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
     }
 
     add_header ETag "1.96.0";

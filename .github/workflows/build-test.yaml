@@ -17,15 +17,13 @@ jobs:
         with:
           path: ./
 
-      -
-        name: Install just
+      - name: Install just
         uses: extractions/setup-just@v3
 
-      -
-        name: Install node
+      - name: Install node
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -36,12 +34,11 @@ jobs:
         id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('./ui/**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      -
-        name: Build
+      - name: Build (new UI + legacy UI)
         working-directory: ./
         run: |
           just build-local

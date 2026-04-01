@@ -5,11 +5,10 @@ default:
     just --list
 
 build-local:
-    npm install
+    npm ci
+    npm run build:all
 
-    npx parcel build src/index.html
-
-build IMAGE_TAG RELEASE_VERSION: build-local
+build IMAGE_TAG RELEASE_VERSION:
     docker buildx build \
         --rm \
         --platform "linux/amd64" \
@@ -24,7 +23,7 @@ build IMAGE_TAG RELEASE_VERSION: build-local
     docker buildx build \
         --rm \
         --platform "linux/arm64" \
-        -f 'Dockerfile.cross' \
+        -f 'Dockerfile' \
         --provenance=false \
         -t {{IMAGE_TAG}}-arm64 \
         --build-arg version={{RELEASE_VERSION}} \

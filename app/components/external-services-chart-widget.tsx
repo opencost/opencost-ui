@@ -16,8 +16,9 @@ import {
   TableBody,
   TableCell,
 } from "@carbon/react";
-import { SimpleBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
+import { SwitchableChart } from "./switchable-chart";
+import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
 import ExternalCostsService from "~/services/external-costs";
 import { toCurrency } from "~/lib/legacy-util";
 
@@ -96,6 +97,7 @@ export default function ExternalServicesChartWidget({
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableData, setTableData] = useState<ExternalCostTableRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   useEffect(() => {
@@ -148,13 +150,21 @@ export default function ExternalServicesChartWidget({
         </TabList>
         <TabPanels>
           <TabPanel>
-            <div className="w-full h-[400px] mt-4">
+            <div className="flex justify-end mt-2 mb-1">
+              <ChartTypeToggle mode={chartMode} onChange={setChartMode} />
+            </div>
+            <div className="w-full h-[400px]">
               {loading ? (
                 <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
                   Loading…
                 </div>
               ) : chartData.length > 0 ? (
-                <SimpleBarChart data={chartData} options={chartOptions} />
+                <SwitchableChart
+                  data={chartData}
+                  options={chartOptions}
+                  mode={chartMode}
+                  stacked={false}
+                />
               ) : (
                 <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
                   No external cost data available. Configure external cost

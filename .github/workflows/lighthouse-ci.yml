@@ -48,51 +48,36 @@ jobs:
       - name: Run Lighthouse CI
         id: lighthouse
         continue-on-error: true
-        run: npx -y @lhci/cli@0.14.x autorun --config=./lighthouserc.json 2>&1 | tee lhci-output.log
+        run: npx -y @lhci/cli@0.14.x autorun --config=./lighthouserc.json
 
       - name: Parse Lighthouse results
         id: parse
         if: always()
         run: |
-          MANIFEST=".lighthouseci/manifest.json"
+          LHCI_DIR=".lighthouseci"
 
-          if [ ! -f "$MANIFEST" ]; then
+          # Check if any LHR JSON files exist
+          if ! ls "$LHCI_DIR"/lhr-*.json 1>/dev/null 2>&1; then
             echo "perf=N/A" >> "$GITHUB_OUTPUT"
             echo "a11y=N/A" >> "$GITHUB_OUTPUT"
             echo "bp=N/A" >> "$GITHUB_OUTPUT"
             echo "seo=N/A" >> "$GITHUB_OUTPUT"
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
-            # Include LHCI log in output for debugging
-            LOG_CONTENT=""
-            if [ -f "lhci-output.log" ]; then
-              LOG_CONTENT=$(tail -30 lhci-output.log)
-            fi
-            EOF_MARKER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
-            {
-              echo "debug_info<<${EOF_MARKER}"
-              echo "<details><summary>LHCI Debug Log</summary>"
-              echo ""
-              echo '```'
-              echo "=== Build output ==="
-              ls build/client/ 2>/dev/null || echo "build/client/ not found"
-              echo ""
-              echo "=== LHCI output ==="
-              echo "$LOG_CONTENT"
-              echo ""
-              echo "=== .lighthouseci/ contents ==="
-              ls -la .lighthouseci/ 2>/dev/null || echo ".lighthouseci/ not found"
-              echo '```'
-              echo "</details>"
-              echo "${EOF_MARKER}"
-            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "perf=$(jq '[.[].summary.performance] | (add / length * 100) | floor' "$MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "a11y=$(jq '[.[].summary.accessibility] | (add / length * 100) | floor' "$MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "bp=$(jq '[.[].summary["best-practices"]] | (add / length * 100) | floor' "$MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "seo=$(jq '[.[].summary.seo] | (add / length * 100) | floor' "$MANIFEST")" >> "$GITHUB_OUTPUT"
-          echo "report_url=$(jq -r '.[0].links.publicUrl // "Not available"' "$MANIFEST")" >> "$GITHUB_OUTPUT"
+          # Parse average scores from all LHR JSON files
+          echo "perf=$(jq -s '[.[].categories.performance.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "a11y=$(jq -s '[.[].categories.accessibility.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "bp=$(jq -s '[.[].categories["best-practices"].score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "seo=$(jq -s '[.[].categories.seo.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+
+          # Get report URL from links.json
+          if [ -f "$LHCI_DIR/links.json" ]; then
+            echo "report_url=$(jq -r 'to_entries[0].value // "Not available"' "$LHCI_DIR/links.json")" >> "$GITHUB_OUTPUT"
+          else
+            echo "report_url=Not available" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Comment on PR
         if: github.event_name == 'pull_request' && always()
@@ -111,8 +96,6 @@ jobs:
             | SEO | **${{ steps.parse.outputs.seo }}** |
 
             [Full Report](${{ steps.parse.outputs.report_url }})
-
-            ${{ steps.parse.outputs.debug_info }}
 
       - name: Upload Lighthouse reports
         if: always()

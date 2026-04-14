@@ -5,6 +5,7 @@
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",
+        "chromeFlags": ["--no-sandbox"],
         "onlyCategories": [
           "performance",
           "accessibility",

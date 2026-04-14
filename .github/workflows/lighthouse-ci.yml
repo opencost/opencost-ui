@@ -47,9 +47,10 @@ jobs:
 
       - name: Run Lighthouse CI
         id: lighthouse
+        continue-on-error: true
         run: |
           npm install -g @lhci/cli@0.14.x
-          lhci autorun --config=./lighthouserc.json || true
+          lhci autorun --config=./lighthouserc.json
 
       - name: Parse Lighthouse results
         id: parse
@@ -96,4 +97,5 @@ jobs:
         with:
           name: lighthouse-reports
           path: .lighthouseci/
+          if-no-files-found: ignore
           retention-days: 30

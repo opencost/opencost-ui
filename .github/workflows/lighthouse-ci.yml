@@ -74,7 +74,8 @@ jobs:
 
           # Get report URL from links.json
           if [ -f "$LHCI_DIR/links.json" ]; then
-            echo "report_url=$(jq -r 'to_entries[0].value // "Not available"' "$LHCI_DIR/links.json")" >> "$GITHUB_OUTPUT"
+            report_url=$(jq -r 'to_entries[0].value // "Not available"' "$LHCI_DIR/links.json")
+            echo "report_url=$report_url" >> "$GITHUB_OUTPUT"
           else
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
           fi

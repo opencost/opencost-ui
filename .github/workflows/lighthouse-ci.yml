@@ -45,26 +45,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify build output
-        run: |
-          echo "=== Build output ==="
-          ls -la build/client/
-          echo "=== Chrome location ==="
-          which google-chrome-stable || which google-chrome || which chromium-browser || echo "No Chrome found"
-          google-chrome-stable --version || google-chrome --version || chromium-browser --version || echo "Cannot get Chrome version"
-
       - name: Run Lighthouse CI
         id: lighthouse
         continue-on-error: true
-        run: |
-          npm install -g @lhci/cli@0.14.x
-          lhci autorun --config=./lighthouserc.json
-
-      - name: Debug LHCI output
-        if: always()
-        run: |
-          echo "=== LHCI directory contents ==="
-          ls -laR .lighthouseci/ 2>/dev/null || echo ".lighthouseci/ does not exist"
+        run: npx -y @lhci/cli@0.14.x autorun --config=./lighthouserc.json 2>&1 | tee lhci-output.log
 
       - name: Parse Lighthouse results
         id: parse
@@ -78,6 +62,29 @@ jobs:
             echo "bp=N/A" >> "$GITHUB_OUTPUT"
             echo "seo=N/A" >> "$GITHUB_OUTPUT"
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
+            # Include LHCI log in output for debugging
+            LOG_CONTENT=""
+            if [ -f "lhci-output.log" ]; then
+              LOG_CONTENT=$(tail -30 lhci-output.log)
+            fi
+            EOF_MARKER=$(dd if=/dev/urandom bs=15 count=1 2>/dev/null | base64)
+            {
+              echo "debug_info<<${EOF_MARKER}"
+              echo "<details><summary>LHCI Debug Log</summary>"
+              echo ""
+              echo '```'
+              echo "=== Build output ==="
+              ls build/client/ 2>/dev/null || echo "build/client/ not found"
+              echo ""
+              echo "=== LHCI output ==="
+              echo "$LOG_CONTENT"
+              echo ""
+              echo "=== .lighthouseci/ contents ==="
+              ls -la .lighthouseci/ 2>/dev/null || echo ".lighthouseci/ not found"
+              echo '```'
+              echo "</details>"
+              echo "${EOF_MARKER}"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -104,6 +111,8 @@ jobs:
             | SEO | **${{ steps.parse.outputs.seo }}** |
 
             [Full Report](${{ steps.parse.outputs.report_url }})
+
+            ${{ steps.parse.outputs.debug_info }}
 
       - name: Upload Lighthouse reports
         if: always()

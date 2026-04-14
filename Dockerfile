@@ -13,7 +13,7 @@ RUN test -f /opt/standard/index.html && test -f /opt/ui/build/client/index.html 
 
 FROM nginx:alpine
 
-RUN apk update && apk upgrade --no-cache
+RUN apk --no-cache upgrade
 
 LABEL org.opencontainers.image.description="Cross-cloud cost allocation models for Kubernetes workloads"
 LABEL org.opencontainers.image.documentation=https://opencost.io/docs/

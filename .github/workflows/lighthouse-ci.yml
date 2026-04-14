@@ -45,12 +45,26 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          echo "=== Build output ==="
+          ls -la build/client/
+          echo "=== Chrome location ==="
+          which google-chrome-stable || which google-chrome || which chromium-browser || echo "No Chrome found"
+          google-chrome-stable --version || google-chrome --version || chromium-browser --version || echo "Cannot get Chrome version"
+
       - name: Run Lighthouse CI
         id: lighthouse
         continue-on-error: true
         run: |
           npm install -g @lhci/cli@0.14.x
           lhci autorun --config=./lighthouserc.json
+
+      - name: Debug LHCI output
+        if: always()
+        run: |
+          echo "=== LHCI directory contents ==="
+          ls -laR .lighthouseci/ 2>/dev/null || echo ".lighthouseci/ does not exist"
 
       - name: Parse Lighthouse results
         id: parse

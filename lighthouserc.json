@@ -1,11 +1,13 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./build/client",
+      "startServerCommand": "npx serve build/client -s -l 8080",
+      "startServerReadyPattern": "Accepting connections",
+      "url": ["http://localhost:8080/"],
       "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",
-        "chromeFlags": ["--no-sandbox"],
+        "chromeFlags": ["--no-sandbox", "--disable-gpu", "--headless=new"],
         "onlyCategories": [
           "performance",
           "accessibility",

@@ -14,22 +14,25 @@ function buildCacheKey(
   aggregate: string,
   options: {
     accumulate?: boolean;
-    filters?: { property: string; value: string }[];
+    filters?: { property: string; value: string }[] | string;
     includeIdle?: boolean;
+    step?: string;
   },
 ): string {
-  const { accumulate, filters, includeIdle = true } = options;
-  const filterKey =
-    filters && filters.length > 0
-      ? JSON.stringify(
-          [...filters].sort(
-            (a, b) =>
-              a.property.localeCompare(b.property) ||
-              a.value.localeCompare(b.value),
-          ),
-        )
-      : "";
-  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${filterKey}`;
+  const { accumulate, filters, includeIdle = true, step } = options;
+  const filterKey = (() => {
+    if (!filters) return "";
+    if (typeof filters === "string") return filters;
+    if (filters.length === 0) return "";
+    return JSON.stringify(
+      [...filters].sort(
+        (a, b) =>
+          a.property.localeCompare(b.property) ||
+          a.value.localeCompare(b.value),
+      ),
+    );
+  })();
+  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${step}|${filterKey}`;
 }
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -41,8 +44,9 @@ class AllocationService {
     aggregate: string,
     options: {
       accumulate?: boolean;
-      filters?: { property: string; value: string }[];
+      filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
+      step?: string;
     },
   ): Promise<any> {
     const key = buildCacheKey(win, aggregate, options);
@@ -76,16 +80,17 @@ class AllocationService {
     aggregate: string,
     options: {
       accumulate?: boolean;
-      filters?: { property: string; value: string }[];
+      filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
+      step?: string;
     },
   ) {
-    const { accumulate, filters, includeIdle = true } = options;
+    const { accumulate, filters, includeIdle = true, step = "1d" } = options;
     const params: Record<string, any> = {
       window: win,
       aggregate,
       includeIdle,
-      step: "1d",
+      step,
     };
     if (typeof accumulate === "boolean") {
       params.accumulate = accumulate;
@@ -107,7 +112,10 @@ class AllocationService {
         console.warn(
           "Backend not available, using mock data (mock data flag is enabled)",
         );
-        return getMockData(aggregate, filters);
+        return getMockData(
+          aggregate,
+          Array.isArray(filters) ? filters : undefined,
+        );
       }
       throw error;
     }

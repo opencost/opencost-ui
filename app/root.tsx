@@ -17,11 +17,16 @@ import "./tailwind.css";
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
 const DashboardApp = lazy(() =>
-  import("~/components/dashboard-context").then((m) => ({
+  Promise.all([
+    import("~/components/dashboard-context"),
+    import("~/components/report-context"),
+  ]).then(([dashboard, report]) => ({
     default: () => (
-      <m.DashboardProvider>
-        <Outlet />
-      </m.DashboardProvider>
+      <dashboard.DashboardProvider>
+        <report.ReportProvider>
+          <Outlet />
+        </report.ReportProvider>
+      </dashboard.DashboardProvider>
     ),
   })),
 );

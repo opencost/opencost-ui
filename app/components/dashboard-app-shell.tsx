@@ -11,18 +11,9 @@ import {
   DashboardOutlined,
   DescriptionOutlined,
   StorageOutlined,
-  DnsOutlined,
-  DataObjectOutlined,
-  CloudQueueOutlined,
-  SaveOutlined,
-  InsightsOutlined,
-  WarningAmberOutlined,
-  CasesOutlined,
-  CalendarMonthOutlined,
-  ShareOutlined,
-  CampaignOutlined,
 } from "@mui/icons-material";
 import { useDashboard } from "~/components/dashboard-context";
+import { useReport } from "~/components/report-context";
 
 interface DashboardAppShellProps {
   children: ReactNode;
@@ -70,29 +61,6 @@ function NavLinkEntry({
   );
 }
 
-function NavStaticEntry({
-  label,
-  icon,
-  nested = false,
-  collapsed = false,
-}: {
-  label: string;
-  icon: ReactNode;
-  nested?: boolean;
-  collapsed?: boolean;
-}) {
-  const nestedClasses = nested ? "ml-5" : "";
-  return (
-    <div
-      className={`flex min-h-10 items-center gap-2.5 rounded px-3 py-2 text-sm font-medium text-[#525252] ${nestedClasses}`}
-      title={collapsed ? label : undefined}
-    >
-      <span className="inline-flex items-center">{icon}</span>
-      {!collapsed ? <span>{label}</span> : null}
-    </div>
-  );
-}
-
 function NavGroupHeader({
   label,
   icon,
@@ -125,6 +93,7 @@ function NavGroupHeader({
 export default function DashboardAppShell({ children }: DashboardAppShellProps) {
   const { pathname } = useLocation();
   const { dashboards } = useDashboard();
+  const { reports } = useReport();
   const [collapsed, setCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -133,6 +102,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
   const homeActive = pathname === "/";
   const dashboardsActive =
     pathname === "/dashboards" || pathname.startsWith("/dashboard/");
+  const reportsActive = pathname === "/reports" || pathname.startsWith("/report/");
   const quickLinks = useMemo<SearchEntry[]>(
     () => [
       {
@@ -151,6 +121,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
         id: "reports",
         label: "Reports",
         icon: <DescriptionOutlined fontSize="small" />,
+        href: "/reports",
       },
       {
         id: "settings",
@@ -172,8 +143,18 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
     [dashboards],
   );
   const allSearchEntries = useMemo(
-    () => [...quickLinks, ...dashboardLinks],
-    [quickLinks, dashboardLinks],
+    () => [
+      ...quickLinks,
+      ...dashboardLinks,
+      ...reports.map((report) => ({
+        id: `report-${report.id}`,
+        label: `Report: ${report.name}`,
+        icon: <DescriptionOutlined fontSize="small" />,
+        href: `/report/${report.id}`,
+        keywords: [report.description, ...report.tags],
+      })),
+    ],
+    [quickLinks, dashboardLinks, reports],
   );
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filteredSearchEntries = useMemo(() => {
@@ -310,9 +291,11 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               nested
               collapsed={collapsed}
             />
-            <NavStaticEntry
+            <NavLinkEntry
+              href="/reports"
               label="Reports"
               icon={<DescriptionOutlined fontSize="small" />}
+              active={reportsActive}
               nested
               collapsed={collapsed}
             />

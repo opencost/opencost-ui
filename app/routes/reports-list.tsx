@@ -28,7 +28,7 @@ function decodeShareParam(encoded: string): SharedReportPayload | null {
 export function meta() {
   return [
     { title: "OpenCost — Reports" },
-    { name: "description", content: "Ternary-style cost reports in OpenCost" },
+    { name: "description", content: "Cost allocation reports in OpenCost" },
   ];
 }
 

@@ -9,8 +9,9 @@ import {
   TableRow,
   Pagination,
 } from "@carbon/react";
-import { StackedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
+import { SwitchableChart } from "./switchable-chart";
+import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
 import CloudCostService from "~/services/cloud-cost";
 import {
   toCurrency,
@@ -150,6 +151,7 @@ export default function CloudCostWidget({
   currency: currencyProp,
 }: CloudCostWidgetProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [localFilters, setLocalFilters] = useState({
     window: DEFAULT_CLOUD_FILTERS.cloudWindow,
     aggregateBy: DEFAULT_CLOUD_FILTERS.cloudAggregateBy,
@@ -308,6 +310,9 @@ export default function CloudCostWidget({
         description={title}
         expanded={showFilters}
         onToggle={() => setShowFilters((s) => !s)}
+        headerActions={
+          <ChartTypeToggle mode={chartMode} onChange={setChartMode} />
+        }
         filterContent={
           <CloudFilterControls
             window={window}
@@ -335,7 +340,12 @@ export default function CloudCostWidget({
           </div>
         ) : (
           <div className="w-full h-[300px]">
-            <StackedBarChart data={chartData} options={chartOptions} />
+            <SwitchableChart
+              data={chartData}
+              options={chartOptions}
+              mode={chartMode}
+              stacked
+            />
           </div>
         )}
       </div>

@@ -116,6 +116,7 @@ export interface FilterableWidgetHeaderProps {
   expanded: boolean;
   onToggle: () => void;
   filterContent?: React.ReactNode;
+  headerActions?: React.ReactNode;
 }
 
 export function FilterableWidgetHeader({
@@ -124,6 +125,7 @@ export function FilterableWidgetHeader({
   expanded,
   onToggle,
   filterContent,
+  headerActions,
 }: FilterableWidgetHeaderProps) {
   return (
     <div className="mb-4">
@@ -134,15 +136,18 @@ export function FilterableWidgetHeader({
             <p className="text-sm text-[#525252] mt-1 mb-0">{description}</p>
           )}
         </div>
-        <Button
-          kind={expanded ? "primary" : "secondary"}
-          size="sm"
-          renderIcon={Filter}
-          iconDescription="Toggle filters"
-          onClick={onToggle}
-        >
-          {expanded ? "Collapse filters" : "Filters"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {headerActions}
+          <Button
+            kind={expanded ? "primary" : "secondary"}
+            size="sm"
+            renderIcon={Filter}
+            iconDescription="Toggle filters"
+            onClick={onToggle}
+          >
+            {expanded ? "Collapse filters" : "Filters"}
+          </Button>
+        </div>
       </div>
       {expanded && filterContent && (
         <div className="mt-4 pt-4 border-t border-[#e0e0e0]">

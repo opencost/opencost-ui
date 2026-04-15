@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
-import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
+import { Button, Modal, Tag } from "@carbon/react";
+import {
+  Search,
+  StarBorder,
+  Star,
+  EditOutlined,
+  IosShareOutlined,
+  DeleteOutline,
+} from "@mui/icons-material";
 import {
   useDashboard,
-  timeAgo,
+  type Dashboard,
   type Widget,
 } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
+import DashboardAppShell from "~/components/dashboard-app-shell";
 
 interface SharedDashboardPayload {
   name: string;
@@ -37,9 +45,56 @@ export default function DashboardList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingDashboard, setEditingDashboard] = useState<Dashboard | null>(null);
+  const [dashboardPendingDelete, setDashboardPendingDelete] =
+    useState<Dashboard | null>(null);
+  const [shareFeedback, setShareFeedback] = useState<string>("");
   const [sharedPayload, setSharedPayload] =
     useState<SharedDashboardPayload | null>(null);
-  const { dashboards, createDashboard } = useDashboard();
+  const { dashboards, createDashboard, deleteDashboard } = useDashboard();
+  const searchTerm = searchParams.get("q") ?? "";
+  const selectedTag = searchParams.get("tag") ?? "all";
+  const selectedScope = searchParams.get("scope") ?? "all";
+  const selectedOwner = searchParams.get("owner") ?? "all";
+
+  const allTags = Array.from(new Set(dashboards.flatMap((d) => d.tags))).sort();
+  const allOwners = Array.from(new Set(dashboards.map((d) => d.owner))).sort();
+
+  const filteredDashboards = dashboards.filter((dashboard) => {
+    const matchesQuery =
+      searchTerm.trim().length === 0 ||
+      dashboard.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dashboard.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dashboard.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+
+    const matchesTag =
+      selectedTag === "all" || dashboard.tags.includes(selectedTag);
+    const matchesOwner = selectedOwner === "all" || dashboard.owner === selectedOwner;
+    const scopeValue = dashboard.starred ? "OpenCost" : "Public";
+    const matchesScope = selectedScope === "all" || selectedScope === scopeValue;
+
+    return matchesQuery && matchesTag && matchesOwner && matchesScope;
+  });
+
+  const updateQueryParam = (
+    key: "q" | "tag" | "scope" | "owner",
+    value: string,
+  ) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value.length === 0 || value === "all") {
+          next.delete(key);
+        } else {
+          next.set(key, value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   useEffect(() => {
     const shareParam = searchParams.get("share");
@@ -67,6 +122,7 @@ export default function DashboardList() {
       widgets: sharedPayload.widgets,
       tags: sharedPayload.tags ?? [],
       starred: false,
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       owner: "You",
     });
@@ -74,104 +130,230 @@ export default function DashboardList() {
     navigate(`/dashboard/${newId}`);
   };
 
+  const handleShareDashboard = async (dashboard: Dashboard) => {
+    if (typeof window === "undefined") return;
+
+    const sharePayload: SharedDashboardPayload = {
+      name: dashboard.name,
+      description: dashboard.description,
+      widgets: dashboard.widgets,
+      tags: dashboard.tags,
+    };
+    const encoded = encodeURIComponent(btoa(JSON.stringify(sharePayload)));
+    const shareUrl = `${window.location.origin}/dashboards?share=${encoded}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareFeedback(`Share link copied for "${dashboard.name}".`);
+      window.setTimeout(() => setShareFeedback(""), 2600);
+    } catch {
+      setShareFeedback("Unable to copy automatically. Please copy from browser URL bar.");
+      navigate(`/dashboards?share=${encoded}`);
+    }
+  };
+
+  const handleDeleteDashboard = (dashboard: Dashboard) => {
+    setDashboardPendingDelete(dashboard);
+  };
+
+  const confirmDeleteDashboard = () => {
+    if (!dashboardPendingDelete) return;
+    deleteDashboard(dashboardPendingDelete.id);
+    if (editingDashboard?.id === dashboardPendingDelete.id) {
+      setEditingDashboard(null);
+    }
+    setDashboardPendingDelete(null);
+  };
+
   return (
     <>
-      <Header aria-label="OpenCost Platform">
-        <HeaderName href="/" prefix="">
-          <img src="/logo.png" alt="OpenCost" className="h-6" />
-        </HeaderName>
-        <div className="ml-auto flex items-center pr-4">
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            renderIcon={Add}
-            size="sm"
-          >
-            Create Dashboard
-          </Button>
-        </div>
-      </Header>
-
-      <main className="pt-12 min-h-screen bg-[#f4f4f4]">
-        <div className="p-8 max-w-[1584px] mx-auto">
-          <div className="mb-8">
-            <h2 className="text-[2rem] font-normal mb-2">Dashboards</h2>
-            <p className="text-[#525252] text-sm">
-              Monitor and analyze your cloud infrastructure costs
-            </p>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid gap-4 grid-cols-3 mb-8">
-            <div className="metric-card">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#e0e0e0] rounded-lg flex">
-                  <Dashboard size={20} style={{ color: "#0f62fe" }} />
-                </div>
-                <span className="metric-label">Total Dashboards</span>
+      <DashboardAppShell>
+        <main className="min-h-screen bg-[#f4f4f4]">
+          <div className="p-6 max-w-[1600px] mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="m-0 text-[2rem] font-normal">Dashboards</h2>
+                {shareFeedback ? (
+                  <p className="mt-1 text-xs text-[#198038]">{shareFeedback}</p>
+                ) : null}
               </div>
-              <p className="metric-value">{dashboards.length}</p>
+              <Button size="sm" onClick={() => setShowCreateModal(true)}>
+                Create Dashboard
+              </Button>
             </div>
 
-            <div className="metric-card">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#defbe6] rounded-lg flex">
-                  <ChartLineSmooth size={20} style={{ color: "#198038" }} />
+            <div className="mb-4 overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)]">
+              <div className="grid grid-cols-[minmax(220px,1fr)_180px_180px_200px] items-center gap-2.5 border-b border-[#e0e0e0] bg-[#f8f8f8] p-3">
+                <div className="flex h-8 items-center gap-1.5 rounded border border-[#d0d0d0] bg-white px-2 text-[#8d8d8d]">
+                  <Search fontSize="small" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(event) => updateQueryParam("q", event.target.value)}
+                    placeholder="Search"
+                    className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#262626] outline-none"
+                  />
                 </div>
-                <span className="metric-label">Total Widgets</span>
+                <select
+                  value={selectedTag}
+                  onChange={(event) => updateQueryParam("tag", event.target.value)}
+                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                >
+                  <option value="all">Filter by Tag</option>
+                  {allTags.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedScope}
+                  onChange={(event) => updateQueryParam("scope", event.target.value)}
+                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                >
+                  <option value="all">Filter by scope</option>
+                  <option value="OpenCost">OpenCost</option>
+                  <option value="public">Public</option>
+                </select>
+                <select
+                  value={selectedOwner}
+                  onChange={(event) => updateQueryParam("owner", event.target.value)}
+                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                >
+                  <option value="all">Filter by Created By</option>
+                  {allOwners.map((owner) => (
+                    <option key={owner} value={owner}>
+                      {owner}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <p className="metric-value">
-                {dashboards.reduce((acc, d) => acc + d.widgets.length, 0)}
-              </p>
-            </div>
 
-            <div className="metric-card">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#bae6ff] rounded-lg flex">
-                  <Activity size={20} style={{ color: "#0072c3" }} />
+              {filteredDashboards.length > 0 ? (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="w-8 px-3 py-2.5 text-left text-xs font-semibold text-[#525252]" />
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Name
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Created By
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Created On
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Time Last Modified
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Visibility
+                      </th>
+                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                        Tags
+                      </th>
+                      <th className="w-[8rem] whitespace-nowrap px-3 py-2.5 text-right text-xs font-semibold text-[#525252]">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDashboards.map((dashboard) => {
+                      const createdOn = new Date(
+                        dashboard.createdAt ?? dashboard.updatedAt,
+                      ).toLocaleDateString();
+                      const modifiedOn = new Date(dashboard.updatedAt).toLocaleString();
+                      const visibility = dashboard.starred ? "OpenCost" : "Public";
+                      return (
+                        <tr key={dashboard.id} className="border-t border-[#f0f0f0] hover:bg-[#fcfcfc]">
+                          <td className="w-8 px-3 py-2.5 text-center align-middle">
+                            {dashboard.starred ? (
+                              <Star fontSize="small" className="text-[#f1c21b]" />
+                            ) : (
+                              <StarBorder fontSize="small" className="text-[#8d8d8d]" />
+                            )}
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            <Link
+                              to={`/dashboard/${dashboard.id}`}
+                              className="text-[#262626] no-underline hover:text-[#0f62fe]"
+                            >
+                              {dashboard.name}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            {dashboard.owner}
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            {createdOn}
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            {modifiedOn}
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            <span
+                              className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${
+                                visibility === "Public"
+                                  ? "bg-[#defbe6] text-[#198038]"
+                                  : "bg-[#edf5ff] text-[#0f62fe]"
+                              }`}
+                            >
+                              {visibility}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {dashboard.tags.length > 0 ? (
+                                dashboard.tags.slice(0, 3).map((tag) => (
+                                  <Tag key={tag} type="gray" size="sm">
+                                    {tag}
+                                  </Tag>
+                                ))
+                              ) : (
+                                <span className="text-[#8d8d8d]">--</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="w-[8rem] whitespace-nowrap px-3 py-2.5 text-right align-middle">
+                            <button
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              aria-label="Edit dashboard"
+                              title="Edit dashboard details"
+                              onClick={() => setEditingDashboard(dashboard)}
+                            >
+                              <EditOutlined fontSize="small" />
+                            </button>
+                            <button
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              aria-label="Share dashboard"
+                              title="Share dashboard"
+                              onClick={() => void handleShareDashboard(dashboard)}
+                            >
+                              <IosShareOutlined fontSize="small" />
+                            </button>
+                            <button
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#da1e28] hover:text-[#da1e28]"
+                              aria-label="Delete dashboard"
+                              title="Delete dashboard"
+                              onClick={() => handleDeleteDashboard(dashboard)}
+                            >
+                              <DeleteOutline fontSize="small" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="p-6 text-sm text-[#6f6f6f]">
+                  No dashboards match the selected search and filters.
                 </div>
-                <span className="metric-label">Active Monitoring</span>
-              </div>
-              <p className="metric-value">Live</p>
+              )}
             </div>
           </div>
-
-          {/* Dashboard Cards Grid */}
-          <div className="grid gap-4 grid-cols-3">
-            {dashboards.map((dashboard) => (
-              <Link
-                key={dashboard.id}
-                to={`/dashboard/${dashboard.id}`}
-                className="card-enhanced p-6 cursor-pointer block no-underline text-inherit hover:no-underline focus:no-underline"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-[0.625rem] bg-[#e0e0e0] rounded-lg flex">
-                    <Dashboard size={20} style={{ color: "#0f62fe" }} />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Tag type="gray" size="sm">
-                      {dashboard.widgets.length} widgets
-                    </Tag>
-                  </div>
-                </div>
-
-                <h3 className="font-semibold text-lg mb-2">{dashboard.name}</h3>
-                <p className="text-sm text-[#525252] mb-4">
-                  {dashboard.description}
-                </p>
-
-                <div className="flex items-center justify-between pt-4 border-t border-[#e0e0e0]">
-                  <span className="text-xs text-[#8d8d8d]">
-                    Updated {timeAgo(dashboard.updatedAt)}
-                  </span>
-                  <span className="text-xs text-[#8d8d8d]">
-                    by {dashboard.owner}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </main>
+        </main>
+      </DashboardAppShell>
 
       {showCreateModal && (
         <CreateDashboardModal
@@ -181,6 +363,14 @@ export default function DashboardList() {
             setShowCreateModal(false);
             navigate(`/dashboard/${id}`);
           }}
+        />
+      )}
+      {editingDashboard && (
+        <CreateDashboardModal
+          open={!!editingDashboard}
+          onClose={() => setEditingDashboard(null)}
+          dashboardToEdit={editingDashboard}
+          onDashboardUpdated={() => setEditingDashboard(null)}
         />
       )}
 
@@ -222,6 +412,32 @@ export default function DashboardList() {
             </p>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        open={!!dashboardPendingDelete}
+        modalHeading="Delete Dashboard"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        danger
+        onRequestSubmit={confirmDeleteDashboard}
+        onRequestClose={() => setDashboardPendingDelete(null)}
+        onSecondarySubmit={() => setDashboardPendingDelete(null)}
+      >
+        {dashboardPendingDelete ? (
+          <div>
+            <p className="mb-3 text-sm text-[#525252]">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-[#161616]">
+                {dashboardPendingDelete.name}
+              </span>
+              ?
+            </p>
+            <p className="m-0 text-xs text-[#8d8d8d]">
+              This action cannot be undone.
+            </p>
+          </div>
+        ) : null}
       </Modal>
     </>
   );

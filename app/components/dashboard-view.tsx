@@ -98,9 +98,9 @@ interface DashboardViewProps {
   dashboard: Dashboard;
   onBack: () => void;
   onUpdateWidgets: (widgets: Widget[]) => void;
+  isDefaultDashboard?: boolean;
+  showBackButton?: boolean;
 }
-
-const DEFAULT_DASHBOARD_ID = "1";
 
 function encodeDashboardShare(dashboard: Dashboard): string {
   const payload = {
@@ -116,14 +116,14 @@ export default function DashboardView({
   dashboard,
   onBack,
   onUpdateWidgets,
+  isDefaultDashboard = false,
+  showBackButton = true,
 }: DashboardViewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(
     dashboard.widgets,
   );
   const [shareToast, setShareToast] = useState<"copied" | "error" | null>(null);
-  const isDefaultDashboard = dashboard.id === DEFAULT_DASHBOARD_ID;
-
   const hasAllocationChart = currentWidgets.some(
     (w) => w.type === "cost-allocation-chart",
   );
@@ -144,7 +144,7 @@ export default function DashboardView({
         ...dashboard,
         widgets: currentWidgets,
       });
-      const url = `${window.location.origin}/?share=${encoded}`;
+      const url = `${window.location.origin}/dashboards?share=${encoded}`;
       await navigator.clipboard.writeText(url);
       setShareToast("copied");
       setTimeout(() => setShareToast(null), 4000);
@@ -170,15 +170,17 @@ export default function DashboardView({
     <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
       <div className="flex items-center justify-between mb-6 pt-2">
         <div className="flex items-center gap-4">
-          <Button
-            kind="ghost"
-            size="sm"
-            onClick={onBack}
-            iconDescription="Back"
-          >
-            <ArrowLeft className="mr-[0.375rem]" />
-            Back
-          </Button>
+          {showBackButton ? (
+            <Button
+              kind="ghost"
+              size="sm"
+              onClick={onBack}
+              iconDescription="Back"
+            >
+              <ArrowLeft className="mr-[0.375rem]" />
+              Back
+            </Button>
+          ) : null}
           <div>
             <h1 className="text-3xl font-bold">{dashboard.name}</h1>
             <p className="text-sm text-[#525252]">{dashboard.description}</p>

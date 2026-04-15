@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 const STORAGE_KEY = "opencost-dashboards-v2";
+export const DEFAULT_DASHBOARD_ID = "1";
 
 export function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
@@ -29,8 +30,34 @@ export interface Dashboard {
   widgets: Widget[];
   tags: string[];
   starred: boolean;
+  createdAt?: string;
   updatedAt: string;
   owner: string;
+}
+
+export function getDefaultDashboard(
+  dashboards: Dashboard[],
+): Dashboard | undefined {
+  if (dashboards.length === 0) {
+    return undefined;
+  }
+
+  const starredDashboard = dashboards.find((dashboard) => dashboard.starred);
+  if (starredDashboard) {
+    return starredDashboard;
+  }
+
+  const taggedDefault = dashboards.find((dashboard) =>
+    dashboard.tags.some((tag) => tag.toLowerCase() === "default"),
+  );
+  if (taggedDefault) {
+    return taggedDefault;
+  }
+
+  const idMatch = dashboards.find(
+    (dashboard) => dashboard.id === DEFAULT_DASHBOARD_ID,
+  );
+  return idMatch ?? dashboards[0];
 }
 
 interface DashboardContextValue {
@@ -46,7 +73,7 @@ const DashboardContext = createContext<DashboardContextValue | undefined>(
 
 const DEFAULT_DASHBOARDS: Dashboard[] = [
   {
-    id: "1",
+    id: DEFAULT_DASHBOARD_ID,
     name: "Default Dashboard",
     description: "Overall cloud cost analysis",
     widgets: [
@@ -72,6 +99,7 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     ],
     tags: ["default"],
     starred: true,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     owner: "You",
   },
@@ -96,6 +124,7 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     ],
     tags: ["allocations"],
     starred: false,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     owner: "You",
   },
@@ -119,6 +148,7 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     ],
     tags: ["cloud"],
     starred: false,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     owner: "You",
   },
@@ -137,6 +167,7 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     ],
     tags: ["infrastructure"],
     starred: false,
+    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     owner: "You",
   },
@@ -149,7 +180,10 @@ function loadDashboardsFromStorage(): Dashboard[] {
     if (stored) {
       const parsed = JSON.parse(stored) as Dashboard[];
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((dashboard) => ({
+          ...dashboard,
+          createdAt: dashboard.createdAt ?? dashboard.updatedAt,
+        }));
       }
     }
   } catch {

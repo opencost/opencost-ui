@@ -1,23 +1,47 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, TextInput, TextArea, Button, Tag } from "@carbon/react";
 import { useDashboard, type Dashboard } from "./dashboard-context";
 
 interface CreateDashboardModalProps {
   open: boolean;
   onClose: () => void;
-  onDashboardCreated: (id: string) => void;
+  onDashboardCreated?: (id: string) => void;
+  onDashboardUpdated?: (id: string) => void;
+  dashboardToEdit?: Dashboard | null;
 }
 
 export default function CreateDashboardModal({
   open,
   onClose,
   onDashboardCreated,
+  onDashboardUpdated,
+  dashboardToEdit,
 }: CreateDashboardModalProps) {
+  const isEditMode = !!dashboardToEdit;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const { createDashboard } = useDashboard();
+  const { createDashboard, updateDashboard } = useDashboard();
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (dashboardToEdit) {
+      setName(dashboardToEdit.name);
+      setDescription(dashboardToEdit.description);
+      setTags(dashboardToEdit.tags);
+      setTagInput("");
+      return;
+    }
+
+    setName("");
+    setDescription("");
+    setTags([]);
+    setTagInput("");
+  }, [dashboardToEdit, open]);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -30,8 +54,19 @@ export default function CreateDashboardModal({
     setTags(tags.filter((t) => t !== tag));
   };
 
-  const handleCreate = () => {
+  const handleSubmit = () => {
     if (name.trim()) {
+      if (dashboardToEdit) {
+        updateDashboard(dashboardToEdit.id, {
+          name: name.trim(),
+          description: description.trim(),
+          tags,
+        });
+        onDashboardUpdated?.(dashboardToEdit.id);
+        onClose();
+        return;
+      }
+
       const newId = `dashboard-${Date.now()}`;
       const newDashboard: Dashboard = {
         id: newId,
@@ -40,11 +75,12 @@ export default function CreateDashboardModal({
         widgets: [],
         tags,
         starred: false,
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         owner: "You",
       };
       createDashboard(newDashboard);
-      onDashboardCreated(newId);
+      onDashboardCreated?.(newId);
       setName("");
       setDescription("");
       setTags([]);
@@ -64,16 +100,18 @@ export default function CreateDashboardModal({
     <Modal
       open={open}
       onRequestClose={onClose}
-      modalHeading="Create New Dashboard"
-      primaryButtonText="Create Dashboard"
+      modalHeading={isEditMode ? "Edit Dashboard" : "Create New Dashboard"}
+      primaryButtonText={isEditMode ? "Save Changes" : "Create Dashboard"}
       secondaryButtonText="Cancel"
-      onRequestSubmit={handleCreate}
+      onRequestSubmit={handleSubmit}
       primaryButtonDisabled={!name.trim()}
       size="sm"
     >
       <div className="mb-4">
         <p className="mb-6 text-[#525252]">
-          Create a new custom dashboard to monitor your cloud costs
+          {isEditMode
+            ? "Update dashboard details, description, and tags."
+            : "Create a new custom dashboard to monitor your cloud costs"}
         </p>
 
         <div className="mb-4">

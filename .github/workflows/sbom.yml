@@ -154,7 +154,7 @@ jobs:
 
       # Upload SBOMs as artifacts
       - name: Upload SBOM Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-files
           path: |
@@ -167,7 +167,7 @@ jobs:
       # Attach SBOMs to Github release (only for releases, not PRs)
       - name: Attach SBOMs to Github Release
         if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version_number.outputs.RELEASE_VERSION }}
           files: |

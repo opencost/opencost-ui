@@ -29,8 +29,30 @@ const DashboardApp = lazy(() =>
 );
 
 // Applies the persisted / preferred theme before React hydrates so the first
-// paint matches the user's choice (avoids a light-to-dark flash).
-const themeBootstrap = `(function(){try{var s=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var t=(s==='white'||s==='g100')?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'g100':'white');var r=document.documentElement;r.setAttribute('data-carbon-theme',t);r.classList.remove('cds--white','cds--g100');r.classList.add(t==='g100'?'cds--g100':'cds--white');r.style.colorScheme=t==='g100'?'dark':'light';}catch(e){}})();`;
+// paint matches the user's choice (avoids a light-to-dark flash). The
+// localStorage read is isolated in its own try/catch so that the matchMedia
+// fallback and DOM updates still run when storage is unavailable (disabled
+// cookies, some private modes, sandboxed iframes).
+const themeBootstrap = `(function () {
+  try {
+    var stored = null;
+    try {
+      stored = window.localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});
+    } catch (e) {}
+    var theme =
+      stored === 'white' || stored === 'g100'
+        ? stored
+        : window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'g100'
+          : 'white';
+    var root = document.documentElement;
+    root.setAttribute('data-carbon-theme', theme);
+    root.classList.remove('cds--white', 'cds--g100');
+    root.classList.add(theme === 'g100' ? 'cds--g100' : 'cds--white');
+    root.style.colorScheme = theme === 'g100' ? 'dark' : 'light';
+  } catch (e) {}
+})();`;
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

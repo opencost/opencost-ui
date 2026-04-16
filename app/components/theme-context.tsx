@@ -65,10 +65,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    if (readStoredTheme()) return;
     if (typeof window === "undefined" || !window.matchMedia) return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (e: MediaQueryListEvent) => {
+      // Respect an explicit user choice once one has been persisted — only
+      // follow the OS preference while no stored theme exists.
+      if (readStoredTheme()) return;
       setThemeState(e.matches ? "g100" : "white");
     };
     // Safari < 14 and some mobile browsers only support the deprecated

@@ -3,6 +3,8 @@
 # Tilt cannot reference files that exist outside of this ./ui folder so the reference to THIRD_PARTY_LICENSES.txt is removed
 FROM nginx:alpine
 
+RUN apk --no-cache upgrade
+
 LABEL org.opencontainers.image.description="Cross-cloud cost allocation models for Kubernetes workloads"
 LABEL org.opencontainers.image.documentation=https://opencost.io/docs/
 LABEL org.opencontainers.image.licenses=Apache-2.0

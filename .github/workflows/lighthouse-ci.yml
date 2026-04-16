@@ -1,0 +1,109 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+
+      - uses: actions/cache@v5
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        continue-on-error: true
+        run: npx -y @lhci/cli@0.14.x autorun --config=./lighthouserc.json
+
+      - name: Parse Lighthouse results
+        id: parse
+        if: always()
+        run: |
+          LHCI_DIR=".lighthouseci"
+
+          # Check if any LHR JSON files exist
+          if ! ls "$LHCI_DIR"/lhr-*.json 1>/dev/null 2>&1; then
+            echo "perf=N/A" >> "$GITHUB_OUTPUT"
+            echo "a11y=N/A" >> "$GITHUB_OUTPUT"
+            echo "bp=N/A" >> "$GITHUB_OUTPUT"
+            echo "seo=N/A" >> "$GITHUB_OUTPUT"
+            echo "report_url=Not available" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Parse average scores from all LHR JSON files
+          echo "perf=$(jq -s '[.[].categories.performance.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "a11y=$(jq -s '[.[].categories.accessibility.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "bp=$(jq -s '[.[].categories["best-practices"].score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+          echo "seo=$(jq -s '[.[].categories.seo.score] | (add / length * 100) | floor' "$LHCI_DIR"/lhr-*.json)" >> "$GITHUB_OUTPUT"
+
+          # Get report URL from links.json
+          if [ -f "$LHCI_DIR/links.json" ]; then
+            report_url=$(jq -r 'to_entries[0].value // "Not available"' "$LHCI_DIR/links.json")
+            echo "report_url=$report_url" >> "$GITHUB_OUTPUT"
+          else
+            echo "report_url=Not available" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: lighthouse-report
+          mode: recreate
+          message: |
+            ## Lighthouse Report
+
+            | Category | Score |
+            |----------|-------|
+            | Performance | **${{ steps.parse.outputs.perf }}** |
+            | Accessibility | **${{ steps.parse.outputs.a11y }}** |
+            | Best Practices | **${{ steps.parse.outputs.bp }}** |
+            | SEO | **${{ steps.parse.outputs.seo }}** |
+
+            [Full Report](${{ steps.parse.outputs.report_url }})
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          if-no-files-found: ignore
+          retention-days: 30

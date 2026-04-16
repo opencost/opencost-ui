@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { StackedBarChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
+import { SwitchableChart } from "./switchable-chart";
+import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
 import AllocationService from "~/services/allocation";
 import {
   checkCustomWindow,
@@ -169,6 +170,7 @@ export default function CostAllocationChart({
   useSharedFilters = false,
 }: CostAllocationChartProps) {
   const [showFilters, setShowFilters] = useState(false);
+  const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [sharedFilters, setSharedFilters] =
     useAllocationFilters(useSharedFilters);
   const window = windowProp ?? sharedFilters.window;
@@ -304,6 +306,9 @@ export default function CostAllocationChart({
         description={description}
         expanded={showFilters}
         onToggle={() => setShowFilters((s) => !s)}
+        headerActions={
+          <ChartTypeToggle mode={chartMode} onChange={setChartMode} />
+        }
         filterContent={
           <AllocationFilterControls
             window={window}
@@ -326,7 +331,12 @@ export default function CostAllocationChart({
         </div>
       ) : (
         <div className="cost-allocation-chart w-full h-[400px] px-2">
-          <StackedBarChart data={chartData} options={chartOptions} />
+          <SwitchableChart
+            data={chartData}
+            options={chartOptions}
+            mode={chartMode}
+            stacked
+          />
         </div>
       )}
     </div>

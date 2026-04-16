@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppTheme } from "~/components/theme-context";
 import {
   Tabs,
@@ -90,18 +90,15 @@ export default function ExternalServicesChartWidget({
   const [tableData, setTableData] = useState<ExternalCostTableRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { theme } = useAppTheme();
-  const chartOptions = useMemo(
-    () => ({
-      theme,
-      title: "External Services Cost Trend",
-      axes: {
-        left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
-        bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
-      },
-      height: "400px",
-    }),
-    [theme],
-  );
+  const chartOptions = {
+    theme,
+    title: "External Services Cost Trend",
+    axes: {
+      left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+      bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+    },
+    height: "400px",
+  };
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [selectedService, setSelectedService] = useState<string | null>(null);
 

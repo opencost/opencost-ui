@@ -172,30 +172,24 @@ export default function AssetsVisualization() {
     .slice(0, 5)
     .map((asset) => ({ group: asset.name, key: "Cost", value: asset.totalCost }));
 
-  const pieOptions = useMemo(
-    () => ({
-      theme,
-      title: "Cost by Asset Type",
-      resizable: true,
-      height: "300px",
-      pie: { alignment: "center" as const },
-      legend: { alignment: "center" as const },
-    }),
-    [theme],
-  );
+  const pieOptions = {
+    theme,
+    title: "Cost by Asset Type",
+    resizable: true,
+    height: "300px",
+    pie: { alignment: "center" as const },
+    legend: { alignment: "center" as const },
+  };
 
-  const barOptions = useMemo(
-    () => ({
-      theme,
-      title: "Top 5 Assets by Cost",
-      axes: {
-        left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
-        bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
-      },
-      height: "300px",
-    }),
-    [theme],
-  );
+  const barOptions = {
+    theme,
+    title: "Top 5 Assets by Cost",
+    axes: {
+      left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+      bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+    },
+    height: "300px",
+  };
 
   if (isLoading) {
     return (

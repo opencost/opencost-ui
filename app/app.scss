@@ -15,8 +15,6 @@
 }
 
 body {
-  background-color: var(--cds-background);
-  color: var(--cds-text-primary);
   font-family:
     "IBM Plex Sans",
     -apple-system,
@@ -25,6 +23,14 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// Only tokenize body surface colors when the new UI has applied a theme
+// attribute via the bootstrap script — legacy builds never set this and
+// therefore keep their previous (browser default) body background/colors.
+html[data-carbon-theme] body {
+  background-color: var(--cds-background);
+  color: var(--cds-text-primary);
 }
 
 .dashboard-grid {

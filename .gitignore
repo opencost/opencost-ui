@@ -22,3 +22,6 @@ tilt_config.json
 /.react-router/
 /build/
 
+# Lighthouse CI
+.lighthouseci/
+

@@ -9,8 +9,10 @@ import {
   Button,
   Loading,
 } from "@carbon/react";
-import { PieChart, SimpleBarChart } from "@carbon/charts-react";
+import { PieChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
+import { SwitchableChart } from "./switchable-chart";
+import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
 import { Download } from "@carbon/icons-react";
 import "@carbon/charts-react/styles.css";
 import { type Asset } from "~/lib/assets-api";
@@ -38,6 +40,7 @@ function formatRamGb(ramBytes: number): string {
 
 export default function AssetsVisualization() {
   const [showFilters, setShowFilters] = useState(false);
+  const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [filterValues, setFilterValues] = useState<AssetsFilterValues>({
     window: DEFAULT_ASSETS_FILTERS.assetsWindow,
     aggregateBy: DEFAULT_ASSETS_FILTERS.assetsAggregateBy,
@@ -165,7 +168,7 @@ export default function AssetsVisualization() {
   }));
   const barChartData = sortedAssets
     .slice(0, 5)
-    .map((asset) => ({ group: asset.name, value: asset.totalCost }));
+    .map((asset) => ({ group: asset.name, key: "Cost", value: asset.totalCost }));
 
   const pieOptions = {
     title: "Cost by Asset Type",
@@ -294,6 +297,9 @@ export default function AssetsVisualization() {
         description="Infrastructure assets with cost and carbon tracking"
         expanded={showFilters}
         onToggle={() => setShowFilters((s) => !s)}
+        headerActions={
+          <ChartTypeToggle mode={chartMode} onChange={setChartMode} />
+        }
         filterContent={
           <AssetsFilterControls
             window={filterValues.window}
@@ -357,7 +363,12 @@ export default function AssetsVisualization() {
           <PieChart data={pieChartData} options={pieOptions} />
         </div>
         <div className="bg-[#f4f4f4] p-4 rounded">
-          <SimpleBarChart data={barChartData} options={barOptions} />
+          <SwitchableChart
+            data={barChartData}
+            options={barOptions}
+            mode={chartMode}
+            stacked={false}
+          />
         </div>
       </div>
 

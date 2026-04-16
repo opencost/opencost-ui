@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Button, Header, HeaderName, Tag, Modal } from "@carbon/react";
+import { Button, Tag, Modal } from "@carbon/react";
 import { Add, Dashboard, ChartLineSmooth, Activity } from "@carbon/icons-react";
 import {
   useDashboard,
@@ -8,6 +8,7 @@ import {
   type Widget,
 } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
+import AppHeader from "~/components/app-header";
 
 interface SharedDashboardPayload {
   name: string;
@@ -76,11 +77,8 @@ export default function DashboardList() {
 
   return (
     <>
-      <Header aria-label="OpenCost Platform">
-        <HeaderName href="/" prefix="">
-          <img src="/logo.png" alt="OpenCost" className="h-6" />
-        </HeaderName>
-        <div className="ml-auto flex items-center pr-4">
+      <AppHeader>
+        <div className="flex items-center pr-4">
           <Button
             onClick={() => setShowCreateModal(true)}
             renderIcon={Add}
@@ -89,13 +87,13 @@ export default function DashboardList() {
             Create Dashboard
           </Button>
         </div>
-      </Header>
+      </AppHeader>
 
-      <main className="pt-12 min-h-screen bg-[#f4f4f4]">
+      <main className="pt-12 min-h-screen bg-[var(--cds-background)]">
         <div className="p-8 max-w-[1584px] mx-auto">
           <div className="mb-8">
             <h2 className="text-[2rem] font-normal mb-2">Dashboards</h2>
-            <p className="text-[#525252] text-sm">
+            <p className="text-[var(--cds-text-secondary)] text-sm">
               Monitor and analyze your cloud infrastructure costs
             </p>
           </div>
@@ -104,8 +102,11 @@ export default function DashboardList() {
           <div className="grid gap-4 grid-cols-3 mb-8">
             <div className="metric-card">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#e0e0e0] rounded-lg flex">
-                  <Dashboard size={20} style={{ color: "#0f62fe" }} />
+                <div className="p-2 bg-[var(--cds-layer-accent)] rounded-lg flex">
+                  <Dashboard
+                    size={20}
+                    style={{ color: "var(--cds-icon-interactive)" }}
+                  />
                 </div>
                 <span className="metric-label">Total Dashboards</span>
               </div>
@@ -114,8 +115,11 @@ export default function DashboardList() {
 
             <div className="metric-card">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#defbe6] rounded-lg flex">
-                  <ChartLineSmooth size={20} style={{ color: "#198038" }} />
+                <div className="p-2 bg-[var(--cds-layer-accent)] rounded-lg flex">
+                  <ChartLineSmooth
+                    size={20}
+                    style={{ color: "var(--cds-support-success)" }}
+                  />
                 </div>
                 <span className="metric-label">Total Widgets</span>
               </div>
@@ -126,8 +130,11 @@ export default function DashboardList() {
 
             <div className="metric-card">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-[#bae6ff] rounded-lg flex">
-                  <Activity size={20} style={{ color: "#0072c3" }} />
+                <div className="p-2 bg-[var(--cds-layer-accent)] rounded-lg flex">
+                  <Activity
+                    size={20}
+                    style={{ color: "var(--cds-support-info)" }}
+                  />
                 </div>
                 <span className="metric-label">Active Monitoring</span>
               </div>
@@ -144,8 +151,11 @@ export default function DashboardList() {
                 className="card-enhanced p-6 cursor-pointer block no-underline text-inherit hover:no-underline focus:no-underline"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="p-[0.625rem] bg-[#e0e0e0] rounded-lg flex">
-                    <Dashboard size={20} style={{ color: "#0f62fe" }} />
+                  <div className="p-[0.625rem] bg-[var(--cds-layer-accent)] rounded-lg flex">
+                    <Dashboard
+                      size={20}
+                      style={{ color: "var(--cds-icon-interactive)" }}
+                    />
                   </div>
                   <div className="flex items-center gap-2">
                     <Tag type="gray" size="sm">
@@ -155,15 +165,15 @@ export default function DashboardList() {
                 </div>
 
                 <h3 className="font-semibold text-lg mb-2">{dashboard.name}</h3>
-                <p className="text-sm text-[#525252] mb-4">
+                <p className="text-sm text-[var(--cds-text-secondary)] mb-4">
                   {dashboard.description}
                 </p>
 
-                <div className="flex items-center justify-between pt-4 border-t border-[#e0e0e0]">
-                  <span className="text-xs text-[#8d8d8d]">
+                <div className="flex items-center justify-between pt-4 border-t border-[var(--cds-border-subtle)]">
+                  <span className="text-xs text-[var(--cds-text-placeholder)]">
                     Updated {timeAgo(dashboard.updatedAt)}
                   </span>
-                  <span className="text-xs text-[#8d8d8d]">
+                  <span className="text-xs text-[var(--cds-text-placeholder)]">
                     by {dashboard.owner}
                   </span>
                 </div>
@@ -195,20 +205,20 @@ export default function DashboardList() {
       >
         {sharedPayload && (
           <div>
-            <p className="mb-4 text-sm text-[#525252]">
+            <p className="mb-4 text-sm text-[var(--cds-text-secondary)]">
               Someone shared a dashboard configuration with you. Would you like
               to import it?
             </p>
-            <div className="p-4 bg-[#f4f4f4] border-l-4 border-[#0f62fe] mb-4">
+            <div className="p-4 bg-[var(--cds-layer-accent)] border-l-4 border-[var(--cds-focus)] mb-4">
               <p className="font-semibold text-base mb-1">
                 {sharedPayload.name}
               </p>
               {sharedPayload.description && (
-                <p className="text-sm text-[#525252] mb-2">
+                <p className="text-sm text-[var(--cds-text-secondary)] mb-2">
                   {sharedPayload.description}
                 </p>
               )}
-              <p className="text-xs text-[#8d8d8d]">
+              <p className="text-xs text-[var(--cds-text-placeholder)]">
                 {sharedPayload.widgets.length} widget
                 {sharedPayload.widgets.length !== 1 ? "s" : ""}
                 {sharedPayload.tags?.length
@@ -216,7 +226,7 @@ export default function DashboardList() {
                   : ""}
               </p>
             </div>
-            <p className="text-xs text-[#8d8d8d]">
+            <p className="text-xs text-[var(--cds-text-placeholder)]">
               This will be added as a new dashboard in your workspace. No
               existing dashboards will be affected.
             </p>

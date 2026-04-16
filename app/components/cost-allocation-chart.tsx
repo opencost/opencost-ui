@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useAppTheme } from "~/components/theme-context";
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
 import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
@@ -187,6 +188,7 @@ export default function CostAllocationChart({
 
   const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useAppTheme();
 
   const chartTitle = generateTitle(window, aggregateBy, accumulate);
   const chartData = useMemo(
@@ -234,6 +236,7 @@ export default function CostAllocationChart({
   const chartOptions = useMemo(() => {
     const colorScale = buildColorScale(chartData);
     return {
+      theme,
       title: chartTitle,
       axes: {
         left: {
@@ -281,11 +284,11 @@ export default function CostAllocationChart({
               return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
             })
             .join("");
-          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
+          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid var(--cds-border-subtle);padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
         },
       },
     };
-  }, [chartTitle, chartData, currency]);
+  }, [chartTitle, chartData, currency, theme]);
 
   const setFilter = (
     key: keyof typeof sharedFilters,
@@ -326,7 +329,7 @@ export default function CostAllocationChart({
         }
       />
       {loading ? (
-        <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
+        <div className="h-[400px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
           Loading…
         </div>
       ) : (

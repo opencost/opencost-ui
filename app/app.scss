@@ -1,4 +1,18 @@
+@use "@carbon/react/scss/theme";
+@use "@carbon/react/scss/themes";
 @use "@carbon/react";
+
+:root,
+.cds--white {
+  @include theme.theme(themes.$white);
+  color-scheme: light;
+}
+
+[data-carbon-theme="g100"],
+.cds--g100 {
+  @include theme.theme(themes.$g100);
+  color-scheme: dark;
+}
 
 body {
   font-family:
@@ -9,6 +23,14 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// Only tokenize body surface colors when the new UI has applied a theme
+// attribute via the bootstrap script — legacy builds never set this and
+// therefore keep their previous (browser default) body background/colors.
+html[data-carbon-theme] body {
+  background-color: var(--cds-background);
+  color: var(--cds-text-primary);
 }
 
 .dashboard-grid {
@@ -32,8 +54,8 @@ body {
 }
 
 .card-enhanced {
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
   border-radius: 4px;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.12),
@@ -45,27 +67,27 @@ body {
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.15),
     0 2px 4px rgba(0, 0, 0, 0.1);
-  border-color: #0f62fe;
+  border-color: var(--cds-focus);
 }
 
 .section-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #161616;
+  color: var(--cds-text-primary);
   margin-bottom: 0.5rem;
   letter-spacing: -0.01em;
 }
 
 .section-description {
   font-size: 0.875rem;
-  color: #525252;
+  color: var(--cds-text-secondary);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .metric-card {
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
   border-radius: 4px;
   padding: 1.25rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -79,14 +101,14 @@ body {
 .metric-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #161616;
+  color: var(--cds-text-primary);
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
 .metric-label {
   font-size: 0.875rem;
-  color: #525252;
+  color: var(--cds-text-secondary);
   font-weight: 500;
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
@@ -99,8 +121,8 @@ body {
 }
 
 .section-card {
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
   border-radius: 4px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -108,12 +130,12 @@ body {
 }
 
 .legacy-banner {
-  background: #fff8e1;
-  border-left: 4px solid #f59e0b;
+  background: var(--cds-notification-background-warning, #fff8e1);
+  border-left: 4px solid var(--cds-support-warning, #f59e0b);
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
-  color: #525252;
+  color: var(--cds-text-secondary);
 }
 
 .cost-allocation-chart {

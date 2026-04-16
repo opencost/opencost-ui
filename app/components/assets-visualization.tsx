@@ -17,6 +17,7 @@ import { Download } from "@carbon/icons-react";
 import "@carbon/charts-react/styles.css";
 import { type Asset } from "~/lib/assets-api";
 import AssetsService from "~/services/assets";
+import { useAppTheme } from "~/components/theme-context";
 import {
   AssetsFilterControls,
   DEFAULT_ASSETS_FILTERS,
@@ -54,6 +55,7 @@ export default function AssetsVisualization() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useAppTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -171,6 +173,7 @@ export default function AssetsVisualization() {
     .map((asset) => ({ group: asset.name, key: "Cost", value: asset.totalCost }));
 
   const pieOptions = {
+    theme,
     title: "Cost by Asset Type",
     resizable: true,
     height: "300px",
@@ -179,6 +182,7 @@ export default function AssetsVisualization() {
   };
 
   const barOptions = {
+    theme,
     title: "Top 5 Assets by Cost",
     axes: {
       left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
@@ -196,7 +200,7 @@ export default function AssetsVisualization() {
   }
 
   const AssetRow = ({ asset }: { asset: Asset }) => (
-    <div className="p-3 rounded border border-[#e0e0e0] mb-2 hover:bg-[#f4f4f4] transition-colors">
+    <div className="p-3 rounded border border-[var(--cds-border-subtle)] mb-2 hover:bg-[var(--cds-layer-hover)] transition-colors">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -212,7 +216,7 @@ export default function AssetsVisualization() {
               </Tag>
             )}
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8d8d8d]">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--cds-text-placeholder)]">
             {asset.ip && <span title="Internal / node IP">{asset.ip}</span>}
             <span>{asset.cluster}</span>
             <span>{asset.region}</span>
@@ -236,7 +240,7 @@ export default function AssetsVisualization() {
           <div className="font-semibold text-sm">
             ${asset.totalCost.toFixed(2)}
           </div>
-          <div className="text-xs text-[#8d8d8d]">
+          <div className="text-xs text-[var(--cds-text-placeholder)]">
             {asset.carbonEmissions.toFixed(2)} kg CO₂e
           </div>
         </div>
@@ -324,7 +328,7 @@ export default function AssetsVisualization() {
       />
 
       {error && (
-        <div className="p-3 bg-[#f1c21b] text-black rounded mb-4 text-sm">
+        <div className="p-3 bg-[var(--cds-notification-background-warning)] text-[var(--cds-text-primary)] border-l-4 border-[var(--cds-support-warning)] rounded mb-4 text-sm">
           ⚠️ {error}
         </div>
       )}
@@ -333,36 +337,36 @@ export default function AssetsVisualization() {
         <div className="metric-card">
           <div className="metric-label">Total Assets</div>
           <div className="metric-value">{assets.length}</div>
-          <p className="metric-change text-[#525252]">
+          <p className="metric-change text-[var(--cds-text-secondary)]">
             {typeData.length} types
           </p>
         </div>
         <div className="metric-card">
           <div className="metric-label">Total Cost</div>
           <div className="metric-value">${totalCost.toFixed(2)}</div>
-          <p className="metric-change text-[#525252]">This period</p>
+          <p className="metric-change text-[var(--cds-text-secondary)]">This period</p>
         </div>
         <div className="metric-card">
           <div className="metric-label">Carbon Emissions</div>
           <div className="metric-value">{totalCarbon.toFixed(2)} kg CO₂e</div>
-          <p className="metric-change text-[#525252]">Environmental impact</p>
+          <p className="metric-change text-[var(--cds-text-secondary)]">Environmental impact</p>
         </div>
         <div className="metric-card">
           <div className="metric-label">Avg Utilization</div>
           <div className="metric-value">
             {avgUtilization === null ? "—" : `${avgUtilization}%`}
           </div>
-          <p className="metric-change text-[#525252]">
+          <p className="metric-change text-[var(--cds-text-secondary)]">
             CPU + Memory (where reported)
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-[#f4f4f4] p-4 rounded">
+        <div className="bg-[var(--cds-layer-accent)] p-4 rounded">
           <PieChart data={pieChartData} options={pieOptions} />
         </div>
-        <div className="bg-[#f4f4f4] p-4 rounded">
+        <div className="bg-[var(--cds-layer-accent)] p-4 rounded">
           <SwitchableChart
             data={barChartData}
             options={barOptions}
@@ -373,12 +377,12 @@ export default function AssetsVisualization() {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e0e0e0]">
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-[var(--cds-border-subtle)]">
           <div>
-            <h4 className="text-base font-semibold text-[#161616]">
+            <h4 className="text-base font-semibold text-[var(--cds-text-primary)]">
               All Assets
             </h4>
-            <p className="text-sm text-[#525252]">
+            <p className="text-sm text-[var(--cds-text-secondary)]">
               View and manage infrastructure resources
             </p>
           </div>

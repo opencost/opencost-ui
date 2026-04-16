@@ -13,6 +13,8 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import type { Route } from "./+types/root";
 import "./app.scss";
 import "./tailwind.css";
+import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
+import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
@@ -26,6 +28,32 @@ const DashboardApp = lazy(() =>
   })),
 );
 
+// Applies the persisted / preferred theme before React hydrates so the first
+// paint matches the user's choice (avoids a light-to-dark flash). The
+// localStorage read is isolated in its own try/catch so that the matchMedia
+// fallback and DOM updates still run when storage is unavailable (disabled
+// cookies, some private modes, sandboxed iframes).
+const themeBootstrap = `(function () {
+  try {
+    var stored = null;
+    try {
+      stored = window.localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});
+    } catch (e) {}
+    var theme =
+      stored === 'white' || stored === 'g100'
+        ? stored
+        : window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'g100'
+          : 'white';
+    var root = document.documentElement;
+    root.setAttribute('data-carbon-theme', theme);
+    root.classList.remove('cds--white', 'cds--g100');
+    root.classList.add(theme === 'g100' ? 'cds--g100' : 'cds--white');
+    root.style.colorScheme = theme === 'g100' ? 'dark' : 'light';
+  } catch (e) {}
+})();`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -34,6 +62,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {!isLegacyMode && (
+          <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+        )}
       </head>
       <body>
         {children}
@@ -45,17 +76,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const content = isLegacyMode ? (
-    <Outlet />
-  ) : (
-    <Suspense fallback={null}>
-      <DashboardApp />
-    </Suspense>
-  );
+  if (isLegacyMode) {
+    return (
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <Outlet />
+      </LocalizationProvider>
+    );
+  }
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      {content}
-    </LocalizationProvider>
+    <ThemeProvider>
+      <AppMuiThemeBridge>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Suspense fallback={null}>
+            <DashboardApp />
+          </Suspense>
+        </LocalizationProvider>
+      </AppMuiThemeBridge>
+    </ThemeProvider>
   );
 }
 
@@ -78,9 +115,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return (
     <main className="p-[4rem_2rem] max-w-[600px] mx-auto">
       <h1 className="text-[2rem] font-bold mb-4">{message}</h1>
-      <p className="text-[#525252] mb-4">{details}</p>
+      <p className="text-[var(--cds-text-secondary)] mb-4">{details}</p>
       {stack && (
-        <pre className="bg-[#f4f4f4] p-4 overflow-x-auto text-[0.8rem]">
+        <pre className="bg-[var(--cds-layer)] p-4 overflow-x-auto text-[0.8rem]">
           <code>{stack}</code>
         </pre>
       )}

@@ -122,7 +122,7 @@ export default function DashboardBuilder({
           </Button>
           <div>
             <h2 className="text-2xl font-bold">Edit Dashboard Layout</h2>
-            <p className="text-sm text-[#525252]">
+            <p className="text-sm text-[var(--cds-text-secondary)]">
               {isDefaultDashboard
                 ? "Default dashboard layout is fixed and cannot be modified"
                 : "Customize your dashboard widgets"}
@@ -147,15 +147,15 @@ export default function DashboardBuilder({
             style={{
               border:
                 selectedWidget?.id === widget.id
-                  ? "2px solid #0f62fe"
-                  : "1px solid #e0e0e0",
+                  ? "2px solid var(--cds-focus)"
+                  : "1px solid var(--cds-border-subtle)",
             }}
             onClick={() => setSelectedWidget(widget)}
           >
             <div className="p-4 cursor-pointer min-h-[200px] flex flex-col justify-between">
               <div>
                 <h3 className="text-base font-semibold mb-2">{widget.title}</h3>
-                <p className="text-sm text-[#525252]">
+                <p className="text-sm text-[var(--cds-text-secondary)]">
                   {
                     WIDGET_TYPES.find((w) => w.value === widget.type)
                       ?.description
@@ -194,13 +194,13 @@ export default function DashboardBuilder({
 
         {!isDefaultDashboard && (
           <Tile
-            style={{ border: "2px dashed #0f62fe" }}
+            style={{ border: "2px dashed var(--cds-focus)" }}
             onClick={() => setShowAddWidget(true)}
           >
             <div className="p-4 cursor-pointer min-h-[200px] flex items-center justify-center">
               <div className="text-center">
-                <Add size={32} style={{ color: "#0f62fe" }} className="mb-2" />
-                <p className="text-sm font-semibold text-[#0f62fe]">
+                <Add size={32} style={{ color: "var(--cds-link-primary)" }} className="mb-2" />
+                <p className="text-sm font-semibold text-[var(--cds-link-primary)]">
                   Add Widget
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default function DashboardBuilder({
       </div>
 
       {selectedWidget && !isDefaultDashboard && (
-        <Tile className="p-6 bg-[#f4f4f4]">
+        <Tile className="p-6 bg-[var(--cds-layer-accent)]">
           <h3 className="text-lg font-semibold mb-4">Configure Widget</h3>
           <Select
             id="widget-size"
@@ -252,7 +252,7 @@ export default function DashboardBuilder({
               />
             ))}
           </Select>
-          <p className="text-sm text-[#525252] mt-2">
+          <p className="text-sm text-[var(--cds-text-secondary)] mt-2">
             {WIDGET_TYPES.find((w) => w.value === newWidgetType)?.description}
           </p>
           <div className="mt-6">
@@ -267,7 +267,7 @@ export default function DashboardBuilder({
               <SelectItem value="3" text="3 columns (¾ width)" />
               <SelectItem value="4" text="4 columns (full width)" />
             </Select>
-            <p className="text-xs text-[#6f6f6f] mt-1">
+            <p className="text-xs text-[var(--cds-text-helper)] mt-1">
               How much horizontal space should this widget occupy?
             </p>
           </div>

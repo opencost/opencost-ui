@@ -45,30 +45,44 @@ function applyThemeToDocument(theme: ThemeName) {
   root.style.colorScheme = theme === "g100" ? "dark" : "light";
 }
 
+function readDocumentTheme(): ThemeName | null {
+  if (typeof document === "undefined") return null;
+  const attr = document.documentElement.getAttribute("data-carbon-theme");
+  return attr === "white" || attr === "g100" ? attr : null;
+}
+
+function resolveInitialTheme(): ThemeName {
+  return (
+    readDocumentTheme() ?? readStoredTheme() ?? readPreferredTheme() ?? "white"
+  );
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeName>("white");
+  const [theme, setThemeState] = useState<ThemeName>(resolveInitialTheme);
 
   useEffect(() => {
-    const initial = readStoredTheme() ?? readPreferredTheme();
-    setThemeState(initial);
-    applyThemeToDocument(initial);
-  }, []);
+    applyThemeToDocument(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (readStoredTheme()) return;
+    if (typeof window === "undefined" || !window.matchMedia) return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (e: MediaQueryListEvent) => {
-      const next: ThemeName = e.matches ? "g100" : "white";
-      setThemeState(next);
-      applyThemeToDocument(next);
+      setThemeState(e.matches ? "g100" : "white");
     };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    // Safari < 14 and some mobile browsers only support the deprecated
+    // addListener/removeListener API.
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    }
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
   }, []);
 
   const setTheme = useCallback((next: ThemeName) => {
     setThemeState(next);
-    applyThemeToDocument(next);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {}

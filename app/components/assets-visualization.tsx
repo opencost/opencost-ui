@@ -334,7 +334,7 @@ export default function AssetsVisualization() {
       />
 
       {error && (
-        <div className="p-3 bg-[var(--cds-support-warning)] text-[var(--cds-text-inverse)] rounded mb-4 text-sm">
+        <div className="p-3 bg-[var(--cds-notification-background-warning)] text-[var(--cds-text-primary)] border-l-4 border-[var(--cds-support-warning)] rounded mb-4 text-sm">
           ⚠️ {error}
         </div>
       )}

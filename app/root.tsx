@@ -13,7 +13,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import type { Route } from "./+types/root";
 import "./app.scss";
 import "./tailwind.css";
-import { ThemeProvider } from "~/components/theme-context";
+import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
@@ -30,7 +30,7 @@ const DashboardApp = lazy(() =>
 
 // Applies the persisted / preferred theme before React hydrates so the first
 // paint matches the user's choice (avoids a light-to-dark flash).
-const themeBootstrap = `(function(){try{var s=localStorage.getItem('opencost-theme');var t=(s==='white'||s==='g100')?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'g100':'white');var r=document.documentElement;r.setAttribute('data-carbon-theme',t);r.classList.remove('cds--white','cds--g100');r.classList.add(t==='g100'?'cds--g100':'cds--white');r.style.colorScheme=t==='g100'?'dark':'light';}catch(e){}})();`;
+const themeBootstrap = `(function(){try{var s=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var t=(s==='white'||s==='g100')?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'g100':'white');var r=document.documentElement;r.setAttribute('data-carbon-theme',t);r.classList.remove('cds--white','cds--g100');r.classList.add(t==='g100'?'cds--g100':'cds--white');r.style.colorScheme=t==='g100'?'dark':'light';}catch(e){}})();`;
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -52,18 +52,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const content = isLegacyMode ? (
-    <Outlet />
-  ) : (
-    <Suspense fallback={null}>
-      <DashboardApp />
-    </Suspense>
-  );
+  if (isLegacyMode) {
+    return (
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <Outlet />
+      </LocalizationProvider>
+    );
+  }
   return (
     <ThemeProvider>
       <AppMuiThemeBridge>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          {content}
+          <Suspense fallback={null}>
+            <DashboardApp />
+          </Suspense>
         </LocalizationProvider>
       </AppMuiThemeBridge>
     </ThemeProvider>

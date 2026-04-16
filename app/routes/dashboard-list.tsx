@@ -72,7 +72,7 @@ export default function DashboardList() {
     const matchesTag =
       selectedTag === "all" || dashboard.tags.includes(selectedTag);
     const matchesOwner = selectedOwner === "all" || dashboard.owner === selectedOwner;
-    const scopeValue = dashboard.starred ? "OpenCost" : "Public";
+    const scopeValue = dashboard.starred ? "opencost" : "public";
     const matchesScope = selectedScope === "all" || selectedScope === scopeValue;
 
     return matchesQuery && matchesTag && matchesOwner && matchesScope;
@@ -212,7 +212,7 @@ export default function DashboardList() {
                   className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
                 >
                   <option value="all">Filter by scope</option>
-                  <option value="OpenCost">OpenCost</option>
+                  <option value="opencost">OpenCost</option>
                   <option value="public">Public</option>
                 </select>
                 <select

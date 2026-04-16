@@ -14,6 +14,10 @@ export function meta() {
   return [{ title: "OpenCost — Report Builder" }];
 }
 
+function escapeCsvField(value: string | number | null | undefined): string {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`;
+}
+
 export default function ReportBuilderPage() {
   const navigate = useNavigate();
   const { reportId } = useParams<{ reportId: string }>();
@@ -50,65 +54,6 @@ export default function ReportBuilderPage() {
     }
   }, []);
 
-  const handleSave = () => {
-    updateReport(report.id, {
-      name: draft.name,
-      description: draft.description,
-      tags: draft.tags,
-      visibility: draft.visibility,
-      favorite: draft.favorite,
-      query: draft.query,
-    });
-    pushFeedback("Report saved.");
-  };
-
-  const handleSaveAsCopy = () => {
-    const now = new Date().toISOString();
-    const copyId = `report-${Date.now()}`;
-    const copy: Report = {
-      ...draft,
-      id: copyId,
-      name: `${draft.name} (Copy)`,
-      favorite: false,
-      createdAt: now,
-      updatedAt: now,
-    };
-    createReport(copy);
-    pushFeedback("Report copied.");
-    navigate(`/report/${copyId}`);
-  };
-
-  const handleToggleFavorite = () => {
-    const next = !draft.favorite;
-    handleUpdateDraft({ favorite: next });
-    updateReport(report.id, { favorite: next });
-    pushFeedback(next ? "Added to favorites." : "Removed from favorites.");
-  };
-
-  const handleExport = () => {
-    if (!result || result.rows.length === 0) {
-      pushFeedback("Run report before exporting.");
-      return;
-    }
-
-    const header = `${result.groupingLabel},${result.measureLabel}`;
-    const body = result.rows.map((row) => `${row.name},${row.measureValue}`).join("\n");
-    const csv = `${header}\n${body}`;
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `${draft.name.replace(/\s+/g, "-").toLowerCase()}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-    pushFeedback("Export started.");
-  };
-
-  const handleDelete = () => {
-    deleteReport(report.id);
-    navigate("/reports");
-  };
-
   useEffect(() => {
     if (!autoRun || !draft) return;
     const timer = window.setTimeout(() => {
@@ -131,9 +76,78 @@ export default function ReportBuilderPage() {
     );
   }
 
+  const currentReport = report;
+  const currentDraft = draft;
+
   const pushFeedback = (message: string) => {
     setActionFeedback(message);
     window.setTimeout(() => setActionFeedback(null), 2600);
+  };
+
+  const handleSave = () => {
+    updateReport(currentReport.id, {
+      name: currentDraft.name,
+      description: currentDraft.description,
+      tags: currentDraft.tags,
+      visibility: currentDraft.visibility,
+      favorite: currentDraft.favorite,
+      query: currentDraft.query,
+    });
+    pushFeedback("Report saved.");
+  };
+
+  const handleSaveAsCopy = () => {
+    const now = new Date().toISOString();
+    const copyId = `report-${Date.now()}`;
+    const copy: Report = {
+      ...currentDraft,
+      id: copyId,
+      name: `${currentDraft.name} (Copy)`,
+      favorite: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+    createReport(copy);
+    pushFeedback("Report copied.");
+    navigate(`/report/${copyId}`);
+  };
+
+  const handleToggleFavorite = () => {
+    const next = !currentDraft.favorite;
+    handleUpdateDraft({ favorite: next });
+    updateReport(currentReport.id, { favorite: next });
+    pushFeedback(next ? "Added to favorites." : "Removed from favorites.");
+  };
+
+  const handleExport = () => {
+    if (!result || result.rows.length === 0) {
+      pushFeedback("Run report before exporting.");
+      return;
+    }
+
+    const header = [
+      escapeCsvField(result.groupingLabel),
+      escapeCsvField(result.measureLabel),
+    ].join(",");
+    const body = result.rows
+      .map((row) =>
+        [escapeCsvField(row.name), escapeCsvField(row.measureValue)].join(","),
+      )
+      .join("\n");
+    const csv = `${header}\n${body}`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${currentDraft.name.replace(/\s+/g, "-").toLowerCase()}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    pushFeedback("Export started.");
+  };
+
+  const handleDelete = () => {
+    deleteReport(currentReport.id);
+    navigate("/reports");
   };
 
   const handleUpdateDraft = (updates: Partial<Report>) => {
@@ -163,8 +177,12 @@ export default function ReportBuilderPage() {
                 Back to Reports
               </Button>
               <div>
-                <h1 className="m-0 text-[2rem] font-normal text-[#262626]">{draft.name}</h1>
-                <p className="m-0 mt-1 text-sm text-[#525252]">{draft.description}</p>
+                <h1 className="m-0 text-[2rem] font-normal text-[#262626]">
+                  {currentDraft.name}
+                </h1>
+                <p className="m-0 mt-1 text-sm text-[#525252]">
+                  {currentDraft.description}
+                </p>
                 {actionFeedback ? (
                   <p className="m-0 mt-1 text-xs text-[#198038]">{actionFeedback}</p>
                 ) : null}
@@ -181,7 +199,7 @@ export default function ReportBuilderPage() {
                 size="sm"
                 kind="ghost"
                 onClick={handleToggleFavorite}
-                renderIcon={draft.favorite ? Star : StarBorder}
+                renderIcon={currentDraft.favorite ? Star : StarBorder}
               >
                 Favorite
               </Button>
@@ -211,13 +229,13 @@ export default function ReportBuilderPage() {
                 result={result}
                 loading={running}
                 error={runError}
-                chartType={draft.query.chartType}
+                chartType={currentDraft.query.chartType}
               />
             </section>
             <ReportBuilderSidePanel
-              report={draft}
+              report={currentDraft}
               onUpdate={handleUpdateDraft}
-              onRun={() => void executeRun(draft)}
+              onRun={() => void executeRun(currentDraft)}
               isRunning={running}
               autoRun={autoRun}
               onAutoRunChange={setAutoRun}

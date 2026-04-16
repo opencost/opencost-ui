@@ -127,10 +127,10 @@ export async function runAllocationReport(report: Report): Promise<AllocationRep
       Number(get(a, report.query.measure, 0)),
   );
 
-  const mappedRows: AllocationReportRow[] = sorted.map((row) => {
+  const mappedRows: AllocationReportRow[] = sorted.map((row, index) => {
     const measureValue = Number(get(row, report.query.measure, 0));
     return {
-      id: String(row.name ?? Math.random()),
+      id: String(row.name ?? `${grouping}-${index}`),
       name: String(row.name ?? "Unknown"),
       measureValue,
       measureDisplayValue: toCurrency(measureValue, report.query.currency),

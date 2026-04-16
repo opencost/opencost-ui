@@ -19,7 +19,7 @@ function buildCacheKey(
     step?: string;
   },
 ): string {
-  const { accumulate, filters, includeIdle = true, step } = options;
+  const { accumulate, filters, includeIdle = true, step = "1d" } = options;
   const filterKey = (() => {
     if (!filters) return "";
     if (typeof filters === "string") return filters;

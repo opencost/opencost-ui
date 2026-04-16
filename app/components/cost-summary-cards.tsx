@@ -41,10 +41,10 @@ function MetricCard({
     <div className="metric-card">
       <div className="flex items-center justify-between mb-3">
         <div className="metric-label">{label}</div>
-        <Icon size={16} style={{ color: "#525252" }} />
+        <Icon size={16} style={{ color: "var(--cds-text-secondary)" }} />
       </div>
       {loading ? (
-        <div className="metric-value text-[#8d8d8d]">—</div>
+        <div className="metric-value text-[var(--cds-text-placeholder)]">—</div>
       ) : (
         <div className="metric-value">{value}</div>
       )}

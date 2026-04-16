@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAppTheme } from "~/components/theme-context";
 import {
   Tabs,
   TabList,
@@ -73,15 +74,6 @@ function buildTableData(tableData: any[]): ExternalCostTableRow[] {
   }));
 }
 
-const chartOptions = {
-  title: "External Services Cost Trend",
-  axes: {
-    left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
-    bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
-  },
-  height: "400px",
-};
-
 const headers = [
   { key: "name", header: "Service" },
   { key: "cost", header: "Cost" },
@@ -97,6 +89,19 @@ export default function ExternalServicesChartWidget({
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableData, setTableData] = useState<ExternalCostTableRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useAppTheme();
+  const chartOptions = useMemo(
+    () => ({
+      theme,
+      title: "External Services Cost Trend",
+      axes: {
+        left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
+        bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+      },
+      height: "400px",
+    }),
+    [theme],
+  );
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
@@ -155,7 +160,7 @@ export default function ExternalServicesChartWidget({
             </div>
             <div className="w-full h-[400px]">
               {loading ? (
-                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
+                <div className="h-[400px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
                   Loading…
                 </div>
               ) : chartData.length > 0 ? (
@@ -166,7 +171,7 @@ export default function ExternalServicesChartWidget({
                   stacked={false}
                 />
               ) : (
-                <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
+                <div className="h-[400px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
                   No external cost data available. Configure external cost
                   integrations to see data here.
                 </div>
@@ -176,9 +181,9 @@ export default function ExternalServicesChartWidget({
           <TabPanel>
             <div className="mt-4">
               {loading ? (
-                <p className="text-[#8d8d8d]">Loading…</p>
+                <p className="text-[var(--cds-text-placeholder)]">Loading…</p>
               ) : tableData.length === 0 ? (
-                <p className="text-[#8d8d8d]">
+                <p className="text-[var(--cds-text-placeholder)]">
                   No external cost data available.
                 </p>
               ) : (
@@ -233,11 +238,11 @@ export default function ExternalServicesChartWidget({
               )}
 
               {selectedService && (
-                <Tile className="mt-4 p-4 bg-[#f4f4f4]">
+                <Tile className="mt-4 p-4 bg-[var(--cds-layer-accent)]">
                   <h4 className="font-semibold mb-2">
                     {selectedService} Details
                   </h4>
-                  <p className="text-sm text-[#525252]">
+                  <p className="text-sm text-[var(--cds-text-secondary)]">
                     Service: {selectedService}
                   </p>
                 </Tile>

@@ -13,6 +13,8 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import type { Route } from "./+types/root";
 import "./app.scss";
 import "./tailwind.css";
+import { ThemeProvider } from "~/components/theme-context";
+import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
@@ -26,6 +28,10 @@ const DashboardApp = lazy(() =>
   })),
 );
 
+// Applies the persisted / preferred theme before React hydrates so the first
+// paint matches the user's choice (avoids a light-to-dark flash).
+const themeBootstrap = `(function(){try{var s=localStorage.getItem('opencost-theme');var t=(s==='white'||s==='g100')?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'g100':'white');var r=document.documentElement;r.setAttribute('data-carbon-theme',t);r.classList.remove('cds--white','cds--g100');r.classList.add(t==='g100'?'cds--g100':'cds--white');r.style.colorScheme=t==='g100'?'dark':'light';}catch(e){}})();`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -34,6 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body>
         {children}
@@ -53,9 +60,13 @@ export default function App() {
     </Suspense>
   );
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      {content}
-    </LocalizationProvider>
+    <ThemeProvider>
+      <AppMuiThemeBridge>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          {content}
+        </LocalizationProvider>
+      </AppMuiThemeBridge>
+    </ThemeProvider>
   );
 }
 
@@ -78,9 +89,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return (
     <main className="p-[4rem_2rem] max-w-[600px] mx-auto">
       <h1 className="text-[2rem] font-bold mb-4">{message}</h1>
-      <p className="text-[#525252] mb-4">{details}</p>
+      <p className="text-[var(--cds-text-secondary)] mb-4">{details}</p>
       {stack && (
-        <pre className="bg-[#f4f4f4] p-4 overflow-x-auto text-[0.8rem]">
+        <pre className="bg-[var(--cds-layer)] p-4 overflow-x-auto text-[0.8rem]">
           <code>{stack}</code>
         </pre>
       )}

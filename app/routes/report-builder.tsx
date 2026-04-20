@@ -7,8 +7,8 @@ import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportBuilderSidePanel from "~/components/report-builder-side-panel";
 import ReportResultsView from "~/components/report-results-view";
 import { useReport } from "~/components/report-context";
-import { runAllocationReport, type AllocationReportResult } from "~/services/report-query";
-import type { Report } from "~/types/report";
+import { runReport, type ReportRunResult } from "~/services/report-query";
+import { normalizeReportQuery, type Report } from "~/types/report";
 
 export function meta() {
   return [{ title: "OpenCost — Report Builder" }];
@@ -30,7 +30,7 @@ export default function ReportBuilderPage() {
   const [running, setRunning] = useState(false);
   const [autoRun, setAutoRun] = useState(true);
   const [runError, setRunError] = useState<string | null>(null);
-  const [result, setResult] = useState<AllocationReportResult | null>(null);
+  const [result, setResult] = useState<ReportRunResult | null>(null);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function ReportBuilderPage() {
     setRunning(true);
     setRunError(null);
     try {
-      const next = await runAllocationReport(targetReport);
+      const next = await runReport(targetReport);
       setResult(next);
     } catch (error: any) {
       setRunError(error?.message || "Unable to run report.");
@@ -120,19 +120,45 @@ export default function ReportBuilderPage() {
   };
 
   const handleExport = () => {
-    if (!result || result.rows.length === 0) {
+    if (!result) {
       pushFeedback("Run report before exporting.");
       return;
     }
 
-    const header = [
-      escapeCsvField(result.groupingLabel),
-      escapeCsvField(result.measureLabel),
-    ].join(",");
-    const body = result.rows
-      .map((row) =>
-        [escapeCsvField(row.name), escapeCsvField(row.measureValue)].join(","),
-      )
+    const rowsForCsv: Array<{ name: string; value: number }> =
+      result.layer === "allocation"
+        ? result.rows.map((row) => ({ name: row.name, value: row.measureValue }))
+        : result.layer === "cloudCost"
+          ? result.rows.map((row) => ({ name: row.name, value: row.cost }))
+          : result.layer === "externalCost"
+            ? result.rows.map((row) => ({ name: row.name, value: row.cost }))
+            : result.assets.map((asset) => ({ name: asset.name, value: asset.totalCost }));
+
+    if (rowsForCsv.length === 0) {
+      pushFeedback("Run report before exporting.");
+      return;
+    }
+
+    const firstColumnLabel =
+      result.layer === "allocation"
+        ? result.groupingLabel
+        : result.layer === "cloudCost"
+          ? result.groupingLabel
+          : result.layer === "externalCost"
+            ? result.groupingLabel
+            : "Asset";
+    const secondColumnLabel =
+      result.layer === "allocation"
+        ? result.measureLabel
+        : result.layer === "cloudCost"
+          ? result.metricLabel
+          : result.layer === "externalCost"
+            ? "Cost"
+            : "Total Cost";
+
+    const header = [escapeCsvField(firstColumnLabel), escapeCsvField(secondColumnLabel)].join(",");
+    const body = rowsForCsv
+      .map((row) => [escapeCsvField(row.name), escapeCsvField(row.value)].join(","))
       .join("\n");
     const csv = `${header}\n${body}`;
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -160,7 +186,7 @@ export default function ReportBuilderPage() {
       return {
         ...prev,
         ...updates,
-        query: updates.query ? { ...prev.query, ...updates.query } : prev.query,
+        query: updates.query ? normalizeReportQuery(updates.query) : prev.query,
       };
     });
   };
@@ -233,7 +259,7 @@ export default function ReportBuilderPage() {
                 result={result}
                 loading={running}
                 error={runError}
-                chartType={currentDraft.query.chartType}
+                query={currentDraft.query}
               />
             </section>
             <ReportBuilderSidePanel

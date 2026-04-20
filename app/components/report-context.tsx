@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   createDefaultReportQuery,
+  mergeReportQuery,
   normalizeReportQuery,
   type Report,
 } from "~/types/report";
@@ -101,7 +102,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
               ...report,
               ...updates,
               query: updates.query
-                ? normalizeReportQuery({ ...report.query, ...updates.query })
+                ? mergeReportQuery(report.query, updates.query)
                 : report.query,
               updatedAt: new Date().toISOString(),
             }

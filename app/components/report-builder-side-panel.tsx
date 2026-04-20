@@ -13,11 +13,27 @@ import {
   type ReportWindowPresetId,
 } from "~/lib/report-window-range";
 import {
+  ASSETS_GROUPING_OPTIONS,
   ALLOCATION_GROUPING_OPTIONS,
   ALLOCATION_MEASURE_OPTIONS,
+  CLOUD_COST_GROUPING_OPTIONS,
+  CLOUD_COST_METRIC_OPTIONS,
+  createDefaultReportQuery,
+  EXTERNAL_COST_GROUPING_OPTIONS,
+  EXTERNAL_COST_SORT_BY_OPTIONS,
+  EXTERNAL_COST_SORT_DIRECTION_OPTIONS,
+  EXTERNAL_COST_TYPE_OPTIONS,
+  mergeReportQuery,
+  REPORT_DATA_SOURCE_OPTIONS,
   REPORT_CHART_TYPE_OPTIONS,
+  type AllocationReportQuery,
   type AllocationMeasure,
+  type CloudCostReportQuery,
+  type ExternalCostReportQuery,
+  type InfraAssetsReportQuery,
+  type ReportLayer,
   type Report,
+  type ReportQuery,
   type ReportFilterRule,
 } from "~/types/report";
 
@@ -30,8 +46,34 @@ interface ReportBuilderSidePanelProps {
   onAutoRunChange: (value: boolean) => void;
 }
 
-function toFilterOptions() {
-  return ALLOCATION_GROUPING_OPTIONS;
+function isAllocationQuery(query: Report["query"]): query is AllocationReportQuery {
+  return query.layer === "allocation";
+}
+
+function isCloudCostQuery(query: Report["query"]): query is CloudCostReportQuery {
+  return query.layer === "cloudCost";
+}
+
+function isInfraAssetsQuery(query: Report["query"]): query is InfraAssetsReportQuery {
+  return query.layer === "infraAssets";
+}
+
+function isExternalCostQuery(query: Report["query"]): query is ExternalCostReportQuery {
+  return query.layer === "externalCost";
+}
+
+function toFilterOptionsByLayer(layer: ReportLayer) {
+  switch (layer) {
+    case "cloudCost":
+      return CLOUD_COST_GROUPING_OPTIONS;
+    case "infraAssets":
+      return ASSETS_GROUPING_OPTIONS;
+    case "externalCost":
+      return EXTERNAL_COST_GROUPING_OPTIONS;
+    case "allocation":
+    default:
+      return ALLOCATION_GROUPING_OPTIONS;
+  }
 }
 
 export default function ReportBuilderSidePanel({
@@ -43,14 +85,16 @@ export default function ReportBuilderSidePanel({
   onAutoRunChange,
 }: ReportBuilderSidePanelProps) {
   const [preferCustomRange, setPreferCustomRange] = useState(false);
+  const query = report.query;
 
-  const updateQuery = (updates: Partial<Report["query"]>) => {
+  const updateQuery = (updates: Partial<ReportQuery>) => {
     onUpdate({
-      query: {
-        ...report.query,
-        ...updates,
-      },
+      query: mergeReportQuery(query, updates),
     });
+  };
+
+  const replaceQuery = (nextQuery: ReportQuery) => {
+    onUpdate({ query: nextQuery });
   };
 
   useEffect(() => {
@@ -58,22 +102,17 @@ export default function ReportBuilderSidePanel({
   }, [report.id]);
 
   useEffect(() => {
-    const iso = legacyReportWindowToUtcRange(report.query.window);
+    const iso = legacyReportWindowToUtcRange(query.window);
     if (!iso) return;
-    onUpdate({
-      query: {
-        ...report.query,
-        window: iso,
-      },
-    });
-  }, [report.query.window]);
+    updateQuery({ window: iso });
+  }, [query.window]);
 
   const presetSelectValue: ReportWindowPresetId = preferCustomRange
     ? "custom"
-    : detectReportWindowPresetId(report.query.window);
+    : detectReportWindowPresetId(query.window);
 
   const customRangeFields = useMemo(() => {
-    const parsed = parseReportWindowRange(report.query.window);
+    const parsed = parseReportWindowRange(query.window);
     if (parsed) {
       return {
         start: toUtcDateInputValue(parsed.start),
@@ -87,34 +126,39 @@ export default function ReportBuilderSidePanel({
           end: toUtcDateInputValue(fb.end),
         }
       : { start: "", end: "" };
-  }, [report.query.window]);
+  }, [query.window]);
 
   const utcTodayYmd = toUtcDateInputValue(new Date());
 
   const updateFilter = (index: number, updates: Partial<ReportFilterRule>) => {
-    const nextFilters = [...report.query.filters];
+    const nextFilters = [...query.filters];
     nextFilters[index] = { ...nextFilters[index], ...updates };
     updateQuery({ filters: nextFilters });
   };
 
   const addFilter = () => {
-    const defaultProperty = toFilterOptions()[0]?.value ?? "namespace";
+    const defaultProperty = toFilterOptionsByLayer(query.layer)[0]?.value ?? "namespace";
     updateQuery({
-      filters: [...report.query.filters, { property: defaultProperty, value: "" }],
+      filters: [...query.filters, { property: defaultProperty, value: "" }],
     });
   };
 
   const removeFilter = (index: number) => {
     updateQuery({
-      filters: report.query.filters.filter((_, current) => current !== index),
+      filters: query.filters.filter((_, current) => current !== index),
     });
   };
 
-  const measures = report.query.measures?.length
-    ? report.query.measures
+  const allocationQuery = isAllocationQuery(query) ? query : null;
+  const cloudCostQuery = isCloudCostQuery(query) ? query : null;
+  const infraAssetsQuery = isInfraAssetsQuery(query) ? query : null;
+  const externalCostQuery = isExternalCostQuery(query) ? query : null;
+
+  const measures = allocationQuery?.measures?.length
+    ? allocationQuery.measures
     : (["totalCost"] as AllocationMeasure[]);
-  const groupings = report.query.groupings?.length
-    ? report.query.groupings
+  const groupings = allocationQuery?.groupings?.length
+    ? allocationQuery.groupings
     : ["namespace"];
 
   const addMeasure = () => {
@@ -173,11 +217,17 @@ export default function ReportBuilderSidePanel({
       <div className="mb-4">
         <h3 className="m-0 text-lg font-semibold text-[#262626]">Data Source</h3>
         <select
-          value="allocation"
-          disabled
-          className="mt-2 h-10 w-full rounded border border-[#d0d0d0] bg-[#f4f4f4] px-2.5 text-[13px] text-[#6f6f6f]"
+          value={query.layer}
+          onChange={(event) =>
+            replaceQuery(createDefaultReportQuery(event.target.value as ReportLayer))
+          }
+          className="mt-2 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
         >
-          <option value="allocation">OpenCost Allocation</option>
+          {REPORT_DATA_SOURCE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -270,93 +320,239 @@ export default function ReportBuilderSidePanel({
         <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-step">
           Granularity
         </label>
-        <select
-          id="report-step"
-          value={report.query.step}
-          onChange={(event) => updateQuery({ step: event.target.value })}
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
-        >
-          <option value="1d">Day</option>
-          <option value="1w">Week</option>
-          <option value="1mo">Month</option>
-        </select>
+        {allocationQuery ? (
+          <select
+            id="report-step"
+            value={allocationQuery.step}
+            onChange={(event) => updateQuery({ step: event.target.value })}
+            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            <option value="1d">Day</option>
+            <option value="1w">Week</option>
+            <option value="1mo">Month</option>
+          </select>
+        ) : (
+          <p className="m-0 rounded border border-[#e0e0e0] bg-[#f8f8f8] px-3 py-2 text-[13px] text-[#6f6f6f]">
+            Granularity is automatic for this data source.
+          </p>
+        )}
       </div>
 
-      <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <h4 className="m-0 text-sm font-semibold text-[#393939]">Measures</h4>
-          <Button kind="ghost" size="sm" onClick={addMeasure}>
-            + Add Measure
-          </Button>
+      {allocationQuery ? (
+        <>
+          <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h4 className="m-0 text-sm font-semibold text-[#393939]">Measures</h4>
+              <Button kind="ghost" size="sm" onClick={addMeasure}>
+                + Add Measure
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {measures.map((measure, index) => (
+                <div key={`measure-${index}-${measure}`} className="flex items-center gap-2">
+                  <select
+                    id={index === 0 ? "report-measure-0" : undefined}
+                    aria-label={`Measure ${index + 1}`}
+                    value={measure}
+                    onChange={(event) =>
+                      setMeasureAt(index, event.target.value as AllocationMeasure)
+                    }
+                    className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                  >
+                    {ALLOCATION_MEASURE_OPTIONS.map((measureOption) => (
+                      <option key={measureOption.value} value={measureOption.value}>
+                        {measureOption.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={measures.length <= 1}
+                    onClick={() => removeMeasure(index)}
+                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
+                    aria-label={`Remove measure ${index + 1}`}
+                  >
+                    <DeleteOutline fontSize="small" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h4 className="m-0 text-sm font-semibold text-[#393939]">Groupings</h4>
+              <Button kind="ghost" size="sm" onClick={addGrouping}>
+                + Add Grouping
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {groupings.map((grouping, index) => (
+                <div key={`grouping-${index}-${grouping}`} className="flex items-center gap-2">
+                  <select
+                    id={index === 0 ? "report-grouping-0" : undefined}
+                    aria-label={`Grouping ${index + 1}`}
+                    value={grouping}
+                    onChange={(event) => setGroupingAt(index, event.target.value)}
+                    className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                  >
+                    {ALLOCATION_GROUPING_OPTIONS.map((groupingOption) => (
+                      <option key={groupingOption.value} value={groupingOption.value}>
+                        {groupingOption.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={groupings.length <= 1}
+                    onClick={() => removeGrouping(index)}
+                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
+                    aria-label={`Remove grouping ${index + 1}`}
+                  >
+                    <DeleteOutline fontSize="small" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {cloudCostQuery ? (
+        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">Cloud Settings</h4>
+          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-cloud-grouping">
+            Breakdown
+          </label>
+          <select
+            id="report-cloud-grouping"
+            value={cloudCostQuery.aggregateBy}
+            onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
+            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {CLOUD_COST_GROUPING_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-cloud-metric">
+            Cost Metric
+          </label>
+          <select
+            id="report-cloud-metric"
+            value={cloudCostQuery.costMetric}
+            onChange={(event) => updateQuery({ costMetric: event.target.value })}
+            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {CLOUD_COST_METRIC_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="space-y-2">
-          {measures.map((measure, index) => (
-            <div key={`measure-${index}-${measure}`} className="flex items-center gap-2">
+      ) : null}
+
+      {infraAssetsQuery ? (
+        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">Assets Settings</h4>
+          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-assets-grouping">
+            Group By
+          </label>
+          <select
+            id="report-assets-grouping"
+            value={infraAssetsQuery.aggregateBy}
+            onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
+            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {ASSETS_GROUPING_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
+      {externalCostQuery ? (
+        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">External Cost Settings</h4>
+          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-grouping">
+            Group By
+          </label>
+          <select
+            id="report-external-grouping"
+            value={externalCostQuery.aggregateBy}
+            onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
+            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {EXTERNAL_COST_GROUPING_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-cost-type">
+            Cost Type
+          </label>
+          <select
+            id="report-external-cost-type"
+            value={externalCostQuery.costType}
+            onChange={(event) => updateQuery({ costType: event.target.value })}
+            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {EXTERNAL_COST_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-sort-by">
+                Sort By
+              </label>
               <select
-                id={index === 0 ? "report-measure-0" : undefined}
-                aria-label={`Measure ${index + 1}`}
-                value={measure}
+                id="report-external-sort-by"
+                value={externalCostQuery.sortBy}
+                onChange={(event) => updateQuery({ sortBy: event.target.value })}
+                className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+              >
+                {EXTERNAL_COST_SORT_BY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                className="mb-1 block text-xs text-[#525252]"
+                htmlFor="report-external-sort-direction"
+              >
+                Sort Direction
+              </label>
+              <select
+                id="report-external-sort-direction"
+                value={externalCostQuery.sortDirection}
                 onChange={(event) =>
-                  setMeasureAt(index, event.target.value as AllocationMeasure)
+                  updateQuery({ sortDirection: event.target.value as "asc" | "desc" })
                 }
-                className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
               >
-                {ALLOCATION_MEASURE_OPTIONS.map((measureOption) => (
-                  <option key={measureOption.value} value={measureOption.value}>
-                    {measureOption.label}
+                {EXTERNAL_COST_SORT_DIRECTION_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                disabled={measures.length <= 1}
-                onClick={() => removeMeasure(index)}
-                className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
-                aria-label={`Remove measure ${index + 1}`}
-              >
-                <DeleteOutline fontSize="small" />
-              </button>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-
-      <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <h4 className="m-0 text-sm font-semibold text-[#393939]">Groupings</h4>
-          <Button kind="ghost" size="sm" onClick={addGrouping}>
-            + Add Grouping
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {groupings.map((grouping, index) => (
-            <div key={`grouping-${index}-${grouping}`} className="flex items-center gap-2">
-              <select
-                id={index === 0 ? "report-grouping-0" : undefined}
-                aria-label={`Grouping ${index + 1}`}
-                value={grouping}
-                onChange={(event) => setGroupingAt(index, event.target.value)}
-                className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
-              >
-                {ALLOCATION_GROUPING_OPTIONS.map((groupingOption) => (
-                  <option key={groupingOption.value} value={groupingOption.value}>
-                    {groupingOption.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                disabled={groupings.length <= 1}
-                onClick={() => removeGrouping(index)}
-                className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
-                aria-label={`Remove grouping ${index + 1}`}
-              >
-                <DeleteOutline fontSize="small" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+      ) : null}
 
       <div className="mb-4">
         <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-chart-type">
@@ -364,7 +560,7 @@ export default function ReportBuilderSidePanel({
         </label>
         <select
           id="report-chart-type"
-          value={report.query.chartType}
+          value={query.chartType}
           onChange={(event) =>
             updateQuery({
               chartType: event.target.value as Report["query"]["chartType"],
@@ -386,7 +582,7 @@ export default function ReportBuilderSidePanel({
         </label>
         <select
           id="report-currency"
-          value={report.query.currency}
+          value={query.currency}
           onChange={(event) => updateQuery({ currency: event.target.value })}
           className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
         >
@@ -398,14 +594,20 @@ export default function ReportBuilderSidePanel({
         </select>
       </div>
 
-      <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
-        <input
-          type="checkbox"
-          checked={report.query.includeIdle}
-          onChange={(event) => updateQuery({ includeIdle: event.target.checked })}
-        />
-        Include idle costs
-      </label>
+      {allocationQuery || infraAssetsQuery ? (
+        <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
+          <input
+            type="checkbox"
+            checked={
+              allocationQuery
+                ? allocationQuery.includeIdle
+                : (infraAssetsQuery?.includeIdle ?? false)
+            }
+            onChange={(event) => updateQuery({ includeIdle: event.target.checked })}
+          />
+          Include idle costs
+        </label>
+      ) : null}
 
       <div className="border-t border-[#e0e0e0] pt-4">
         <div className="mb-3 flex items-center justify-between">
@@ -414,9 +616,9 @@ export default function ReportBuilderSidePanel({
             + Add Filter Group
           </Button>
         </div>
-        {report.query.filters.length > 0 ? (
+        {query.filters.length > 0 ? (
           <div className="space-y-3">
-            {report.query.filters.map((filter, index) => (
+            {query.filters.map((filter, index) => (
               <div
                 key={`${filter.property}-${index}`}
                 className="rounded border border-[#e0e0e0] bg-[#fafafa] p-2"
@@ -441,7 +643,7 @@ export default function ReportBuilderSidePanel({
                   }
                   className="mb-2 h-9 w-full rounded border border-[#d0d0d0] bg-white px-2 text-[13px] text-[#262626]"
                 >
-                  {toFilterOptions().map((option) => (
+                  {toFilterOptionsByLayer(query.layer).map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

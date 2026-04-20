@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Modal, Tag, TextArea, TextInput } from "@carbon/react";
-import { createDefaultReportQuery, type Report } from "~/types/report";
+import {
+  createDefaultReportQuery,
+  REPORT_DATA_SOURCE_OPTIONS,
+  type Report,
+  type ReportLayer,
+} from "~/types/report";
 
 interface CreateReportModalProps {
   open: boolean;
@@ -23,6 +28,7 @@ export default function CreateReportModal({
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [layer, setLayer] = useState<ReportLayer>("allocation");
 
   useEffect(() => {
     if (!open) return;
@@ -31,6 +37,7 @@ export default function CreateReportModal({
       setDescription(reportToEdit.description);
       setVisibility(reportToEdit.visibility);
       setTags(reportToEdit.tags);
+      setLayer(reportToEdit.query.layer);
       setTagInput("");
       return;
     }
@@ -39,6 +46,7 @@ export default function CreateReportModal({
     setDescription("");
     setVisibility("public");
     setTags([]);
+    setLayer("allocation");
     setTagInput("");
   }, [open, reportToEdit]);
 
@@ -76,7 +84,7 @@ export default function CreateReportModal({
       owner: "You",
       visibility,
       favorite: false,
-      query: { ...createDefaultReportQuery() },
+      query: createDefaultReportQuery(layer),
       createdAt: now,
       updatedAt: now,
     };
@@ -114,6 +122,24 @@ export default function CreateReportModal({
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Describe what this report tracks."
         />
+      </div>
+      <div className="mb-4">
+        <label className="block text-sm text-[#525252] mb-2" htmlFor="report-data-source">
+          Data Source
+        </label>
+        <select
+          id="report-data-source"
+          value={layer}
+          onChange={(event) => setLayer(event.target.value as ReportLayer)}
+          disabled={isEditMode}
+          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626] disabled:bg-[#f4f4f4] disabled:text-[#6f6f6f]"
+        >
+          {REPORT_DATA_SOURCE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="mb-4">
         <label className="block text-sm text-[#525252] mb-2" htmlFor="report-visibility">

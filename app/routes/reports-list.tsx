@@ -51,7 +51,7 @@ function decodeShareParam(encoded: string): SharedReportPayload | null {
 export function meta() {
   return [
     { title: "OpenCost — Reports" },
-    { name: "description", content: "Cost allocation reports in OpenCost" },
+    { name: "description", content: "Cloud cost and infrastructure reports in OpenCost" },
   ];
 }
 
@@ -104,13 +104,14 @@ export default function ReportsListPage() {
     return () => window.clearTimeout(timer);
   }, [searchInput, setSearchParams]);
 
+  const debouncedSearch = searchTerm.trim().toLowerCase();
+
   const filteredReports = reports.filter((report) => {
-    const normalizedSearch = searchInput.trim().toLowerCase();
     const matchesQuery =
-      searchInput.trim().length === 0 ||
-      report.name.toLowerCase().includes(normalizedSearch) ||
-      report.description.toLowerCase().includes(normalizedSearch) ||
-      report.tags.some((tag) => tag.toLowerCase().includes(normalizedSearch));
+      debouncedSearch.length === 0 ||
+      report.name.toLowerCase().includes(debouncedSearch) ||
+      report.description.toLowerCase().includes(debouncedSearch) ||
+      report.tags.some((tag) => tag.toLowerCase().includes(debouncedSearch));
 
     const matchesTag = selectedTag === "all" || report.tags.includes(selectedTag);
     const matchesVisibility =
@@ -335,6 +336,14 @@ export default function ReportsListPage() {
         {sharedPayload ? (
           (() => {
             const q = normalizeReportQuery(sharedPayload.query);
+            const querySummary =
+              q.layer === "allocation"
+                ? `Measures: ${q.measures.join(", ")} · Groupings: ${q.groupings.join(", ")}`
+                : q.layer === "cloudCost"
+                  ? `Source: Cloud Cost · Metric: ${q.costMetric} · Grouping: ${q.aggregateBy}`
+                  : q.layer === "infraAssets"
+                    ? `Source: Infrastructure Assets · Grouping: ${q.aggregateBy}`
+                    : `Source: External Cost · Grouping: ${q.aggregateBy} · Cost Type: ${q.costType}`;
             return (
               <div>
                 <p className="mb-4 text-sm text-[#525252]">
@@ -347,9 +356,7 @@ export default function ReportsListPage() {
                       {sharedPayload.description}
                     </p>
                   ) : null}
-                  <p className="text-xs text-[#8d8d8d]">
-                    Measures: {q.measures.join(", ")} · Groupings: {q.groupings.join(", ")}
-                  </p>
+                  <p className="text-xs text-[#8d8d8d]">{querySummary}</p>
                 </div>
                 <p className="text-xs text-[#8d8d8d]">
                   This will be added as a new report in your workspace.

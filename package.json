@@ -24,7 +24,7 @@
     "@mui/material": "^7.3.9",
     "@mui/styles": "^6.5.0",
     "@mui/x-date-pickers": "^8.27.2",
-    "@react-router/node": "7.12.0",
+    "@react-router/node": "7.14.1",
     "@react-router/serve": "7.12.0",
     "axios": "^1.13.6",
     "date-fns": "^4.1.0",

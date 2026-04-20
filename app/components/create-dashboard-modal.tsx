@@ -108,7 +108,7 @@ export default function CreateDashboardModal({
       size="sm"
     >
       <div className="mb-4">
-        <p className="mb-6 text-[#525252]">
+        <p className="mb-6 text-[var(--cds-text-secondary)]">
           {isEditMode
             ? "Update dashboard details, description, and tags."
             : "Create a new custom dashboard to monitor your cloud costs"}

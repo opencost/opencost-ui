@@ -426,20 +426,20 @@ export default function DashboardList() {
       >
         {sharedPayload && (
           <div>
-            <p className="mb-4 text-sm text-[#525252]">
+            <p className="mb-4 text-sm text-[var(--cds-text-secondary)]">
               Someone shared a dashboard configuration with you. Would you like
               to import it?
             </p>
-            <div className="p-4 bg-[#f4f4f4] border-l-4 border-[#0f62fe] mb-4">
+            <div className="p-4 bg-[var(--cds-layer-accent)] border-l-4 border-[var(--cds-focus)] mb-4">
               <p className="font-semibold text-base mb-1">
                 {sharedPayload.name}
               </p>
               {sharedPayload.description && (
-                <p className="text-sm text-[#525252] mb-2">
+                <p className="text-sm text-[var(--cds-text-secondary)] mb-2">
                   {sharedPayload.description}
                 </p>
               )}
-              <p className="text-xs text-[#8d8d8d]">
+              <p className="text-xs text-[var(--cds-text-placeholder)]">
                 {sharedPayload.widgets.length} widget
                 {sharedPayload.widgets.length !== 1 ? "s" : ""}
                 {sharedPayload.tags?.length
@@ -447,7 +447,7 @@ export default function DashboardList() {
                   : ""}
               </p>
             </div>
-            <p className="text-xs text-[#8d8d8d]">
+            <p className="text-xs text-[var(--cds-text-placeholder)]">
               This will be added as a new dashboard in your workspace. No
               existing dashboards will be affected.
             </p>

@@ -133,7 +133,7 @@ export function FilterableWidgetHeader({
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold m-0">{title}</h3>
           {description && (
-            <p className="text-sm text-[#525252] mt-1 mb-0">{description}</p>
+            <p className="text-sm text-[var(--cds-text-secondary)] mt-1 mb-0">{description}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -150,7 +150,7 @@ export function FilterableWidgetHeader({
         </div>
       </div>
       {expanded && filterContent && (
-        <div className="mt-4 pt-4 border-t border-[#e0e0e0]">
+        <div className="mt-4 pt-4 border-t border-[var(--cds-border-subtle)]">
           {filterContent}
         </div>
       )}

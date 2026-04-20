@@ -331,13 +331,13 @@ export default function CostAllocationTable({
   });
 
   if (loading) {
-    return <div className="p-8 text-center text-[#8d8d8d]">Loading…</div>;
+    return <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading…</div>;
   }
 
   if (allocationData.length === 0) {
     return (
       <div className="w-full">
-        <p className="p-8 text-center text-[#8d8d8d]">
+        <p className="p-8 text-center text-[var(--cds-text-placeholder)]">
           No allocation data available.
         </p>
       </div>
@@ -362,7 +362,7 @@ export default function CostAllocationTable({
         <div className="mb-4">
           <h3 className="text-lg font-semibold m-0">{title}</h3>
           {description && (
-            <p className="text-sm text-[#525252] mt-1 mb-0">{description}</p>
+            <p className="text-sm text-[var(--cds-text-secondary)] mt-1 mb-0">{description}</p>
           )}
         </div>
       ) : (
@@ -391,13 +391,13 @@ export default function CostAllocationTable({
       <div className="flex flex-wrap gap-4 items-end mb-4">
         {drilldownFilters.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-[#525252]">Filters:</span>
+            <span className="text-sm text-[var(--cds-text-secondary)]">Filters:</span>
             {drilldownFilters.map((f, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleBreadcrumb(i)}
-                className="text-xs px-2 py-[2px] rounded border border-[#e0e0e0] bg-[#f4f4f4] cursor-pointer inline-flex items-center gap-1"
+                className="text-xs px-2 py-[2px] rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer-accent)] cursor-pointer inline-flex items-center gap-1"
                 aria-label={`Remove filter ${f.property}: ${f.value}`}
               >
                 <span>
@@ -409,7 +409,7 @@ export default function CostAllocationTable({
             <button
               type="button"
               onClick={() => handleBreadcrumb(-1)}
-              className="text-xs text-[#0f62fe] bg-transparent border-none cursor-pointer"
+              className="text-xs text-[var(--cds-link-primary)] bg-transparent border-none cursor-pointer"
             >
               Clear all
             </button>

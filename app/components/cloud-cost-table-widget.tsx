@@ -162,9 +162,9 @@ export default function CloudCostTableWidget({
         }
       />
       {loading ? (
-        <div className="p-8 text-center text-[#8d8d8d]">Loading...</div>
+        <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading...</div>
       ) : rows.length === 0 ? (
-        <div className="p-8 text-center text-[#8d8d8d]">
+        <div className="p-8 text-center text-[var(--cds-text-placeholder)]">
           No cloud cost data available.
         </div>
       ) : (

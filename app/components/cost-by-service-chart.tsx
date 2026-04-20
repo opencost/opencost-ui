@@ -5,6 +5,7 @@ import { Loading } from "@carbon/react";
 import CloudCostService from "~/services/cloud-cost";
 import { primary, greyscale, browns } from "~/constants/colors";
 import { toCurrency } from "~/lib/legacy-util";
+import { useAppTheme } from "~/components/theme-context";
 
 interface ChartPoint {
   group: string;
@@ -94,6 +95,7 @@ export default function CostByServiceChart({
 }: CostByServiceChartProps) {
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useAppTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -126,6 +128,7 @@ export default function CostByServiceChart({
   const chartOptions = useMemo(() => {
     const colorScale = buildColorScale(chartData);
     return {
+      theme,
       title: "Cloud Service Costs",
       axes: {
         left: { mapsTo: "value", scaleType: ScaleTypes.LINEAR },
@@ -141,7 +144,7 @@ export default function CostByServiceChart({
         valueFormatter: (value: number) => toCurrency(value, currency),
       },
     };
-  }, [chartData, currency]);
+  }, [chartData, currency, theme]);
 
   if (loading) {
     return (
@@ -153,7 +156,7 @@ export default function CostByServiceChart({
 
   if (chartData.length === 0) {
     return (
-      <div className="h-[400px] flex items-center justify-center text-[#8d8d8d]">
+      <div className="h-[400px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
         No cloud cost data available.
       </div>
     );

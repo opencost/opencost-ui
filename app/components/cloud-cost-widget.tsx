@@ -12,6 +12,7 @@ import {
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
 import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
+import { useAppTheme } from "~/components/theme-context";
 import CloudCostService from "~/services/cloud-cost";
 import {
   toCurrency,
@@ -166,6 +167,7 @@ export default function CloudCostWidget({
   const [tableRows, setTableRows] = useState<CloudCostRow[]>([]);
   const [tableTotal, setTableTotal] = useState<CloudCostRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const { theme } = useAppTheme();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [sortConfig, setSortConfig] = useState<{
@@ -250,6 +252,7 @@ export default function CloudCostWidget({
   const chartOptions = useMemo(() => {
     const colorScale = buildColorScale(chartData);
     return {
+      theme,
       title: "",
       axes: {
         left: {
@@ -293,11 +296,11 @@ export default function CloudCostWidget({
               return `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${fill};flex-shrink:0"></span><span>${String(name)}: ${toCurrency(val, currency)}</span></p>`;
             })
             .join("");
-          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid #e0e0e0;padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
+          return `<div style="padding:8px 12px">${lines}<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid var(--cds-border-subtle);padding-top:6px">Total: ${toCurrency(total, currency)}</p></div>`;
         },
       },
     };
-  }, [chartData, currency]);
+  }, [chartData, currency, theme]);
 
   const setFilter = (key: keyof typeof localFilters, value: string) => {
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
@@ -331,11 +334,11 @@ export default function CloudCostWidget({
       {/* Chart */}
       <div id="cloud-graph" className="mb-6">
         {loading ? (
-          <div className="h-[300px] flex items-center justify-center text-[#8d8d8d]">
+          <div className="h-[300px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
             Loading…
           </div>
         ) : chartData.length === 0 ? (
-          <div className="h-[300px] flex items-center justify-center text-[#8d8d8d]">
+          <div className="h-[300px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
             No cloud cost data available.
           </div>
         ) : (
@@ -353,9 +356,9 @@ export default function CloudCostWidget({
       {/* Table */}
       <div id="cloud-cost-table">
         {loading ? (
-          <div className="p-8 text-center text-[#8d8d8d]">Loading…</div>
+          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading…</div>
         ) : tableRows.length === 0 ? (
-          <div className="p-8 text-center text-[#8d8d8d]">No results</div>
+          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">No results</div>
         ) : (
           <>
             <TableContainer>
@@ -407,7 +410,7 @@ export default function CloudCostWidget({
                       key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
                     >
                       <TableCell>
-                        <span className="text-[#0f62fe] cursor-pointer">
+                        <span className="text-[var(--cds-link-primary)] cursor-pointer">
                           {String(row.labelName ?? row.name ?? "")}
                         </span>
                       </TableCell>

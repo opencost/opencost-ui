@@ -52,7 +52,7 @@ function WidgetRenderer({
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <p className="text-sm text-[#525252] mb-4">
+          <p className="text-sm text-[var(--cds-text-secondary)] mb-4">
             Third-party service costs
           </p>
           <ExternalServicesChartWidget />
@@ -75,7 +75,7 @@ function WidgetRenderer({
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[#525252]">
+          <div className="p-8 text-center text-[var(--cds-text-secondary)]">
             Anomaly detection widget
           </div>
         </Tile>
@@ -84,7 +84,7 @@ function WidgetRenderer({
       return (
         <Tile className="p-4">
           <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[#525252]">
+          <div className="p-8 text-center text-[var(--cds-text-secondary)]">
             Carbon metrics widget
           </div>
         </Tile>
@@ -185,7 +185,7 @@ export default function DashboardView({
           ) : null}
           <div>
             <h1 className="text-3xl font-bold">{dashboard.name}</h1>
-            <p className="text-sm text-[#525252]">{dashboard.description}</p>
+            <p className="text-sm text-[var(--cds-text-secondary)]">{dashboard.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -250,7 +250,7 @@ export default function DashboardView({
         )
       ) : (
         <Tile className="p-12 text-center">
-          <p className="text-sm text-[#525252] mb-4">
+          <p className="text-sm text-[var(--cds-text-secondary)] mb-4">
             No widgets added to this dashboard
           </p>
           <Button onClick={() => setIsEditMode(true)} renderIcon={Edit}>

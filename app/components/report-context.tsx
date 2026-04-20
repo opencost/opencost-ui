@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { REPORT_DEFAULT_QUERY, type Report } from "~/types/report";
+import {
+  createDefaultReportQuery,
+  normalizeReportQuery,
+  type Report,
+} from "~/types/report";
 
 const STORAGE_KEY = "opencost-reports-v1";
 
@@ -22,7 +26,7 @@ function createDefaultReport(id: string, name: string, description: string): Rep
     owner: "You",
     visibility: "public",
     favorite: false,
-    query: { ...REPORT_DEFAULT_QUERY },
+    query: { ...createDefaultReportQuery() },
     createdAt: now,
     updatedAt: now,
   };
@@ -51,10 +55,7 @@ function loadReportsFromStorage(): Report[] {
         return parsed.map((report) => ({
           ...report,
           favorite: report.favorite ?? false,
-          query: {
-            ...REPORT_DEFAULT_QUERY,
-            ...report.query,
-          },
+          query: normalizeReportQuery(report.query),
         }));
       }
     }
@@ -83,7 +84,10 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
 
   const createReport = (report: Report) => {
     setReports((prev) => {
-      const next = [...prev, report];
+      const next = [
+        ...prev,
+        { ...report, query: normalizeReportQuery(report.query) },
+      ];
       saveReportsToStorage(next);
       return next;
     });
@@ -97,7 +101,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
               ...report,
               ...updates,
               query: updates.query
-                ? { ...report.query, ...updates.query }
+                ? normalizeReportQuery({ ...report.query, ...updates.query })
                 : report.query,
               updatedAt: new Date().toISOString(),
             }

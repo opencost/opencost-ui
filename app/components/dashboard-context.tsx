@@ -35,6 +35,38 @@ export interface Dashboard {
   owner: string;
 }
 
+function newWidgetId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `widget-${crypto.randomUUID()}`;
+  }
+  return `widget-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+/** Deep-clone a dashboard for duplication (new ids, no shared widget references). */
+function cloneDashboardDeep(
+  source: Dashboard,
+  newDashboardId: string,
+): Dashboard {
+  const now = new Date().toISOString();
+  const tagsWithoutDefault = source.tags.filter(
+    (tag) => tag.toLowerCase() !== "default",
+  );
+  return {
+    id: newDashboardId,
+    name: `Copy of ${source.name}`,
+    description: source.description,
+    widgets: source.widgets.map((widget) => ({
+      ...widget,
+      id: newWidgetId(),
+    })),
+    tags: tagsWithoutDefault,
+    starred: false,
+    createdAt: now,
+    updatedAt: now,
+    owner: "You",
+  };
+}
+
 export function getDefaultDashboard(
   dashboards: Dashboard[],
 ): Dashboard | undefined {
@@ -63,6 +95,7 @@ export function getDefaultDashboard(
 interface DashboardContextValue {
   dashboards: Dashboard[];
   createDashboard: (dashboard: Dashboard) => void;
+  duplicateDashboard: (id: string) => string | null;
   deleteDashboard: (id: string) => void;
   updateDashboard: (id: string, updates: Partial<Dashboard>) => void;
 }
@@ -215,6 +248,21 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const duplicateDashboard = (id: string): string | null => {
+    const createdId: { current: string | null } = { current: null };
+    setDashboards((prev) => {
+      const source = prev.find((d) => d.id === id);
+      if (!source) return prev;
+      const dashboardId = `dashboard-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      createdId.current = dashboardId;
+      const copy = cloneDashboardDeep(source, dashboardId);
+      const next = [...prev, copy];
+      saveDashboardsToStorage(next);
+      return next;
+    });
+    return createdId.current;
+  };
+
   const deleteDashboard = (id: string) => {
     setDashboards((prev) => {
       const next = prev.filter((d) => d.id !== id);
@@ -237,7 +285,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <DashboardContext.Provider
-      value={{ dashboards, createDashboard, deleteDashboard, updateDashboard }}
+      value={{
+        dashboards,
+        createDashboard,
+        duplicateDashboard,
+        deleteDashboard,
+        updateDashboard,
+      }}
     >
       {children}
     </DashboardContext.Provider>

@@ -20,11 +20,14 @@ const DashboardApp = lazy(() =>
   Promise.all([
     import("~/components/dashboard-context"),
     import("~/components/report-context"),
-  ]).then(([dashboard, report]) => ({
+    import("~/components/tutorial-wizard-context"),
+  ]).then(([dashboard, report, tutorial]) => ({
     default: () => (
       <dashboard.DashboardProvider>
         <report.ReportProvider>
-          <Outlet />
+          <tutorial.TutorialWizardProvider>
+            <Outlet />
+          </tutorial.TutorialWizardProvider>
         </report.ReportProvider>
       </dashboard.DashboardProvider>
     ),

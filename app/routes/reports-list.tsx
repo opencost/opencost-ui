@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Modal } from "@carbon/react";
 import { Search } from "@mui/icons-material";
 import { useNavigate, useSearchParams } from "react-router";
@@ -6,7 +6,7 @@ import CreateReportModal from "~/components/create-report-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportListTable from "~/components/report-list-table";
 import { useReport } from "~/components/report-context";
-import type { Report } from "~/types/report";
+import { normalizeReportQuery, type Report } from "~/types/report";
 
 interface SharedReportPayload {
   name: string;
@@ -16,6 +16,8 @@ interface SharedReportPayload {
   favorite?: boolean;
   query: Report["query"];
 }
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 function decodeShareParam(encoded: string): SharedReportPayload | null {
   try {
@@ -43,6 +45,7 @@ export default function ReportsListPage() {
   const { reports, createReport, updateReport, deleteReport } = useReport();
 
   const searchTerm = searchParams.get("q") ?? "";
+  const [searchInput, setSearchInput] = useState(searchTerm);
   const selectedTag = searchParams.get("tag") ?? "all";
   const selectedVisibility = searchParams.get("visibility") ?? "all";
   const selectedOwner = searchParams.get("owner") ?? "all";
@@ -56,10 +59,34 @@ export default function ReportsListPage() {
     [reports],
   );
 
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchParams(
+        (prev) => {
+          const prevQ = prev.get("q") ?? "";
+          if (prevQ === searchInput) return prev;
+          const next = new URLSearchParams(prev);
+          if (searchInput.length === 0) {
+            next.delete("q");
+          } else {
+            next.set("q", searchInput);
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput, setSearchParams]);
+
   const filteredReports = reports.filter((report) => {
-    const normalizedSearch = searchTerm.toLowerCase();
+    const normalizedSearch = searchInput.trim().toLowerCase();
     const matchesQuery =
-      searchTerm.trim().length === 0 ||
+      searchInput.trim().length === 0 ||
       report.name.toLowerCase().includes(normalizedSearch) ||
       report.description.toLowerCase().includes(normalizedSearch) ||
       report.tags.some((tag) => tag.toLowerCase().includes(normalizedSearch));
@@ -72,23 +99,23 @@ export default function ReportsListPage() {
     return matchesQuery && matchesTag && matchesVisibility && matchesOwner;
   });
 
-  const updateQueryParam = (
-    key: "q" | "tag" | "visibility" | "owner",
-    value: string,
-  ) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (value.length === 0 || value === "all") {
-          next.delete(key);
-        } else {
-          next.set(key, value);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
+  const updateQueryParam = useCallback(
+    (key: "q" | "tag" | "visibility" | "owner", value: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value.length === 0 || value === "all") {
+            next.delete(key);
+          } else {
+            next.set(key, value);
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   useEffect(() => {
     const shareParam = searchParams.get("share");
@@ -147,7 +174,7 @@ export default function ReportsListPage() {
       visibility: sharedPayload.visibility ?? "public",
       favorite: sharedPayload.favorite ?? false,
       owner: "You",
-      query: sharedPayload.query,
+      query: normalizeReportQuery(sharedPayload.query),
       createdAt: now,
       updatedAt: now,
     };
@@ -179,8 +206,8 @@ export default function ReportsListPage() {
                   <Search fontSize="small" />
                   <input
                     type="text"
-                    value={searchTerm}
-                    onChange={(event) => updateQueryParam("q", event.target.value)}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
                     placeholder="Search"
                     className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#262626] outline-none"
                   />
@@ -222,6 +249,7 @@ export default function ReportsListPage() {
 
               <ReportListTable
                 reports={filteredReports}
+                totalReportCount={reports.length}
                 onEdit={setEditingReport}
                 onShare={(report) => void handleShareReport(report)}
                 onDelete={setReportPendingDelete}
@@ -284,26 +312,30 @@ export default function ReportsListPage() {
         onSecondarySubmit={() => setSharedPayload(null)}
       >
         {sharedPayload ? (
-          <div>
-            <p className="mb-4 text-sm text-[#525252]">
-              Someone shared a report configuration with you. Do you want to import it?
-            </p>
-            <div className="mb-4 border-l-4 border-[#0f62fe] bg-[#f4f4f4] p-4">
-              <p className="mb-1 text-base font-semibold">{sharedPayload.name}</p>
-              {sharedPayload.description ? (
-                <p className="mb-2 text-sm text-[#525252]">
-                  {sharedPayload.description}
+          (() => {
+            const q = normalizeReportQuery(sharedPayload.query);
+            return (
+              <div>
+                <p className="mb-4 text-sm text-[#525252]">
+                  Someone shared a report configuration with you. Do you want to import it?
                 </p>
-              ) : null}
-              <p className="text-xs text-[#8d8d8d]">
-                Measure: {sharedPayload.query.measure} · Grouping:{" "}
-                {sharedPayload.query.groupings[0] ?? "namespace"}
-              </p>
-            </div>
-            <p className="text-xs text-[#8d8d8d]">
-              This will be added as a new report in your workspace.
-            </p>
-          </div>
+                <div className="mb-4 border-l-4 border-[#0f62fe] bg-[#f4f4f4] p-4">
+                  <p className="mb-1 text-base font-semibold">{sharedPayload.name}</p>
+                  {sharedPayload.description ? (
+                    <p className="mb-2 text-sm text-[#525252]">
+                      {sharedPayload.description}
+                    </p>
+                  ) : null}
+                  <p className="text-xs text-[#8d8d8d]">
+                    Measures: {q.measures.join(", ")} · Groupings: {q.groupings.join(", ")}
+                  </p>
+                </div>
+                <p className="text-xs text-[#8d8d8d]">
+                  This will be added as a new report in your workspace.
+                </p>
+              </div>
+            );
+          })()
         ) : null}
       </Modal>
     </>

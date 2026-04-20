@@ -142,10 +142,10 @@ export function FilterableWidgetHeader({
             kind={expanded ? "primary" : "secondary"}
             size="sm"
             renderIcon={Filter}
-            iconDescription="Toggle filters"
+            iconDescription="Toggle options"
             onClick={onToggle}
           >
-            {expanded ? "Collapse filters" : "Filters"}
+            {expanded ? "Collapse options" : "Options"}
           </Button>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { getYesterdayUtcRange } from "~/lib/report-window-range";
+
 export type ReportLayer = "allocation";
 
 export type ReportVisibility = "public" | "private";
@@ -30,7 +32,7 @@ export interface AllocationReportQuery {
   step: string;
   accumulate: boolean;
   includeIdle: boolean;
-  measure: AllocationMeasure;
+  measures: AllocationMeasure[];
   groupings: string[];
   filters: ReportFilterRule[];
   currency: string;
@@ -76,33 +78,56 @@ export const ALLOCATION_GROUPING_OPTIONS = [
   { label: "Container", value: "container" },
 ];
 
-export const REPORT_WINDOW_OPTIONS = [
-  { label: "Today", value: "today" },
-  { label: "Yesterday", value: "yesterday" },
-  { label: "Last 24h", value: "24h" },
-  { label: "Last 48h", value: "48h" },
-  { label: "Last 7 days", value: "7d" },
-  { label: "Last 14 days", value: "14d" },
-  { label: "Last week", value: "lastweek" },
-];
+export function createDefaultReportQuery(): AllocationReportQuery {
+  return {
+    layer: "allocation",
+    window: getYesterdayUtcRange(),
+    step: "1d",
+    accumulate: false,
+    includeIdle: true,
+    measures: ["totalCost"],
+    groupings: ["namespace"],
+    filters: [],
+    currency: "USD",
+    chartType: "bar",
+  };
+}
 
-export const REPORT_DEFAULT_QUERY: AllocationReportQuery = {
-  layer: "allocation",
-  window: "7d",
-  step: "1d",
-  accumulate: false,
-  includeIdle: true,
-  measure: "totalCost",
-  groupings: ["namespace"],
-  filters: [],
-  currency: "USD",
-  chartType: "stackedArea",
-};
+const VALID_MEASURES = new Set(ALLOCATION_MEASURE_OPTIONS.map((o) => o.value));
+
+export function normalizeReportQuery(
+  query: Partial<AllocationReportQuery> & { measure?: AllocationMeasure },
+): AllocationReportQuery {
+  const defaults = createDefaultReportQuery();
+  const { measure: legacyMeasure, ...rest } = query as Partial<AllocationReportQuery> & {
+    measure?: AllocationMeasure;
+  };
+  const rawMeasures = (rest as { measures?: AllocationMeasure[] }).measures;
+  let measures: AllocationMeasure[] =
+    Array.isArray(rawMeasures) && rawMeasures.length > 0
+      ? rawMeasures.filter((m): m is AllocationMeasure => VALID_MEASURES.has(m))
+      : legacyMeasure != null && VALID_MEASURES.has(legacyMeasure)
+        ? [legacyMeasure]
+        : defaults.measures;
+  if (measures.length === 0) measures = defaults.measures;
+
+  const groupings =
+    Array.isArray(rest.groupings) && rest.groupings.length > 0
+      ? [...rest.groupings]
+      : defaults.groupings;
+
+  return {
+    ...defaults,
+    ...rest,
+    measures,
+    groupings,
+  };
+}
 
 export const REPORT_CHART_TYPE_OPTIONS: { label: string; value: ReportChartType }[] = [
+  { label: "Bar", value: "bar" },
   { label: "Stacked Area", value: "stackedArea" },
   { label: "Line", value: "line" },
-  { label: "Bar", value: "bar" },
   { label: "Stacked Bar", value: "stackedBar" },
   { label: "Pie", value: "pie" },
   { label: "Table", value: "table" },

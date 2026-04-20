@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Modal, Tag, TextArea, TextInput } from "@carbon/react";
-import { REPORT_DEFAULT_QUERY, type Report } from "~/types/report";
+import { createDefaultReportQuery, type Report } from "~/types/report";
 
 interface CreateReportModalProps {
   open: boolean;
@@ -76,7 +76,7 @@ export default function CreateReportModal({
       owner: "You",
       visibility,
       favorite: false,
-      query: { ...REPORT_DEFAULT_QUERY },
+      query: { ...createDefaultReportQuery() },
       createdAt: now,
       updatedAt: now,
     };

@@ -98,6 +98,7 @@ interface DashboardViewProps {
   dashboard: Dashboard;
   onBack: () => void;
   onUpdateWidgets: (widgets: Widget[]) => void;
+  onDuplicate?: () => void;
   isDefaultDashboard?: boolean;
   showBackButton?: boolean;
 }
@@ -116,6 +117,7 @@ export default function DashboardView({
   dashboard,
   onBack,
   onUpdateWidgets,
+  onDuplicate,
   isDefaultDashboard = false,
   showBackButton = true,
 }: DashboardViewProps) {
@@ -197,6 +199,9 @@ export default function DashboardView({
               itemText="Edit Layout"
               onClick={() => setIsEditMode(true)}
             />
+            {onDuplicate ? (
+              <OverflowMenuItem itemText="Duplicate Dashboard" onClick={onDuplicate} />
+            ) : null}
             <OverflowMenuItem
               itemText="Share Dashboard"
               onClick={handleShareDashboard}

@@ -14,6 +14,7 @@ import {
 } from "@mui/icons-material";
 import { useDashboard } from "~/components/dashboard-context";
 import { useReport } from "~/components/report-context";
+import { useTutorialWizardOptional } from "~/components/tutorial-wizard-context";
 
 interface DashboardAppShellProps {
   children: ReactNode;
@@ -34,6 +35,7 @@ function NavLinkEntry({
   active,
   nested = false,
   collapsed = false,
+  tutorialPulse = false,
 }: {
   href: string;
   label: string;
@@ -41,6 +43,7 @@ function NavLinkEntry({
   active: boolean;
   nested?: boolean;
   collapsed?: boolean;
+  tutorialPulse?: boolean;
 }) {
   const baseClasses =
     "flex min-h-10 items-center gap-2.5 no-underline rounded px-3 py-2 text-sm font-medium transition-colors";
@@ -48,11 +51,14 @@ function NavLinkEntry({
     ? "bg-[#edf5ff] text-[#0f62fe]"
     : "text-[#525252] hover:bg-[#f4f4f4] hover:text-[#161616]";
   const nestedClasses = nested ? "ml-5" : "";
+  const tutorialClasses = tutorialPulse
+    ? "relative z-[2] shadow-[0_0_0_2px_#0f62fe,0_4px_20px_rgba(15,98,254,0.25)] ring-0"
+    : "";
 
   return (
     <Link
       to={href}
-      className={`${baseClasses} ${toneClasses} ${nestedClasses}`}
+      className={`${baseClasses} ${toneClasses} ${nestedClasses} ${tutorialClasses}`}
       title={collapsed ? label : undefined}
     >
       <span className="inline-flex items-center">{icon}</span>
@@ -100,6 +106,16 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const homeActive = pathname === "/";
+  const tutorial = useTutorialWizardOptional();
+  const isTutorialActive = tutorial?.isTutorialActive ?? false;
+  const navHighlight = tutorial?.navHighlight ?? null;
+
+  useEffect(() => {
+    if (navHighlight && collapsed) {
+      setCollapsed(false);
+    }
+  }, [navHighlight, collapsed]);
+
   const dashboardsActive =
     pathname === "/dashboards" || pathname.startsWith("/dashboard/");
   const reportsActive = pathname === "/reports" || pathname.startsWith("/report/");
@@ -247,9 +263,9 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
     <div className="min-h-screen bg-[#f4f4f4]">
       <div className="flex min-h-screen">
         <aside
-          className={`flex min-h-screen flex-shrink-0 flex-col gap-2 border-r border-[#e0e0e0] bg-white px-2 pb-2 pt-2.5 transition-[width] duration-200 ${
-            collapsed ? "w-[72px]" : "w-[250px]"
-          }`}
+          className={`relative flex min-h-screen flex-shrink-0 flex-col gap-2 border-r border-[#e0e0e0] bg-white px-2 pb-2 pt-2.5 transition-[width] duration-200 ${
+            isTutorialActive ? "z-[2]" : ""
+          } ${collapsed ? "w-[72px]" : "w-[250px]"}`}
         >
           <div className="flex items-center justify-start px-2 pb-2.5 pt-2">
             <img src="/logo.png" alt="OpenCost" className="h-6 w-auto" />
@@ -290,6 +306,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               active={dashboardsActive}
               nested
               collapsed={collapsed}
+              tutorialPulse={isTutorialActive && navHighlight === "dashboards"}
             />
             <NavLinkEntry
               href="/reports"
@@ -298,6 +315,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               active={reportsActive}
               nested
               collapsed={collapsed}
+              tutorialPulse={isTutorialActive && navHighlight === "reports"}
             />
             {/* <NavGroupHeader
               label="Resource Utilization"
@@ -359,9 +377,23 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
           </button>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-50 flex h-12 items-center justify-end border-b border-[#e0e0e0] bg-white px-5">
-            <div className="flex items-center gap-2.5">
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          {isTutorialActive ? (
+            <div
+              className="pointer-events-none absolute inset-0 z-[1] bg-[#161616]/25"
+              aria-hidden
+            />
+          ) : null}
+          <header className="sticky top-0 z-50 flex min-h-12 items-center justify-between gap-4 border-b border-[#e0e0e0] bg-white px-5 py-2">
+            <div className="relative z-[2] min-w-0 flex-1">
+              <div>
+                <p className="m-0 text-sm font-semibold text-[#161616]">OpenCost</p>
+                <p className="m-0 mt-0.5 text-xs text-[#6f6f6f]">
+                  Kubernetes and cloud cost intelligence
+                </p>
+              </div>
+            </div>
+            <div className="relative z-[2] flex flex-shrink-0 items-center gap-2.5">
               {/* <button
                 className="inline-flex h-8 cursor-not-allowed items-center gap-1.5 rounded border border-[#d0d0d0] bg-[#f4f4f4] px-2.5 text-xs text-[#6f6f6f]"
                 disabled
@@ -385,7 +417,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               </div> */}
             </div> 
           </header>
-          <section className="min-w-0 flex-1">{children}</section>
+          <section className="relative z-[2] min-w-0 flex-1">{children}</section>
         </div>
       </div>
       {isSearchOpen ? (

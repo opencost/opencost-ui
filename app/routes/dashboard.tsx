@@ -14,7 +14,7 @@ export function meta() {
 export default function DashboardPage() {
   const { dashboardId } = useParams<{ dashboardId: string }>();
   const navigate = useNavigate();
-  const { dashboards, updateDashboard } = useDashboard();
+  const { dashboards, updateDashboard, duplicateDashboard } = useDashboard();
   const defaultDashboard = getDefaultDashboard(dashboards);
 
   const dashboard = dashboards.find((d) => d.id === dashboardId);
@@ -42,6 +42,11 @@ export default function DashboardPage() {
     updateDashboard(dashboard.id, { widgets: newWidgets });
   };
 
+  const handleDuplicateDashboard = () => {
+    const newId = duplicateDashboard(dashboard.id);
+    if (newId) navigate(`/dashboard/${newId}`);
+  };
+
   return (
     <DashboardAppShell>
       <main className="pb-8 min-h-screen bg-[#f4f4f4]">
@@ -49,6 +54,7 @@ export default function DashboardPage() {
           dashboard={dashboard}
           onBack={() => navigate("/dashboards")}
           onUpdateWidgets={handleUpdateWidgets}
+          onDuplicate={handleDuplicateDashboard}
           isDefaultDashboard={dashboard.id === defaultDashboard?.id}
         />
       </main>

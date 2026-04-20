@@ -11,6 +11,7 @@ import type { Report } from "~/types/report";
 
 interface ReportListTableProps {
   reports: Report[];
+  totalReportCount: number;
   onEdit: (report: Report) => void;
   onShare: (report: Report) => void;
   onDelete: (report: Report) => void;
@@ -18,16 +19,17 @@ interface ReportListTableProps {
 
 export default function ReportListTable({
   reports,
+  totalReportCount,
   onEdit,
   onShare,
   onDelete,
 }: ReportListTableProps) {
   if (reports.length === 0) {
-    return (
-      <div className="p-6 text-sm text-[#6f6f6f]">
-        No reports match the selected search and filters.
-      </div>
-    );
+    const message =
+      totalReportCount === 0
+        ? "You do not have any reports yet. Create a report to get started."
+        : "No reports match the selected search and filters.";
+    return <div className="p-6 text-sm text-[#6f6f6f]">{message}</div>;
   }
 
   return (

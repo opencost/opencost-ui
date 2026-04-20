@@ -17,9 +17,10 @@ function buildCacheKey(
     filters?: { property: string; value: string }[] | string;
     includeIdle?: boolean;
     step?: string;
+    metrics?: string;
   },
 ): string {
-  const { accumulate, filters, includeIdle = true, step = "1d" } = options;
+  const { accumulate, filters, includeIdle = true, step = "1d", metrics } = options;
   const filterKey = (() => {
     if (!filters) return "";
     if (typeof filters === "string") return filters;
@@ -32,7 +33,7 @@ function buildCacheKey(
       ),
     );
   })();
-  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${step}|${filterKey}`;
+  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${step}|${filterKey}|${metrics ?? ""}`;
 }
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -47,6 +48,8 @@ class AllocationService {
       filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
       step?: string;
+      /** Comma-separated allocation cost fields (e.g. `totalCost,cpuCost`). */
+      metrics?: string;
     },
   ): Promise<any> {
     const key = buildCacheKey(win, aggregate, options);
@@ -83,15 +86,19 @@ class AllocationService {
       filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
       step?: string;
+      metrics?: string;
     },
   ) {
-    const { accumulate, filters, includeIdle = true, step = "1d" } = options;
+    const { accumulate, filters, includeIdle = true, step = "1d", metrics } = options;
     const params: Record<string, any> = {
       window: win,
       aggregate,
       includeIdle,
       step,
     };
+    if (metrics && metrics.length > 0) {
+      params.metrics = metrics;
+    }
     if (typeof accumulate === "boolean") {
       params.accumulate = accumulate;
     }

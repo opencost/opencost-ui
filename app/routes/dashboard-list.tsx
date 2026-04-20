@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button, Modal, Tag } from "@carbon/react";
 import {
@@ -6,6 +6,7 @@ import {
   StarBorder,
   Star,
   EditOutlined,
+  ContentCopy,
   IosShareOutlined,
   DeleteOutline,
 } from "@mui/icons-material";
@@ -16,6 +17,8 @@ import {
 } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 interface SharedDashboardPayload {
   name: string;
@@ -51,8 +54,10 @@ export default function DashboardList() {
   const [shareFeedback, setShareFeedback] = useState<string>("");
   const [sharedPayload, setSharedPayload] =
     useState<SharedDashboardPayload | null>(null);
-  const { dashboards, createDashboard, deleteDashboard } = useDashboard();
+  const { dashboards, createDashboard, duplicateDashboard, deleteDashboard } =
+    useDashboard();
   const searchTerm = searchParams.get("q") ?? "";
+  const [searchInput, setSearchInput] = useState(searchTerm);
   const selectedTag = searchParams.get("tag") ?? "all";
   const selectedScope = searchParams.get("scope") ?? "all";
   const selectedOwner = searchParams.get("owner") ?? "all";
@@ -60,14 +65,37 @@ export default function DashboardList() {
   const allTags = Array.from(new Set(dashboards.flatMap((d) => d.tags))).sort();
   const allOwners = Array.from(new Set(dashboards.map((d) => d.owner))).sort();
 
-  const filteredDashboards = dashboards.filter((dashboard) => {
-    const matchesQuery =
-      searchTerm.trim().length === 0 ||
-      dashboard.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dashboard.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dashboard.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchParams(
+        (prev) => {
+          const prevQ = prev.get("q") ?? "";
+          if (prevQ === searchInput) return prev;
+          const next = new URLSearchParams(prev);
+          if (searchInput.length === 0) {
+            next.delete("q");
+          } else {
+            next.set("q", searchInput);
+          }
+          return next;
+        },
+        { replace: true },
       );
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput, setSearchParams]);
+
+  const filteredDashboards = dashboards.filter((dashboard) => {
+    const q = searchInput.trim().toLowerCase();
+    const matchesQuery =
+      searchInput.trim().length === 0 ||
+      dashboard.name.toLowerCase().includes(q) ||
+      dashboard.description.toLowerCase().includes(q) ||
+      dashboard.tags.some((tag) => tag.toLowerCase().includes(q));
 
     const matchesTag =
       selectedTag === "all" || dashboard.tags.includes(selectedTag);
@@ -78,23 +106,23 @@ export default function DashboardList() {
     return matchesQuery && matchesTag && matchesOwner && matchesScope;
   });
 
-  const updateQueryParam = (
-    key: "q" | "tag" | "scope" | "owner",
-    value: string,
-  ) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (value.length === 0 || value === "all") {
-          next.delete(key);
-        } else {
-          next.set(key, value);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
+  const updateQueryParam = useCallback(
+    (key: "q" | "tag" | "scope" | "owner", value: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value.length === 0 || value === "all") {
+            next.delete(key);
+          } else {
+            next.set(key, value);
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   useEffect(() => {
     const shareParam = searchParams.get("share");
@@ -156,6 +184,11 @@ export default function DashboardList() {
     setDashboardPendingDelete(dashboard);
   };
 
+  const handleDuplicateDashboard = (dashboard: Dashboard) => {
+    const newId = duplicateDashboard(dashboard.id);
+    if (newId) navigate(`/dashboard/${newId}`);
+  };
+
   const confirmDeleteDashboard = () => {
     if (!dashboardPendingDelete) return;
     deleteDashboard(dashboardPendingDelete.id);
@@ -188,8 +221,8 @@ export default function DashboardList() {
                   <Search fontSize="small" />
                   <input
                     type="text"
-                    value={searchTerm}
-                    onChange={(event) => updateQueryParam("q", event.target.value)}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
                     placeholder="Search"
                     className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#262626] outline-none"
                   />
@@ -252,7 +285,7 @@ export default function DashboardList() {
                       <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
                         Tags
                       </th>
-                      <th className="w-[8rem] whitespace-nowrap px-3 py-2.5 text-right text-xs font-semibold text-[#525252]">
+                      <th className="min-w-[10.5rem] whitespace-nowrap px-3 py-2.5 text-right text-xs font-semibold text-[#525252]">
                         Actions
                       </th>
                     </tr>
@@ -314,7 +347,7 @@ export default function DashboardList() {
                               )}
                             </div>
                           </td>
-                          <td className="w-[8rem] whitespace-nowrap px-3 py-2.5 text-right align-middle">
+                          <td className="min-w-[10.5rem] whitespace-nowrap px-3 py-2.5 text-right align-middle">
                             <button
                               className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
                               aria-label="Edit dashboard"
@@ -322,6 +355,14 @@ export default function DashboardList() {
                               onClick={() => setEditingDashboard(dashboard)}
                             >
                               <EditOutlined fontSize="small" />
+                            </button>
+                            <button
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              aria-label="Duplicate dashboard"
+                              title="Duplicate dashboard"
+                              onClick={() => handleDuplicateDashboard(dashboard)}
+                            >
+                              <ContentCopy fontSize="small" />
                             </button>
                             <button
                               className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"

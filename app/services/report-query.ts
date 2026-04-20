@@ -36,12 +36,14 @@ const MEASURE_LABELS: Record<AllocationMeasure, string> = {
   externalCost: "External Cost",
 };
 
+function formatGroupingToken(g: string): string {
+  if (g.length === 0) return "Name";
+  return g.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
+}
+
 function toGroupingLabel(groupings: string[]): string {
-  const firstGrouping = groupings[0] ?? "namespace";
-  if (firstGrouping.length === 0) return "Name";
-  return firstGrouping
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (char) => char.toUpperCase());
+  const parts = groupings.length > 0 ? groupings : ["namespace"];
+  return parts.map(formatGroupingToken).join(", ");
 }
 
 function toPointLabel(rawDate: string): string {
@@ -50,9 +52,16 @@ function toPointLabel(rawDate: string): string {
   return parsed.toLocaleDateString(undefined, { month: "short", day: "2-digit" });
 }
 
+function combinedMeasureValue(item: unknown, measures: AllocationMeasure[]): number {
+  return measures.reduce(
+    (sum, measure) => sum + Number(get(item as object, measure, 0)),
+    0,
+  );
+}
+
 function buildTimeSeries(
   rawSets: any[],
-  measure: AllocationMeasure,
+  measures: AllocationMeasure[],
 ): AllocationReportResult["timeSeries"] {
   const aggregateTotals = new Map<string, number>();
 
@@ -60,10 +69,8 @@ function buildTimeSeries(
     const items = Object.values(set) as any[];
     items.forEach((item) => {
       const name = String(item?.name ?? "Unknown");
-      aggregateTotals.set(
-        name,
-        (aggregateTotals.get(name) ?? 0) + Number(get(item, measure, 0)),
-      );
+      const v = combinedMeasureValue(item, measures);
+      aggregateTotals.set(name, (aggregateTotals.get(name) ?? 0) + v);
     });
   });
 
@@ -81,7 +88,7 @@ function buildTimeSeries(
 
     items.forEach((item) => {
       const name = String(item?.name ?? "Unknown");
-      const measureValue = Number(get(item, measure, 0));
+      const measureValue = combinedMeasureValue(item, measures);
       if (topKeys.includes(name)) {
         values[name] += measureValue;
       } else {
@@ -101,12 +108,23 @@ function buildTimeSeries(
   };
 }
 
+function measureListLabel(measures: AllocationMeasure[]): string {
+  return measures.map((m) => MEASURE_LABELS[m] ?? m).join(", ");
+}
+
 export async function runAllocationReport(report: Report): Promise<AllocationReportResult> {
-  const grouping = report.query.groupings.join(",") || "namespace";
-  const response = await AllocationService.fetchAllocation(report.query.window, grouping, {
+  const measures: AllocationMeasure[] =
+    report.query.measures.length > 0 ? report.query.measures : ["totalCost"];
+  const groupings =
+    report.query.groupings.length > 0 ? report.query.groupings : ["namespace"];
+  const aggregate = groupings.join(",");
+  const metrics = measures.join(",");
+
+  const response = await AllocationService.fetchAllocation(report.query.window, aggregate, {
     accumulate: report.query.accumulate,
     includeIdle: report.query.includeIdle,
     step: report.query.step,
+    metrics,
     filters:
       report.query.filters.length > 0
         ? parseFilters(report.query.filters)
@@ -119,30 +137,29 @@ export async function runAllocationReport(report: Report): Promise<AllocationRep
       ? response
       : [];
 
-  const cumulative = rangeToCumulative(rawSets, report.query.groupings[0] ?? "name");
+  const cumulativeKey = groupings[0] ?? "name";
+  const cumulative = rangeToCumulative(rawSets, cumulativeKey);
   const rows = cumulative ? toArray(cumulative) : [];
   const sorted = [...rows].sort(
-    (a, b) =>
-      Number(get(b, report.query.measure, 0)) -
-      Number(get(a, report.query.measure, 0)),
+    (a, b) => combinedMeasureValue(b, measures) - combinedMeasureValue(a, measures),
   );
 
   const mappedRows: AllocationReportRow[] = sorted.map((row, index) => {
-    const measureValue = Number(get(row, report.query.measure, 0));
+    const measureValue = combinedMeasureValue(row, measures);
     return {
-      id: String(row.name ?? `${grouping}-${index}`),
-      name: String(row.name ?? "Unknown"),
+      id: String((row as { name?: string }).name ?? `${aggregate}-${index}`),
+      name: String((row as { name?: string }).name ?? "Unknown"),
       measureValue,
       measureDisplayValue: toCurrency(measureValue, report.query.currency),
     };
   });
 
   const totalValue = mappedRows.reduce((sum, row) => sum + row.measureValue, 0);
-  const timeSeries = buildTimeSeries(rawSets, report.query.measure);
+  const timeSeries = buildTimeSeries(rawSets, measures);
 
   return {
-    groupingLabel: toGroupingLabel(report.query.groupings),
-    measureLabel: MEASURE_LABELS[report.query.measure],
+    groupingLabel: toGroupingLabel(groupings),
+    measureLabel: measureListLabel(measures),
     rows: mappedRows,
     totalValue,
     totalDisplayValue: toCurrency(totalValue, report.query.currency),

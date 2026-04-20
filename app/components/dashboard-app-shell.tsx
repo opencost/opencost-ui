@@ -3,9 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import {
   HomeOutlined,
-  ExpandMore,
-  ChevronRight,
   ChevronLeft,
+  ChevronRight,
   Search,
   Close,
   DashboardOutlined,
@@ -70,12 +69,10 @@ function NavLinkEntry({
 function NavGroupHeader({
   label,
   icon,
-  expanded = true,
   collapsed = false,
 }: {
   label: string;
   icon: ReactNode;
-  expanded?: boolean;
   collapsed?: boolean;
 }) {
   return (
@@ -84,14 +81,7 @@ function NavGroupHeader({
       title={collapsed ? label : undefined}
     >
       <span className="inline-flex items-center">{icon}</span>
-      {!collapsed ? (
-        <>
-          <span>{label}</span>
-          <span className="ml-auto inline-flex items-center text-[#8d8d8d]">
-            {expanded ? <ExpandMore fontSize="small" /> : <ChevronRight fontSize="small" />}
-          </span>
-        </>
-      ) : null}
+      {!collapsed ? <span>{label}</span> : null}
     </div>
   );
 }
@@ -207,6 +197,41 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
   }, [allSearchEntries, normalizedSearchTerm]);
 
   useEffect(() => {
+    const isEditableTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      return (
+        target.isContentEditable ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT"
+      );
+    };
+
+    const onGlobalKeydown = (event: KeyboardEvent) => {
+      if (
+        event.key === "/" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        !isEditableTarget(event.target)
+      ) {
+        event.preventDefault();
+        setIsSearchOpen(true);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onGlobalKeydown);
+    return () => {
+      window.removeEventListener("keydown", onGlobalKeydown);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isSearchOpen) {
       setSearchTerm("");
       return;
@@ -216,17 +241,8 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
       searchInputRef.current?.focus();
     }, 20);
 
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsSearchOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", onEscape);
-
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener("keydown", onEscape);
     };
   }, [isSearchOpen]);
 

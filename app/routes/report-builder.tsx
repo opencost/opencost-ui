@@ -140,8 +140,12 @@ export default function ReportBuilderPage() {
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = `${currentDraft.name.replace(/\s+/g, "-").toLowerCase()}.csv`;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => {
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    }, 0);
     pushFeedback("Export started.");
   };
 

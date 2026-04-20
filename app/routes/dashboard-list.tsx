@@ -17,6 +17,7 @@ import {
 } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
+import { decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -29,9 +30,34 @@ interface SharedDashboardPayload {
 
 function decodeShareParam(encoded: string): SharedDashboardPayload | null {
   try {
-    return JSON.parse(
-      atob(decodeURIComponent(encoded)),
-    ) as SharedDashboardPayload;
+    const payload = decodeSharePayload(encoded);
+    if (!payload || typeof payload !== "object") return null;
+
+    const record = payload as Record<string, unknown>;
+    const widgets = Array.isArray(record.widgets)
+      ? record.widgets.filter((widget): widget is Widget => {
+          if (!widget || typeof widget !== "object") return false;
+          const candidate = widget as Record<string, unknown>;
+          return (
+            typeof candidate.id === "string" &&
+            typeof candidate.type === "string" &&
+            typeof candidate.title === "string" &&
+            typeof candidate.gridSize === "string"
+          );
+        })
+      : [];
+
+    return {
+      name:
+        typeof record.name === "string" && record.name.trim().length > 0
+          ? record.name
+          : "Shared Dashboard",
+      description: typeof record.description === "string" ? record.description : "",
+      widgets,
+      tags: Array.isArray(record.tags)
+        ? record.tags.filter((tag): tag is string => typeof tag === "string")
+        : [],
+    };
   } catch {
     return null;
   }
@@ -167,7 +193,7 @@ export default function DashboardList() {
       widgets: dashboard.widgets,
       tags: dashboard.tags,
     };
-    const encoded = encodeURIComponent(btoa(JSON.stringify(sharePayload)));
+    const encoded = encodeSharePayload(sharePayload);
     const shareUrl = `${window.location.origin}/dashboards?share=${encoded}`;
 
     try {

@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import CreateReportModal from "~/components/create-report-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportListTable from "~/components/report-list-table";
+import { decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
 import { useReport } from "~/components/report-context";
 import { normalizeReportQuery, type Report } from "~/types/report";
 
@@ -21,7 +22,27 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 function decodeShareParam(encoded: string): SharedReportPayload | null {
   try {
-    return JSON.parse(atob(decodeURIComponent(encoded))) as SharedReportPayload;
+    const payload = decodeSharePayload(encoded);
+    if (!payload || typeof payload !== "object") return null;
+
+    const record = payload as Record<string, unknown>;
+    return {
+      name:
+        typeof record.name === "string" && record.name.trim().length > 0
+          ? record.name
+          : "Shared Report",
+      description: typeof record.description === "string" ? record.description : "",
+      tags: Array.isArray(record.tags)
+        ? record.tags.filter((tag): tag is string => typeof tag === "string")
+        : [],
+      visibility: record.visibility === "private" ? "private" : "public",
+      favorite: typeof record.favorite === "boolean" ? record.favorite : false,
+      query: normalizeReportQuery(
+        record.query && typeof record.query === "object"
+          ? (record.query as Partial<Report["query"]>)
+          : {},
+      ),
+    };
   } catch {
     return null;
   }
@@ -141,7 +162,7 @@ export default function ReportsListPage() {
       favorite: report.favorite,
       query: report.query,
     };
-    const encoded = encodeURIComponent(btoa(JSON.stringify(payload)));
+    const encoded = encodeSharePayload(payload);
     const shareUrl = `${window.location.origin}/reports?share=${encoded}`;
 
     try {

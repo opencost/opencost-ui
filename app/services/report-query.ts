@@ -79,9 +79,12 @@ function buildTimeSeries(
     .slice(0, 8)
     .map(([name]) => name);
 
-  const points = rawSets.map((set) => {
+  const points = rawSets.map((set, index) => {
     const items = Object.values(set) as any[];
-    const firstWindow = get(items[0], "window.start", "") as string;
+    const firstWindow =
+      (get(items[0], "window.start", "") as string) ||
+      (get(items[0], "start", "") as string) ||
+      `Point ${index + 1}`;
     const values: Record<string, number> = {};
     for (const key of topKeys) values[key] = 0;
     values.Other = 0;

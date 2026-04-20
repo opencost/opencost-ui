@@ -10,6 +10,7 @@ import CloudCostTableWidget from "./cloud-cost-table-widget";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
 import { AllocationFiltersProvider } from "./allocation-filters-context";
+import { encodeSharePayload } from "~/lib/share-encoding";
 import type { Widget, Dashboard } from "./dashboard-context";
 
 function WidgetRenderer({
@@ -110,7 +111,7 @@ function encodeDashboardShare(dashboard: Dashboard): string {
     widgets: dashboard.widgets,
     tags: dashboard.tags,
   };
-  return encodeURIComponent(btoa(JSON.stringify(payload)));
+  return encodeSharePayload(payload);
 }
 
 export default function DashboardView({

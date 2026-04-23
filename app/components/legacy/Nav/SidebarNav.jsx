@@ -4,7 +4,7 @@ import { Drawer, List } from "@mui/material";
 import { NavItem } from "./NavItem";
 import { BarChart, Cloud } from "@mui/icons-material";
 
-const logo = "/logo.png";
+const logo = `${import.meta.env.VITE_BASENAME}/logo.png`;
 
 const DRAWER_WIDTH = 200;
 

@@ -4,13 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-const legacyBase =
-  process.env.VITE_LEGACY_MODE === "true" && process.env.VITE_LEGACY_BASENAME
-    ? `${process.env.VITE_LEGACY_BASENAME}/`
-    : "/";
+const base = process.env.VITE_BASENAME ? `${process.env.VITE_BASENAME}/` : `/`;
 
 export default defineConfig({
-  base: legacyBase,
+  // base: legacyBase,
+  base: base,
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   resolve: {
     alias: {

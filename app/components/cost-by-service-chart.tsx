@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSettings } from "~/components/settings-context";
 import { AreaChart } from "@carbon/charts-react";
 import { ScaleTypes } from "@carbon/charts";
 import { Loading } from "@carbon/react";
@@ -90,9 +91,11 @@ export interface CostByServiceChartProps {
 
 export default function CostByServiceChart({
   window = "7d",
-  currency = "USD",
+  currency: currencyProp,
   topN = 10,
 }: CostByServiceChartProps) {
+  const { defaultCurrency } = useSettings();
+  const currency = currencyProp ?? defaultCurrency;
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const { theme } = useAppTheme();

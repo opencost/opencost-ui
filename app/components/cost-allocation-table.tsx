@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSettings } from "~/components/settings-context";
 import {
   TableContainer,
   Table,
@@ -93,6 +94,7 @@ export default function CostAllocationTable({
   currency: currencyProp,
   useSharedFilters = false,
 }: CostAllocationTableProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [sharedFilters, setSharedFilters] =
     useAllocationFilters(useSharedFilters);
@@ -100,7 +102,7 @@ export default function CostAllocationTable({
   const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
-  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
+  const currency = currencyProp ?? defaultCurrency;
 
   const [localDrilldownFilters, setLocalDrilldownFilters] = useState<
     { property: string; value: string }[]
@@ -377,12 +379,10 @@ export default function CostAllocationTable({
               aggregateBy={globalAggregateBy}
               accumulate={accumulate}
               includeIdle={includeIdle}
-              currency={currency}
               onWindowChange={(v) => setFilter("window", v)}
               onAggregateByChange={(v) => setFilter("aggregateBy", v)}
               onAccumulateChange={(v) => setFilter("accumulate", v)}
               onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
-              onCurrencyChange={(v) => setFilter("currency", v)}
               idPrefix="table-alloc"
             />
           }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSettings } from "~/components/settings-context";
 import {
   Table,
   TableBody,
@@ -151,18 +152,18 @@ export default function CloudCostWidget({
   costMetric: costMetricProp,
   currency: currencyProp,
 }: CloudCostWidgetProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [localFilters, setLocalFilters] = useState({
     window: DEFAULT_CLOUD_FILTERS.cloudWindow,
     aggregateBy: DEFAULT_CLOUD_FILTERS.cloudAggregateBy,
     costMetric: DEFAULT_CLOUD_FILTERS.cloudCostMetric,
-    currency: DEFAULT_CLOUD_FILTERS.cloudCurrency,
   });
   const window = windowProp ?? localFilters.window;
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const costMetric = costMetricProp ?? localFilters.costMetric;
-  const currency = currencyProp ?? localFilters.currency;
+  const currency = currencyProp ?? defaultCurrency;
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableRows, setTableRows] = useState<CloudCostRow[]>([]);
   const [tableTotal, setTableTotal] = useState<CloudCostRow | null>(null);
@@ -302,7 +303,7 @@ export default function CloudCostWidget({
     };
   }, [chartData, currency, theme]);
 
-  const setFilter = (key: keyof typeof localFilters, value: string) => {
+  const setFilter = (key: "window" | "aggregateBy" | "costMetric", value: string) => {
     setLocalFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -321,11 +322,9 @@ export default function CloudCostWidget({
             window={window}
             aggregateBy={aggregateBy}
             costMetric={costMetric}
-            currency={currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onCostMetricChange={(v) => setFilter("costMetric", v)}
-            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="cloud-widget"
           />
         }

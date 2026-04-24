@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSettings } from "~/components/settings-context";
 import { useAppTheme } from "~/components/theme-context";
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
@@ -170,6 +171,7 @@ export default function CostAllocationChart({
   topN = 10,
   useSharedFilters = false,
 }: CostAllocationChartProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [sharedFilters, setSharedFilters] =
@@ -181,7 +183,7 @@ export default function CostAllocationChart({
     sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
-  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
+  const currency = currencyProp ?? defaultCurrency;
   const drilldownFilters = useSharedFilters
     ? (sharedFilters.drilldownFilters ?? [])
     : [];
@@ -318,12 +320,10 @@ export default function CostAllocationChart({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
-            currency={currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
-            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="chart-alloc"
           />
         }

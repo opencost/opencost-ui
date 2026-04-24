@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSettings } from "~/components/settings-context";
 import {
   Currency,
   ChartLine,
@@ -71,14 +72,15 @@ export default function CostSummaryCards({
   includeIdle: includeIdleProp,
   filters = EMPTY_FILTERS,
 }: CostSummaryCardsProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
     window: DEFAULT_ALLOCATION_FILTERS.allocationWindow,
     aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
     accumulate: true,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
-    currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
   });
+  const currency = defaultCurrency;
   const window = windowProp ?? localFilters.window;
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const accumulate = accumulateProp ?? localFilters.accumulate;
@@ -189,12 +191,10 @@ export default function CostSummaryCards({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
-            currency={localFilters.currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
-            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="summary-alloc"
           />
         }
@@ -202,19 +202,19 @@ export default function CostSummaryCards({
       <div className="grid gap-4 grid-cols-4">
         <MetricCard
           label="Total Cluster Cost"
-          value={data ? toCurrency(data.totalCost, "USD", 2) : "—"}
+          value={data ? toCurrency(data.totalCost, currency, 2) : "—"}
           icon={Currency}
           loading={loading}
         />
         <MetricCard
           label="Cloud Costs"
-          value={data ? toCurrency(data.cloudCost, "USD", 2) : "—"}
+          value={data ? toCurrency(data.cloudCost, currency, 2) : "—"}
           icon={ChartLine}
           loading={loading}
         />
         <MetricCard
           label="External Costs"
-          value={data ? toCurrency(data.externalCost, "USD", 2) : "—"}
+          value={data ? toCurrency(data.externalCost, currency, 2) : "—"}
           icon={ChartLineSmooth}
           loading={loading}
         />

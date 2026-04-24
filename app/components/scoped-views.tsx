@@ -1,6 +1,5 @@
 import { Select, SelectItem, Button } from "@carbon/react";
 import { Filter } from "@carbon/icons-react";
-import { currencyCodes } from "~/constants/currencyCodes";
 import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
@@ -38,14 +37,12 @@ export const DEFAULT_ALLOCATION_FILTERS = {
   allocationAggregateBy: "namespace",
   allocationAccumulate: false,
   allocationIncludeIdle: true,
-  allocationCurrency: "USD",
 };
 
 export const DEFAULT_CLOUD_FILTERS = {
   cloudWindow: "7d",
   cloudAggregateBy: "provider",
   cloudCostMetric: "AmortizedNetCost",
-  cloudCurrency: "USD",
 };
 
 export interface AllocationFilterValues {
@@ -53,7 +50,6 @@ export interface AllocationFilterValues {
   aggregateBy: string;
   accumulate: boolean;
   includeIdle: boolean;
-  currency: string;
   drilldownAggregateBy?: string;
   drilldownFilters?: { property: string; value: string }[];
 }
@@ -62,7 +58,6 @@ export interface CloudFilterValues {
   window: string;
   aggregateBy: string;
   costMetric: string;
-  currency: string;
 }
 
 export const ASSETS_WINDOW_OPTIONS = [
@@ -107,7 +102,6 @@ export interface Filters {
   cloudWindow?: string;
   cloudAggregateBy?: string;
   cloudCostMetric?: string;
-  cloudCurrency?: string;
 }
 
 export interface FilterableWidgetHeaderProps {
@@ -142,10 +136,10 @@ export function FilterableWidgetHeader({
             kind={expanded ? "primary" : "secondary"}
             size="sm"
             renderIcon={Filter}
-            iconDescription="Toggle filters"
+            iconDescription="Toggle options"
             onClick={onToggle}
           >
-            {expanded ? "Collapse filters" : "Filters"}
+            {expanded ? "Collapse options" : "Options"}
           </Button>
         </div>
       </div>
@@ -163,12 +157,10 @@ interface AllocationFilterControlsProps {
   aggregateBy: string;
   accumulate: boolean;
   includeIdle: boolean;
-  currency: string;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
   onAccumulateChange: (v: boolean) => void;
   onIncludeIdleChange: (v: boolean) => void;
-  onCurrencyChange: (v: string) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -178,12 +170,10 @@ export function AllocationFilterControls({
   aggregateBy,
   accumulate,
   includeIdle,
-  currency,
   onWindowChange,
   onAggregateByChange,
   onAccumulateChange,
   onIncludeIdleChange,
-  onCurrencyChange,
   idPrefix = "alloc",
   compact = true,
 }: AllocationFilterControlsProps) {
@@ -228,17 +218,6 @@ export function AllocationFilterControls({
         <SelectItem value="false" text="Daily" />
         <SelectItem value="true" text="Entire window" />
       </Select>
-      <Select
-        id={`${idPrefix}-currency`}
-        labelText="Currency"
-        value={currency}
-        size="sm"
-        onChange={(e) => onCurrencyChange(e.target.value)}
-      >
-        {currencyCodes.map((c) => (
-          <SelectItem key={c} value={c} text={c} />
-        ))}
-      </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
         <input
           type="checkbox"
@@ -255,11 +234,9 @@ interface CloudFilterControlsProps {
   window: string;
   aggregateBy: string;
   costMetric: string;
-  currency: string;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
   onCostMetricChange: (v: string) => void;
-  onCurrencyChange: (v: string) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -268,11 +245,9 @@ export function CloudFilterControls({
   window,
   aggregateBy,
   costMetric,
-  currency,
   onWindowChange,
   onAggregateByChange,
   onCostMetricChange,
-  onCurrencyChange,
   idPrefix = "cloud",
   compact = true,
 }: CloudFilterControlsProps) {
@@ -316,17 +291,6 @@ export function CloudFilterControls({
       >
         {CLOUD_COST_METRIC_OPTIONS.map((o) => (
           <SelectItem key={o.value} value={o.value} text={o.name} />
-        ))}
-      </Select>
-      <Select
-        id={`${idPrefix}-currency`}
-        labelText="Currency"
-        value={currency}
-        size="sm"
-        onChange={(e) => onCurrencyChange(e.target.value)}
-      >
-        {currencyCodes.map((c) => (
-          <SelectItem key={c} value={c} text={c} />
         ))}
       </Select>
     </div>

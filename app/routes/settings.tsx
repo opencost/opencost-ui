@@ -50,7 +50,6 @@ export default function SettingsPage() {
                 </label>
                 <p className="mb-3 text-xs text-[#6f6f6f]">
                   Used as the default currency when creating new reports and dashboards.
-                  Individual reports can still override this.
                 </p>
                 <select
                   id="settings-currency"

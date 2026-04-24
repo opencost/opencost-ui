@@ -15,6 +15,7 @@ const newUIRoutes: RouteConfig = [
   route("dashboard/:dashboardId", "routes/dashboard.tsx"),
   route("reports", "routes/reports-list.tsx"),
   route("report/:reportId", "routes/report-builder.tsx"),
+  route("settings", "routes/settings.tsx"),
   route("*", "routes/$.tsx"),
 ];
 

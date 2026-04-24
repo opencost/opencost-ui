@@ -7,6 +7,7 @@ import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportBuilderSidePanel from "~/components/report-builder-side-panel";
 import ReportResultsView from "~/components/report-results-view";
 import { useReport } from "~/components/report-context";
+import { useSettings } from "~/components/settings-context";
 import { runReport, type ReportRunResult } from "~/services/report-query";
 import { normalizeReportQuery, type Report } from "~/types/report";
 
@@ -22,6 +23,7 @@ export default function ReportBuilderPage() {
   const navigate = useNavigate();
   const { reportId } = useParams<{ reportId: string }>();
   const { reports, updateReport, createReport, deleteReport } = useReport();
+  const { defaultCurrency } = useSettings();
   const report = useMemo(
     () => reports.find((candidate) => candidate.id === reportId),
     [reports, reportId],
@@ -44,7 +46,11 @@ export default function ReportBuilderPage() {
     setRunning(true);
     setRunError(null);
     try {
-      const next = await runReport(targetReport);
+      const reportWithCurrency: Report = {
+        ...targetReport,
+        query: { ...targetReport.query, currency: defaultCurrency },
+      };
+      const next = await runReport(reportWithCurrency);
       setResult(next);
     } catch (error: any) {
       setRunError(error?.message || "Unable to run report.");
@@ -52,7 +58,7 @@ export default function ReportBuilderPage() {
     } finally {
       setRunning(false);
     }
-  }, []);
+  }, [defaultCurrency]);
 
   useEffect(() => {
     if (!autoRun || !draft) return;

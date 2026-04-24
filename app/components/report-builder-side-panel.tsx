@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@carbon/react";
 import { DeleteOutline } from "@mui/icons-material";
-import { currencyCodes } from "~/constants/currencyCodes";
 import {
   REPORT_WINDOW_PRESETS,
   buildUtcRangeFromDateInputs,
@@ -576,23 +575,6 @@ export default function ReportBuilderSidePanel({
         </select>
       </div>
 
-      <div className="mb-4">
-        <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-currency">
-          Currency
-        </label>
-        <select
-          id="report-currency"
-          value={query.currency}
-          onChange={(event) => updateQuery({ currency: event.target.value })}
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
-        >
-          {currencyCodes.map((currencyCode) => (
-            <option key={currencyCode} value={currencyCode}>
-              {currencyCode}
-            </option>
-          ))}
-        </select>
-      </div>
 
       {allocationQuery || infraAssetsQuery ? (
         <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">

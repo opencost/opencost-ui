@@ -9,7 +9,7 @@ import {
   Close,
   DashboardOutlined,
   DescriptionOutlined,
-  StorageOutlined,
+  SettingsOutlined,
 } from "@mui/icons-material";
 import { useDashboard } from "~/components/dashboard-context";
 import { useReport } from "~/components/report-context";
@@ -109,6 +109,7 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
   const dashboardsActive =
     pathname === "/dashboards" || pathname.startsWith("/dashboard/");
   const reportsActive = pathname === "/reports" || pathname.startsWith("/report/");
+  const settingsActive = pathname === "/settings";
   const quickLinks = useMemo<SearchEntry[]>(
     () => [
       {
@@ -132,7 +133,8 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
       {
         id: "settings",
         label: "Settings",
-        icon: <StorageOutlined fontSize="small" />,
+        icon: <SettingsOutlined fontSize="small" />,
+        href: "/settings",
       },
     ],
     [],
@@ -383,6 +385,13 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               icon={<CasesOutlined fontSize="small" />}
               collapsed={collapsed}
             /> */}
+            <NavLinkEntry
+              href="/settings"
+              label="Settings"
+              icon={<SettingsOutlined fontSize="small" />}
+              active={settingsActive}
+              collapsed={collapsed}
+            />
           </nav>
           <button
             className="mx-1 mt-auto inline-flex h-7 w-7 items-center justify-center self-start rounded-full border border-[#e0e0e0] bg-white text-[#525252]"

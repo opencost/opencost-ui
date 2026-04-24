@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSettings } from "~/components/settings-context";
 import { Button, Modal, Tag, TextArea, TextInput } from "@carbon/react";
 import {
   createDefaultReportQuery,
@@ -22,6 +23,7 @@ export default function CreateReportModal({
   onUpdate,
   reportToEdit,
 }: CreateReportModalProps) {
+  const { defaultCurrency } = useSettings();
   const isEditMode = !!reportToEdit;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -84,7 +86,7 @@ export default function CreateReportModal({
       owner: "You",
       visibility,
       favorite: false,
-      query: createDefaultReportQuery(layer),
+      query: { ...createDefaultReportQuery(layer), currency: defaultCurrency },
       createdAt: now,
       updatedAt: now,
     };

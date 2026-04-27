@@ -8,12 +8,15 @@ import {
   TableHeader,
   TableRow,
   Pagination,
+  Tag,
+  Modal,
 } from "@carbon/react";
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
 import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
 import { useAppTheme } from "~/components/theme-context";
 import CloudCostService from "~/services/cloud-cost";
+import CloudCostDayTotalsService from "~/services/cloud-cost-day-totals";
 import {
   toCurrency,
   checkCustomWindow,
@@ -96,6 +99,7 @@ function buildChartData(
   return points;
 }
 
+
 function buildColorScale(points: ChartPoint[]): Record<string, string> {
   const scale: Record<string, string> = {};
   const keys = [...new Set(points.map((p) => p.key))];
@@ -145,6 +149,14 @@ export interface CloudCostWidgetProps {
   currency?: string;
 }
 
+const DRILLDOWN_HIERARCHY: Record<string, string> = {
+  provider: "service",
+  accountID: "service",
+  invoiceEntityID: "service",
+  service: "item",
+  category: "item",
+};
+
 export default function CloudCostWidget({
   window: windowProp,
   aggregateBy: aggregateByProp,
@@ -163,6 +175,13 @@ export default function CloudCostWidget({
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const costMetric = costMetricProp ?? localFilters.costMetric;
   const currency = currencyProp ?? localFilters.currency;
+  const [drilldownFilters, setDrilldownFilters] = useState<
+    { property: string; value: string }[]
+  >([]);
+  const [drilldownAggregateBy, setDrilldownAggregateBy] = useState<
+    string | null
+  >(null);
+  const effectiveAggregateBy = drilldownAggregateBy ?? aggregateBy;
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableRows, setTableRows] = useState<CloudCostRow[]>([]);
   const [tableTotal, setTableTotal] = useState<CloudCostRow | null>(null);
@@ -178,7 +197,66 @@ export default function CloudCostWidget({
     direction: "desc",
   });
 
-  const title = generateTitle(window, aggregateBy, costMetric);
+  const isItemLevel = !DRILLDOWN_HIERARCHY[effectiveAggregateBy];
+  const [selectedItem, setSelectedItem] = useState<CloudCostRow | null>(null);
+  const [itemDetailData, setItemDetailData] = useState<
+    { date: string; cost: number }[]
+  >([]);
+  const [itemDetailLoading, setItemDetailLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedItem) return;
+    let cancelled = false;
+    async function load() {
+      setItemDetailLoading(true);
+      setItemDetailData([]);
+      try {
+        const providerID = String(selectedItem!.providerID ?? "");
+        const filters = [
+          ...drilldownFilters,
+          ...(providerID ? [{ property: "providerID", value: providerID }] : []),
+        ];
+        const resp = await CloudCostDayTotalsService.fetchCloudCostData(
+          window,
+          "item",
+          costMetric,
+          filters,
+        );
+        if (!cancelled && Array.isArray((resp as any).data)) {
+          setItemDetailData((resp as any).data);
+        }
+      } catch {
+        // leave empty
+      } finally {
+        if (!cancelled) setItemDetailLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [selectedItem]);
+
+  const title = generateTitle(window, effectiveAggregateBy, costMetric);
+
+  function handleDrilldown(row: CloudCostRow) {
+    const nextAgg = DRILLDOWN_HIERARCHY[effectiveAggregateBy];
+    if (!nextAgg) return;
+    const rowName = String(row.name ?? row.labelName ?? "");
+    const nameParts = rowName.split("/");
+    const newFilter = { property: effectiveAggregateBy, value: nameParts[0] };
+    setDrilldownFilters((prev) => [...prev, newFilter]);
+    setDrilldownAggregateBy(nextAgg);
+  }
+
+  function removeDrilldownFilter(index: number) {
+    const remaining = drilldownFilters.slice(0, index);
+    setDrilldownFilters(remaining);
+    if (remaining.length === 0) {
+      setDrilldownAggregateBy(null);
+    } else {
+      const lastFilter = remaining[remaining.length - 1];
+      setDrilldownAggregateBy(DRILLDOWN_HIERARCHY[lastFilter.property] ?? null);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -187,9 +265,9 @@ export default function CloudCostWidget({
       try {
         const resp = await CloudCostService.fetchCloudCostData(
           window,
-          aggregateBy,
+          effectiveAggregateBy,
           costMetric,
-          [],
+          drilldownFilters,
         );
         if (!cancelled && resp) {
           setChartData(buildChartData(resp.graphData ?? [], 10));
@@ -214,7 +292,7 @@ export default function CloudCostWidget({
     return () => {
       cancelled = true;
     };
-  }, [window, aggregateBy, costMetric]);
+  }, [window, effectiveAggregateBy, costMetric, drilldownFilters]);
 
   const sortedRows = useMemo(() => {
     const list = [...tableRows];
@@ -239,11 +317,17 @@ export default function CloudCostWidget({
   const pageRows = sortedRows.slice(startIndex, startIndex + pageSize);
 
   useEffect(() => {
+    setDrilldownFilters([]);
+    setDrilldownAggregateBy(null);
+  }, [aggregateBy]);
+
+  useEffect(() => {
     setPage(1);
   }, [
     window,
-    aggregateBy,
+    effectiveAggregateBy,
     costMetric,
+    drilldownFilters,
     totalRows,
     sortConfig.key,
     sortConfig.direction,
@@ -331,6 +415,23 @@ export default function CloudCostWidget({
         }
       />
 
+      {/* Drilldown breadcrumbs */}
+      {drilldownFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 px-4 py-2">
+          {drilldownFilters.map((f, i) => (
+            <Tag
+              key={`${f.property}-${f.value}`}
+              type="blue"
+              filter
+              onClose={() => removeDrilldownFilter(i)}
+              title={`Remove filter: ${f.value}`}
+            >
+              {f.property}: {f.value}
+            </Tag>
+          ))}
+        </div>
+      )}
+
       {/* Chart */}
       <div id="cloud-graph" className="mb-6">
         {loading ? (
@@ -410,7 +511,14 @@ export default function CloudCostWidget({
                       key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
                     >
                       <TableCell>
-                        <span className="text-[var(--cds-link-primary)] cursor-pointer">
+                        <span
+                          className="text-[var(--cds-link-primary)] cursor-pointer hover:underline"
+                          onClick={() =>
+                            DRILLDOWN_HIERARCHY[effectiveAggregateBy]
+                              ? handleDrilldown(row)
+                              : setSelectedItem(row)
+                          }
+                        >
                           {String(row.labelName ?? row.name ?? "")}
                         </span>
                       </TableCell>
@@ -452,6 +560,104 @@ export default function CloudCostWidget({
           </>
         )}
       </div>
+
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          data={itemDetailData}
+          loading={itemDetailLoading}
+          currency={currency}
+          theme={theme}
+          chartMode={chartMode}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
+  );
+}
+
+interface ItemDetailModalProps {
+  item: CloudCostRow;
+  data: { date: string; cost: number }[];
+  loading: boolean;
+  currency: string;
+  theme: string;
+  chartMode: ChartMode;
+  onClose: () => void;
+}
+
+function ItemDetailModal({
+  item,
+  data,
+  loading,
+  currency,
+  theme,
+  chartMode,
+  onClose,
+}: ItemDetailModalProps) {
+  const itemName = String(item.labelName ?? item.name ?? "");
+
+  const chartData = data
+    .slice()
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map((d) => ({
+      group: new Date(d.date).toLocaleDateString("en-US", {
+        month: "numeric",
+        day: "numeric",
+      }),
+      key: itemName,
+      value: d.cost,
+    }));
+
+  const chartOptions = {
+    theme,
+    title: "",
+    axes: {
+      left: {
+        mapsTo: "value",
+        scaleType: ScaleTypes.LINEAR,
+        ticks: {
+          formatter: (v: number | Date) =>
+            toCurrency(typeof v === "number" ? v : v.getTime(), currency),
+        },
+      },
+      bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+    },
+    data: { groupMapsTo: "key" },
+    height: "300px",
+    legend: {
+      truncation: { type: "none" },
+    },
+    tooltip: {
+      customHTML: (data: any) => {
+        const item = Array.isArray(data) ? data[0] : data;
+        if (!item) return "";
+        const val = typeof item.value === "number" ? item.value : parseFloat(item.value) || 0;
+        const date = item.group ?? item.key ?? "";
+        return `<div style="padding:8px 12px;font-size:0.875rem">${date ? `<p style="margin:0 0 4px 0;color:var(--cds-text-secondary)">${date}</p>` : ""}<p style="margin:0;font-weight:600">${toCurrency(val, currency)}</p></div>`;
+      },
+    },
+  };
+
+  return (
+    <Modal
+      open
+      passiveModal
+      modalHeading={itemName}
+      onRequestClose={onClose}
+      size="lg"
+    >
+      {loading ? (
+        <div className="flex items-center justify-center h-[300px] text-[var(--cds-text-placeholder)]">
+          Loading…
+        </div>
+      ) : chartData.length === 0 ? (
+        <div className="flex items-center justify-center h-[300px] text-[var(--cds-text-placeholder)]">
+          No data available.
+        </div>
+      ) : (
+        <SwitchableChart data={chartData} options={chartOptions} mode={chartMode} />
+      )}
+    </Modal>
   );
 }

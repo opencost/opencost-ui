@@ -24,7 +24,7 @@ build IMAGE_TAG RELEASE_VERSION: build-local
     docker buildx build \
         --rm \
         --platform "linux/arm64" \
-        -f 'Dockerfile' \
+        -f 'Dockerfile.cross' \
         --provenance=false \
         -t {{IMAGE_TAG}}-arm64 \
         --build-arg version={{RELEASE_VERSION}} \

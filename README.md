@@ -66,13 +66,13 @@ $ docker run -p 9091:9090 -e BASE_URL_OVERRIDE=anything -d opencost-ui:latest
 
 ## Overriding the Base UI URL Path
 
-To serve the web interface under a path other than the root (`/`), you need to build a custom image using the `ui_path` build argument.  
+To serve the web interface under a path other than the root (`/`), you need to build a custom image using the `vite_basename` build argument.  
 For example, you can clone this project and run:
 
 ```sh
-$ docker build --build-arg ui_path=/anything --tag opencost-ui:latest .
+$ docker build --build-arg vite_basename=/anything --tag opencost-ui:latest .
 ```
 
 This ensures that all static assets are served from the specified path.
 
-Once the container is running, the UI will be accessible at `<domain>/{ui_path}`.
+Once the container is running, the UI will be accessible at `<domain>/{vite_basename}`.

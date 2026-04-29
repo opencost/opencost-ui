@@ -4,10 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-const base = process.env.VITE_BASENAME ? `${process.env.VITE_BASENAME}/` : `/`;
+const viteBasename = process.env.VITE_BASENAME
+const base = viteBasename ? viteBasename.endsWith(`/`) ? viteBasename : `${viteBasename}/` : `/`;
 
 export default defineConfig({
-  // base: legacyBase,
   base: base,
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   resolve: {

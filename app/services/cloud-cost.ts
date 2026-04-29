@@ -73,10 +73,10 @@ class CloudCostService {
     };
 
     if (aggregate.includes("item")) {
-      const resp = await client.get(
-        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(filters)}`,
-      );
-      return formatSampleItemsForGraph({ data: resp.data, costMetric });
+      const resp = await client.get("/cloudCost", {
+        params: { window, costMetric, filter: parseFilters(filters) },
+      });
+      return formatSampleItemsForGraph({ data: resp.data.data, costMetric });
     }
 
     const [tableView, totalsView, graphView, status] = await Promise.all([

@@ -3,6 +3,7 @@ import AllocationService from "~/services/allocation";
 import AssetsService from "~/services/assets";
 import CloudCostService from "~/services/cloud-cost";
 import ExternalCostsService from "~/services/external-costs";
+import { parseReportWindowRange } from "~/lib/report-window-range";
 import { parseFilters, rangeToCumulative, toCurrency } from "~/lib/legacy-util";
 import type { Asset } from "~/lib/assets-api";
 import type {
@@ -132,10 +133,66 @@ function toSingleGroupingLabel(grouping: string): string {
   return formatGroupingToken(grouping || "name");
 }
 
-function toPointLabel(rawDate: string): string {
-  const parsed = new Date(rawDate);
-  if (Number.isNaN(parsed.getTime())) return rawDate;
-  return parsed.toLocaleDateString(undefined, { month: "short", day: "2-digit" });
+function isGarbageEpoch(parsed: Date): boolean {
+  if (Number.isNaN(parsed.getTime())) return true;
+  return parsed.getUTCFullYear() < 1971;
+}
+
+function safeTimeBucketLabel(raw: unknown, bracketIndex: number): string {
+  if (raw !== null && raw !== undefined && String(raw).trim().length === 0) {
+    return `Period ${bracketIndex + 1}`;
+  }
+  const asString =
+    typeof raw === "number" ? String(raw) : typeof raw === "string" ? raw.trim() : String(raw);
+  const parsed = new Date(asString);
+  if (isGarbageEpoch(parsed))
+    return asString.startsWith("Point ") || asString.startsWith("Period ")
+      ? asString
+      : `Period ${bracketIndex + 1}`;
+  return parsed.toLocaleDateString(undefined, {
+    month: "short",
+    day: "2-digit",
+    timeZone: "UTC",
+  });
+}
+
+function utcBracketApproxDate(windowIso: string, accumulate: string, index: number): Date | null {
+  const rng = parseReportWindowRange(windowIso);
+  if (!rng) return null;
+
+  switch (accumulate) {
+    case "hour":
+      return new Date(rng.start.getTime() + index * 60 * 60 * 1000);
+    case "day":
+      return new Date(rng.start.getTime() + index * 24 * 60 * 60 * 1000);
+    case "week":
+    case "weeknow":
+      return new Date(rng.start.getTime() + index * 7 * 24 * 60 * 60 * 1000);
+    case "month": {
+      const d = new Date(rng.start);
+      d.setUTCMonth(d.getUTCMonth() + index);
+      return d;
+    }
+    case "quarter": {
+      const d = new Date(rng.start);
+      d.setUTCMonth(d.getUTCMonth() + index * 3);
+      return d;
+    }
+    case "all":
+      return index === 0 ? rng.start : null;
+    default:
+      return null;
+  }
+}
+
+function deriveEmptyAllocationBracketLabel(
+  windowIso: string,
+  accumulate: string,
+  bracketIndex: number,
+): string {
+  const derived = utcBracketApproxDate(windowIso, accumulate, bracketIndex);
+  if (!derived) return `Period ${bracketIndex + 1}`;
+  return safeTimeBucketLabel(derived.toISOString(), bracketIndex);
 }
 
 function combinedMeasureValue(item: unknown, measures: AllocationMeasure[]): number {
@@ -148,6 +205,8 @@ function combinedMeasureValue(item: unknown, measures: AllocationMeasure[]): num
 function buildTimeSeries(
   rawSets: any[],
   measures: AllocationMeasure[],
+  windowIso: string,
+  accumulate: string,
 ): AllocationReportResult["timeSeries"] {
   const aggregateTotals = new Map<string, number>();
 
@@ -167,10 +226,22 @@ function buildTimeSeries(
 
   const points = rawSets.map((set, index) => {
     const items = Object.values(set) as any[];
-    const firstWindow =
-      (get(items[0], "window.start", "") as string) ||
-      (get(items[0], "start", "") as string) ||
-      `Point ${index + 1}`;
+
+    let label: string;
+    const trimmedStart =
+      typeof get(items[0], "window.start", "") === "string"
+        ? ((get(items[0], "window.start", "") as string) || "").trim()
+        : "";
+    const trimmedLegacy =
+      typeof get(items[0], "start", "") === "string"
+        ? ((get(items[0], "start", "") as string) || "").trim()
+        : "";
+    let rawLabel = trimmedStart || trimmedLegacy;
+    if (rawLabel.length === 0 || isGarbageEpoch(new Date(rawLabel))) {
+      label = deriveEmptyAllocationBracketLabel(windowIso, accumulate, index);
+    } else {
+      label = safeTimeBucketLabel(rawLabel, index);
+    }
     const values: Record<string, number> = {};
     for (const key of topKeys) values[key] = 0;
     values.Other = 0;
@@ -186,7 +257,7 @@ function buildTimeSeries(
     });
 
     return {
-      label: toPointLabel(firstWindow),
+      label,
       values,
     };
   });
@@ -236,9 +307,9 @@ function buildCloudCostTimeSeries(
     const labelSource =
       (typeof entry?.start === "string" && entry.start) ||
       (typeof entry?.end === "string" && entry.end) ||
-      `Point ${index + 1}`;
+      `Period ${index + 1}`;
 
-    return { label: toPointLabel(labelSource), values };
+    return { label: safeTimeBucketLabel(labelSource, index), values };
   });
 
   return {
@@ -295,9 +366,9 @@ function buildExternalCostTimeSeries(
     const labelSource =
       (typeof entry?.window?.start === "string" && entry.window.start) ||
       (typeof entry?.window?.end === "string" && entry.window.end) ||
-      `Point ${index + 1}`;
+      `Period ${index + 1}`;
 
-    return { label: toPointLabel(labelSource), values };
+    return { label: safeTimeBucketLabel(labelSource, index), values };
   });
 
   return {
@@ -318,7 +389,6 @@ export async function runAllocationReport(
   const response = await AllocationService.fetchAllocation(query.window, aggregate, {
     accumulate: query.accumulate,
     includeIdle: query.includeIdle,
-    step: query.step,
     metrics,
     filters: query.filters.length > 0 ? parseFilters(query.filters) : undefined,
   });
@@ -347,7 +417,12 @@ export async function runAllocationReport(
   });
 
   const totalValue = mappedRows.reduce((sum, row) => sum + row.measureValue, 0);
-  const timeSeries = buildTimeSeries(rawSets, measures);
+  const timeSeries = buildTimeSeries(
+    rawSets,
+    measures,
+    query.window,
+    query.accumulate,
+  );
 
   return {
     layer: "allocation",
@@ -369,6 +444,7 @@ export async function runCloudCostReport(
     query.aggregateBy,
     query.costMetric,
     query.filters,
+    query.accumulate,
   );
   const tableRows = Array.isArray(response?.tableRows) ? response.tableRows : [];
   const graphData = Array.isArray(response?.graphData) ? response.graphData : [];

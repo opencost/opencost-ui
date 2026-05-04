@@ -8,6 +8,7 @@ function buildCacheKey(
   aggregate: string,
   costMetric: string,
   filters: { property: string; value: string }[],
+  accumulate: string,
 ): string {
   const filterKey =
     filters && filters.length > 0
@@ -19,7 +20,7 @@ function buildCacheKey(
           ),
         )
       : "";
-  return `${window}|${aggregate}|${costMetric}|${filterKey}`;
+  return `${window}|${aggregate}|${costMetric}|${filterKey}|${accumulate}`;
 }
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -31,8 +32,9 @@ class CloudCostService {
     aggregate: string,
     costMetric: string,
     filters: { property: string; value: string }[],
+    accumulate: string = "day",
   ): Promise<any> {
-    const key = buildCacheKey(window, aggregate, costMetric, filters ?? []);
+    const key = buildCacheKey(window, aggregate, costMetric, filters ?? [], accumulate);
 
     // Return cached result if still fresh
     const cached = cache.get(key);
@@ -46,7 +48,7 @@ class CloudCostService {
       return promise;
     }
 
-    promise = this._doFetch(window, aggregate, costMetric, filters ?? []);
+    promise = this._doFetch(window, aggregate, costMetric, filters ?? [], accumulate);
     inFlight.set(key, promise);
 
     try {
@@ -63,11 +65,13 @@ class CloudCostService {
     aggregate: string,
     costMetric: string,
     filters: { property: string; value: string }[],
+    accumulate: string,
   ) {
     const params: Record<string, any> = {
       window,
       aggregate,
       costMetric,
+      accumulate,
       filter: parseFilters(filters),
       limit: 1000,
     };

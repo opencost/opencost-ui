@@ -107,7 +107,7 @@ const DashboardContext = createContext<DashboardContextValue | undefined>(
 const DEFAULT_DASHBOARDS: Dashboard[] = [
   {
     id: DEFAULT_DASHBOARD_ID,
-    name: "Default Dashboard",
+    name: "OpenCost Homepage",
     description: "Overall cloud cost analysis",
     widgets: [
       { id: "1", type: "summary-cards", title: "Cost Summary", gridSize: "4" },

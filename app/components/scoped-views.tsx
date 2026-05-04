@@ -5,6 +5,7 @@ import {
   CLOUD_AGGREGATION_OPTIONS,
   CLOUD_COST_METRIC_OPTIONS,
 } from "~/constants/cloud-cost-options";
+import { REPORT_ACCUMULATE_OPTIONS } from "~/types/report";
 
 export const ALLOCATION_WINDOW_OPTIONS = [
   { name: "Today", value: "today" },
@@ -35,7 +36,7 @@ export const ALLOCATION_AGGREGATE_OPTIONS = [
 export const DEFAULT_ALLOCATION_FILTERS = {
   allocationWindow: "7d",
   allocationAggregateBy: "namespace",
-  allocationAccumulate: false,
+  allocationAccumulate: "day",
   allocationIncludeIdle: true,
 };
 
@@ -48,7 +49,8 @@ export const DEFAULT_CLOUD_FILTERS = {
 export interface AllocationFilterValues {
   window: string;
   aggregateBy: string;
-  accumulate: boolean;
+  /** `/allocation/compute` `accumulate` param (e.g. `day`, `weeknow`, `all`). */
+  accumulate: string;
   includeIdle: boolean;
   drilldownAggregateBy?: string;
   drilldownFilters?: { property: string; value: string }[];
@@ -97,7 +99,7 @@ export interface AssetsFilterValues {
 export interface Filters {
   allocationWindow?: string;
   allocationAggregateBy?: string;
-  allocationAccumulate?: boolean;
+  allocationAccumulate?: string;
   allocationIncludeIdle?: boolean;
   cloudWindow?: string;
   cloudAggregateBy?: string;
@@ -155,11 +157,11 @@ export function FilterableWidgetHeader({
 interface AllocationFilterControlsProps {
   window: string;
   aggregateBy: string;
-  accumulate: boolean;
+  accumulate: string;
   includeIdle: boolean;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
-  onAccumulateChange: (v: boolean) => void;
+  onAccumulateChange: (v: string) => void;
   onIncludeIdleChange: (v: boolean) => void;
   idPrefix?: string;
   compact?: boolean;
@@ -210,13 +212,14 @@ export function AllocationFilterControls({
       </Select>
       <Select
         id={`${idPrefix}-accumulate`}
-        labelText="Time"
-        value={String(accumulate)}
+        labelText="Granularity"
+        value={accumulate}
         size="sm"
-        onChange={(e) => onAccumulateChange(e.target.value === "true")}
+        onChange={(e) => onAccumulateChange(e.target.value)}
       >
-        <SelectItem value="false" text="Daily" />
-        <SelectItem value="true" text="Entire window" />
+        {REPORT_ACCUMULATE_OPTIONS.map((o) => (
+          <SelectItem key={o.value} value={o.value} text={o.label} />
+        ))}
       </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
         <input

@@ -59,7 +59,7 @@ export interface CostSummaryCardsProps {
   title?: string;
   window?: string;
   aggregateBy?: string;
-  accumulate?: boolean;
+  accumulate?: string;
   includeIdle?: boolean;
   filters?: { property: string; value: string }[];
 }
@@ -77,7 +77,7 @@ export default function CostSummaryCards({
   const [localFilters, setLocalFilters] = useState({
     window: DEFAULT_ALLOCATION_FILTERS.allocationWindow,
     aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
-    accumulate: true,
+    accumulate: DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
   });
   const currency = defaultCurrency;

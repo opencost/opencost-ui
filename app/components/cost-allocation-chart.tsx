@@ -17,6 +17,7 @@ import {
   FilterableWidgetHeader,
 } from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
+import { reportAccumulateLabel } from "~/types/report";
 import { primary, greyscale, browns } from "~/constants/colors";
 interface ChartPoint {
   group: string;
@@ -35,7 +36,7 @@ interface AllocationLike {
 function generateTitle(
   window: string,
   aggregateBy: string,
-  accumulate: boolean,
+  accumulate: string,
 ): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
@@ -49,9 +50,8 @@ function generateTitle(
   );
   const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
 
-  let str = `${windowName} by ${aggregationName}`;
-  if (!accumulate) str = `${str} daily`;
-  return str;
+  const gran = reportAccumulateLabel(accumulate);
+  return `${windowName} by ${aggregationName} (${gran})`;
 }
 
 function isIdle(alloc: AllocationLike): boolean {
@@ -88,10 +88,13 @@ function topNPerDay(
 
 function getDateLabel(alloc: AllocationLike): string {
   const start = alloc?.window?.start ?? alloc?.start;
-  if (!start) return "?";
-  return new Date(start).toLocaleDateString("en-US", {
+  if (!start || String(start).trim().length === 0) return "?";
+  const d = new Date(start as string);
+  if (Number.isNaN(d.getTime()) || d.getUTCFullYear() < 1971) return "?";
+  return d.toLocaleDateString("en-US", {
     month: "2-digit",
     day: "2-digit",
+    timeZone: "UTC",
   });
 }
 
@@ -153,7 +156,7 @@ export interface CostAllocationChartProps {
   description?: string;
   window?: string;
   aggregateBy?: string;
-  accumulate?: boolean;
+  accumulate?: string;
   includeIdle?: boolean;
   currency?: string;
   topN?: number;

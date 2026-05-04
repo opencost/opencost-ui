@@ -30,11 +30,28 @@ export interface ReportFilterRule {
   value: string;
 }
 
+export const REPORT_ACCUMULATE_OPTIONS: { label: string; value: string }[] = [
+  { label: "Daily", value: "day" },
+  { label: "Hourly", value: "hour" },
+  { label: "Weekly", value: "week" },
+  { label: "Week (calendar)", value: "weeknow" },
+  { label: "Monthly", value: "month" },
+  { label: "Quarterly", value: "quarter" },
+  { label: "Whole window", value: "all" },
+];
+
+export function reportAccumulateLabel(value: string): string {
+  return REPORT_ACCUMULATE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+const VALID_REPORT_ACCUMULATE = new Set(
+  REPORT_ACCUMULATE_OPTIONS.map((o) => o.value),
+);
+
 export interface AllocationReportQuery {
   layer: "allocation";
   window: string;
-  step: string;
-  accumulate: boolean;
+  accumulate: string;
   includeIdle: boolean;
   measures: AllocationMeasure[];
   groupings: string[];
@@ -47,6 +64,7 @@ export interface CloudCostReportQuery {
   layer: "cloudCost";
   window: string;
   aggregateBy: string;
+  accumulate: string;
   costMetric: string;
   filters: ReportFilterRule[];
   currency: string;
@@ -196,8 +214,7 @@ export function createDefaultAllocationReportQuery(): AllocationReportQuery {
   return {
     layer: "allocation",
     window: getYesterdayUtcRange(),
-    step: "1d",
-    accumulate: false,
+    accumulate: "day",
     includeIdle: true,
     measures: ["totalCost"],
     groupings: ["namespace"],
@@ -212,6 +229,7 @@ export function createDefaultCloudCostReportQuery(): CloudCostReportQuery {
     layer: "cloudCost",
     window: getYesterdayUtcRange(),
     aggregateBy: "provider",
+    accumulate: "day",
     costMetric: "AmortizedNetCost",
     filters: [],
     currency: "USD",
@@ -331,13 +349,20 @@ function normalizeAllocationQuery(raw: unknown): AllocationReportQuery {
         )
       : defaults.groupings;
 
+  let accumulate: string =
+    typeof record.accumulate === "string" &&
+    VALID_REPORT_ACCUMULATE.has(record.accumulate)
+      ? record.accumulate
+      : defaults.accumulate;
+  if (typeof record.accumulate === "boolean") {
+    accumulate = record.accumulate ? "all" : "day";
+  }
+
   return {
     ...defaults,
     layer: "allocation",
     window: normalizeWindow(record.window, defaults.window),
-    step: typeof record.step === "string" && record.step.length > 0 ? record.step : defaults.step,
-    accumulate:
-      typeof record.accumulate === "boolean" ? record.accumulate : defaults.accumulate,
+    accumulate,
     includeIdle:
       typeof record.includeIdle === "boolean" ? record.includeIdle : defaults.includeIdle,
     measures,
@@ -361,12 +386,18 @@ function normalizeCloudCostQuery(raw: unknown): CloudCostReportQuery {
     VALID_CLOUD_METRICS.has(record.costMetric)
       ? record.costMetric
       : defaults.costMetric;
+  const accumulate =
+    typeof record.accumulate === "string" &&
+    VALID_REPORT_ACCUMULATE.has(record.accumulate)
+      ? record.accumulate
+      : defaults.accumulate;
 
   return {
     ...defaults,
     layer: "cloudCost",
     window: normalizeWindow(record.window, defaults.window),
     aggregateBy,
+    accumulate,
     costMetric,
     filters: normalizeFilters(record.filters),
     currency: normalizeCurrency(record.currency, defaults.currency),

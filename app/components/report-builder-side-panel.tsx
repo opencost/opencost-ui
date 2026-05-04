@@ -23,6 +23,7 @@ import {
   EXTERNAL_COST_SORT_DIRECTION_OPTIONS,
   EXTERNAL_COST_TYPE_OPTIONS,
   mergeReportQuery,
+  REPORT_ACCUMULATE_OPTIONS,
   REPORT_DATA_SOURCE_OPTIONS,
   REPORT_CHART_TYPE_OPTIONS,
   type AllocationReportQuery,
@@ -316,19 +317,42 @@ export default function ReportBuilderSidePanel({
       </div>
 
       <div className="mb-4">
-        <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-step">
+        <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-granularity">
           Granularity
         </label>
         {allocationQuery ? (
           <select
-            id="report-step"
-            value={allocationQuery.step}
-            onChange={(event) => updateQuery({ step: event.target.value })}
+            id="report-granularity"
+            value={allocationQuery.accumulate}
+            onChange={(event) =>
+              updateQuery({
+                accumulate: event.target.value,
+              })
+            }
             className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
           >
-            <option value="1d">Day</option>
-            <option value="1w">Week</option>
-            <option value="1mo">Month</option>
+            {REPORT_ACCUMULATE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ) : cloudCostQuery ? (
+          <select
+            id="report-granularity"
+            value={cloudCostQuery.accumulate}
+            onChange={(event) =>
+              updateQuery({
+                accumulate: event.target.value,
+              })
+            }
+            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          >
+            {REPORT_ACCUMULATE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         ) : (
           <p className="m-0 rounded border border-[#e0e0e0] bg-[#f8f8f8] px-3 py-2 text-[13px] text-[#6f6f6f]">

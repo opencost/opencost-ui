@@ -27,11 +27,12 @@ import {
   FilterableWidgetHeader,
 } from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
+import { reportAccumulateLabel } from "~/types/report";
 
 function generateTitle(
   window: string,
   aggregateBy: string,
-  accumulate: boolean,
+  accumulate: string,
 ): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
@@ -43,9 +44,8 @@ function generateTitle(
     (o) => o.value === aggregateBy,
   );
   const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
-  let str = `${windowName} by ${aggregationName}`;
-  if (!accumulate) str = `${str} daily`;
-  return str;
+  const gran = reportAccumulateLabel(accumulate);
+  return `${windowName} by ${aggregationName} (${gran})`;
 }
 
 const drilldownHierarchy: Record<string, string> = {
@@ -78,7 +78,7 @@ export interface CostAllocationTableProps {
   description?: string;
   window?: string;
   aggregateBy?: string;
-  accumulate?: boolean;
+  accumulate?: string;
   includeIdle?: boolean;
   currency?: string;
   useSharedFilters?: boolean;

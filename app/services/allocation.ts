@@ -13,14 +13,13 @@ function buildCacheKey(
   win: string,
   aggregate: string,
   options: {
-    accumulate?: boolean;
+    accumulate?: string | boolean;
     filters?: { property: string; value: string }[] | string;
     includeIdle?: boolean;
-    step?: string;
     metrics?: string;
   },
 ): string {
-  const { accumulate, filters, includeIdle = true, step = "1d", metrics } = options;
+  const { accumulate, filters, includeIdle = true, metrics } = options;
   const filterKey = (() => {
     if (!filters) return "";
     if (typeof filters === "string") return filters;
@@ -33,7 +32,7 @@ function buildCacheKey(
       ),
     );
   })();
-  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${step}|${filterKey}|${metrics ?? ""}`;
+  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${filterKey}|${metrics ?? ""}`;
 }
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -44,10 +43,10 @@ class AllocationService {
     win: string,
     aggregate: string,
     options: {
-      accumulate?: boolean;
+      /** OpenCost accumulate query string (e.g. `day`, `weeknow`). Legacy callers may still pass booleans. */
+      accumulate?: string | boolean;
       filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
-      step?: string;
       /** Comma-separated allocation cost fields (e.g. `totalCost,cpuCost`). */
       metrics?: string;
     },
@@ -82,24 +81,24 @@ class AllocationService {
     win: string,
     aggregate: string,
     options: {
-      accumulate?: boolean;
+      accumulate?: string | boolean;
       filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
-      step?: string;
       metrics?: string;
     },
   ) {
-    const { accumulate, filters, includeIdle = true, step = "1d", metrics } = options;
+    const { accumulate, filters, includeIdle = true, metrics } = options;
     const params: Record<string, any> = {
       window: win,
       aggregate,
       includeIdle,
-      step,
     };
     if (metrics && metrics.length > 0) {
       params.metrics = metrics;
     }
     if (typeof accumulate === "boolean") {
+      params.accumulate = accumulate;
+    } else if (typeof accumulate === "string" && accumulate.length > 0) {
       params.accumulate = accumulate;
     }
     if (filters && filters.length > 0) {

@@ -124,7 +124,7 @@ export default function DashboardBuilder({
             <h2 className="text-2xl font-bold">Edit Dashboard Layout</h2>
             <p className="text-sm text-[var(--cds-text-secondary)]">
               {isDefaultDashboard
-                ? "Default dashboard layout is fixed and cannot be modified"
+                ? "The layout on Home is fixed here; customize this board from Dashboards."
                 : "Customize your dashboard widgets"}
             </p>
           </div>

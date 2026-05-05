@@ -137,7 +137,9 @@ export function getMockData(
     },
   ];
 
-  switch (aggregate) {
+  const aggregateKey = aggregate.split(",")[0]?.trim() || "namespace";
+
+  switch (aggregateKey) {
     case "namespace":
       return { data: [mockNamespaces] };
     case "controllerKind":

@@ -15,15 +15,26 @@ import "./app.scss";
 import "./tailwind.css";
 import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
+import { SettingsProvider } from "~/components/settings-context";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
 const DashboardApp = lazy(() =>
-  import("~/components/dashboard-context").then((m) => ({
+  Promise.all([
+    import("~/components/dashboard-context"),
+    import("~/components/report-context"),
+    import("~/components/tutorial-wizard-context"),
+  ]).then(([dashboard, report, tutorial]) => ({
     default: () => (
-      <m.DashboardProvider>
-        <Outlet />
-      </m.DashboardProvider>
+      <SettingsProvider>
+        <dashboard.DashboardProvider>
+          <report.ReportProvider>
+            <tutorial.TutorialWizardProvider>
+              <Outlet />
+            </tutorial.TutorialWizardProvider>
+          </report.ReportProvider>
+        </dashboard.DashboardProvider>
+      </SettingsProvider>
     ),
   })),
 );

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSettings } from "~/components/settings-context";
 import { useAppTheme } from "~/components/theme-context";
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
@@ -16,6 +17,7 @@ import {
   FilterableWidgetHeader,
 } from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
+import { reportAccumulateLabel } from "~/types/report";
 import { primary, greyscale, browns } from "~/constants/colors";
 interface ChartPoint {
   group: string;
@@ -34,7 +36,7 @@ interface AllocationLike {
 function generateTitle(
   window: string,
   aggregateBy: string,
-  accumulate: boolean,
+  accumulate: string,
 ): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
@@ -48,9 +50,8 @@ function generateTitle(
   );
   const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
 
-  let str = `${windowName} by ${aggregationName}`;
-  if (!accumulate) str = `${str} daily`;
-  return str;
+  const gran = reportAccumulateLabel(accumulate);
+  return `${windowName} by ${aggregationName} (${gran})`;
 }
 
 function isIdle(alloc: AllocationLike): boolean {
@@ -87,10 +88,13 @@ function topNPerDay(
 
 function getDateLabel(alloc: AllocationLike): string {
   const start = alloc?.window?.start ?? alloc?.start;
-  if (!start) return "?";
-  return new Date(start).toLocaleDateString("en-US", {
+  if (!start || String(start).trim().length === 0) return "?";
+  const d = new Date(start as string);
+  if (Number.isNaN(d.getTime()) || d.getUTCFullYear() < 1971) return "?";
+  return d.toLocaleDateString("en-US", {
     month: "2-digit",
     day: "2-digit",
+    timeZone: "UTC",
   });
 }
 
@@ -152,7 +156,7 @@ export interface CostAllocationChartProps {
   description?: string;
   window?: string;
   aggregateBy?: string;
-  accumulate?: boolean;
+  accumulate?: string;
   includeIdle?: boolean;
   currency?: string;
   topN?: number;
@@ -170,6 +174,7 @@ export default function CostAllocationChart({
   topN = 10,
   useSharedFilters = false,
 }: CostAllocationChartProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
   const [sharedFilters, setSharedFilters] =
@@ -181,7 +186,7 @@ export default function CostAllocationChart({
     sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
-  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
+  const currency = currencyProp ?? defaultCurrency;
   const drilldownFilters = useSharedFilters
     ? (sharedFilters.drilldownFilters ?? [])
     : [];
@@ -318,12 +323,10 @@ export default function CostAllocationChart({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
-            currency={currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
-            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="chart-alloc"
           />
         }

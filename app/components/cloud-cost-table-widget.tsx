@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSettings } from "~/components/settings-context";
 import {
   Pagination,
   Table,
@@ -48,17 +49,17 @@ export default function CloudCostTableWidget({
   costMetric: costMetricProp,
   currency: currencyProp,
 }: CloudCostTableWidgetProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
     window: DEFAULT_CLOUD_FILTERS.cloudWindow,
     aggregateBy: "service",
     costMetric: DEFAULT_CLOUD_FILTERS.cloudCostMetric,
-    currency: DEFAULT_CLOUD_FILTERS.cloudCurrency,
   });
   const window = windowProp ?? localFilters.window;
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const costMetric = costMetricProp ?? localFilters.costMetric;
-  const currency = currencyProp ?? localFilters.currency;
+  const currency = currencyProp ?? defaultCurrency;
 
   const [rows, setRows] = useState<CloudCostRow[]>([]);
   const [totals, setTotals] = useState<CloudCostRow | null>(null);
@@ -152,11 +153,9 @@ export default function CloudCostTableWidget({
             window={window}
             aggregateBy={aggregateBy}
             costMetric={costMetric}
-            currency={currency}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onCostMetricChange={(v) => setFilter("costMetric", v)}
-            onCurrencyChange={(v) => setFilter("currency", v)}
             idPrefix="cloud-table"
           />
         }

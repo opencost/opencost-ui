@@ -32,7 +32,6 @@ export function useAllocationFilters(
     aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
     accumulate: DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
-    currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
     drilldownAggregateBy: undefined,
     drilldownFilters: [],
   });
@@ -55,7 +54,6 @@ export function AllocationFiltersProvider({
     aggregateBy: DEFAULT_ALLOCATION_FILTERS.allocationAggregateBy,
     accumulate: DEFAULT_ALLOCATION_FILTERS.allocationAccumulate,
     includeIdle: DEFAULT_ALLOCATION_FILTERS.allocationIncludeIdle,
-    currency: DEFAULT_ALLOCATION_FILTERS.allocationCurrency,
     drilldownAggregateBy: undefined,
     drilldownFilters: [],
   });

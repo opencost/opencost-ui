@@ -1,11 +1,11 @@
 import { Select, SelectItem, Button } from "@carbon/react";
 import { Filter } from "@carbon/icons-react";
-import { currencyCodes } from "~/constants/currencyCodes";
 import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
   CLOUD_COST_METRIC_OPTIONS,
 } from "~/constants/cloud-cost-options";
+import { REPORT_ACCUMULATE_OPTIONS } from "~/types/report";
 
 export const ALLOCATION_WINDOW_OPTIONS = [
   { name: "Today", value: "today" },
@@ -36,24 +36,22 @@ export const ALLOCATION_AGGREGATE_OPTIONS = [
 export const DEFAULT_ALLOCATION_FILTERS = {
   allocationWindow: "7d",
   allocationAggregateBy: "namespace",
-  allocationAccumulate: false,
+  allocationAccumulate: "day",
   allocationIncludeIdle: true,
-  allocationCurrency: "USD",
 };
 
 export const DEFAULT_CLOUD_FILTERS = {
   cloudWindow: "7d",
   cloudAggregateBy: "provider",
   cloudCostMetric: "AmortizedNetCost",
-  cloudCurrency: "USD",
 };
 
 export interface AllocationFilterValues {
   window: string;
   aggregateBy: string;
-  accumulate: boolean;
+  /** `/allocation/compute` `accumulate` param (e.g. `day`, `weeknow`, `all`). */
+  accumulate: string;
   includeIdle: boolean;
-  currency: string;
   drilldownAggregateBy?: string;
   drilldownFilters?: { property: string; value: string }[];
 }
@@ -62,7 +60,6 @@ export interface CloudFilterValues {
   window: string;
   aggregateBy: string;
   costMetric: string;
-  currency: string;
 }
 
 export const ASSETS_WINDOW_OPTIONS = [
@@ -102,12 +99,11 @@ export interface AssetsFilterValues {
 export interface Filters {
   allocationWindow?: string;
   allocationAggregateBy?: string;
-  allocationAccumulate?: boolean;
+  allocationAccumulate?: string;
   allocationIncludeIdle?: boolean;
   cloudWindow?: string;
   cloudAggregateBy?: string;
   cloudCostMetric?: string;
-  cloudCurrency?: string;
 }
 
 export interface FilterableWidgetHeaderProps {
@@ -142,10 +138,10 @@ export function FilterableWidgetHeader({
             kind={expanded ? "primary" : "secondary"}
             size="sm"
             renderIcon={Filter}
-            iconDescription="Toggle filters"
+            iconDescription="Toggle options"
             onClick={onToggle}
           >
-            {expanded ? "Collapse filters" : "Filters"}
+            {expanded ? "Collapse options" : "Options"}
           </Button>
         </div>
       </div>
@@ -161,14 +157,12 @@ export function FilterableWidgetHeader({
 interface AllocationFilterControlsProps {
   window: string;
   aggregateBy: string;
-  accumulate: boolean;
+  accumulate: string;
   includeIdle: boolean;
-  currency: string;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
-  onAccumulateChange: (v: boolean) => void;
+  onAccumulateChange: (v: string) => void;
   onIncludeIdleChange: (v: boolean) => void;
-  onCurrencyChange: (v: string) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -178,12 +172,10 @@ export function AllocationFilterControls({
   aggregateBy,
   accumulate,
   includeIdle,
-  currency,
   onWindowChange,
   onAggregateByChange,
   onAccumulateChange,
   onIncludeIdleChange,
-  onCurrencyChange,
   idPrefix = "alloc",
   compact = true,
 }: AllocationFilterControlsProps) {
@@ -220,23 +212,13 @@ export function AllocationFilterControls({
       </Select>
       <Select
         id={`${idPrefix}-accumulate`}
-        labelText="Time"
-        value={String(accumulate)}
+        labelText="Granularity"
+        value={accumulate}
         size="sm"
-        onChange={(e) => onAccumulateChange(e.target.value === "true")}
+        onChange={(e) => onAccumulateChange(e.target.value)}
       >
-        <SelectItem value="false" text="Daily" />
-        <SelectItem value="true" text="Entire window" />
-      </Select>
-      <Select
-        id={`${idPrefix}-currency`}
-        labelText="Currency"
-        value={currency}
-        size="sm"
-        onChange={(e) => onCurrencyChange(e.target.value)}
-      >
-        {currencyCodes.map((c) => (
-          <SelectItem key={c} value={c} text={c} />
+        {REPORT_ACCUMULATE_OPTIONS.map((o) => (
+          <SelectItem key={o.value} value={o.value} text={o.label} />
         ))}
       </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
@@ -255,11 +237,9 @@ interface CloudFilterControlsProps {
   window: string;
   aggregateBy: string;
   costMetric: string;
-  currency: string;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
   onCostMetricChange: (v: string) => void;
-  onCurrencyChange: (v: string) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -268,11 +248,9 @@ export function CloudFilterControls({
   window,
   aggregateBy,
   costMetric,
-  currency,
   onWindowChange,
   onAggregateByChange,
   onCostMetricChange,
-  onCurrencyChange,
   idPrefix = "cloud",
   compact = true,
 }: CloudFilterControlsProps) {
@@ -316,17 +294,6 @@ export function CloudFilterControls({
       >
         {CLOUD_COST_METRIC_OPTIONS.map((o) => (
           <SelectItem key={o.value} value={o.value} text={o.name} />
-        ))}
-      </Select>
-      <Select
-        id={`${idPrefix}-currency`}
-        labelText="Currency"
-        value={currency}
-        size="sm"
-        onChange={(e) => onCurrencyChange(e.target.value)}
-      >
-        {currencyCodes.map((c) => (
-          <SelectItem key={c} value={c} text={c} />
         ))}
       </Select>
     </div>

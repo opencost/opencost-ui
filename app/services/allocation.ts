@@ -13,23 +13,26 @@ function buildCacheKey(
   win: string,
   aggregate: string,
   options: {
-    accumulate?: boolean;
-    filters?: { property: string; value: string }[];
+    accumulate?: string | boolean;
+    filters?: { property: string; value: string }[] | string;
     includeIdle?: boolean;
+    metrics?: string;
   },
 ): string {
-  const { accumulate, filters, includeIdle = true } = options;
-  const filterKey =
-    filters && filters.length > 0
-      ? JSON.stringify(
-          [...filters].sort(
-            (a, b) =>
-              a.property.localeCompare(b.property) ||
-              a.value.localeCompare(b.value),
-          ),
-        )
-      : "";
-  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${filterKey}`;
+  const { accumulate, filters, includeIdle = true, metrics } = options;
+  const filterKey = (() => {
+    if (!filters) return "";
+    if (typeof filters === "string") return filters;
+    if (filters.length === 0) return "";
+    return JSON.stringify(
+      [...filters].sort(
+        (a, b) =>
+          a.property.localeCompare(b.property) ||
+          a.value.localeCompare(b.value),
+      ),
+    );
+  })();
+  return `${win}|${aggregate}|${accumulate}|${includeIdle}|${filterKey}|${metrics ?? ""}`;
 }
 
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -40,9 +43,12 @@ class AllocationService {
     win: string,
     aggregate: string,
     options: {
-      accumulate?: boolean;
-      filters?: { property: string; value: string }[];
+      /** OpenCost accumulate query string (e.g. `day`, `weeknow`). Legacy callers may still pass booleans. */
+      accumulate?: string | boolean;
+      filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
+      /** Comma-separated allocation cost fields (e.g. `totalCost,cpuCost`). */
+      metrics?: string;
     },
   ): Promise<any> {
     const key = buildCacheKey(win, aggregate, options);
@@ -75,19 +81,24 @@ class AllocationService {
     win: string,
     aggregate: string,
     options: {
-      accumulate?: boolean;
-      filters?: { property: string; value: string }[];
+      accumulate?: string | boolean;
+      filters?: { property: string; value: string }[] | string;
       includeIdle?: boolean;
+      metrics?: string;
     },
   ) {
-    const { accumulate, filters, includeIdle = true } = options;
+    const { accumulate, filters, includeIdle = true, metrics } = options;
     const params: Record<string, any> = {
       window: win,
       aggregate,
       includeIdle,
-      step: "1d",
     };
+    if (metrics && metrics.length > 0) {
+      params.metrics = metrics;
+    }
     if (typeof accumulate === "boolean") {
+      params.accumulate = accumulate;
+    } else if (typeof accumulate === "string" && accumulate.length > 0) {
       params.accumulate = accumulate;
     }
     if (filters && filters.length > 0) {
@@ -107,7 +118,10 @@ class AllocationService {
         console.warn(
           "Backend not available, using mock data (mock data flag is enabled)",
         );
-        return getMockData(aggregate, filters);
+        return getMockData(
+          aggregate,
+          Array.isArray(filters) ? filters : undefined,
+        );
       }
       throw error;
     }

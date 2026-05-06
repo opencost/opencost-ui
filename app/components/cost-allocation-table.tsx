@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSettings } from "~/components/settings-context";
 import {
   TableContainer,
   Table,
@@ -26,11 +27,12 @@ import {
   FilterableWidgetHeader,
 } from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
+import { reportAccumulateLabel } from "~/types/report";
 
 function generateTitle(
   window: string,
   aggregateBy: string,
-  accumulate: boolean,
+  accumulate: string,
 ): string {
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
   let windowName = winOpt?.name ?? "";
@@ -42,9 +44,8 @@ function generateTitle(
     (o) => o.value === aggregateBy,
   );
   const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
-  let str = `${windowName} by ${aggregationName}`;
-  if (!accumulate) str = `${str} daily`;
-  return str;
+  const gran = reportAccumulateLabel(accumulate);
+  return `${windowName} by ${aggregationName} (${gran})`;
 }
 
 const drilldownHierarchy: Record<string, string> = {
@@ -77,7 +78,7 @@ export interface CostAllocationTableProps {
   description?: string;
   window?: string;
   aggregateBy?: string;
-  accumulate?: boolean;
+  accumulate?: string;
   includeIdle?: boolean;
   currency?: string;
   useSharedFilters?: boolean;
@@ -93,6 +94,7 @@ export default function CostAllocationTable({
   currency: currencyProp,
   useSharedFilters = false,
 }: CostAllocationTableProps) {
+  const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [sharedFilters, setSharedFilters] =
     useAllocationFilters(useSharedFilters);
@@ -100,7 +102,7 @@ export default function CostAllocationTable({
   const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
-  const currency = currencyProp ?? sharedFilters.currency ?? "USD";
+  const currency = currencyProp ?? defaultCurrency;
 
   const [localDrilldownFilters, setLocalDrilldownFilters] = useState<
     { property: string; value: string }[]
@@ -377,12 +379,10 @@ export default function CostAllocationTable({
               aggregateBy={globalAggregateBy}
               accumulate={accumulate}
               includeIdle={includeIdle}
-              currency={currency}
               onWindowChange={(v) => setFilter("window", v)}
               onAggregateByChange={(v) => setFilter("aggregateBy", v)}
               onAccumulateChange={(v) => setFilter("accumulate", v)}
               onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
-              onCurrencyChange={(v) => setFilter("currency", v)}
               idPrefix="table-alloc"
             />
           }

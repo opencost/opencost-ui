@@ -18,6 +18,7 @@ import {
   DEFAULT_CLOUD_FILTERS,
   FilterableWidgetHeader,
 } from "./scoped-views";
+import { CLOUD_AGGREGATION_OPTIONS } from "~/constants/cloud-cost-options";
 
 interface CloudCostRow {
   name?: string;
@@ -42,13 +43,10 @@ export interface CloudCostTableWidgetProps {
   currency?: string;
 }
 
-const DRILLDOWN_HIERARCHY: Record<string, string> = {
-  provider: "service",
-  accountID: "service",
-  invoiceEntityID: "service",
-  service: "item",
-  category: "item",
-};
+function nextAggregation(current: string): string | undefined {
+  const idx = CLOUD_AGGREGATION_OPTIONS.findIndex((o) => o.value === current);
+  return CLOUD_AGGREGATION_OPTIONS[idx + 1]?.value;
+}
 
 export default function CloudCostTableWidget({
   title = "Cloud Costs Table",
@@ -91,7 +89,7 @@ export default function CloudCostTableWidget({
   });
 
   function handleDrilldown(row: CloudCostRow) {
-    const nextAgg = DRILLDOWN_HIERARCHY[effectiveAggregateBy];
+    const nextAgg = nextAggregation(effectiveAggregateBy);
     if (!nextAgg) return;
     const rowName = String(row.name ?? row.labelName ?? "");
     const nameParts = rowName.split("/");
@@ -107,7 +105,7 @@ export default function CloudCostTableWidget({
       setDrilldownAggregateBy(null);
     } else {
       const lastFilter = remaining[remaining.length - 1];
-      setDrilldownAggregateBy(DRILLDOWN_HIERARCHY[lastFilter.property] ?? null);
+      setDrilldownAggregateBy(nextAggregation(lastFilter.property) ?? null);
     }
   }
 
@@ -271,7 +269,7 @@ export default function CloudCostTableWidget({
                     key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
                   >
                     <TableCell>
-                      {DRILLDOWN_HIERARCHY[effectiveAggregateBy] ? (
+                      {nextAggregation(effectiveAggregateBy) ? (
                         <span
                           className="text-[var(--cds-link-primary)] cursor-pointer hover:underline"
                           onClick={() => handleDrilldown(row)}

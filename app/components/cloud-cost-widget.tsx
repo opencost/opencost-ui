@@ -150,13 +150,10 @@ export interface CloudCostWidgetProps {
   currency?: string;
 }
 
-const DRILLDOWN_HIERARCHY: Record<string, string> = {
-  provider: "service",
-  accountID: "service",
-  invoiceEntityID: "service",
-  service: "item",
-  category: "item",
-};
+function nextAggregation(current: string): string | undefined {
+  const idx = CLOUD_AGGREGATION_OPTIONS.findIndex((o) => o.value === current);
+  return CLOUD_AGGREGATION_OPTIONS[idx + 1]?.value;
+}
 
 export default function CloudCostWidget({
   window: windowProp,
@@ -198,7 +195,7 @@ export default function CloudCostWidget({
     direction: "desc",
   });
 
-  const isItemLevel = !DRILLDOWN_HIERARCHY[effectiveAggregateBy];
+  const isItemLevel = !nextAggregation(effectiveAggregateBy);
   const [selectedItem, setSelectedItem] = useState<CloudCostRow | null>(null);
   const [itemDetailData, setItemDetailData] = useState<
     { date: string; cost: number }[]
@@ -239,7 +236,7 @@ export default function CloudCostWidget({
   const title = generateTitle(window, effectiveAggregateBy, costMetric);
 
   function handleDrilldown(row: CloudCostRow) {
-    const nextAgg = DRILLDOWN_HIERARCHY[effectiveAggregateBy];
+    const nextAgg = nextAggregation(effectiveAggregateBy);
     if (!nextAgg) return;
     const rowName = String(row.name ?? row.labelName ?? "");
     const nameParts = rowName.split("/");
@@ -255,7 +252,7 @@ export default function CloudCostWidget({
       setDrilldownAggregateBy(null);
     } else {
       const lastFilter = remaining[remaining.length - 1];
-      setDrilldownAggregateBy(DRILLDOWN_HIERARCHY[lastFilter.property] ?? null);
+      setDrilldownAggregateBy(nextAggregation(lastFilter.property) ?? null);
     }
   }
 
@@ -513,7 +510,7 @@ export default function CloudCostWidget({
                         <span
                           className="text-[var(--cds-link-primary)] cursor-pointer hover:underline"
                           onClick={() =>
-                            DRILLDOWN_HIERARCHY[effectiveAggregateBy]
+                            nextAggregation(effectiveAggregateBy)
                               ? handleDrilldown(row)
                               : setSelectedItem(row)
                           }

@@ -10,7 +10,10 @@ import {
   DashboardOutlined,
   DescriptionOutlined,
   SettingsOutlined,
+  LogoutOutlined,
 } from "@mui/icons-material";
+import { useAuth } from "~/components/auth-context";
+import { hasClerkPublishableKey, isAuthDisabled } from "~/lib/clerk-config";
 import { useDashboard } from "~/components/dashboard-context";
 import { useReport } from "~/components/report-context";
 import { useTutorialWizardOptional } from "~/components/tutorial-wizard-context";
@@ -25,6 +28,20 @@ interface SearchEntry {
   icon: ReactNode;
   href?: string;
   keywords?: string[];
+}
+
+function userInitials(name: string | undefined, email: string | undefined): string {
+  const n = name?.trim();
+  if (n) {
+    const parts = n.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
+    }
+    return n.slice(0, 2).toUpperCase();
+  }
+  const e = email?.trim();
+  if (e) return e.slice(0, 2).toUpperCase();
+  return "?";
 }
 
 function NavLinkEntry({
@@ -88,8 +105,21 @@ function NavGroupHeader({
 
 export default function DashboardAppShell({ children }: DashboardAppShellProps) {
   const { pathname } = useLocation();
+  const { user, logout, isAuthenticated } = useAuth();
   const { dashboards } = useDashboard();
   const { reports } = useReport();
+  const authBypass =
+    isAuthDisabled() || (import.meta.env.DEV && !hasClerkPublishableKey());
+  const showLogout =
+    isAuthenticated && hasClerkPublishableKey() && !isAuthDisabled();
+  const primaryLabel =
+    user?.name?.trim() ||
+    user?.email?.trim() ||
+    (authBypass ? "Developer (no Clerk session)" : "Signed in");
+  const secondaryLabel =
+    user?.name?.trim() && user?.email?.trim() && user.name.trim() !== user.email.trim()
+      ? user.email.trim()
+      : "";
   const [collapsed, setCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,7 +139,8 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
   const dashboardsActive =
     pathname === "/dashboards" || pathname.startsWith("/dashboard/");
   const reportsActive = pathname === "/reports" || pathname.startsWith("/report/");
-  const settingsActive = pathname === "/settings";
+  const settingsActive =
+    pathname === "/settings" || pathname.startsWith("/settings/");
   const quickLinks = useMemo<SearchEntry[]>(
     () => [
       {
@@ -419,28 +450,33 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               </div>
             </div>
             <div className="relative z-[2] flex flex-shrink-0 items-center gap-2.5">
-              {/* <button
-                className="inline-flex h-8 cursor-not-allowed items-center gap-1.5 rounded border border-[#d0d0d0] bg-[#f4f4f4] px-2.5 text-xs text-[#6f6f6f]"
-                disabled
-              >
-                <CalendarMonthOutlined fontSize="small" />
-                <span>03/16/2026 - 04/15/2026</span>
-              </button> */}
-              {/* <button className="inline-flex h-8 items-center gap-1.5 rounded border border-[#0f62fe] bg-[#0f62fe] px-3 text-xs font-semibold text-white">
-                <ShareOutlined fontSize="small" />
-                <span>Share</span>
-              </button>
-              <button className="inline-flex h-8 items-center gap-1.5 border border-transparent px-1 text-xs text-[#393939]">
-                <CampaignOutlined fontSize="small" />
-                <span>What's New?</span>
-              </button>
-              <div className="ml-1 flex items-center gap-2 border-l border-[#e0e0e0] pl-3">
-                <div className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#e8f0fe] text-[11px] font-bold text-[#0f62fe]">
-                  AL
+              <div className="flex items-center gap-2 border-l border-[#e0e0e0] pl-3">
+                <div
+                  className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#e8f5f0] text-[11px] font-semibold text-[#2d7d64]"
+                  aria-hidden
+                >
+                  {userInitials(user?.name, user?.email)}
                 </div>
-                <p className="m-0 text-xs text-[#393939]">alexander.meijer@ibm.com</p>
-              </div> */}
-            </div> 
+                <div className="min-w-0 max-w-[220px]">
+                  <p className="m-0 truncate text-xs font-semibold text-[#161616]">
+                    {primaryLabel}
+                  </p>
+                  {secondaryLabel ? (
+                    <p className="m-0 truncate text-[11px] text-[#6f6f6f]">{secondaryLabel}</p>
+                  ) : null}
+                </div>
+              </div>
+              {showLogout ? (
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="inline-flex h-8 flex-shrink-0 items-center gap-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-xs font-medium text-[#393939] hover:bg-[#f4f4f4]"
+                >
+                  <LogoutOutlined fontSize="small" />
+                  Log out
+                </button>
+              ) : null}
+            </div>
           </header>
           <section className="relative z-[2] min-w-0 flex-1">{children}</section>
         </div>

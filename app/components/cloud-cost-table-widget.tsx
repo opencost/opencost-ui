@@ -9,6 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Tag,
 } from "@carbon/react";
 import CloudCostService from "~/services/cloud-cost";
 import { toCurrency } from "~/lib/legacy-util";
@@ -17,6 +18,7 @@ import {
   DEFAULT_CLOUD_FILTERS,
   FilterableWidgetHeader,
 } from "./scoped-views";
+import { CLOUD_AGGREGATION_OPTIONS } from "~/constants/cloud-cost-options";
 
 interface CloudCostRow {
   name?: string;
@@ -41,6 +43,11 @@ export interface CloudCostTableWidgetProps {
   currency?: string;
 }
 
+function nextAggregation(current: string): string | undefined {
+  const idx = CLOUD_AGGREGATION_OPTIONS.findIndex((o) => o.value === current);
+  return CLOUD_AGGREGATION_OPTIONS[idx + 1]?.value;
+}
+
 export default function CloudCostTableWidget({
   title = "Cloud Costs Table",
   description = "Cloud service spend with utilization and totals",
@@ -60,6 +67,13 @@ export default function CloudCostTableWidget({
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const costMetric = costMetricProp ?? localFilters.costMetric;
   const currency = currencyProp ?? defaultCurrency;
+  const [drilldownFilters, setDrilldownFilters] = useState<
+    { property: string; value: string }[]
+  >([]);
+  const [drilldownAggregateBy, setDrilldownAggregateBy] = useState<
+    string | null
+  >(null);
+  const effectiveAggregateBy = drilldownAggregateBy ?? aggregateBy;
 
   const [rows, setRows] = useState<CloudCostRow[]>([]);
   const [totals, setTotals] = useState<CloudCostRow | null>(null);
@@ -74,6 +88,32 @@ export default function CloudCostTableWidget({
     direction: "desc",
   });
 
+  function handleDrilldown(row: CloudCostRow) {
+    const nextAgg = nextAggregation(effectiveAggregateBy);
+    if (!nextAgg) return;
+    const rowName = String(row.name ?? row.labelName ?? "");
+    const nameParts = rowName.split("/");
+    const newFilter = { property: effectiveAggregateBy, value: nameParts[0] };
+    setDrilldownFilters((prev) => [...prev, newFilter]);
+    setDrilldownAggregateBy(nextAgg);
+  }
+
+  function removeDrilldownFilter(index: number) {
+    const remaining = drilldownFilters.slice(0, index);
+    setDrilldownFilters(remaining);
+    if (remaining.length === 0) {
+      setDrilldownAggregateBy(null);
+    } else {
+      const lastFilter = remaining[remaining.length - 1];
+      setDrilldownAggregateBy(nextAggregation(lastFilter.property) ?? null);
+    }
+  }
+
+  useEffect(() => {
+    setDrilldownFilters([]);
+    setDrilldownAggregateBy(null);
+  }, [aggregateBy]);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -81,9 +121,9 @@ export default function CloudCostTableWidget({
       try {
         const resp = await CloudCostService.fetchCloudCostData(
           window,
-          aggregateBy,
+          effectiveAggregateBy,
           costMetric,
-          [],
+          drilldownFilters,
         );
         if (!cancelled) {
           setRows(Array.isArray(resp?.tableRows) ? resp.tableRows : []);
@@ -102,7 +142,7 @@ export default function CloudCostTableWidget({
     return () => {
       cancelled = true;
     };
-  }, [window, aggregateBy, costMetric]);
+  }, [window, effectiveAggregateBy, costMetric, drilldownFilters]);
 
   const sortedRows = useMemo(() => {
     const list = [...rows];
@@ -130,8 +170,9 @@ export default function CloudCostTableWidget({
     setPage(1);
   }, [
     window,
-    aggregateBy,
+    effectiveAggregateBy,
     costMetric,
+    drilldownFilters,
     totalRows,
     sortConfig.key,
     sortConfig.direction,
@@ -160,6 +201,21 @@ export default function CloudCostTableWidget({
           />
         }
       />
+      {drilldownFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 px-4 py-2">
+          {drilldownFilters.map((f, i) => (
+            <Tag
+              key={`${f.property}-${f.value}`}
+              type="blue"
+              filter
+              onClose={() => removeDrilldownFilter(i)}
+              title={`Remove filter: ${f.value}`}
+            >
+              {f.property}: {f.value}
+            </Tag>
+          ))}
+        </div>
+      )}
       {loading ? (
         <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading...</div>
       ) : rows.length === 0 ? (
@@ -213,7 +269,16 @@ export default function CloudCostTableWidget({
                     key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
                   >
                     <TableCell>
-                      {String(row.labelName ?? row.name ?? "")}
+                      {nextAggregation(effectiveAggregateBy) ? (
+                        <span
+                          className="text-[var(--cds-link-primary)] cursor-pointer hover:underline"
+                          onClick={() => handleDrilldown(row)}
+                        >
+                          {String(row.labelName ?? row.name ?? "")}
+                        </span>
+                      ) : (
+                        String(row.labelName ?? row.name ?? "")
+                      )}
                     </TableCell>
                     <TableCell>
                       {Math.round((Number(row.kubernetesPercent) || 0) * 100)}%

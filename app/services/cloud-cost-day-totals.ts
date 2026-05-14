@@ -33,13 +33,12 @@ class CloudCostDayTotalsService {
     filters: { property: string; value: string }[],
   ) {
     if (aggregate.includes("item")) {
-      const resp = await client.get(
-        `/cloudCost?window=${window}&costMetric=${costMetric}&filter=${parseFilters(filters)}`,
-      );
+      const resp = await client.get("/cloudCost", {
+        params: { window, costMetric, filter: parseFilters(filters) },
+      });
       const costMetricProp = costMetricToPropName[costMetric];
-      const result = resp.data;
       return {
-        data: formatItemsForCost({ data: result, costType: costMetricProp }),
+        data: formatItemsForCost({ data: resp.data.data, costType: costMetricProp }),
       };
     }
     return [];

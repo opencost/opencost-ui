@@ -2,133 +2,111 @@ import client from "~/services/api-client";
 import { parseFilters } from "~/lib/legacy-util";
 import type { ReportFilterRule, ReportLayer } from "~/types/report";
 
-type OpenCostEnvelope<T> = {
-  data?: T;
-};
-
-export interface ReportFilterAutocompleteParams {
-  layer: ReportLayer;
-  window: string;
-  field: string;
-  search?: string;
-  filters?: ReportFilterRule[];
-  excludeFilterIndex?: number;
-  limit?: number;
-}
-
-const AUTOCOMPLETE_ENDPOINTS: Partial<Record<ReportLayer, string>> = {
+const ENDPOINTS: Partial<Record<ReportLayer, string>> = {
   allocation: "/allocation/autocomplete",
   cloudCost: "/cloudCost/autocomplete",
   infraAssets: "/assets/autocomplete",
 };
 
-/** Maps report filter property names to API autocomplete field names. */
-export function toAutocompleteField(layer: ReportLayer, property: string): string | null {
-  switch (layer) {
-    case "allocation": {
-      switch (property) {
-        case "controller":
-          return "controllerName";
-        case "deployment":
-        case "statefulset":
-        case "daemonset":
-        case "job":
-          return "controllerKind";
-        case "cluster":
-        case "namespace":
-        case "node":
-        case "controllerKind":
-        case "pod":
-        case "container":
-        case "service":
-          return property;
-        default:
-          if (property.startsWith("label:") || property.startsWith("namespacelabel:")) {
-            return property;
-          }
-          return null;
-      }
-    }
-    case "cloudCost":
-      return property;
-    case "infraAssets": {
-      switch (property) {
-        case "assetType":
-          return "type";
-        case "account":
-        case "cluster":
-        case "category":
-        case "provider":
-        case "providerID":
-          return property === "providerID" ? "providerID" : property;
-        default:
-          if (property.startsWith("label:")) return property;
-          return null;
-      }
-    }
-    default:
-      return null;
+const ALIASES: Partial<Record<ReportLayer, Record<string, string>>> = {
+  allocation: {
+    controller: "controllerName",
+    deployment: "controllerKind",
+    statefulset: "controllerKind",
+    daemonset: "controllerKind",
+    job: "controllerKind",
+  },
+  infraAssets: {
+    assetType: "type",
+  },
+};
+
+const ALLOWED: Partial<Record<ReportLayer, Set<string>>> = {
+  allocation: new Set([
+    "cluster",
+    "namespace",
+    "node",
+    "controllerKind",
+    "controllerName",
+    "pod",
+    "container",
+  ]),
+  cloudCost: new Set([
+    "accountID",
+    "invoiceEntityID",
+    "provider",
+    "service",
+    "category",
+  ]),
+  infraAssets: new Set([
+    "type",
+    "account",
+    "cluster",
+    "category",
+    "provider",
+    "providerID",
+  ]),
+};
+
+function resolveField(layer: ReportLayer, property: string): string | null {
+  if (!(layer in ENDPOINTS)) return null;
+
+  if (property.startsWith("label:") || property.startsWith("namespacelabel:")) {
+    return property;
   }
+
+  const apiField = ALIASES[layer]?.[property] ?? property;
+  return ALLOWED[layer]?.has(apiField) ? apiField : null;
 }
 
 export function supportsReportFilterAutocomplete(
   layer: ReportLayer,
   property: string,
 ): boolean {
-  return toAutocompleteField(layer, property) !== null;
+  return resolveField(layer, property) !== null;
 }
 
-function unwrapAutocompletePayload(body: unknown): string[] {
-  if (!body || typeof body !== "object") return [];
-  const envelope = body as OpenCostEnvelope<unknown>;
-  const inner = envelope.data;
-  if (Array.isArray(inner)) {
-    return inner.filter((item): item is string => typeof item === "string");
-  }
-  if (inner && typeof inner === "object" && "data" in inner) {
-    const nested = (inner as { data?: unknown }).data;
-    if (Array.isArray(nested)) {
-      return nested.filter((item): item is string => typeof item === "string");
-    }
-  }
-  return [];
+function parseSuggestionList(body: unknown): string[] {
+  const payload =
+    body && typeof body === "object" && "data" in body
+      ? (body as { data: unknown }).data
+      : body;
+  const list = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === "object" && "data" in payload
+      ? (payload as { data: unknown }).data
+      : [];
+  return Array.isArray(list) ? list.filter((x): x is string => typeof x === "string") : [];
 }
 
-export async function fetchReportFilterAutocomplete(
-  params: ReportFilterAutocompleteParams,
-): Promise<string[]> {
-  const endpoint = AUTOCOMPLETE_ENDPOINTS[params.layer];
-  const apiField = toAutocompleteField(params.layer, params.field);
-  if (!endpoint || !apiField) {
-    return [];
-  }
+export async function fetchReportFilterAutocomplete(options: {
+  layer: ReportLayer;
+  window: string;
+  field: string;
+  search?: string;
+  filters?: ReportFilterRule[];
+  excludeFilterIndex?: number;
+}): Promise<string[]> {
+  const endpoint = ENDPOINTS[options.layer];
+  const apiField = resolveField(options.layer, options.field);
+  if (!endpoint || !apiField) return [];
 
-  const {
-    window,
-    search = "",
-    filters = [],
-    excludeFilterIndex,
-    limit = 25,
-  } = params;
-
-  const scopedFilters = filters.filter(
+  const scopedFilters = (options.filters ?? []).filter(
     (rule, index) =>
-      index !== excludeFilterIndex && rule.value.trim().length > 0,
+      index !== options.excludeFilterIndex && rule.value.trim().length > 0,
   );
-  const filter = parseFilters(scopedFilters);
 
-  const query: Record<string, string | number> = {
-    window,
+  const params: Record<string, string | number> = {
+    window: options.window,
     field: apiField,
-    limit,
+    limit: 25,
   };
-  if (search.trim()) {
-    query.search = search.trim();
-  }
-  if (filter) {
-    query.filter = filter;
-  }
+  const search = options.search?.trim();
+  if (search) params.search = search;
 
-  const { data } = await client.get(endpoint, { params: query });
-  return unwrapAutocompletePayload(data);
+  const filter = parseFilters(scopedFilters);
+  if (filter) params.filter = filter;
+
+  const { data } = await client.get(endpoint, { params });
+  return parseSuggestionList(data);
 }

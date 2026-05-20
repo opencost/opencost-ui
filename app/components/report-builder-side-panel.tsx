@@ -660,24 +660,15 @@ export default function ReportBuilderSidePanel({
                     </option>
                   ))}
                 </select>
-                {allocationQuery || cloudCostQuery || infraAssetsQuery ? (
-                  <ReportFilterValueInput
-                    layer={query.layer}
-                    window={query.window}
-                    field={filter.property}
-                    value={filter.value}
-                    filters={query.filters}
-                    filterIndex={index}
-                    onChange={(nextValue) => updateFilter(index, { value: nextValue })}
-                  />
-                ) : (
-                  <input
-                    value={filter.value}
-                    onChange={(event) => updateFilter(index, { value: event.target.value })}
-                    placeholder="Value"
-                    className="h-9 w-full rounded border border-[#d0d0d0] px-2 text-[13px] text-[#262626]"
-                  />
-                )}
+                <ReportFilterValueInput
+                  layer={query.layer}
+                  window={query.window}
+                  field={filter.property}
+                  value={filter.value}
+                  filters={query.filters}
+                  filterIndex={index}
+                  onChange={(nextValue) => updateFilter(index, { value: nextValue })}
+                />
               </div>
             ))}
           </div>

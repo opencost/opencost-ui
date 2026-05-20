@@ -93,7 +93,7 @@ class CloudCostService {
     return {
       tableRows: tableView.data.data,
       graphData: graphView.data.data,
-      tableTotal: totalsView.data.data.combined,
+      tableTotal: totalsView.data?.data?.combined ?? null,
       cloudCostStatus: status.data.data,
     };
   }

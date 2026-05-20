@@ -259,8 +259,8 @@ export default function ReportBuilderPage() {
             </div>
           </div>
 
-          <div className="flex min-h-[70vh] overflow-hidden rounded border border-[#e0e0e0] bg-white">
-            <section className="min-h-[70vh] min-w-0 flex-1 bg-[#f8fafb] p-4">
+          <div className="flex h-[calc(100dvh-13rem)] min-h-[28rem] items-stretch overflow-visible rounded border border-[#e0e0e0] bg-white">
+            <section className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-[#f8fafb] p-4">
               <ReportResultsView
                 result={result}
                 loading={running}

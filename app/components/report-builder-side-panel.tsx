@@ -11,6 +11,7 @@ import {
   toUtcDateInputValue,
   type ReportWindowPresetId,
 } from "~/lib/report-window-range";
+import ReportFilterValueInput from "~/components/report-filter-value-input";
 import {
   ASSETS_GROUPING_OPTIONS,
   ALLOCATION_GROUPING_OPTIONS,
@@ -198,7 +199,8 @@ export default function ReportBuilderSidePanel({
   };
 
   return (
-    <aside className="w-[360px] border-l border-[#e0e0e0] bg-white p-4">
+    <aside className="flex h-full min-h-0 w-[360px] shrink-0 flex-col border-l border-[#e0e0e0] bg-white">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-visible overscroll-contain p-4 pb-16">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="m-0 text-lg font-semibold text-[#262626]">Report Config</h2>
         <Button size="sm" onClick={onRun} disabled={isRunning}>
@@ -615,7 +617,7 @@ export default function ReportBuilderSidePanel({
         </label>
       ) : null}
 
-      <div className="border-t border-[#e0e0e0] pt-4">
+      <div className="overflow-visible border-t border-[#e0e0e0] pt-4 pb-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="m-0 text-base font-semibold text-[#262626]">Filters</h3>
           <Button kind="ghost" size="sm" onClick={addFilter}>
@@ -623,11 +625,11 @@ export default function ReportBuilderSidePanel({
           </Button>
         </div>
         {query.filters.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-3 overflow-visible">
             {query.filters.map((filter, index) => (
               <div
                 key={`${filter.property}-${index}`}
-                className="rounded border border-[#e0e0e0] bg-[#fafafa] p-2"
+                className="overflow-visible rounded border border-[#e0e0e0] bg-[#fafafa] p-2"
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-xs font-medium uppercase tracking-wide text-[#6f6f6f]">
@@ -645,7 +647,10 @@ export default function ReportBuilderSidePanel({
                 <select
                   value={filter.property}
                   onChange={(event) =>
-                    updateFilter(index, { property: event.target.value })
+                    updateFilter(index, {
+                      property: event.target.value,
+                      value: "",
+                    })
                   }
                   className="mb-2 h-9 w-full rounded border border-[#d0d0d0] bg-white px-2 text-[13px] text-[#262626]"
                 >
@@ -655,11 +660,14 @@ export default function ReportBuilderSidePanel({
                     </option>
                   ))}
                 </select>
-                <input
+                <ReportFilterValueInput
+                  layer={query.layer}
+                  window={query.window}
+                  field={filter.property}
                   value={filter.value}
-                  onChange={(event) => updateFilter(index, { value: event.target.value })}
-                  placeholder="Value"
-                  className="h-9 w-full rounded border border-[#d0d0d0] px-2 text-[13px] text-[#262626]"
+                  filters={query.filters}
+                  filterIndex={index}
+                  onChange={(nextValue) => updateFilter(index, { value: nextValue })}
                 />
               </div>
             ))}
@@ -667,6 +675,7 @@ export default function ReportBuilderSidePanel({
         ) : (
           <p className="m-0 text-sm text-[#8d8d8d]">No filters applied.</p>
         )}
+      </div>
       </div>
     </aside>
   );

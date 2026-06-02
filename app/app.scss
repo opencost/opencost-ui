@@ -33,6 +33,46 @@ html[data-carbon-theme] body {
   color: var(--cds-text-primary);
 }
 
+/* Settings layout — tab strip (Carbon link styles can beat Tailwind alone). */
+.settings-tabs {
+  border-bottom: 1px solid #e0e0e0;
+  gap: 0.25rem 1.25rem;
+
+  .settings-tabs__link {
+    display: inline-block;
+    padding: 0.5rem 0.65rem 0.7rem;
+    margin-bottom: -1px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #525252;
+    text-decoration: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.25rem 0.25rem 0 0;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .settings-tabs__link:hover {
+    color: #161616;
+    background-color: rgba(22, 22, 22, 0.05);
+  }
+
+  .settings-tabs__link:focus-visible {
+    outline: 2px solid #0f62fe;
+    outline-offset: 2px;
+  }
+
+  .settings-tabs__link[aria-current="page"] {
+    color: #0f62fe;
+    font-weight: 600;
+    border-bottom-color: #0f62fe;
+    background-color: rgba(15, 98, 254, 0.1);
+  }
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -145,4 +185,79 @@ html[data-carbon-theme] body {
     stroke: transparent;
     stroke-width: 8;
   }
+}
+
+.app-login-layout {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: calc(var(--app-vh, 1vh) * 100);
+  width: 100%;
+  margin: 0;
+  padding: 2rem 1.25rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color-scheme: light;
+  background-color: #eef2f0;
+  background-image: radial-gradient(
+      ellipse 100% 60% at 50% -20%,
+      rgba(45, 125, 100, 0.09),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 100% 100%,
+      rgba(45, 125, 100, 0.05),
+      transparent 45%
+    );
+}
+
+.app-login-center {
+  width: 100%;
+  max-width: 26rem;
+}
+
+.app-login-center .cl-rootBox {
+  width: 100%;
+}
+
+.app-login-overlay-warning,
+.app-login-overlay-loading {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  z-index: 10000;
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-login-overlay-warning {
+  top: 1rem;
+  color: #161616;
+  background: rgba(254, 243, 199, 0.96);
+}
+
+.app-login-overlay-loading {
+  bottom: 1rem;
+  color: #161616;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #d8e0dc;
+  box-shadow: 0 4px 16px rgba(22, 40, 33, 0.08);
+}
+
+/** Full-viewport gate while Clerk session is resolving (replaces tiny bottom strip). */
+.app-login-session-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(244, 244, 244, 0.88);
+  backdrop-filter: blur(2px);
 }

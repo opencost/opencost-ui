@@ -18,6 +18,7 @@
     "@carbon/colors": "^11.49.0",
     "@carbon/icons-react": "^11.76.0",
     "@carbon/react": "^1.102.0",
+    "@clerk/react": "^6.6.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.9",

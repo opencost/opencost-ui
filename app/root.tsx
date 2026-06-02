@@ -16,8 +16,25 @@ import "./tailwind.css";
 import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 import { SettingsProvider } from "~/components/settings-context";
+import { AppBootLoader } from "~/components/app-boot-loader";
+import { AuthProvider } from "~/components/auth-provider";
+import { hasClerkPublishableKey, isAuthDisabled } from "~/lib/clerk-config";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
+
+function AuthConfigurationRequired() {
+  return (
+    <main className="p-[4rem_2rem] max-w-[560px] mx-auto">
+      <h1 className="text-2xl font-semibold mb-2">Clerk not configured</h1>
+      <p className="text-[var(--cds-text-secondary)]">
+        Set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in the environment before
+        building for production, or set{" "}
+        <code>VITE_AUTH_DISABLED=true</code> for a local build without login
+        (development only).
+      </p>
+    </main>
+  );
+}
 
 const DashboardApp = lazy(() =>
   Promise.all([
@@ -94,15 +111,36 @@ export default function App() {
       </LocalizationProvider>
     );
   }
+
+  const prodMissingClerk =
+    import.meta.env.PROD && !hasClerkPublishableKey() && !isAuthDisabled();
+  if (prodMissingClerk) {
+    return (
+      <ThemeProvider>
+        <AuthConfigurationRequired />
+      </ThemeProvider>
+    );
+  }
+
+  const appBody = (
+    <AppMuiThemeBridge>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <Suspense
+          fallback={
+            <AppBootLoader message="Loading OpenCost…" />
+          }
+        >
+          <DashboardApp />
+        </Suspense>
+      </LocalizationProvider>
+    </AppMuiThemeBridge>
+  );
+
   return (
     <ThemeProvider>
-      <AppMuiThemeBridge>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Suspense fallback={null}>
-            <DashboardApp />
-          </Suspense>
-        </LocalizationProvider>
-      </AppMuiThemeBridge>
+      <AuthProvider>
+        {appBody}
+      </AuthProvider>
     </ThemeProvider>
   );
 }

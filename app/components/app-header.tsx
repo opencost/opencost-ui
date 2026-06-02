@@ -18,7 +18,7 @@ export default function AppHeader({ children }: AppHeaderProps) {
   return (
     <Header aria-label="OpenCost Platform">
       <HeaderName href="/" prefix="">
-        <img src="/logo.png" alt="OpenCost" className="h-6" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="OpenCost" className="h-6" />
       </HeaderName>
       <HeaderGlobalBar>
         {children}

@@ -8,7 +8,7 @@ import {
   EditOutlined,
   ContentCopy,
   IosShareOutlined,
-  DeleteOutline,
+  DeleteOutlined,
 } from "@mui/icons-material";
 import {
   useDashboard,
@@ -404,7 +404,7 @@ export default function DashboardList() {
                               title="Delete dashboard"
                               onClick={() => handleDeleteDashboard(dashboard)}
                             >
-                              <DeleteOutline fontSize="small" />
+                              <DeleteOutlined fontSize="small" />
                             </button>
                           </td>
                         </tr>

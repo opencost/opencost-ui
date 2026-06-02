@@ -4,7 +4,7 @@ import {
   Star,
   StarBorder,
   EditOutlined,
-  DeleteOutline,
+  DeleteOutlined,
   IosShareOutlined,
 } from "@mui/icons-material";
 import type { Report } from "~/types/report";
@@ -137,7 +137,7 @@ export default function ReportListTable({
                   title="Delete report"
                   onClick={() => onDelete(report)}
                 >
-                  <DeleteOutline fontSize="small" />
+                  <DeleteOutlined fontSize="small" />
                 </button>
               </td>
             </tr>

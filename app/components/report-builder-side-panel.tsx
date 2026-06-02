@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@carbon/react";
-import { DeleteOutline } from "@mui/icons-material";
+import { DeleteOutlined } from "@mui/icons-material";
 import {
   REPORT_WINDOW_PRESETS,
   buildUtcRangeFromDateInputs,
@@ -397,7 +397,7 @@ export default function ReportBuilderSidePanel({
                     className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
                     aria-label={`Remove measure ${index + 1}`}
                   >
-                    <DeleteOutline fontSize="small" />
+                    <DeleteOutlined fontSize="small" />
                   </button>
                 </div>
               ))}
@@ -434,7 +434,7 @@ export default function ReportBuilderSidePanel({
                     className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
                     aria-label={`Remove grouping ${index + 1}`}
                   >
-                    <DeleteOutline fontSize="small" />
+                    <DeleteOutlined fontSize="small" />
                   </button>
                 </div>
               ))}
@@ -641,7 +641,7 @@ export default function ReportBuilderSidePanel({
                     className="inline-flex h-6 w-6 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28]"
                     aria-label={`Remove filter ${index + 1}`}
                   >
-                    <DeleteOutline fontSize="small" />
+                    <DeleteOutlined fontSize="small" />
                   </button>
                 </div>
                 <select

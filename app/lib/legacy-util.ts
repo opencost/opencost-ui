@@ -270,10 +270,12 @@ export function parseFilters(
   return (
     [
       ...new Set(
-        filters.map((f) => {
-          const escapedValue = String(f.value).replace(/"/g, '\\"');
-          return `${f.property}:"${escapedValue}"`;
-        }),
+        filters
+          .filter((f) => String(f.value).trim().length > 0)
+          .map((f) => {
+            const escapedValue = String(f.value).replace(/"/g, '\\"');
+            return `${f.property}:"${escapedValue}"`;
+          }),
       ),
     ].join("+") || ""
   );

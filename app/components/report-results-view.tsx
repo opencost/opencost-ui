@@ -33,22 +33,32 @@ interface ReportResultsViewProps {
   query: ReportQuery;
 }
 
+function chartContainerClass(compact: boolean): string {
+  return compact
+    ? "h-[200px] w-full px-2 pb-2 pt-4"
+    : "h-[380px] w-full px-2 pb-2 pt-4";
+}
+
 function MultiSeriesChart({
   chartType,
   chartData,
   seriesKeys,
   chartPalette,
+  compact = false,
 }: {
   chartType: ReportChartType;
   chartData: Array<Record<string, number | string>>;
   seriesKeys: string[];
   chartPalette: string[];
+  compact?: boolean;
 }) {
   if (chartType === "table") return null;
 
+  const chartHeightClass = chartContainerClass(compact);
+
   if (chartType === "line") {
     return (
-      <div className="h-[380px] w-full px-2 pb-2 pt-4">
+      <div className={chartHeightClass}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -74,7 +84,7 @@ function MultiSeriesChart({
 
   if (chartType === "bar" || chartType === "stackedBar") {
     return (
-      <div className="h-[380px] w-full px-2 pb-2 pt-4">
+      <div className={chartHeightClass}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -97,7 +107,7 @@ function MultiSeriesChart({
   }
 
   return (
-    <div className="h-[380px] w-full px-2 pb-2 pt-4">
+    <div className={chartHeightClass}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -141,7 +151,7 @@ export default function ReportResultsView({
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-[#8d8d8d]">
+      <div className="flex min-h-[12rem] items-center justify-center text-sm text-[#8d8d8d]">
         Running report...
       </div>
     );
@@ -157,7 +167,7 @@ export default function ReportResultsView({
 
   if (!result) {
     return (
-      <div className="flex h-full items-center justify-center text-center text-[#8d8d8d]">
+      <div className="flex min-h-[12rem] items-center justify-center text-center text-[#8d8d8d]">
         <div>
           <p className="m-0 text-2xl font-semibold text-[#a8b0b7]">Run your report</p>
           <p className="mt-2 text-sm">Configure your report and click Run Report.</p>
@@ -167,6 +177,7 @@ export default function ReportResultsView({
   }
 
   if (result.layer === "allocation") {
+    const hasRows = result.rows.length > 0;
     const chartData = result.timeSeries.points.map((point) => ({
       label: point.label,
       ...point.values,
@@ -177,7 +188,7 @@ export default function ReportResultsView({
     }));
 
     return (
-      <div className="h-full overflow-auto rounded border border-[#e0e0e0] bg-white">
+      <div className="rounded border border-[#e0e0e0] bg-white">
         <div className="border-b border-[#e0e0e0] px-4 py-3">
           <h3 className="m-0 text-lg font-semibold text-[#262626]">
             {result.measureLabel} by {result.groupingLabel}
@@ -187,10 +198,10 @@ export default function ReportResultsView({
           </p>
         </div>
         {query.chartType === "pie" ? (
-          <div className="h-[380px] w-full px-2 pb-2 pt-4">
+          <div className={chartContainerClass(!hasRows)}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={140} label />
+                <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={hasRows ? 140 : 90} label />
                 <Tooltip />
                 <Legend />
               </PieChart>
@@ -202,8 +213,14 @@ export default function ReportResultsView({
             chartData={chartData}
             seriesKeys={result.timeSeries.seriesKeys}
             chartPalette={chartPalette}
+            compact={!hasRows}
           />
         )}
+        {!hasRows ? (
+          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+            No data found for the selected window and filters.
+          </p>
+        ) : null}
         <div className="p-4">
           <Table size="md" useZebraStyles>
             <TableHead>
@@ -213,12 +230,20 @@ export default function ReportResultsView({
               </TableRow>
             </TableHead>
             <TableBody>
-              {result.rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.measureDisplayValue}</TableCell>
+              {hasRows ? (
+                result.rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.measureDisplayValue}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-[#6f6f6f]">
+                    No rows to display
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
@@ -227,6 +252,7 @@ export default function ReportResultsView({
   }
 
   if (result.layer === "cloudCost") {
+    const hasRows = result.rows.length > 0;
     const chartData = result.timeSeries.points.map((point) => ({
       label: point.label,
       ...point.values,
@@ -237,7 +263,7 @@ export default function ReportResultsView({
     }));
 
     return (
-      <div className="h-full overflow-auto rounded border border-[#e0e0e0] bg-white">
+      <div className="rounded border border-[#e0e0e0] bg-white">
         <div className="border-b border-[#e0e0e0] px-4 py-3">
           <h3 className="m-0 text-lg font-semibold text-[#262626]">
             Cloud Cost by {result.groupingLabel}
@@ -248,10 +274,10 @@ export default function ReportResultsView({
           </p>
         </div>
         {query.chartType === "pie" ? (
-          <div className="h-[380px] w-full px-2 pb-2 pt-4">
+          <div className={chartContainerClass(!hasRows)}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={140} label>
+                <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={hasRows ? 140 : 90} label>
                   {pieData.map((entry, index) => (
                     <Cell
                       key={`cloud-pie-${entry.name}-${index}`}
@@ -270,8 +296,14 @@ export default function ReportResultsView({
             chartData={chartData}
             seriesKeys={result.timeSeries.seriesKeys}
             chartPalette={chartPalette}
+            compact={!hasRows}
           />
         )}
+        {!hasRows ? (
+          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+            No data found for the selected window and filters.
+          </p>
+        ) : null}
         <div className="p-4">
           <Table size="md" useZebraStyles>
             <TableHead>
@@ -282,13 +314,21 @@ export default function ReportResultsView({
               </TableRow>
             </TableHead>
             <TableBody>
-              {result.rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.name}</TableCell>
-                  <TableCell>{Math.round(row.kubernetesPercent)}%</TableCell>
-                  <TableCell>{row.costDisplay}</TableCell>
+              {hasRows ? (
+                result.rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{Math.round(row.kubernetesPercent)}%</TableCell>
+                    <TableCell>{row.costDisplay}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-[#6f6f6f]">
+                    No rows to display
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
@@ -297,6 +337,7 @@ export default function ReportResultsView({
   }
 
   if (result.layer === "infraAssets") {
+    const hasRows = result.assets.length > 0;
     const typeData = result.typeTotals.map((item) => ({
       name: item.type,
       value: item.totalCost,
@@ -307,7 +348,7 @@ export default function ReportResultsView({
       .map((asset) => ({ label: asset.name, Cost: asset.totalCost }));
 
     return (
-      <div className="h-full overflow-auto rounded border border-[#e0e0e0] bg-white">
+      <div className="rounded border border-[#e0e0e0] bg-white">
         <div className="border-b border-[#e0e0e0] px-4 py-3">
           <h3 className="m-0 text-lg font-semibold text-[#262626]">
             Infrastructure Assets by {result.groupingLabel}
@@ -318,10 +359,10 @@ export default function ReportResultsView({
           </p>
         </div>
         {query.chartType === "table" ? null : query.chartType === "pie" ? (
-          <div className="h-[380px] w-full px-2 pb-2 pt-4">
+          <div className={chartContainerClass(!hasRows)}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={typeData} dataKey="value" nameKey="name" outerRadius={140} label>
+                <Pie data={typeData} dataKey="value" nameKey="name" outerRadius={hasRows ? 140 : 90} label>
                   {typeData.map((entry, index) => (
                     <Cell
                       key={`assets-pie-${entry.name}-${index}`}
@@ -335,7 +376,7 @@ export default function ReportResultsView({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-[380px] w-full px-2 pb-2 pt-4">
+          <div className={chartContainerClass(!hasRows)}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topAssets}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -355,6 +396,11 @@ export default function ReportResultsView({
             </ResponsiveContainer>
           </div>
         )}
+        {!hasRows ? (
+          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+            No data found for the selected window and filters.
+          </p>
+        ) : null}
         <div className="p-4">
           <Table size="md" useZebraStyles>
             <TableHead>
@@ -366,14 +412,22 @@ export default function ReportResultsView({
               </TableRow>
             </TableHead>
             <TableBody>
-              {result.assets.map((asset) => (
-                <TableRow key={asset.id}>
-                  <TableCell>{asset.name}</TableCell>
-                  <TableCell>{asset.type}</TableCell>
-                  <TableCell>{asset.cluster}</TableCell>
-                  <TableCell>${asset.totalCost.toFixed(2)}</TableCell>
+              {hasRows ? (
+                result.assets.map((asset) => (
+                  <TableRow key={asset.id}>
+                    <TableCell>{asset.name}</TableCell>
+                    <TableCell>{asset.type}</TableCell>
+                    <TableCell>{asset.cluster}</TableCell>
+                    <TableCell>${asset.totalCost.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-[#6f6f6f]">
+                    No rows to display
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
@@ -381,6 +435,7 @@ export default function ReportResultsView({
     );
   }
 
+  const hasRows = result.rows.length > 0;
   const chartData = result.timeSeries.points.map((point) => ({
     label: point.label,
     ...point.values,
@@ -391,7 +446,7 @@ export default function ReportResultsView({
   }));
 
   return (
-    <div className="h-full overflow-auto rounded border border-[#e0e0e0] bg-white">
+    <div className="rounded border border-[#e0e0e0] bg-white">
       <div className="border-b border-[#e0e0e0] px-4 py-3">
         <h3 className="m-0 text-lg font-semibold text-[#262626]">
           External Cost by {result.groupingLabel}
@@ -402,10 +457,10 @@ export default function ReportResultsView({
         </p>
       </div>
       {query.chartType === "pie" ? (
-        <div className="h-[380px] w-full px-2 pb-2 pt-4">
+        <div className={chartContainerClass(!hasRows)}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={140} label>
+              <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={hasRows ? 140 : 90} label>
                 {pieData.map((entry, index) => (
                   <Cell
                     key={`external-pie-${entry.name}-${index}`}
@@ -424,8 +479,14 @@ export default function ReportResultsView({
           chartData={chartData}
           seriesKeys={result.timeSeries.seriesKeys}
           chartPalette={chartPalette}
+          compact={!hasRows}
         />
       )}
+      {!hasRows ? (
+        <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+          No data found for the selected window and filters.
+        </p>
+      ) : null}
       <div className="p-4">
         <Table size="md" useZebraStyles>
           <TableHead>
@@ -436,13 +497,21 @@ export default function ReportResultsView({
             </TableRow>
           </TableHead>
           <TableBody>
-            {result.rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.costType}</TableCell>
-                <TableCell>{row.costDisplay}</TableCell>
+            {hasRows ? (
+              result.rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.costType}</TableCell>
+                  <TableCell>{row.costDisplay}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="text-[#6f6f6f]">
+                  No rows to display
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

@@ -29,6 +29,7 @@ LABEL org.opencontainers.image.source=https://github.com/opencost/opencost-ui
 LABEL org.opencontainers.image.title=opencost-ui
 LABEL org.opencontainers.image.url=https://opencost.io
 
+# vite_basename should start with a slash but not end with one
 ARG vite_basename=/
 ARG version=dev
 ARG commit=HEAD
@@ -57,6 +58,7 @@ RUN chown 1001:1000 -R /var/www
 RUN chown 1001:1000 -R /etc/nginx
 RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
+# BASE_MODEL should start with a slash but not end with one
 ENV BASE_URL=/model
 ENV LEGACY_MODE=false
 ENV PROXY_CONNECT_TIMEOUT=60s

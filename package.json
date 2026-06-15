@@ -23,7 +23,7 @@
     "@mui/icons-material": "^9.0.1",
     "@mui/material": "^9.0.1",
     "@mui/styles": "^6.5.0",
-    "@mui/x-date-pickers": "^9.3.0",
+    "@mui/x-date-pickers": "^9.5.0",
     "@react-router/node": "7.14.1",
     "@react-router/serve": "7.14.1",
     "axios": "^1.15.0",

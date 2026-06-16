@@ -393,11 +393,26 @@ export async function runAllocationReport(
     filters: query.filters.length > 0 ? parseFilters(query.filters) : undefined,
   });
 
-  const rawSets = Array.isArray(response?.data)
+  const rawSetsAll = Array.isArray(response?.data)
     ? response.data
     : Array.isArray(response)
       ? response
       : [];
+
+  const rawSets = query.includeUnallocated
+    ? rawSetsAll
+    : rawSetsAll.map((set: any) => {
+        if (Array.isArray(set)) {
+          return set.filter(
+            (a: any) => !String(a?.name ?? "").includes("__unallocated__"),
+          );
+        }
+        const next: Record<string, any> = {};
+        for (const [name, alloc] of Object.entries(set ?? {})) {
+          if (!name.includes("__unallocated__")) next[name] = alloc;
+        }
+        return next;
+      });
 
   const cumulativeKey = groupings[0] ?? "name";
   const cumulative = rangeToCumulative(rawSets, cumulativeKey);

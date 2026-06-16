@@ -244,6 +244,7 @@ export default function CostAllocationChart({
         left: {
           mapsTo: "value",
           scaleType: ScaleTypes.LINEAR,
+          stacked: true,
           ticks: {
             formatter: (v: number | Date) =>
               toCurrency(typeof v === "number" ? v : v.getTime(), currency),

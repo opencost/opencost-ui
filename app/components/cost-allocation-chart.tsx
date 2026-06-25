@@ -133,8 +133,6 @@ function buildChartData(
     for (const a of other) {
       points.push({ group: date, key: "other", value: a.totalCost ?? 0 });
     }
-    const totalCost = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
-    points.push({ group: date, key: "total", value: totalCost });
     if (includeIdle && idle.length > 0) {
       const idleCost = idle.reduce((s, a) => s + (a.totalCost ?? 0), 0);
       if (idleCost > 0) {
@@ -152,7 +150,6 @@ function buildColorScale(points: ChartPoint[]): Record<string, string> {
   let p = 0;
   for (const k of keys) {
     if (k === "idle") scale[k] = greyscale[1];
-    else if (k === "total") scale[k] = greyscale[2];
     else if (k === "other") scale[k] = browns[0];
     else scale[k] = primary[p++ % primary.length];
   }
@@ -261,6 +258,7 @@ export default function CostAllocationChart({
         left: {
           mapsTo: "value",
           scaleType: ScaleTypes.LINEAR,
+          stacked: true,
           ticks: {
             formatter: (v: number | Date) =>
               toCurrency(typeof v === "number" ? v : v.getTime(), currency),
@@ -295,7 +293,6 @@ export default function CostAllocationChart({
                 typeof item.value === "number"
                   ? item.value
                   : parseFloat(item.value) || 0;
-              if (item.key === "total") return null;
               total += val;
               const name =
                 item.label ?? item.key ?? item.name ?? item.group ?? "—";

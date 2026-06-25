@@ -3,6 +3,13 @@ WORKDIR /opt/ui
 ADD package*.json ./
 RUN npm install
 ADD . ./
+
+ARG vite_basename=
+ARG vite_base_api_url=
+
+ENV VITE_BASENAME=${vite_basename}
+ENV VITE_BASE_API_URL=${vite_base_api_url}
+
 # Save first build outside build/ so build:legacy (which overwrites build/) doesn't remove it
 RUN npm run build && cp -r build/client /opt/standard
 RUN npm run build:legacy
@@ -22,7 +29,8 @@ LABEL org.opencontainers.image.source=https://github.com/opencost/opencost-ui
 LABEL org.opencontainers.image.title=opencost-ui
 LABEL org.opencontainers.image.url=https://opencost.io
 
-ARG ui_path=/
+# vite_basename should start with a slash but not end with one
+ARG vite_basename=/
 ARG version=dev
 ARG commit=HEAD
 ENV VERSION=${version}
@@ -31,7 +39,7 @@ ENV HEAD=${commit}
 ENV API_PORT=9003
 ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
-ENV UI_PATH=${ui_path}
+ENV UI_PATH=${vite_basename}
 
 RUN mkdir -p /var/www /var/www/legacy
 
@@ -50,6 +58,7 @@ RUN chown 1001:1000 -R /var/www
 RUN chown 1001:1000 -R /etc/nginx
 RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
+# BASE_MODEL should start with a slash but not end with one
 ENV BASE_URL=/model
 ENV LEGACY_MODE=false
 ENV PROXY_CONNECT_TIMEOUT=60s

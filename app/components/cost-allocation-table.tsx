@@ -80,6 +80,7 @@ export interface CostAllocationTableProps {
   aggregateBy?: string;
   accumulate?: string;
   includeIdle?: boolean;
+  includeUnallocated?: boolean;
   currency?: string;
   useSharedFilters?: boolean;
 }
@@ -91,6 +92,7 @@ export default function CostAllocationTable({
   aggregateBy: globalAggregateByProp,
   accumulate: accumulateProp,
   includeIdle: includeIdleProp,
+  includeUnallocated: includeUnallocatedProp,
   currency: currencyProp,
   useSharedFilters = false,
 }: CostAllocationTableProps) {
@@ -102,6 +104,8 @@ export default function CostAllocationTable({
   const globalAggregateBy = globalAggregateByProp ?? sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+  const includeUnallocated =
+    includeUnallocatedProp ?? sharedFilters.includeUnallocated;
   const currency = currencyProp ?? defaultCurrency;
 
   const [localDrilldownFilters, setLocalDrilldownFilters] = useState<
@@ -150,15 +154,31 @@ export default function CostAllocationTable({
 
   const dataTitle = generateTitle(window, aggregateBy, accumulate);
 
+  const filteredAllocationData = useMemo(() => {
+    if (includeUnallocated) return allocationData;
+    return allocationData.map((set: any) => {
+      if (Array.isArray(set)) {
+        return set.filter(
+          (a: any) => !String(a?.name ?? "").includes("__unallocated__"),
+        );
+      }
+      const next: Record<string, any> = {};
+      for (const [name, alloc] of Object.entries(set ?? {})) {
+        if (!name.includes("__unallocated__")) next[name] = alloc;
+      }
+      return next;
+    });
+  }, [allocationData, includeUnallocated]);
+
   const cumulativeData = useMemo(() => {
-    const cumulative = rangeToCumulative(allocationData, aggregateBy);
+    const cumulative = rangeToCumulative(filteredAllocationData, aggregateBy);
     return cumulative ? toArray(cumulative) : [];
-  }, [allocationData, aggregateBy]);
+  }, [filteredAllocationData, aggregateBy]);
 
   const totalData = useMemo(() => {
-    const cumulative = rangeToCumulative(allocationData, aggregateBy);
+    const cumulative = rangeToCumulative(filteredAllocationData, aggregateBy);
     return cumulative ? cumulativeToTotals(cumulative) : {};
-  }, [allocationData, aggregateBy]);
+  }, [filteredAllocationData, aggregateBy]);
 
   const sortedRows = useMemo(() => {
     const sorted = sortBy(cumulativeData, (r) => {
@@ -379,10 +399,14 @@ export default function CostAllocationTable({
               aggregateBy={globalAggregateBy}
               accumulate={accumulate}
               includeIdle={includeIdle}
+              includeUnallocated={includeUnallocated}
               onWindowChange={(v) => setFilter("window", v)}
               onAggregateByChange={(v) => setFilter("aggregateBy", v)}
               onAccumulateChange={(v) => setFilter("accumulate", v)}
               onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+              onIncludeUnallocatedChange={(v) =>
+                setFilter("includeUnallocated", v)
+              }
               idPrefix="table-alloc"
             />
           }

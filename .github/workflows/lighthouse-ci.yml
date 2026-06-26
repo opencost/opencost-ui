@@ -15,7 +15,6 @@ jobs:
 
     permissions:
       contents: read
-      issues: write
       pull-requests: write
 
     steps:
@@ -81,8 +80,47 @@ jobs:
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Save PR info for fork comment workflow
+        id: save-pr-info
+        if: >-
+          always() &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PERF: ${{ steps.parse.outputs.perf }}
+          A11Y: ${{ steps.parse.outputs.a11y }}
+          BP: ${{ steps.parse.outputs.bp }}
+          SEO: ${{ steps.parse.outputs.seo }}
+          REPORT_URL: ${{ steps.parse.outputs.report_url }}
+        run: |
+          jq -n \
+            --arg pr_number "$PR_NUMBER" \
+            --arg perf "$PERF" \
+            --arg a11y "$A11Y" \
+            --arg bp "$BP" \
+            --arg seo "$SEO" \
+            --arg report_url "$REPORT_URL" \
+            '{pr_number: ($pr_number | tonumber), perf: $perf, a11y: $a11y, bp: $bp, seo: $seo, report_url: $report_url}' \
+            > pr-info.json
+
+      - name: Upload PR info for fork comment workflow
+        if: >-
+          always() &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-pr-info
+          path: pr-info.json
+          retention-days: 1
+          if-no-files-found: ignore
+
       - name: Comment on PR
-        if: github.event_name == 'pull_request' && always()
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          always()
         uses: thollander/actions-comment-pull-request@v3
         with:
           comment-tag: lighthouse-report

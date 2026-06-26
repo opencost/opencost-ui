@@ -1,0 +1,70 @@
+name: Lighthouse CI Comment (Fork PRs)
+
+# This workflow posts Lighthouse report comments on fork pull requests.
+# It runs in a trusted context (base repo) so it has the write permissions
+# that are denied to the audit workflow when triggered by a fork PR.
+#
+# How it works:
+#   1. lighthouse-ci.yml runs the audit and, for fork PRs only, uploads a
+#      small "lighthouse-pr-info" artifact containing the PR number and scores.
+#   2. This workflow triggers on completion of that run, downloads the artifact,
+#      and posts the comment. If the artifact is absent (same-repo PR), the
+#      download step fails and all subsequent steps are skipped — no duplicates.
+on:
+  workflow_run:
+    workflows: ["Lighthouse CI"]
+    types: [completed]
+
+jobs:
+  comment:
+    name: Post Lighthouse Comment for Fork PR
+    runs-on: ubuntu-latest
+    # Only process pull_request events; push to main needs no comment.
+    if: github.event.workflow_run.event == 'pull_request'
+
+    permissions:
+      pull-requests: write
+      actions: read
+
+    steps:
+      - name: Download PR info artifact
+        id: download
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: lighthouse-pr-info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      # If the artifact is missing (same-repo PR), the download fails and
+      # continue-on-error keeps the job green. The two steps below are gated
+      # on a successful download, so they are skipped for same-repo PRs.
+      - name: Read PR info
+        id: pr-info
+        if: steps.download.outcome == 'success'
+        run: |
+          echo "pr_number=$(jq -r '.pr_number' pr-info.json)" >> "$GITHUB_OUTPUT"
+          echo "perf=$(jq -r '.perf' pr-info.json)" >> "$GITHUB_OUTPUT"
+          echo "a11y=$(jq -r '.a11y' pr-info.json)" >> "$GITHUB_OUTPUT"
+          echo "bp=$(jq -r '.bp' pr-info.json)" >> "$GITHUB_OUTPUT"
+          echo "seo=$(jq -r '.seo' pr-info.json)" >> "$GITHUB_OUTPUT"
+          echo "report_url=$(jq -r '.report_url' pr-info.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Post Lighthouse comment on fork PR
+        if: steps.download.outcome == 'success'
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          pr-number: ${{ steps.pr-info.outputs.pr_number }}
+          comment-tag: lighthouse-report
+          mode: recreate
+          message: |
+            ## Lighthouse Report
+
+            | Category | Score |
+            |----------|-------|
+            | Performance | **${{ steps.pr-info.outputs.perf }}** |
+            | Accessibility | **${{ steps.pr-info.outputs.a11y }}** |
+            | Best Practices | **${{ steps.pr-info.outputs.bp }}** |
+            | SEO | **${{ steps.pr-info.outputs.seo }}** |
+
+            [Full Report](${{ steps.pr-info.outputs.report_url }})

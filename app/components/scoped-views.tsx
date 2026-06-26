@@ -38,6 +38,7 @@ export const DEFAULT_ALLOCATION_FILTERS = {
   allocationAggregateBy: "namespace",
   allocationAccumulate: "day",
   allocationIncludeIdle: true,
+  allocationIncludeUnallocated: true,
 };
 
 export const DEFAULT_CLOUD_FILTERS = {
@@ -52,6 +53,7 @@ export interface AllocationFilterValues {
   /** `/allocation/compute` `accumulate` param (e.g. `day`, `weeknow`, `all`). */
   accumulate: string;
   includeIdle: boolean;
+  includeUnallocated: boolean;
   drilldownAggregateBy?: string;
   drilldownFilters?: { property: string; value: string }[];
 }
@@ -159,10 +161,12 @@ interface AllocationFilterControlsProps {
   aggregateBy: string;
   accumulate: string;
   includeIdle: boolean;
+  includeUnallocated?: boolean;
   onWindowChange: (v: string) => void;
   onAggregateByChange: (v: string) => void;
   onAccumulateChange: (v: string) => void;
   onIncludeIdleChange: (v: boolean) => void;
+  onIncludeUnallocatedChange?: (v: boolean) => void;
   idPrefix?: string;
   compact?: boolean;
 }
@@ -172,10 +176,12 @@ export function AllocationFilterControls({
   aggregateBy,
   accumulate,
   includeIdle,
+  includeUnallocated,
   onWindowChange,
   onAggregateByChange,
   onAccumulateChange,
   onIncludeIdleChange,
+  onIncludeUnallocatedChange,
   idPrefix = "alloc",
   compact = true,
 }: AllocationFilterControlsProps) {
@@ -229,6 +235,16 @@ export function AllocationFilterControls({
         />
         Include idle costs
       </label>
+      {onIncludeUnallocatedChange ? (
+        <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
+          <input
+            type="checkbox"
+            checked={includeUnallocated !== false}
+            onChange={(e) => onIncludeUnallocatedChange(e.target.checked)}
+          />
+          Include unallocated costs
+        </label>
+      ) : null}
     </div>
   );
 }

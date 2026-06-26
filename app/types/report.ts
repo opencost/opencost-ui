@@ -53,6 +53,7 @@ export interface AllocationReportQuery {
   window: string;
   accumulate: string;
   includeIdle: boolean;
+  includeUnallocated: boolean;
   measures: AllocationMeasure[];
   groupings: string[];
   filters: ReportFilterRule[];
@@ -216,6 +217,7 @@ export function createDefaultAllocationReportQuery(): AllocationReportQuery {
     window: getYesterdayUtcRange(),
     accumulate: "day",
     includeIdle: true,
+    includeUnallocated: true,
     measures: ["totalCost"],
     groupings: ["namespace"],
     filters: [],
@@ -365,6 +367,10 @@ function normalizeAllocationQuery(raw: unknown): AllocationReportQuery {
     accumulate,
     includeIdle:
       typeof record.includeIdle === "boolean" ? record.includeIdle : defaults.includeIdle,
+    includeUnallocated:
+      typeof record.includeUnallocated === "boolean"
+        ? record.includeUnallocated
+        : defaults.includeUnallocated,
     measures,
     groupings,
     filters: normalizeFilters(record.filters),

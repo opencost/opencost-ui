@@ -10,41 +10,41 @@ import {
 
 import { useAuth } from "~/components/auth-context";
 import {
-  ROLE_OPTIONS,
-  roleLabel,
-  rolesSearchText,
-} from "~/components/settings/user-role-labels";
-import {
   createId,
   DEFAULT_NOTIFICATION_PREFS,
   loadStoredInvites,
   saveStoredInvites,
-  type SettingsUserRole,
   type StoredSettingsUser,
   type UserNotificationPrefs,
 } from "~/lib/settings-users-store";
 import {
-  getClerkOrgRoleAdmin,
   getClerkOrgRoleMember,
   hasClerkPublishableKey,
   isAuthDisabled,
 } from "~/lib/clerk-config";
+import { currentUserIsOrgAdmin } from "~/lib/clerk-org-access";
 type ClerkOrganizationHook = ReturnType<typeof useOrganization>;
 
 const badgeEmail =
   "inline-flex max-w-[min(280px,100%)] truncate rounded-full border border-[#a6c8ff] bg-[#edf5ff] px-2.5 py-0.5 text-xs font-medium text-[#0043ce]";
-const badgeRole =
-  "inline-flex shrink-0 rounded-full border border-[#c6d1cc] bg-[#f4f4f4] px-2 py-0.5 text-xs font-medium text-[#161616]";
 
 type DisplayUser = {
   id: string;
   name: string;
   email: string;
-  roles: SettingsUserRole[];
   status: "pending" | "active";
   source: StoredSettingsUser["source"];
   removable: boolean;
 };
+
+function UsersManagementAccessNotice({ message }: { message: string }) {
+  return (
+    <section className="rounded border border-[#e0e0e0] bg-white px-5 py-6 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+      <h3 className="m-0 text-base font-semibold text-[#161616]">Users</h3>
+      <p className="m-0 mt-2 text-sm text-[#525252]">{message}</p>
+    </section>
+  );
+}
 
 function parseEmailList(raw: string): string[] {
   return raw
@@ -72,28 +72,6 @@ function hashHue(id: string): number {
   return h % 360;
 }
 
-function toggleRole(list: SettingsUserRole[], r: SettingsUserRole) {
-  if (list.includes(r)) {
-    const next = list.filter((x) => x !== r);
-    return next.length ? next : list;
-  }
-  return [...list, r];
-}
-
-function mapAppRolesToClerkRole(roles: SettingsUserRole[]): string {
-  if (roles.includes("system_admin") || roles.includes("tenant_admin")) {
-    return getClerkOrgRoleAdmin();
-  }
-  return getClerkOrgRoleMember();
-}
-
-function mapClerkRoleToDisplayRoles(clerkRole: string): SettingsUserRole[] {
-  const admin = getClerkOrgRoleAdmin().toLowerCase();
-  const r = (clerkRole ?? "").toLowerCase();
-  if (r === admin || r === "org:admin") return ["tenant_admin"];
-  return ["basic_user"];
-}
-
 function UsersManagementPanelBody({
   clerkOrg,
 }: {
@@ -108,15 +86,16 @@ function UsersManagementPanelBody({
 
   const [modalOpen, setModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<SettingsUserRole[]>([
-    "basic_user",
-  ]);
   const [notifExpanded, setNotifExpanded] = useState(false);
   const [notif, setNotif] = useState<UserNotificationPrefs>({
     ...DEFAULT_NOTIFICATION_PREFS,
   });
   const [inviteSubmitting, setInviteSubmitting] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
+
+  const clerkOrgActive = Boolean(
+    clerkOrg?.isLoaded && clerkOrg.organization,
+  );
 
   useEffect(() => {
     setInvites(loadStoredInvites());
@@ -139,16 +118,11 @@ function UsersManagementPanelBody({
       id: user.sub ?? `self_${user.email}`,
       name,
       email: user.email,
-      roles: ["tenant_admin"],
       status: "active",
       source: "self",
       removable: false,
     };
   }, [isAuthenticated, user]);
-
-  const clerkOrgActive = Boolean(
-    clerkOrg?.isLoaded && clerkOrg.organization,
-  );
 
   const rows: DisplayUser[] = useMemo(() => {
     let merged: DisplayUser[];
@@ -166,10 +140,9 @@ function UsersManagementPanelBody({
         const ln = m.publicUserData?.lastName?.trim() ?? "";
         const nameFromProfile = [fn, ln].filter(Boolean).join(" ");
         memberRows.push({
-          id: m.id,
+          id: m.publicUserData?.userId?.trim() || m.id,
           name: nameFromProfile || email.split("@")[0],
           email,
-          roles: mapClerkRoleToDisplayRoles(m.role),
           status: "active",
           source: "organization",
           removable: false,
@@ -185,7 +158,6 @@ function UsersManagementPanelBody({
           id: inv.id,
           name: inv.emailAddress.split("@")[0],
           email: inv.emailAddress,
-          roles: mapClerkRoleToDisplayRoles(inv.role),
           status: "pending",
           source: "organization",
           removable: true,
@@ -198,7 +170,6 @@ function UsersManagementPanelBody({
         id: u.id,
         name: u.name || u.email.split("@")[0],
         email: u.email,
-        roles: u.roles,
         status: u.status,
         source: u.source,
         removable: true,
@@ -212,7 +183,7 @@ function UsersManagementPanelBody({
           (r) =>
             r.name.toLowerCase().includes(q) ||
             r.email.toLowerCase().includes(q) ||
-            rolesSearchText(r.roles).includes(q),
+            r.status.includes(q),
         )
       : merged;
     return [...filtered].sort((a, b) => {
@@ -264,7 +235,6 @@ function UsersManagementPanelBody({
 
   const openModal = () => {
     setEmailInput("");
-    setSelectedRoles(["basic_user"]);
     setNotif({ ...DEFAULT_NOTIFICATION_PREFS });
     setNotifExpanded(false);
     setInviteError(null);
@@ -273,7 +243,7 @@ function UsersManagementPanelBody({
 
   const submitInvite = async () => {
     const emails = parseEmailList(emailInput);
-    if (!emails.length || selectedRoles.length === 0) return;
+    if (!emails.length) return;
 
     if (clerkOrg !== undefined) {
       if (!clerkOrg.isLoaded || !clerkOrg.organization) {
@@ -287,7 +257,7 @@ function UsersManagementPanelBody({
     if (clerkOrgActive && clerkOrg?.organization) {
       setInviteSubmitting(true);
       setInviteError(null);
-      const clerkRole = mapAppRolesToClerkRole(selectedRoles);
+      const clerkRole = getClerkOrgRoleMember();
       const taken = new Set<string>();
       clerkOrg.invitations?.data?.forEach((i) =>
         taken.add(i.emailAddress.toLowerCase()),
@@ -343,7 +313,6 @@ function UsersManagementPanelBody({
         id: createId("invite"),
         email,
         name: email.split("@")[0],
-        roles: [...selectedRoles],
         status: "pending",
         source: "invite",
         notifications: { ...notif },
@@ -355,11 +324,11 @@ function UsersManagementPanelBody({
 
   const canSubmit =
     parseEmailList(emailInput).length > 0 &&
-    selectedRoles.length > 0 &&
     (clerkOrg === undefined ||
       (clerkOrg.isLoaded && !!clerkOrg.organization));
 
   return (
+    <>
     <section className="overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
       <div className="flex flex-col gap-4 border-b border-[#e0e0e0] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="m-0 text-base font-semibold text-[#161616]">
@@ -411,13 +380,13 @@ function UsersManagementPanelBody({
               placeholder="Search…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full rounded border border-[#d0d0d0] bg-white pl-9 pr-3 text-sm text-[#161616] placeholder:text-[#8d8d8d] focus:border-[#0f62fe] focus:outline-none"
+              className="h-9 w-full rounded border border-[#d0d0d0] bg-white pl-9 pr-3 text-sm text-[#161616] placeholder:text-[#8d8d8d] focus:border-[var(--oc-accent)] focus:outline-none"
             />
           </div>
           <button
             type="button"
             onClick={openModal}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded bg-[#0f62fe] px-3 text-sm font-semibold text-white hover:bg-[#0353e9]"
+            className="oc-btn-primary inline-flex h-9 shrink-0 items-center gap-1.5 rounded bg-[var(--oc-accent)] px-3 text-sm font-semibold text-white hover:bg-[var(--oc-accent-hover)]"
           >
             <PersonAdd sx={{ fontSize: 18 }} />
             Add users
@@ -435,6 +404,7 @@ function UsersManagementPanelBody({
             to join or switch teams, then reload if members do not appear.{" "}
           </>
         ) : null}
+        Manage workspace users and pending invitations.
       </p>
 
       <div className="overflow-x-auto">
@@ -444,11 +414,11 @@ function UsersManagementPanelBody({
               <th className="px-4 py-3 text-left">
                 <button
                   type="button"
-                  className="inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-semibold text-[#161616] hover:text-[#0f62fe] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f62fe] focus-visible:ring-offset-2"
+                  className="inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-semibold text-[#161616] hover:text-[var(--oc-accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--oc-accent)] focus-visible:ring-offset-2"
                   onClick={() => setSortNameAsc((v) => !v)}
                 >
                   Name
-                  <span className="text-[#0f62fe]" aria-hidden>
+                  <span className="text-[var(--oc-accent)]" aria-hidden>
                     {sortNameAsc ? "↑" : "↓"}
                   </span>
                 </button>
@@ -457,7 +427,7 @@ function UsersManagementPanelBody({
                 Email
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-[#161616]">
-                Roles
+                Status
               </th>
               <th className="w-12 px-2 py-3" aria-label="Actions" />
             </tr>
@@ -508,18 +478,15 @@ function UsersManagementPanelBody({
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {row.roles.map((r) => (
-                          <span key={r} className={badgeRole}>
-                            {roleLabel(r)}
-                          </span>
-                        ))}
-                        {row.status === "pending" ? (
-                          <span className="rounded-full border border-[#e8daff] bg-[#f6f2ff] px-2 py-0.5 text-xs font-medium text-[#6929c4]">
-                            Pending
-                          </span>
-                        ) : null}
-                      </div>
+                      <span
+                        className={
+                          row.status === "pending"
+                            ? "inline-flex rounded-full border border-[#e8daff] bg-[#f6f2ff] px-2.5 py-0.5 text-xs font-medium text-[#6929c4]"
+                            : "inline-flex rounded-full border border-[#a7f0ba] bg-[#defbe6] px-2.5 py-0.5 text-xs font-medium text-[#0e6027]"
+                        }
+                      >
+                        {row.status === "pending" ? "Pending" : "Active"}
+                      </span>
                     </td>
                     <td className="relative px-2 py-3 text-right">
                       <button
@@ -552,7 +519,7 @@ function UsersManagementPanelBody({
                             </button>
                           ) : (
                             <div className="px-3 py-2 text-xs text-[#6f6f6f]">
-                              Signed-in user
+                              {row.source === "self" ? "Signed-in user" : "No actions"}
                             </div>
                           )}
                         </div>
@@ -614,35 +581,8 @@ function UsersManagementPanelBody({
                   onChange={(e) => setEmailInput(e.target.value)}
                   rows={3}
                   placeholder="colleague@company.com"
-                  className="w-full resize-y rounded border border-[#d0d0d0] bg-white px-3 py-2 text-sm text-[#161616] focus:border-[#0f62fe] focus:outline-none"
+                  className="w-full resize-y rounded border border-[#d0d0d0] bg-white px-3 py-2 text-sm text-[#161616] focus:border-[var(--oc-accent)] focus:outline-none"
                 />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#161616]">
-                  Roles
-                </label>
-                <div className="flex flex-wrap gap-2 rounded border border-[#e0e0e0] bg-[#fafafa] p-3">
-                  {ROLE_OPTIONS.map((o) => {
-                    const on = selectedRoles.includes(o.value);
-                    return (
-                      <button
-                        key={o.value}
-                        type="button"
-                        onClick={() =>
-                          setSelectedRoles((list) => toggleRole(list, o.value))
-                        }
-                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                          on
-                            ? "border-[#0f62fe] bg-[#edf5ff] text-[#0043ce]"
-                            : "border-[#c6c6c6] bg-white text-[#393939] hover:border-[#8d8d8d]"
-                        }`}
-                      >
-                        {o.label}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               <div>
@@ -666,7 +606,7 @@ function UsersManagementPanelBody({
                       <span className="text-sm text-[#393939]">Disable all</span>
                       <input
                         type="checkbox"
-                        className="h-4 w-4 accent-[#0f62fe]"
+                        className="h-4 w-4 accent-[var(--oc-accent)]"
                         checked={notif.disableAll}
                         onChange={() =>
                           setNotif((n) => ({ ...n, disableAll: !n.disableAll }))
@@ -687,7 +627,7 @@ function UsersManagementPanelBody({
                         <span className="text-sm text-[#393939]">{label}</span>
                         <input
                           type="checkbox"
-                          className="h-4 w-4 accent-[#0f62fe]"
+                          className="h-4 w-4 accent-[var(--oc-accent)]"
                           checked={notif.disableAll ? false : notif[key]}
                           disabled={notif.disableAll}
                           onChange={() =>
@@ -719,7 +659,7 @@ function UsersManagementPanelBody({
                           </span>
                           <input
                             type="checkbox"
-                            className="h-4 w-4 accent-[#0f62fe]"
+                            className="h-4 w-4 accent-[var(--oc-accent)]"
                             checked={notif.disableAll ? false : notif[key]}
                             disabled={notif.disableAll}
                             onChange={() =>
@@ -748,7 +688,7 @@ function UsersManagementPanelBody({
               <button
                 type="button"
                 disabled={!canSubmit || inviteSubmitting}
-                className="h-9 rounded bg-[#0f62fe] px-4 text-sm font-semibold text-white hover:bg-[#0353e9] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
+                className="oc-btn-primary h-9 rounded bg-[var(--oc-accent)] px-4 text-sm font-semibold text-white hover:bg-[var(--oc-accent-hover)] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
                 onClick={() => void submitInvite()}
               >
                 {inviteSubmitting ? "Sending…" : "Submit"}
@@ -758,10 +698,12 @@ function UsersManagementPanelBody({
         </div>
       ) : null}
     </section>
+    </>
   );
 }
 
 function UsersManagementPanelWithClerkOrg() {
+  const { user } = useAuth();
   const clerkOrg = useOrganization({
     invitations: { pageSize: 50 },
     memberships: { pageSize: 50 },
@@ -790,6 +732,21 @@ function UsersManagementPanelWithClerkOrg() {
     setActive,
     userMemberships?.data,
   ]);
+
+  if (!clerkOrg.isLoaded) {
+    return (
+      <UsersManagementAccessNotice message="Loading organization access…" />
+    );
+  }
+
+  if (
+    clerkOrg.organization &&
+    !currentUserIsOrgAdmin(clerkOrg.memberships?.data, user?.sub)
+  ) {
+    return (
+      <UsersManagementAccessNotice message="Only organization admins can view users and send invitations." />
+    );
+  }
 
   return <UsersManagementPanelBody clerkOrg={clerkOrg} />;
 }

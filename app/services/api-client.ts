@@ -15,6 +15,7 @@ export function registerApiAuthGetter(
 
 client.interceptors.request.use(async (config) => {
   if (!getAccessToken) return config;
+  if (config.headers?.Authorization) return config;
   try {
     const token = await getAccessToken();
     if (token) {

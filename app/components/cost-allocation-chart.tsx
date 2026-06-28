@@ -17,6 +17,7 @@ import {
   FilterableWidgetHeader,
 } from "./scoped-views";
 import { useAllocationFilters } from "./allocation-filters-context";
+import { usePolicyMergedAllocationFilters } from "~/components/policy-context";
 import { reportAccumulateLabel } from "~/types/report";
 import { primary, greyscale, browns } from "~/constants/colors";
 interface ChartPoint {
@@ -190,6 +191,7 @@ export default function CostAllocationChart({
   const drilldownFilters = useSharedFilters
     ? (sharedFilters.drilldownFilters ?? [])
     : [];
+  const mergedFilters = usePolicyMergedAllocationFilters(drilldownFilters);
 
   const [rawData, setRawData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,7 +215,7 @@ export default function CostAllocationChart({
           {
             accumulate,
             includeIdle,
-            filters: drilldownFilters.length > 0 ? drilldownFilters : undefined,
+            filters: mergedFilters.length > 0 ? mergedFilters : undefined,
           },
         );
         const raw = Array.isArray(resp?.data)
@@ -236,7 +238,7 @@ export default function CostAllocationChart({
     return () => {
       cancelled = true;
     };
-  }, [window, aggregateBy, accumulate, includeIdle, drilldownFilters]);
+  }, [window, aggregateBy, accumulate, includeIdle, mergedFilters]);
 
   const chartOptions = useMemo(() => {
     const colorScale = buildColorScale(chartData);

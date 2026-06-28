@@ -6,12 +6,30 @@
 .cds--white {
   @include theme.theme(themes.$white);
   color-scheme: light;
+  --oc-accent: #16803C;
+  --oc-accent-hover: #50b579;
+  --oc-accent-soft: rgba(97, 202, 140, 0.14);
+  --oc-accent-focus-ring: rgba(97, 202, 140, 0.4);
+  --cds-link-primary: var(--oc-accent);
+  --cds-link-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary: var(--oc-accent);
+  --cds-button-primary-hover: var(--oc-accent-hover);
+  --cds-focus: var(--oc-accent);
 }
 
 [data-carbon-theme="g100"],
 .cds--g100 {
   @include theme.theme(themes.$g100);
   color-scheme: dark;
+  --oc-accent: #16803C;
+  --oc-accent-hover: #72d79b;
+  --oc-accent-soft: rgba(97, 202, 140, 0.22);
+  --oc-accent-focus-ring: rgba(97, 202, 140, 0.5);
+  --cds-link-primary: var(--oc-accent);
+  --cds-link-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary: var(--oc-accent);
+  --cds-button-primary-hover: var(--oc-accent-hover);
+  --cds-focus: var(--oc-accent);
 }
 
 body {
@@ -61,16 +79,72 @@ html[data-carbon-theme] body {
   }
 
   .settings-tabs__link:focus-visible {
-    outline: 2px solid #0f62fe;
+    outline: 2px solid var(--oc-accent);
     outline-offset: 2px;
   }
 
   .settings-tabs__link[aria-current="page"] {
-    color: #0f62fe;
+    color: var(--oc-accent);
     font-weight: 600;
-    border-bottom-color: #0f62fe;
-    background-color: rgba(15, 98, 254, 0.1);
+    border-bottom-color: var(--oc-accent);
+    background-color: var(--oc-accent-soft);
   }
+}
+
+/* Filled primary actions — no default browser/Carbon blue focus ring. */
+.oc-btn-primary {
+  appearance: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+
+  svg,
+  .MuiSvgIcon-root {
+    outline: none;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  /* Mouse click: no ring. Keyboard: accessible focus indicator. */
+  &:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--oc-accent-focus-ring);
+  }
+
+  &:disabled {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:disabled:focus,
+  &:disabled:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.app-sidenav-link--active {
+  background-color: var(--oc-accent-soft);
+  color: var(--oc-accent);
+}
+
+.app-global-search-input,
+.app-global-search-input:focus,
+.app-global-search-input:focus-visible,
+.app-global-search-input:active {
+  outline: none;
+  border: 0;
+  box-shadow: none;
 }
 
 .dashboard-grid {

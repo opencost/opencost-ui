@@ -1,5 +1,3 @@
-export type SettingsUserRole = "system_admin" | "tenant_admin" | "basic_user";
-
 export type UserNotificationPrefs = {
   disableAll: boolean;
   alerts: boolean;
@@ -14,7 +12,6 @@ export type StoredSettingsUser = {
   id: string;
   email: string;
   name: string;
-  roles: SettingsUserRole[];
   status: "pending" | "active";
   source: "invite" | "self" | "organization";
   notifications?: UserNotificationPrefs;
@@ -32,26 +29,10 @@ export const DEFAULT_NOTIFICATION_PREFS: UserNotificationPrefs = {
   reportsMonthly: false,
 };
 
-function isRole(v: unknown): v is SettingsUserRole {
-  return (
-    v === "system_admin" || v === "tenant_admin" || v === "basic_user"
-  );
-}
-
 function migrateStoredUser(row: unknown): StoredSettingsUser | null {
   if (typeof row !== "object" || row === null) return null;
   const o = row as Record<string, unknown>;
   if (typeof o.id !== "string" || typeof o.email !== "string") return null;
-
-  let roles: SettingsUserRole[];
-  if (Array.isArray(o.roles)) {
-    roles = o.roles.filter(isRole);
-    if (!roles.length) roles = ["basic_user"];
-  } else if (isRole(o.role)) {
-    roles = [o.role];
-  } else {
-    roles = ["basic_user"];
-  }
 
   const status =
     o.status === "pending" || o.status === "active" ? o.status : "pending";
@@ -64,7 +45,6 @@ function migrateStoredUser(row: unknown): StoredSettingsUser | null {
     id: o.id,
     email: o.email,
     name: typeof o.name === "string" ? o.name : o.email.split("@")[0],
-    roles,
     status,
     source,
     notifications:

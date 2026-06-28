@@ -19,6 +19,7 @@ import { SettingsProvider } from "~/components/settings-context";
 import { AppBootLoader } from "~/components/app-boot-loader";
 import { AuthProvider } from "~/components/auth-provider";
 import { hasClerkPublishableKey, isAuthDisabled } from "~/lib/clerk-config";
+import { PolicyAuthBridge } from "~/components/policy-auth-bridge";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
 
@@ -43,15 +44,17 @@ const DashboardApp = lazy(() =>
     import("~/components/tutorial-wizard-context"),
   ]).then(([dashboard, report, tutorial]) => ({
     default: () => (
-      <SettingsProvider>
-        <dashboard.DashboardProvider>
-          <report.ReportProvider>
-            <tutorial.TutorialWizardProvider>
-              <Outlet />
-            </tutorial.TutorialWizardProvider>
-          </report.ReportProvider>
-        </dashboard.DashboardProvider>
-      </SettingsProvider>
+      <PolicyAuthBridge>
+        <SettingsProvider>
+          <dashboard.DashboardProvider>
+            <report.ReportProvider>
+              <tutorial.TutorialWizardProvider>
+                <Outlet />
+              </tutorial.TutorialWizardProvider>
+            </report.ReportProvider>
+          </dashboard.DashboardProvider>
+        </SettingsProvider>
+      </PolicyAuthBridge>
     ),
   })),
 );

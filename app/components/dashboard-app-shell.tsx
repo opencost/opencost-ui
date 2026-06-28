@@ -64,11 +64,11 @@ function NavLinkEntry({
   const baseClasses =
     "flex min-h-10 items-center gap-2.5 no-underline rounded px-3 py-2 text-sm font-medium transition-colors";
   const toneClasses = active
-    ? "bg-[#edf5ff] text-[#0f62fe]"
+    ? "app-sidenav-link--active"
     : "text-[#525252] hover:bg-[#f4f4f4] hover:text-[#161616]";
   const nestedClasses = nested ? "ml-5" : "";
   const tutorialClasses = tutorialPulse
-    ? "relative z-[2] shadow-[0_0_0_2px_#0f62fe,0_4px_20px_rgba(15,98,254,0.25)] ring-0"
+    ? "relative z-[2] shadow-[0_0_0_2px_var(--oc-accent),0_4px_20px_var(--oc-accent-soft)] ring-0"
     : "";
 
   return (
@@ -504,14 +504,14 @@ export default function DashboardAppShell({ children }: DashboardAppShellProps) 
               </button>
             </div>
             <div className="px-5 pb-5">
-              <div className="flex h-11 items-center rounded border-2 border-[#0f62fe] bg-white px-3">
+              <div className="flex h-11 items-center rounded border-2 border-[var(--oc-accent)] bg-white px-3">
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search..."
-                  className="h-full min-w-0 flex-1 border-0 bg-transparent text-base text-[#262626] outline-none"
+                  className="app-global-search-input h-full min-w-0 flex-1 border-0 bg-transparent text-base text-[#262626] outline-none"
                 />
                 {searchTerm.length > 0 ? (
                   <button

@@ -1,15 +1,12 @@
-name: Lighthouse CI Comment (Fork PRs)
+name: Lighthouse CI Comment
 
-# This workflow posts Lighthouse report comments on fork pull requests.
-# It runs in a trusted context (base repo) so it has the write permissions
-# that are denied to the audit workflow when triggered by a fork PR.
+# Posts the Lighthouse report comment on pull requests.
+# Runs in a trusted base-repo context with pull-requests: write,
+# which means it works for both same-repo and fork PRs.
 #
-# How it works:
-#   1. lighthouse-ci.yml runs the audit and, for fork PRs only, uploads a
-#      small "lighthouse-pr-info" artifact containing the PR number and scores.
-#   2. This workflow triggers on completion of that run, downloads the artifact,
-#      and posts the comment. If the artifact is absent (same-repo PR), the
-#      download step fails and all subsequent steps are skipped — no duplicates.
+# lighthouse-ci.yml uploads a "lighthouse-pr-info" artifact for every
+# pull_request event. This workflow downloads it and posts the comment.
+# The job-level condition skips the job entirely for push-to-main runs.
 on:
   workflow_run:
     workflows: ["Lighthouse CI"]
@@ -17,9 +14,8 @@ on:
 
 jobs:
   comment:
-    name: Post Lighthouse Comment for Fork PR
+    name: Post Lighthouse Comment
     runs-on: ubuntu-latest
-    # Only process pull_request events; push to main needs no comment.
     if: github.event.workflow_run.event == 'pull_request'
 
     permissions:
@@ -36,11 +32,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      # If the artifact is missing (same-repo PR), the download fails and
-      # continue-on-error keeps the job green. The two steps below are gated
-      # on a successful download, so they are skipped for same-repo PRs.
       - name: Read PR info
         id: pr-info
+        # outcome (not conclusion) correctly reflects the actual download result
+        # even when continue-on-error is set.
         if: steps.download.outcome == 'success'
         run: |
           echo "pr_number=$(jq -r '.pr_number' pr-info.json)" >> "$GITHUB_OUTPUT"
@@ -50,7 +45,7 @@ jobs:
           echo "seo=$(jq -r '.seo' pr-info.json)" >> "$GITHUB_OUTPUT"
           echo "report_url=$(jq -r '.report_url' pr-info.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Post Lighthouse comment on fork PR
+      - name: Post Lighthouse comment
         if: steps.download.outcome == 'success'
         uses: thollander/actions-comment-pull-request@v3
         with:

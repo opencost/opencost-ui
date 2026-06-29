@@ -15,7 +15,6 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -80,12 +79,9 @@ jobs:
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Save PR info for fork comment workflow
+      - name: Save PR info for comment workflow
         id: save-pr-info
-        if: >-
-          always() &&
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name != github.repository
+        if: always() && github.event_name == 'pull_request'
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PERF: ${{ steps.parse.outputs.perf }}
@@ -104,38 +100,14 @@ jobs:
             '{pr_number: ($pr_number | tonumber), perf: $perf, a11y: $a11y, bp: $bp, seo: $seo, report_url: $report_url}' \
             > pr-info.json
 
-      - name: Upload PR info for fork comment workflow
-        if: >-
-          always() &&
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name != github.repository
+      - name: Upload PR info for comment workflow
+        if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v7
         with:
           name: lighthouse-pr-info
           path: pr-info.json
           retention-days: 1
           if-no-files-found: ignore
-
-      - name: Comment on PR
-        if: >-
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          always()
-        uses: thollander/actions-comment-pull-request@v3
-        with:
-          comment-tag: lighthouse-report
-          mode: recreate
-          message: |
-            ## Lighthouse Report
-
-            | Category | Score |
-            |----------|-------|
-            | Performance | **${{ steps.parse.outputs.perf }}** |
-            | Accessibility | **${{ steps.parse.outputs.a11y }}** |
-            | Best Practices | **${{ steps.parse.outputs.bp }}** |
-            | SEO | **${{ steps.parse.outputs.seo }}** |
-
-            [Full Report](${{ steps.parse.outputs.report_url }})
 
       - name: Upload Lighthouse reports
         if: always()

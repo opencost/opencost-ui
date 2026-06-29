@@ -15,8 +15,6 @@ jobs:
 
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -81,23 +79,35 @@ jobs:
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request' && always()
-        uses: thollander/actions-comment-pull-request@v3
+      - name: Save PR info for comment workflow
+        id: save-pr-info
+        if: always() && github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PERF: ${{ steps.parse.outputs.perf }}
+          A11Y: ${{ steps.parse.outputs.a11y }}
+          BP: ${{ steps.parse.outputs.bp }}
+          SEO: ${{ steps.parse.outputs.seo }}
+          REPORT_URL: ${{ steps.parse.outputs.report_url }}
+        run: |
+          jq -n \
+            --arg pr_number "$PR_NUMBER" \
+            --arg perf "$PERF" \
+            --arg a11y "$A11Y" \
+            --arg bp "$BP" \
+            --arg seo "$SEO" \
+            --arg report_url "$REPORT_URL" \
+            '{pr_number: ($pr_number | tonumber), perf: $perf, a11y: $a11y, bp: $bp, seo: $seo, report_url: $report_url}' \
+            > pr-info.json
+
+      - name: Upload PR info for comment workflow
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7
         with:
-          comment-tag: lighthouse-report
-          mode: recreate
-          message: |
-            ## Lighthouse Report
-
-            | Category | Score |
-            |----------|-------|
-            | Performance | **${{ steps.parse.outputs.perf }}** |
-            | Accessibility | **${{ steps.parse.outputs.a11y }}** |
-            | Best Practices | **${{ steps.parse.outputs.bp }}** |
-            | SEO | **${{ steps.parse.outputs.seo }}** |
-
-            [Full Report](${{ steps.parse.outputs.report_url }})
+          name: lighthouse-pr-info
+          path: pr-info.json
+          retention-days: 1
+          if-no-files-found: ignore
 
       - name: Upload Lighthouse reports
         if: always()

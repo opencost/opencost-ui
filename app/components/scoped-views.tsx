@@ -1,4 +1,4 @@
-import { Select, SelectItem, Button } from "@carbon/react";
+import { Select, SelectItem, ComboBox, Button } from "@carbon/react";
 import { Filter } from "@carbon/icons-react";
 import {
   CLOUD_WINDOW_OPTIONS,
@@ -6,6 +6,8 @@ import {
   CLOUD_COST_METRIC_OPTIONS,
 } from "~/constants/cloud-cost-options";
 import { REPORT_ACCUMULATE_OPTIONS } from "~/types/report";
+
+type AggregateOption = { name: string; value: string };
 
 export const ALLOCATION_WINDOW_OPTIONS = [
   { name: "Today", value: "today" },
@@ -31,6 +33,10 @@ export const ALLOCATION_AGGREGATE_OPTIONS = [
   { name: "StatefulSet", value: "statefulset" },
   { name: "Pod", value: "pod" },
   { name: "Container", value: "container" },
+  {
+    name: "label:app.kubernetes.io/name",
+    value: "label:app.kubernetes.io/name",
+  },
 ];
 
 export const DEFAULT_ALLOCATION_FILTERS = {
@@ -171,6 +177,52 @@ interface AllocationFilterControlsProps {
   compact?: boolean;
 }
 
+function AllocationAggregateByCombo({
+  idPrefix,
+  aggregateBy,
+  onAggregateByChange,
+}: {
+  idPrefix: string;
+  aggregateBy: string;
+  onAggregateByChange: (v: string) => void;
+}) {
+  const presetMatch = ALLOCATION_AGGREGATE_OPTIONS.find(
+    (o) => o.value === aggregateBy,
+  );
+  const selectedItem: AggregateOption =
+    presetMatch ?? { name: aggregateBy, value: aggregateBy };
+  const items: AggregateOption[] = presetMatch
+    ? ALLOCATION_AGGREGATE_OPTIONS
+    : [...ALLOCATION_AGGREGATE_OPTIONS, selectedItem];
+
+  return (
+    <ComboBox
+      id={`${idPrefix}-aggregate`}
+      titleText="Aggregate by"
+      size="sm"
+      items={items}
+      itemToString={(item: AggregateOption | null) => item?.name ?? ""}
+      selectedItem={selectedItem}
+      allowCustomValue
+      onChange={({
+        selectedItem: picked,
+        inputValue,
+      }: {
+        selectedItem?: AggregateOption | null;
+        inputValue?: string | null;
+      }) => {
+        if (picked) {
+          onAggregateByChange(picked.value);
+          return;
+        }
+        const typed = (inputValue ?? "").trim();
+        if (!typed || typed === aggregateBy) return;
+        onAggregateByChange(typed.includes(":") ? typed : `label:${typed}`);
+      }}
+    />
+  );
+}
+
 export function AllocationFilterControls({
   window,
   aggregateBy,
@@ -205,17 +257,11 @@ export function AllocationFilterControls({
           <SelectItem key={o.value} value={o.value} text={o.name} />
         ))}
       </Select>
-      <Select
-        id={`${idPrefix}-aggregate`}
-        labelText="Aggregate by"
-        value={aggregateBy}
-        size="sm"
-        onChange={(e) => onAggregateByChange(e.target.value)}
-      >
-        {ALLOCATION_AGGREGATE_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
-        ))}
-      </Select>
+      <AllocationAggregateByCombo
+        idPrefix={idPrefix}
+        aggregateBy={aggregateBy}
+        onAggregateByChange={onAggregateByChange}
+      />
       <Select
         id={`${idPrefix}-accumulate`}
         labelText="Granularity"

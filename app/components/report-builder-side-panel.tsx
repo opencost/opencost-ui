@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@carbon/react";
+import { Button, ComboBox, Theme } from "@carbon/react";
 import { DeleteOutlined } from "@mui/icons-material";
 import {
   REPORT_WINDOW_PRESETS,
@@ -61,6 +61,54 @@ function isInfraAssetsQuery(query: Report["query"]): query is InfraAssetsReportQ
 
 function isExternalCostQuery(query: Report["query"]): query is ExternalCostReportQuery {
   return query.layer === "externalCost";
+}
+
+type GroupingOption = { label: string; value: string };
+
+function GroupingComboBox({
+  index,
+  grouping,
+  onChange,
+}: {
+  index: number;
+  grouping: string;
+  onChange: (value: string) => void;
+}) {
+  const presetMatch = ALLOCATION_GROUPING_OPTIONS.find((o) => o.value === grouping);
+  const selectedItem: GroupingOption =
+    presetMatch ?? { label: grouping, value: grouping };
+  const items: GroupingOption[] = presetMatch
+    ? ALLOCATION_GROUPING_OPTIONS
+    : [...ALLOCATION_GROUPING_OPTIONS, selectedItem];
+
+  return (
+    <Theme theme="white">
+      <ComboBox
+        id={index === 0 ? "report-grouping-0" : `report-grouping-${index}`}
+        aria-label={`Grouping ${index + 1}`}
+        size="md"
+        items={items}
+        itemToString={(item: GroupingOption | null) => item?.label ?? ""}
+        selectedItem={selectedItem}
+        allowCustomValue
+        onChange={({
+          selectedItem: picked,
+          inputValue,
+        }: {
+          selectedItem?: GroupingOption | null;
+          inputValue?: string | null;
+        }) => {
+          if (picked) {
+            onChange(picked.value);
+            return;
+          }
+          const typed = (inputValue ?? "").trim();
+          if (!typed || typed === grouping) return;
+          onChange(typed.includes(":") ? typed : `label:${typed}`);
+        }}
+      />
+    </Theme>
+  );
 }
 
 function toFilterOptionsByLayer(layer: ReportLayer) {
@@ -414,19 +462,13 @@ export default function ReportBuilderSidePanel({
             <div className="space-y-2">
               {groupings.map((grouping, index) => (
                 <div key={`grouping-${index}-${grouping}`} className="flex items-center gap-2">
-                  <select
-                    id={index === 0 ? "report-grouping-0" : undefined}
-                    aria-label={`Grouping ${index + 1}`}
-                    value={grouping}
-                    onChange={(event) => setGroupingAt(index, event.target.value)}
-                    className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
-                  >
-                    {ALLOCATION_GROUPING_OPTIONS.map((groupingOption) => (
-                      <option key={groupingOption.value} value={groupingOption.value}>
-                        {groupingOption.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="min-w-0 flex-1">
+                    <GroupingComboBox
+                      index={index}
+                      grouping={grouping}
+                      onChange={(value) => setGroupingAt(index, value)}
+                    />
+                  </div>
                   <button
                     type="button"
                     disabled={groupings.length <= 1}

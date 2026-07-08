@@ -421,7 +421,12 @@ export default function CostAllocationTable({
                 key={i}
                 type="button"
                 onClick={() => handleBreadcrumb(i)}
-                className="text-xs px-2 py-[2px] rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer-accent)] cursor-pointer inline-flex items-center gap-1"
+                className="text-xs px-2 py-[2px] rounded-full border cursor-pointer inline-flex items-center gap-1 font-medium"
+                style={{
+                  background: "var(--cds-highlight)",
+                  borderColor: "var(--cds-link-primary)",
+                  color: "var(--cds-link-primary)",
+                }}
                 aria-label={`Remove filter ${f.property}: ${f.value}`}
               >
                 <span>
@@ -443,7 +448,7 @@ export default function CostAllocationTable({
 
       <p className="text-sm font-semibold mb-3">{dataTitle}</p>
 
-      <TableContainer>
+      <TableContainer className="v2-sticky-header">
         <Table size="md" useZebraStyles>
           <TableHead>
             <TableRow>
@@ -475,22 +480,25 @@ export default function CostAllocationTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow className="font-semibold">
+            <TableRow
+              className="font-semibold"
+              style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
+            >
               <TableCell>Totals</TableCell>
-              <TableCell>
+              <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.cpuCost ?? 0, currency)}
               </TableCell>
-              <TableCell>
+              <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.gpuCost ?? 0, currency)}
               </TableCell>
-              <TableCell>
+              <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.ramCost ?? 0, currency)}
               </TableCell>
-              <TableCell>
+              <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.pvCost ?? 0, currency)}
               </TableCell>
-              <TableCell>{formatTotalsEfficiency()}</TableCell>
-              <TableCell>
+              <TableCell className="v2-table-numeric">{formatTotalsEfficiency()}</TableCell>
+              <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.totalCost ?? 0, currency)}
               </TableCell>
             </TableRow>
@@ -498,15 +506,15 @@ export default function CostAllocationTable({
               <TableRow
                 key={row.id}
                 onClick={() => row.canDrilldown && handleDrilldown(row._raw)}
-                className={row.canDrilldown ? "cursor-pointer" : ""}
+                className={`v2-table-row-hover ${row.canDrilldown ? "cursor-pointer" : ""}`}
               >
                 <TableCell>{row.name}</TableCell>
-                <TableCell>{row.cpuCost}</TableCell>
-                <TableCell>{row.gpuCost}</TableCell>
-                <TableCell>{row.ramCost}</TableCell>
-                <TableCell>{row.pvCost}</TableCell>
-                <TableCell>{row.totalEfficiency}</TableCell>
-                <TableCell>{row.totalCost}</TableCell>
+                <TableCell className="v2-table-numeric">{row.cpuCost}</TableCell>
+                <TableCell className="v2-table-numeric">{row.gpuCost}</TableCell>
+                <TableCell className="v2-table-numeric">{row.ramCost}</TableCell>
+                <TableCell className="v2-table-numeric">{row.pvCost}</TableCell>
+                <TableCell className="v2-table-numeric">{row.totalEfficiency}</TableCell>
+                <TableCell className="v2-table-numeric">{row.totalCost}</TableCell>
               </TableRow>
             ))}
           </TableBody>

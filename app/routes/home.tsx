@@ -21,7 +21,7 @@ export default function HomePage() {
       <DashboardAppShell>
         <main className="p-[4rem_2rem] text-center">
           <h2 className="text-2xl font-semibold mb-4">No dashboards found</h2>
-          <p className="text-[#525252]">
+          <p style={{ color: "var(--cds-text-secondary)" }}>
             Create a dashboard from the Dashboards section to get started.
           </p>
         </main>
@@ -35,7 +35,7 @@ export default function HomePage() {
 
   return (
     <DashboardAppShell>
-      <main className="pb-8 min-h-screen bg-[#f4f4f4]">
+      <main className="pb-8 min-h-screen" style={{ background: "var(--cds-background)" }}>
         <DashboardView
           dashboard={defaultDashboard}
           onBack={() => navigate("/dashboards")}

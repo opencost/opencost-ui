@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Button, Tile, OverflowMenu, OverflowMenuItem } from "@carbon/react";
-import { ArrowLeft, OverflowMenuVertical, Edit } from "@carbon/icons-react";
+import { Button, OverflowMenu, OverflowMenuItem } from "@carbon/react";
+import { ArrowLeft, OverflowMenuVertical } from "@carbon/icons-react";
+import { EditOutlined, ShareOutlined } from "@mui/icons-material";
 import DashboardBuilder from "./dashboard-builder";
 import CostSummaryCards from "./cost-summary-cards";
 import CostAllocationChart from "./cost-allocation-chart";
@@ -9,6 +10,7 @@ import CloudCostWidget from "./cloud-cost-widget";
 import CloudCostTableWidget from "./cloud-cost-table-widget";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
+import WidgetCard from "./widget-card";
 import { AllocationFiltersProvider } from "./allocation-filters-context";
 import { encodeSharePayload } from "~/lib/share-encoding";
 import type { Widget, Dashboard } from "./dashboard-context";
@@ -25,70 +27,71 @@ function WidgetRenderer({
       return <CostSummaryCards title={widget.title} />;
     case "cloud-costs-chart":
       return (
-        <Tile className="p-4">
+        <WidgetCard>
           <CloudCostWidget />
-        </Tile>
+        </WidgetCard>
       );
     case "cloud-costs-table":
       return (
-        <Tile className="p-4">
+        <WidgetCard>
           <CloudCostTableWidget
             title={widget.title}
             description="Cloud service spend with utilization and totals"
           />
-        </Tile>
+        </WidgetCard>
       );
     case "cost-allocation-chart":
       return (
-        <Tile className="p-4">
+        <WidgetCard>
           <CostAllocationChart
             title={widget.title}
             description="Cost breakdown by cluster, namespace, pod, or other dimension"
             useSharedFilters={useSharedAllocationFilters}
           />
-        </Tile>
+        </WidgetCard>
       );
     case "external-services-chart":
     case "external-costs-chart":
       return (
-        <Tile className="p-4">
-          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <p className="text-sm text-[var(--cds-text-secondary)] mb-4">
-            Third-party service costs
-          </p>
+        <WidgetCard title={widget.title} description="Third-party service costs">
           <ExternalServicesChartWidget />
-        </Tile>
+        </WidgetCard>
       );
     case "assets-visualization":
       return <AssetsVisualization />;
     case "cost-allocation-table":
     case "cost-table":
       return (
-        <Tile className="p-4">
+        <WidgetCard>
           <CostAllocationTable
             title={widget.title}
             description="Cost allocation breakdown by cluster, namespace, pod, or other dimension"
             useSharedFilters={useSharedAllocationFilters}
           />
-        </Tile>
+        </WidgetCard>
       );
     case "anomaly-detection":
       return (
-        <Tile className="p-4">
-          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[var(--cds-text-secondary)]">
-            Anomaly detection widget
+        <WidgetCard title={widget.title}>
+          <div
+            className="v2-empty-state"
+            style={{ minHeight: "10rem" }}
+          >
+            <p className="v2-empty-state__description">
+              Anomaly detection coming soon
+            </p>
           </div>
-        </Tile>
+        </WidgetCard>
       );
     case "carbon-metrics":
       return (
-        <Tile className="p-4">
-          <h3 className="text-lg font-semibold mb-2">{widget.title}</h3>
-          <div className="p-8 text-center text-[var(--cds-text-secondary)]">
-            Carbon metrics widget
+        <WidgetCard title={widget.title}>
+          <div className="v2-empty-state" style={{ minHeight: "10rem" }}>
+            <p className="v2-empty-state__description">
+              Carbon metrics coming soon
+            </p>
           </div>
-        </Tile>
+        </WidgetCard>
       );
     default:
       return null;
@@ -105,13 +108,12 @@ interface DashboardViewProps {
 }
 
 function encodeDashboardShare(dashboard: Dashboard): string {
-  const payload = {
+  return encodeSharePayload({
     name: dashboard.name,
     description: dashboard.description,
     widgets: dashboard.widgets,
     tags: dashboard.tags,
-  };
-  return encodeSharePayload(payload);
+  });
 }
 
 export default function DashboardView({
@@ -170,43 +172,94 @@ export default function DashboardView({
   }
 
   return (
-    <div className="p-[1.5rem_1.5rem_2rem] max-w-[1584px] mx-auto">
-      <div className="flex items-center justify-between mb-6 pt-2">
-        <div className="flex items-center gap-4">
-          {showBackButton ? (
-            <Button
-              kind="ghost"
-              size="sm"
+    <div className="p-6 max-w-[1584px] mx-auto">
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3 min-w-0">
+          {showBackButton && (
+            <button
+              type="button"
               onClick={onBack}
-              iconDescription="Back"
+              className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors"
+              style={{
+                background: "var(--cds-layer)",
+                borderColor: "var(--cds-border-subtle)",
+                color: "var(--cds-text-secondary)",
+              }}
+              aria-label="Back"
             >
-              <ArrowLeft className="mr-[0.375rem]" />
-              Back
-            </Button>
-          ) : null}
-          <div>
-            <h1 className="text-3xl font-bold">{dashboard.name}</h1>
-            <p className="text-sm text-[var(--cds-text-secondary)]">{dashboard.description}</p>
+              <ArrowLeft size={16} />
+            </button>
+          )}
+          <div className="min-w-0">
+            <h1 className="v2-page-title truncate">{dashboard.name}</h1>
+            {dashboard.description && (
+              <p
+                className="m-0 mt-0.5 text-xs truncate"
+                style={{ color: "var(--cds-text-secondary)" }}
+              >
+                {dashboard.description}
+              </p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Share feedback toast */}
+          {shareToast && (
+            <span
+              className="text-xs px-2"
+              style={{
+                color:
+                  shareToast === "copied"
+                    ? "var(--cds-support-success)"
+                    : "var(--cds-support-error)",
+              }}
+            >
+              {shareToast === "copied" ? "Link copied!" : "Copy failed"}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleShareDashboard}
+            className="inline-flex h-8 items-center gap-1.5 rounded border px-3 text-xs font-medium transition-colors"
+            style={{
+              background: "var(--cds-layer)",
+              borderColor: "var(--cds-border-subtle)",
+              color: "var(--cds-text-secondary)",
+            }}
+            title="Share dashboard"
+          >
+            <ShareOutlined sx={{ fontSize: 14 }} />
+            Share
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditMode(true)}
+            className="inline-flex h-8 items-center gap-1.5 rounded border px-3 text-xs font-medium transition-colors"
+            style={{
+              background: "var(--cds-layer)",
+              borderColor: "var(--cds-border-subtle)",
+              color: "var(--cds-text-secondary)",
+            }}
+            title="Edit layout"
+          >
+            <EditOutlined sx={{ fontSize: 14 }} />
+            Edit
+          </button>
           <OverflowMenu
             renderIcon={OverflowMenuVertical}
             iconDescription="More options"
             flipped
             size="sm"
           >
-            <OverflowMenuItem
-              itemText="Edit Layout"
-              onClick={() => setIsEditMode(true)}
-            />
-            {onDuplicate ? (
-              <OverflowMenuItem itemText="Duplicate Dashboard" onClick={onDuplicate} />
-            ) : null}
-            <OverflowMenuItem
-              itemText="Share Dashboard"
-              onClick={handleShareDashboard}
-            />
+            {onDuplicate && (
+              <OverflowMenuItem
+                itemText="Duplicate Dashboard"
+                onClick={onDuplicate}
+              />
+            )}
             <OverflowMenuItem
               itemText="Delete Dashboard"
               hasDivider
@@ -217,6 +270,7 @@ export default function DashboardView({
         </div>
       </div>
 
+      {/* Widgets */}
       {currentWidgets.length > 0 ? (
         useSharedAllocationFilters ? (
           <AllocationFiltersProvider>
@@ -250,14 +304,17 @@ export default function DashboardView({
           </div>
         )
       ) : (
-        <Tile className="p-12 text-center">
-          <p className="text-sm text-[var(--cds-text-secondary)] mb-4">
-            No widgets added to this dashboard
-          </p>
-          <Button onClick={() => setIsEditMode(true)} renderIcon={Edit}>
-            Add Widgets
-          </Button>
-        </Tile>
+        <div className="v2-widget-card">
+          <div className="v2-empty-state" style={{ minHeight: "16rem" }}>
+            <div className="v2-empty-state__title">No widgets yet</div>
+            <p className="v2-empty-state__description">
+              Add widgets to build your cost visibility dashboard.
+            </p>
+            <Button onClick={() => setIsEditMode(true)} renderIcon={EditOutlined} size="sm">
+              Add Widgets
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -26,36 +26,54 @@ export default function SettingsPage() {
 
   return (
     <DashboardAppShell>
-      <main className="min-h-screen bg-[#f4f4f4]">
+      <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
         <div className="mx-auto max-w-[800px] p-6">
           <div className="mb-6">
-            <h2 className="m-0 text-[2rem] font-normal text-[#161616]">Settings</h2>
-            <p className="m-0 mt-1 text-sm text-[#6f6f6f]">
+            <h1 className="v2-page-title">Settings</h1>
+            <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-text-secondary)" }}>
               Global preferences applied across dashboards and reports.
             </p>
           </div>
 
           {/* Display section */}
-          <section className="mb-4 overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <div className="border-b border-[#e0e0e0] bg-[#f8f8f8] px-5 py-3">
-              <h3 className="m-0 text-sm font-semibold text-[#161616]">Display</h3>
+          <section
+            className="mb-4 overflow-hidden rounded border shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+            style={{
+              background: "var(--cds-layer)",
+              borderColor: "var(--cds-border-subtle)",
+            }}
+          >
+            <div
+              className="border-b px-5 py-3"
+              style={{
+                borderColor: "var(--cds-border-subtle)",
+                background: "var(--cds-layer-02)",
+              }}
+            >
+              <h2 className="v2-section-title">Display</h2>
             </div>
             <div className="px-5 py-5">
               <div className="max-w-[360px]">
                 <label
-                  className="mb-1.5 block text-sm font-medium text-[#525252]"
+                  className="mb-1.5 block text-xs font-semibold"
+                  style={{ color: "var(--cds-text-secondary)" }}
                   htmlFor="settings-currency"
                 >
                   Default Currency
                 </label>
-                <p className="mb-3 text-xs text-[#6f6f6f]">
+                <p className="mb-3 text-xs" style={{ color: "var(--cds-text-placeholder)" }}>
                   Used as the default currency when creating new reports and dashboards.
                 </p>
                 <select
                   id="settings-currency"
                   value={pendingCurrency}
                   onChange={(e) => setPendingCurrency(e.target.value)}
-                  className="h-9 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-sm text-[#161616] focus:border-[#0f62fe] focus:outline-none"
+                  className="h-9 w-full rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-primary)",
+                  }}
                 >
                   {currencyCodes.map((code) => (
                     <option key={code} value={code}>
@@ -70,12 +88,12 @@ export default function SettingsPage() {
                   type="button"
                   disabled={!isDirty}
                   onClick={handleSave}
-                  className="inline-flex h-9 items-center gap-1.5 rounded bg-[#0f62fe] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#0353e9] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
+                  className="inline-flex h-8 items-center gap-1.5 rounded bg-[#0f62fe] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#0353e9] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
                 >
                   Save changes
                 </button>
                 {saved ? (
-                  <span className="inline-flex items-center gap-1 text-sm text-[#198038]">
+                  <span className="inline-flex items-center gap-1 text-xs" style={{ color: "var(--cds-support-success)" }}>
                     <CheckCircleOutlined fontSize="small" />
                     Saved
                   </span>
@@ -85,45 +103,60 @@ export default function SettingsPage() {
           </section>
 
           {/* About section */}
-          <section className="overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-            <div className="border-b border-[#e0e0e0] bg-[#f8f8f8] px-5 py-3">
-              <h3 className="m-0 text-sm font-semibold text-[#161616]">About</h3>
+          <section
+            className="overflow-hidden rounded border shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+            style={{
+              background: "var(--cds-layer)",
+              borderColor: "var(--cds-border-subtle)",
+            }}
+          >
+            <div
+              className="border-b px-5 py-3"
+              style={{
+                borderColor: "var(--cds-border-subtle)",
+                background: "var(--cds-layer-02)",
+              }}
+            >
+              <h2 className="v2-section-title">About</h2>
             </div>
             <div className="px-5 py-5">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logo.png" alt="OpenCost" className="h-7 w-auto" />
+                <img src="/logo.png" alt="OpenCost" className="h-6 w-auto" />
               </div>
-              <p className="m-0 mb-4 text-sm text-[#525252]">
+              <p className="m-0 mb-4 text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                 OpenCost is an open-source, vendor-neutral solution for measuring and allocating
                 Kubernetes and cloud infrastructure costs in real time.
               </p>
               <div className="flex flex-col gap-2">
-                <a
+                 <a
                   href="https://www.opencost.io/docs"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-[#0f62fe] hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                  style={{ color: "var(--cds-link-primary)" }}
                 >
                   Documentation
-                  <OpenInNew fontSize="inherit" />
+                  <OpenInNew fontSize="inherit" className="ml-0.5" />
                 </a>
                 <a
                   href="https://github.com/opencost/opencost"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-[#0f62fe] hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                  style={{ color: "var(--cds-link-primary)" }}
                 >
                   GitHub — opencost/opencost
-                  <OpenInNew fontSize="inherit" />
+                  <OpenInNew fontSize="inherit" className="ml-0.5" />
                 </a>
                 <a
                   href="https://slack.cncf.io"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm text-[#0f62fe] hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                  style={{ color: "var(--cds-link-primary)" }}
                 >
                   CNCF Slack — #opencost
-                  <OpenInNew fontSize="inherit" />
+                  <OpenInNew fontSize="inherit" className="ml-0.5" />
                 </a>
               </div>
             </div>

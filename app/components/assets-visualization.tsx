@@ -333,7 +333,7 @@ export default function AssetsVisualization() {
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="metric-card">
           <div className="metric-label">Total Assets</div>
           <div className="metric-value">{assets.length}</div>
@@ -362,7 +362,7 @@ export default function AssetsVisualization() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <div className="bg-[var(--cds-layer-accent)] p-4 rounded">
           <PieChart data={pieChartData} options={pieOptions} />
         </div>

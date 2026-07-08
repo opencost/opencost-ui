@@ -188,12 +188,12 @@ export default function ReportResultsView({
     }));
 
     return (
-      <div className="rounded border border-[#e0e0e0] bg-white">
-        <div className="border-b border-[#e0e0e0] px-4 py-3">
-          <h3 className="m-0 text-lg font-semibold text-[#262626]">
+      <div className="rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
+        <div className="border-b border-[var(--cds-border-subtle)] px-4 py-3">
+          <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">
             {result.measureLabel} by {result.groupingLabel}
           </h3>
-          <p className="mt-1 text-sm text-[#525252]">
+          <p className="mt-1 text-sm text-[var(--cds-text-secondary)]">
             Total: <span className="font-semibold">{result.totalDisplayValue}</span>
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function ReportResultsView({
           />
         )}
         {!hasRows ? (
-          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+          <p className="border-t border-[var(--cds-border-subtle)] px-4 py-3 text-sm text-[var(--cds-text-placeholder)]">
             No data found for the selected window and filters.
           </p>
         ) : null}
@@ -239,7 +239,7 @@ export default function ReportResultsView({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-[#6f6f6f]">
+                  <TableCell colSpan={2} className="text-[var(--cds-text-placeholder)]">
                     No rows to display
                   </TableCell>
                 </TableRow>
@@ -263,12 +263,12 @@ export default function ReportResultsView({
     }));
 
     return (
-      <div className="rounded border border-[#e0e0e0] bg-white">
-        <div className="border-b border-[#e0e0e0] px-4 py-3">
-          <h3 className="m-0 text-lg font-semibold text-[#262626]">
+      <div className="rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
+        <div className="border-b border-[var(--cds-border-subtle)] px-4 py-3">
+          <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">
             Cloud Cost by {result.groupingLabel}
           </h3>
-          <p className="mt-1 text-sm text-[#525252]">
+          <p className="mt-1 text-sm text-[var(--cds-text-secondary)]">
             Metric: <span className="font-semibold">{result.metricLabel}</span> · Total:{" "}
             <span className="font-semibold">{result.totalDisplayValue}</span>
           </p>
@@ -300,7 +300,7 @@ export default function ReportResultsView({
           />
         )}
         {!hasRows ? (
-          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+          <p className="border-t border-[var(--cds-border-subtle)] px-4 py-3 text-sm text-[var(--cds-text-placeholder)]">
             No data found for the selected window and filters.
           </p>
         ) : null}
@@ -324,7 +324,7 @@ export default function ReportResultsView({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-[#6f6f6f]">
+                  <TableCell colSpan={3} className="text-[var(--cds-text-placeholder)]">
                     No rows to display
                   </TableCell>
                 </TableRow>
@@ -348,12 +348,12 @@ export default function ReportResultsView({
       .map((asset) => ({ label: asset.name, Cost: asset.totalCost }));
 
     return (
-      <div className="rounded border border-[#e0e0e0] bg-white">
-        <div className="border-b border-[#e0e0e0] px-4 py-3">
-          <h3 className="m-0 text-lg font-semibold text-[#262626]">
+      <div className="rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
+        <div className="border-b border-[var(--cds-border-subtle)] px-4 py-3">
+          <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">
             Infrastructure Assets by {result.groupingLabel}
           </h3>
-          <p className="mt-1 text-sm text-[#525252]">
+          <p className="mt-1 text-sm text-[var(--cds-text-secondary)]">
             Total: <span className="font-semibold">{result.totalDisplayValue}</span> · Carbon:{" "}
             <span className="font-semibold">{result.totalCarbon.toFixed(2)} kg CO2e</span>
           </p>
@@ -397,7 +397,7 @@ export default function ReportResultsView({
           </div>
         )}
         {!hasRows ? (
-          <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+          <p className="border-t border-[var(--cds-border-subtle)] px-4 py-3 text-sm text-[var(--cds-text-placeholder)]">
             No data found for the selected window and filters.
           </p>
         ) : null}
@@ -423,7 +423,7 @@ export default function ReportResultsView({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-[#6f6f6f]">
+                  <TableCell colSpan={4} className="text-[var(--cds-text-placeholder)]">
                     No rows to display
                   </TableCell>
                 </TableRow>
@@ -446,12 +446,12 @@ export default function ReportResultsView({
   }));
 
   return (
-    <div className="rounded border border-[#e0e0e0] bg-white">
-      <div className="border-b border-[#e0e0e0] px-4 py-3">
-        <h3 className="m-0 text-lg font-semibold text-[#262626]">
+    <div className="rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
+      <div className="border-b border-[var(--cds-border-subtle)] px-4 py-3">
+        <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">
           External Cost by {result.groupingLabel}
         </h3>
-        <p className="mt-1 text-sm text-[#525252]">
+        <p className="mt-1 text-sm text-[var(--cds-text-secondary)]">
           Cost type: <span className="font-semibold">{result.costType}</span> · Total:{" "}
           <span className="font-semibold">{result.totalDisplayValue}</span>
         </p>
@@ -483,7 +483,7 @@ export default function ReportResultsView({
         />
       )}
       {!hasRows ? (
-        <p className="border-t border-[#e0e0e0] px-4 py-3 text-sm text-[#6f6f6f]">
+        <p className="border-t border-[var(--cds-border-subtle)] px-4 py-3 text-sm text-[var(--cds-text-placeholder)]">
           No data found for the selected window and filters.
         </p>
       ) : null}
@@ -507,7 +507,7 @@ export default function ReportResultsView({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-[#6f6f6f]">
+                <TableCell colSpan={3} className="text-[var(--cds-text-placeholder)]">
                   No rows to display
                 </TableCell>
               </TableRow>

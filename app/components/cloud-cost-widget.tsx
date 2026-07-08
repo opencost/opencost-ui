@@ -458,7 +458,7 @@ export default function CloudCostWidget({
           <div className="p-8 text-center text-[var(--cds-text-placeholder)]">No results</div>
         ) : (
           <>
-            <TableContainer>
+            <TableContainer className="v2-sticky-header">
               <Table size="md" useZebraStyles>
                 <TableHead>
                   <TableRow>
@@ -490,21 +490,25 @@ export default function CloudCostWidget({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow className="font-semibold">
+                  <TableRow
+                    className="font-semibold"
+                    style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
+                  >
                     <TableCell>{tableTotal?.name || "Totals"}</TableCell>
-                    <TableCell>
+                    <TableCell className="v2-table-numeric">
                       {Math.round(
                         (Number(tableTotal?.kubernetesPercent) ?? 0) * 100,
                       )}
                       %
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="v2-table-numeric">
                       {toCurrency(Number(tableTotal?.cost ?? 0), currency)}
                     </TableCell>
                   </TableRow>
                   {pageRows.map((row, index) => (
                     <TableRow
                       key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
+                      className="v2-table-row-hover"
                     >
                       <TableCell>
                         <span
@@ -518,11 +522,11 @@ export default function CloudCostWidget({
                           {String(row.labelName ?? row.name ?? "")}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="v2-table-numeric">
                         {Math.round((Number(row.kubernetesPercent) || 0) * 100)}
                         %
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="v2-table-numeric">
                         {toCurrency(Number(row.cost ?? 0), currency)}
                       </TableCell>
                     </TableRow>

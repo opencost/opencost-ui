@@ -165,15 +165,25 @@ function TutorialWizardModal() {
       aria-label="OpenCost getting started tutorial"
     >
       <div className="mb-2">
-        <h3 className="m-0 text-lg font-semibold text-[#161616]">{step.title}</h3>
-        <p className="mt-3 mb-0 text-sm leading-relaxed text-[#525252]">{step.body}</p>
+        <h3 className="m-0 text-lg font-semibold" style={{ color: "var(--cds-text-primary)" }}>{step.title}</h3>
+        <p className="mt-3 mb-0 text-sm leading-relaxed" style={{ color: "var(--cds-text-secondary)" }}>{step.body}</p>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#e0e0e0] pt-5">
+      <div
+        className="mt-6 flex flex-wrap items-center gap-3 border-t pt-5"
+        style={{ borderColor: "var(--cds-border-subtle)" }}
+      >
         {tutorialStep > 0 ? (
           <button
             type="button"
-            className="rounded border border-[#8d8d8d] bg-transparent px-4 py-2 text-sm font-medium text-[#161616] hover:bg-[#f4f4f4]"
+            className="rounded border px-4 py-2 text-sm font-medium transition-colors"
+            style={{
+              borderColor: "var(--cds-border-strong)",
+              background: "transparent",
+              color: "var(--cds-text-primary)",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--cds-layer-hover)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
             onClick={prevStep}
           >
             Back
@@ -181,14 +191,18 @@ function TutorialWizardModal() {
         ) : null}
         <button
           type="button"
-          className="rounded bg-[#0f62fe] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0353e9]"
+          className="rounded px-4 py-2 text-sm font-semibold text-white transition-colors"
+          style={{ background: "var(--cds-button-primary)" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--cds-button-primary-hover)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--cds-button-primary)"; }}
           onClick={isLast ? completeTutorial : nextStep}
         >
           {isLast ? "Finish" : "Next"}
         </button>
         <button
           type="button"
-          className="rounded px-4 py-2 text-sm font-medium text-[#0f62fe] hover:underline"
+          className="rounded px-4 py-2 text-sm font-medium transition-colors hover:underline"
+          style={{ color: "var(--cds-link-primary)" }}
           onClick={skipTutorial}
         >
           Skip tutorial

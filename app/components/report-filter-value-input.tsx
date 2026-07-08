@@ -133,27 +133,27 @@ export default function ReportFilterValueInput({
         aria-autocomplete={hasAutocomplete ? "list" : undefined}
         aria-controls={hasAutocomplete ? listId : undefined}
         aria-expanded={showList}
-        className="h-9 w-full rounded border border-[#d0d0d0] px-2 text-[13px] text-[#262626]"
+        className="h-9 w-full rounded border border-[var(--cds-border-subtle)] px-2 text-[13px] text-[var(--cds-text-primary)]"
       />
 
       {showList ? (
         <ul
           id={listId}
           role="listbox"
-          className="z-10 mt-1 max-h-48 list-none overflow-y-auto rounded border border-[#d0d0d0] bg-white p-0 shadow-md"
+          className="z-10 mt-1 max-h-48 list-none overflow-y-auto rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] p-0 shadow-md"
         >
           {loading ? (
-            <li className="px-2 py-1.5 text-xs text-[#6f6f6f]">Loading…</li>
+            <li className="px-2 py-1.5 text-xs text-[var(--cds-text-placeholder)]">Loading…</li>
           ) : error ? (
             <li className="px-2 py-1.5 text-xs text-[#da1e28]">{error}</li>
           ) : suggestions.length === 0 ? (
-            <li className="px-2 py-1.5 text-xs text-[#6f6f6f]">No matches</li>
+            <li className="px-2 py-1.5 text-xs text-[var(--cds-text-placeholder)]">No matches</li>
           ) : (
             suggestions.map((item) => (
               <li key={item} role="option">
                 <button
                   type="button"
-                  className="w-full px-2 py-1.5 text-left text-[13px] text-[#262626] hover:bg-[#f4f4f4]"
+                  className="w-full px-2 py-1.5 text-left text-[13px] text-[var(--cds-text-primary)] hover:bg-[var(--cds-layer-02)]"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => handleSelect(item)}
                 >

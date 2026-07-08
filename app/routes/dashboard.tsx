@@ -5,7 +5,6 @@ import {
   useDashboard,
 } from "~/components/dashboard-context";
 import DashboardView from "~/components/dashboard-view";
-import AppHeader from "~/components/app-header";
 import type { Widget } from "~/components/dashboard-context";
 
 export function meta() {
@@ -50,7 +49,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardAppShell>
-      <main className="pb-8 min-h-screen bg-[#f4f4f4]">
+      <main className="pb-8 min-h-screen" style={{ background: "var(--cds-background)" }}>
         <DashboardView
           dashboard={dashboard}
           onBack={() => navigate("/dashboards")}

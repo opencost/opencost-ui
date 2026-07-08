@@ -199,15 +199,15 @@ export default function ReportBuilderSidePanel({
   };
 
   return (
-    <aside className="flex h-full min-h-0 w-[360px] shrink-0 flex-col border-l border-[#e0e0e0] bg-white">
+    <aside className="flex h-full min-h-0 w-[360px] shrink-0 flex-col border-l border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-visible overscroll-contain p-4 pb-16">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="m-0 text-lg font-semibold text-[#262626]">Report Config</h2>
+        <h2 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">Report Config</h2>
         <Button size="sm" onClick={onRun} disabled={isRunning}>
           {isRunning ? "Running..." : "Run Report"}
         </Button>
       </div>
-      <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
+      <label className="mb-4 flex items-center gap-2 text-sm text-[var(--cds-text-primary)]">
         <input
           type="checkbox"
           checked={autoRun}
@@ -217,13 +217,13 @@ export default function ReportBuilderSidePanel({
       </label>
 
       <div className="mb-4">
-        <h3 className="m-0 text-lg font-semibold text-[#262626]">Data Source</h3>
+        <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">Data Source</h3>
         <select
           value={query.layer}
           onChange={(event) =>
             replaceQuery(createDefaultReportQuery(event.target.value as ReportLayer))
           }
-          className="mt-2 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          className="mt-2 h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
         >
           {REPORT_DATA_SOURCE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -235,7 +235,7 @@ export default function ReportBuilderSidePanel({
 
       <div className="mb-4">
         <label
-          className="mb-1 block text-sm text-[#525252]"
+          className="mb-1 block text-sm text-[var(--cds-text-secondary)]"
           htmlFor="report-window-preset"
         >
           Date range
@@ -253,7 +253,7 @@ export default function ReportBuilderSidePanel({
             const preset = REPORT_WINDOW_PRESETS.find((p) => p.id === v);
             if (preset) updateQuery({ window: preset.build() });
           }}
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
         >
           {REPORT_WINDOW_PRESETS.map((p) => (
             <option key={p.id} value={p.id}>
@@ -266,7 +266,7 @@ export default function ReportBuilderSidePanel({
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div>
               <label
-                className="mb-1 block text-xs text-[#525252]"
+                className="mb-1 block text-xs text-[var(--cds-text-secondary)]"
                 htmlFor="report-window-start"
               >
                 Start (UTC date)
@@ -286,12 +286,12 @@ export default function ReportBuilderSidePanel({
                     updateQuery({ window: next });
                   }
                 }}
-                className="h-9 w-full rounded border border-[#d0d0d0] px-2 text-[13px] text-[#262626]"
+                className="h-9 w-full rounded border border-[var(--cds-border-subtle)] px-2 text-[13px] text-[var(--cds-text-primary)]"
               />
             </div>
             <div>
               <label
-                className="mb-1 block text-xs text-[#525252]"
+                className="mb-1 block text-xs text-[var(--cds-text-secondary)]"
                 htmlFor="report-window-end"
               >
                 End (UTC date)
@@ -311,7 +311,7 @@ export default function ReportBuilderSidePanel({
                     updateQuery({ window: next });
                   }
                 }}
-                className="h-9 w-full rounded border border-[#d0d0d0] px-2 text-[13px] text-[#262626]"
+                className="h-9 w-full rounded border border-[var(--cds-border-subtle)] px-2 text-[13px] text-[var(--cds-text-primary)]"
               />
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function ReportBuilderSidePanel({
       </div>
 
       <div className="mb-4">
-        <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-granularity">
+        <label className="mb-1 block text-sm text-[var(--cds-text-secondary)]" htmlFor="report-granularity">
           Granularity
         </label>
         {allocationQuery ? (
@@ -331,7 +331,7 @@ export default function ReportBuilderSidePanel({
                 accumulate: event.target.value,
               })
             }
-            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {REPORT_ACCUMULATE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -348,7 +348,7 @@ export default function ReportBuilderSidePanel({
                 accumulate: event.target.value,
               })
             }
-            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {REPORT_ACCUMULATE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -357,7 +357,7 @@ export default function ReportBuilderSidePanel({
             ))}
           </select>
         ) : (
-          <p className="m-0 rounded border border-[#e0e0e0] bg-[#f8f8f8] px-3 py-2 text-[13px] text-[#6f6f6f]">
+          <p className="m-0 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] px-3 py-2 text-[13px] text-[var(--cds-text-placeholder)]">
             Granularity is automatic for this data source.
           </p>
         )}
@@ -365,9 +365,9 @@ export default function ReportBuilderSidePanel({
 
       {allocationQuery ? (
         <>
-          <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+          <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="m-0 text-sm font-semibold text-[#393939]">Measures</h4>
+              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">Measures</h4>
               <Button kind="ghost" size="sm" onClick={addMeasure}>
                 + Add Measure
               </Button>
@@ -382,7 +382,7 @@ export default function ReportBuilderSidePanel({
                     onChange={(event) =>
                       setMeasureAt(index, event.target.value as AllocationMeasure)
                     }
-                    className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                    className="h-10 min-w-0 flex-1 rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
                   >
                     {ALLOCATION_MEASURE_OPTIONS.map((measureOption) => (
                       <option key={measureOption.value} value={measureOption.value}>
@@ -394,7 +394,7 @@ export default function ReportBuilderSidePanel({
                     type="button"
                     disabled={measures.length <= 1}
                     onClick={() => removeMeasure(index)}
-                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
+                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[var(--cds-layer-02)] hover:text-[#da1e28] disabled:opacity-30"
                     aria-label={`Remove measure ${index + 1}`}
                   >
                     <DeleteOutlined fontSize="small" />
@@ -404,9 +404,9 @@ export default function ReportBuilderSidePanel({
             </div>
           </div>
 
-          <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
+          <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="m-0 text-sm font-semibold text-[#393939]">Groupings</h4>
+              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">Groupings</h4>
               <Button kind="ghost" size="sm" onClick={addGrouping}>
                 + Add Grouping
               </Button>
@@ -419,7 +419,7 @@ export default function ReportBuilderSidePanel({
                     aria-label={`Grouping ${index + 1}`}
                     value={grouping}
                     onChange={(event) => setGroupingAt(index, event.target.value)}
-                    className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                    className="h-10 min-w-0 flex-1 rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
                   >
                     {ALLOCATION_GROUPING_OPTIONS.map((groupingOption) => (
                       <option key={groupingOption.value} value={groupingOption.value}>
@@ -431,7 +431,7 @@ export default function ReportBuilderSidePanel({
                     type="button"
                     disabled={groupings.length <= 1}
                     onClick={() => removeGrouping(index)}
-                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28] disabled:opacity-30"
+                    className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded text-[#8d8d8d] hover:bg-[var(--cds-layer-02)] hover:text-[#da1e28] disabled:opacity-30"
                     aria-label={`Remove grouping ${index + 1}`}
                   >
                     <DeleteOutlined fontSize="small" />
@@ -444,16 +444,16 @@ export default function ReportBuilderSidePanel({
       ) : null}
 
       {cloudCostQuery ? (
-        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
-          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">Cloud Settings</h4>
-          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-cloud-grouping">
+        <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">Cloud Settings</h4>
+          <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-cloud-grouping">
             Breakdown
           </label>
           <select
             id="report-cloud-grouping"
             value={cloudCostQuery.aggregateBy}
             onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
-            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="mb-3 h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {CLOUD_COST_GROUPING_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -461,14 +461,14 @@ export default function ReportBuilderSidePanel({
               </option>
             ))}
           </select>
-          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-cloud-metric">
+          <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-cloud-metric">
             Cost Metric
           </label>
           <select
             id="report-cloud-metric"
             value={cloudCostQuery.costMetric}
             onChange={(event) => updateQuery({ costMetric: event.target.value })}
-            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {CLOUD_COST_METRIC_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -480,16 +480,16 @@ export default function ReportBuilderSidePanel({
       ) : null}
 
       {infraAssetsQuery ? (
-        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
-          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">Assets Settings</h4>
-          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-assets-grouping">
+        <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">Assets Settings</h4>
+          <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-assets-grouping">
             Group By
           </label>
           <select
             id="report-assets-grouping"
             value={infraAssetsQuery.aggregateBy}
             onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
-            className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {ASSETS_GROUPING_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -501,16 +501,16 @@ export default function ReportBuilderSidePanel({
       ) : null}
 
       {externalCostQuery ? (
-        <div className="mb-4 rounded border border-[#e0e0e0] bg-[#f8f8f8] p-3">
-          <h4 className="mb-2 mt-0 text-sm font-semibold text-[#393939]">External Cost Settings</h4>
-          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-grouping">
+        <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">External Cost Settings</h4>
+          <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-grouping">
             Group By
           </label>
           <select
             id="report-external-grouping"
             value={externalCostQuery.aggregateBy}
             onChange={(event) => updateQuery({ aggregateBy: event.target.value })}
-            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="mb-3 h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {EXTERNAL_COST_GROUPING_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -519,14 +519,14 @@ export default function ReportBuilderSidePanel({
             ))}
           </select>
 
-          <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-cost-type">
+          <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-cost-type">
             Cost Type
           </label>
           <select
             id="report-external-cost-type"
             value={externalCostQuery.costType}
             onChange={(event) => updateQuery({ costType: event.target.value })}
-            className="mb-3 h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+            className="mb-3 h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           >
             {EXTERNAL_COST_TYPE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -537,14 +537,14 @@ export default function ReportBuilderSidePanel({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-xs text-[#525252]" htmlFor="report-external-sort-by">
+              <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-sort-by">
                 Sort By
               </label>
               <select
                 id="report-external-sort-by"
                 value={externalCostQuery.sortBy}
                 onChange={(event) => updateQuery({ sortBy: event.target.value })}
-                className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
               >
                 {EXTERNAL_COST_SORT_BY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -555,7 +555,7 @@ export default function ReportBuilderSidePanel({
             </div>
             <div>
               <label
-                className="mb-1 block text-xs text-[#525252]"
+                className="mb-1 block text-xs text-[var(--cds-text-secondary)]"
                 htmlFor="report-external-sort-direction"
               >
                 Sort Direction
@@ -566,7 +566,7 @@ export default function ReportBuilderSidePanel({
                 onChange={(event) =>
                   updateQuery({ sortDirection: event.target.value as "asc" | "desc" })
                 }
-                className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+                className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
               >
                 {EXTERNAL_COST_SORT_DIRECTION_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -580,7 +580,7 @@ export default function ReportBuilderSidePanel({
       ) : null}
 
       <div className="mb-4">
-        <label className="mb-1 block text-sm text-[#525252]" htmlFor="report-chart-type">
+        <label className="mb-1 block text-sm text-[var(--cds-text-secondary)]" htmlFor="report-chart-type">
           Chart Type
         </label>
         <select
@@ -591,7 +591,7 @@ export default function ReportBuilderSidePanel({
               chartType: event.target.value as Report["query"]["chartType"],
             })
           }
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
         >
           {REPORT_CHART_TYPE_OPTIONS.map((chartOption) => (
             <option key={chartOption.value} value={chartOption.value}>
@@ -603,7 +603,7 @@ export default function ReportBuilderSidePanel({
 
 
       {allocationQuery || infraAssetsQuery ? (
-        <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
+        <label className="mb-4 flex items-center gap-2 text-sm text-[var(--cds-text-primary)]">
           <input
             type="checkbox"
             checked={
@@ -618,7 +618,7 @@ export default function ReportBuilderSidePanel({
       ) : null}
 
       {allocationQuery ? (
-        <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
+        <label className="mb-4 flex items-center gap-2 text-sm text-[var(--cds-text-primary)]">
           <input
             type="checkbox"
             checked={allocationQuery.includeUnallocated}
@@ -630,9 +630,9 @@ export default function ReportBuilderSidePanel({
         </label>
       ) : null}
 
-      <div className="overflow-visible border-t border-[#e0e0e0] pt-4 pb-4">
+      <div className="overflow-visible border-t border-[var(--cds-border-subtle)] pt-4 pb-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="m-0 text-base font-semibold text-[#262626]">Filters</h3>
+          <h3 className="m-0 text-base font-semibold text-[var(--cds-text-primary)]">Filters</h3>
           <Button kind="ghost" size="sm" onClick={addFilter}>
             + Add Filter Group
           </Button>
@@ -642,16 +642,16 @@ export default function ReportBuilderSidePanel({
             {query.filters.map((filter, index) => (
               <div
                 key={`${filter.property}-${index}`}
-                className="overflow-visible rounded border border-[#e0e0e0] bg-[#fafafa] p-2"
+                className="overflow-visible rounded border border-[var(--cds-border-subtle)] bg-[#fafafa] p-2"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wide text-[#6f6f6f]">
+                  <span className="text-xs font-medium uppercase tracking-wide text-[var(--cds-text-placeholder)]">
                     Rule {index + 1}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeFilter(index)}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded text-[#8d8d8d] hover:bg-[#f4f4f4] hover:text-[#da1e28]"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded text-[#8d8d8d] hover:bg-[var(--cds-layer-02)] hover:text-[#da1e28]"
                     aria-label={`Remove filter ${index + 1}`}
                   >
                     <DeleteOutlined fontSize="small" />
@@ -665,7 +665,7 @@ export default function ReportBuilderSidePanel({
                       value: "",
                     })
                   }
-                  className="mb-2 h-9 w-full rounded border border-[#d0d0d0] bg-white px-2 text-[13px] text-[#262626]"
+                  className="mb-2 h-9 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2 text-[13px] text-[var(--cds-text-primary)]"
                 >
                   {toFilterOptionsByLayer(query.layer).map((option) => (
                     <option key={option.value} value={option.value}>

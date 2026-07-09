@@ -58,6 +58,10 @@ function isIdle(alloc: AllocationLike): boolean {
   return ((alloc.name ?? "") as string).indexOf("__idle__") >= 0;
 }
 
+function isUnallocated(alloc: AllocationLike): boolean {
+  return ((alloc.name ?? "") as string).indexOf("__unallocated__") >= 0;
+}
+
 function aggregateAllocs(
   allocs: AllocationLike[],
   name: string,
@@ -102,13 +106,17 @@ function buildChartData(
   rawData: any[],
   topN: number,
   includeIdle: boolean,
+  includeUnallocated: boolean,
 ): ChartPoint[] {
   const points: ChartPoint[] = [];
 
   for (const set of rawData) {
-    const allocs: AllocationLike[] = Array.isArray(set)
+    const allRaw: AllocationLike[] = Array.isArray(set)
       ? set
       : (Object.values(set) as AllocationLike[]);
+    const allocs: AllocationLike[] = includeUnallocated
+      ? allRaw
+      : allRaw.filter((a) => !isUnallocated(a));
     if (!allocs.length) continue;
 
     const { top, other, idle } = topNPerDay(
@@ -125,8 +133,6 @@ function buildChartData(
     for (const a of other) {
       points.push({ group: date, key: "other", value: a.totalCost ?? 0 });
     }
-    const totalCost = allocs.reduce((s, a) => s + (a.totalCost ?? 0), 0);
-    points.push({ group: date, key: "total", value: totalCost });
     if (includeIdle && idle.length > 0) {
       const idleCost = idle.reduce((s, a) => s + (a.totalCost ?? 0), 0);
       if (idleCost > 0) {
@@ -144,7 +150,6 @@ function buildColorScale(points: ChartPoint[]): Record<string, string> {
   let p = 0;
   for (const k of keys) {
     if (k === "idle") scale[k] = greyscale[1];
-    else if (k === "total") scale[k] = greyscale[2];
     else if (k === "other") scale[k] = browns[0];
     else scale[k] = primary[p++ % primary.length];
   }
@@ -158,6 +163,7 @@ export interface CostAllocationChartProps {
   aggregateBy?: string;
   accumulate?: string;
   includeIdle?: boolean;
+  includeUnallocated?: boolean;
   currency?: string;
   topN?: number;
   useSharedFilters?: boolean;
@@ -170,6 +176,7 @@ export default function CostAllocationChart({
   aggregateBy: aggregateByProp,
   accumulate: accumulateProp,
   includeIdle: includeIdleProp,
+  includeUnallocated: includeUnallocatedProp,
   currency: currencyProp,
   topN = 10,
   useSharedFilters = false,
@@ -186,6 +193,8 @@ export default function CostAllocationChart({
     sharedFilters.aggregateBy;
   const accumulate = accumulateProp ?? sharedFilters.accumulate;
   const includeIdle = includeIdleProp ?? sharedFilters.includeIdle;
+  const includeUnallocated =
+    includeUnallocatedProp ?? sharedFilters.includeUnallocated;
   const currency = currencyProp ?? defaultCurrency;
   const drilldownFilters = useSharedFilters
     ? (sharedFilters.drilldownFilters ?? [])
@@ -198,8 +207,10 @@ export default function CostAllocationChart({
   const chartTitle = generateTitle(window, aggregateBy, accumulate);
   const chartData = useMemo(
     () =>
-      rawData.length > 0 ? buildChartData(rawData, topN, includeIdle) : [],
-    [rawData, topN, includeIdle],
+      rawData.length > 0
+        ? buildChartData(rawData, topN, includeIdle, includeUnallocated)
+        : [],
+    [rawData, topN, includeIdle, includeUnallocated],
   );
 
   useEffect(() => {
@@ -247,6 +258,7 @@ export default function CostAllocationChart({
         left: {
           mapsTo: "value",
           scaleType: ScaleTypes.LINEAR,
+          stacked: true,
           ticks: {
             formatter: (v: number | Date) =>
               toCurrency(typeof v === "number" ? v : v.getTime(), currency),
@@ -281,7 +293,6 @@ export default function CostAllocationChart({
                 typeof item.value === "number"
                   ? item.value
                   : parseFloat(item.value) || 0;
-              if (item.key === "total") return null;
               total += val;
               const name =
                 item.label ?? item.key ?? item.name ?? item.group ?? "—";
@@ -323,10 +334,12 @@ export default function CostAllocationChart({
             aggregateBy={aggregateBy}
             accumulate={accumulate}
             includeIdle={includeIdle}
+            includeUnallocated={includeUnallocated}
             onWindowChange={(v) => setFilter("window", v)}
             onAggregateByChange={(v) => setFilter("aggregateBy", v)}
             onAccumulateChange={(v) => setFilter("accumulate", v)}
             onIncludeIdleChange={(v) => setFilter("includeIdle", v)}
+            onIncludeUnallocatedChange={(v) => setFilter("includeUnallocated", v)}
             idPrefix="chart-alloc"
           />
         }

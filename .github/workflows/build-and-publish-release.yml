@@ -61,12 +61,12 @@ jobs:
 
       # checkout opencost UI to allow access to actions
       - name: Checkout actions
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "opencost/opencost-ui"
 
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "opencost/opencost-ui"
           ref: "${{ steps.branch.outputs.BRANCH_NAME }}"
@@ -96,7 +96,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
 
       - name: Install crane
-        uses: imjasonh/setup-crane@v0.6
+        uses: imjasonh/setup-crane@v0.7
 
       - name: Tag and push latest image
         run: |

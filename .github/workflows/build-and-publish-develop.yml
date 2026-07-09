@@ -23,7 +23,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set SHA
         id: sha
@@ -45,7 +45,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
 
       - name: Install crane
-        uses: imjasonh/setup-crane@v0.6
+        uses: imjasonh/setup-crane@v0.7
 
       - name: Tag and push latest image
         run: |

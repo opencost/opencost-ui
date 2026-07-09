@@ -617,6 +617,19 @@ export default function ReportBuilderSidePanel({
         </label>
       ) : null}
 
+      {allocationQuery ? (
+        <label className="mb-4 flex items-center gap-2 text-sm text-[#393939]">
+          <input
+            type="checkbox"
+            checked={allocationQuery.includeUnallocated}
+            onChange={(event) =>
+              updateQuery({ includeUnallocated: event.target.checked })
+            }
+          />
+          Include unallocated costs
+        </label>
+      ) : null}
+
       <div className="overflow-visible border-t border-[#e0e0e0] pt-4 pb-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="m-0 text-base font-semibold text-[#262626]">Filters</h3>

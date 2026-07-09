@@ -73,7 +73,7 @@ export default function ReportBuilderPage() {
       <DashboardAppShell>
         <main className="p-[4rem_2rem] text-center">
           <h2 className="mb-4 text-2xl font-semibold">Report not found</h2>
-          <p className="mb-6 text-[#525252]">
+          <p className="mb-6" style={{ color: "var(--cds-text-secondary)" }}>
             The report you are looking for does not exist.
           </p>
           <Button onClick={() => navigate("/reports")}>Back to Reports</Button>
@@ -199,7 +199,7 @@ export default function ReportBuilderPage() {
 
   return (
     <DashboardAppShell>
-      <main className="min-h-screen bg-[#f4f4f4]">
+      <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
         <div className="mx-auto max-w-[1600px] px-6 pb-6 pt-4">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -213,14 +213,16 @@ export default function ReportBuilderPage() {
                 Back to Reports
               </Button>
               <div>
-                <h1 className="m-0 text-[2rem] font-normal text-[#262626]">
+                <h1 className="v2-page-title">
                   {currentDraft.name}
                 </h1>
-                <p className="m-0 mt-1 text-sm text-[#525252]">
+                <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                   {currentDraft.description}
                 </p>
                 {actionFeedback ? (
-                  <p className="m-0 mt-1 text-xs text-[#198038]">{actionFeedback}</p>
+                  <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-support-success)" }}>
+                    {actionFeedback}
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -259,8 +261,17 @@ export default function ReportBuilderPage() {
             </div>
           </div>
 
-          <div className="flex h-[calc(100dvh-13rem)] min-h-[28rem] items-stretch overflow-visible rounded border border-[#e0e0e0] bg-white">
-            <section className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-[#f8fafb] p-4">
+          <div
+            className="flex h-[calc(100dvh-13rem)] min-h-[28rem] items-stretch overflow-visible rounded border"
+            style={{
+              background: "var(--cds-layer)",
+              borderColor: "var(--cds-border-subtle)",
+            }}
+          >
+            <section
+              className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4"
+              style={{ background: "var(--cds-background)" }}
+            >
               <ReportResultsView
                 result={result}
                 loading={running}

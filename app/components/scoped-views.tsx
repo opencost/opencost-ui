@@ -1,5 +1,5 @@
-import { Select, SelectItem, Button } from "@carbon/react";
-import { Filter } from "@carbon/icons-react";
+import { Select, SelectItem } from "@carbon/react";
+import { Tune } from "@mui/icons-material";
 import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
@@ -127,31 +127,53 @@ export function FilterableWidgetHeader({
 }: FilterableWidgetHeaderProps) {
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold m-0">{title}</h3>
+          <p className="v2-widget-title">{title}</p>
           {description && (
-            <p className="text-sm text-[var(--cds-text-secondary)] mt-1 mb-0">{description}</p>
+            <p
+              className="m-0 mt-0.5 text-xs"
+              style={{ color: "var(--cds-text-secondary)" }}
+            >
+              {description}
+            </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {headerActions}
-          <Button
-            kind={expanded ? "primary" : "secondary"}
-            size="sm"
-            renderIcon={Filter}
-            iconDescription="Toggle options"
-            onClick={onToggle}
-          >
-            {expanded ? "Collapse options" : "Options"}
-          </Button>
+          {filterContent && (
+            <button
+              type="button"
+              onClick={onToggle}
+              className="inline-flex h-7 w-7 items-center justify-center rounded border transition-colors"
+              style={{
+                background: expanded ? "var(--cds-button-primary)" : "var(--cds-layer-02)",
+                borderColor: expanded ? "var(--cds-button-primary)" : "var(--cds-border-subtle)",
+                color: expanded ? "#fff" : "var(--cds-text-secondary)",
+              }}
+              title={expanded ? "Hide options" : "Show options"}
+              aria-label="Toggle filter options"
+              aria-expanded={expanded}
+            >
+              <Tune sx={{ fontSize: 14 }} />
+            </button>
+          )}
         </div>
       </div>
-      {expanded && filterContent && (
-        <div className="mt-4 pt-4 border-t border-[var(--cds-border-subtle)]">
-          {filterContent}
-        </div>
-      )}
+      <div
+        className={`v2-filter-panel ${
+          expanded ? "v2-filter-panel--open" : "v2-filter-panel--closed"
+        }`}
+      >
+        {filterContent && (
+          <div
+            className="mt-3 pt-3"
+            style={{ borderTop: "1px solid var(--cds-border-subtle)" }}
+          >
+            {filterContent}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

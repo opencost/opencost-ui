@@ -224,7 +224,7 @@ export default function CloudCostTableWidget({
         </div>
       ) : (
         <>
-          <TableContainer>
+          <TableContainer className="v2-sticky-header">
             <Table size="md" useZebraStyles>
               <TableHead>
                 <TableRow>
@@ -255,18 +255,22 @@ export default function CloudCostTableWidget({
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow className="font-semibold">
+                <TableRow
+                  className="font-semibold"
+                  style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
+                >
                   <TableCell>{totals?.name || "Totals"}</TableCell>
-                  <TableCell>
+                  <TableCell className="v2-table-numeric">
                     {Math.round((totals?.kubernetesPercent ?? 0) * 100)}%
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="v2-table-numeric">
                     {toCurrency(Number(totals?.cost ?? 0), currency)}
                   </TableCell>
                 </TableRow>
                 {pageRows.map((row, index) => (
                   <TableRow
                     key={`${row.name ?? row.labelName ?? "row"}-${startIndex + index}`}
+                    className="v2-table-row-hover"
                   >
                     <TableCell>
                       {nextAggregation(effectiveAggregateBy) ? (
@@ -280,10 +284,10 @@ export default function CloudCostTableWidget({
                         String(row.labelName ?? row.name ?? "")
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="v2-table-numeric">
                       {Math.round((Number(row.kubernetesPercent) || 0) * 100)}%
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="v2-table-numeric">
                       {toCurrency(Number(row.cost ?? 0), currency)}
                     </TableCell>
                   </TableRow>

@@ -32,20 +32,22 @@ function MetricCard({
   value,
   icon: Icon,
   loading,
+  accentClass = "",
 }: {
   label: string;
   value: string;
   icon: React.ComponentType<{ size: number; style?: React.CSSProperties }>;
   loading: boolean;
+  accentClass?: string;
 }) {
   return (
-    <div className="metric-card">
+    <div className={`metric-card ${accentClass}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="metric-label">{label}</div>
-        <Icon size={16} style={{ color: "var(--cds-text-secondary)" }} />
+        <Icon size={14} style={{ color: "var(--cds-text-secondary)" }} />
       </div>
       {loading ? (
-        <div className="metric-value text-[var(--cds-text-placeholder)]">—</div>
+        <div className="v2-skeleton-metric" />
       ) : (
         <div className="metric-value">{value}</div>
       )}
@@ -199,7 +201,7 @@ export default function CostSummaryCards({
           />
         }
       />
-      <div className="grid gap-4 grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="Total Cluster Cost"
           value={data ? toCurrency(data.totalCost, currency, 2) : "—"}
@@ -211,18 +213,21 @@ export default function CostSummaryCards({
           value={data ? toCurrency(data.cloudCost, currency, 2) : "—"}
           icon={ChartLine}
           loading={loading}
+          accentClass="metric-card--cloud"
         />
         <MetricCard
           label="External Costs"
           value={data ? toCurrency(data.externalCost, currency, 2) : "—"}
           icon={ChartLineSmooth}
           loading={loading}
+          accentClass="metric-card--external"
         />
         <MetricCard
           label="Efficiency"
           value={data ? `${data.efficiency.toFixed(1)}%` : "—"}
           icon={Activity}
           loading={loading}
+          accentClass="metric-card--efficiency"
         />
       </div>
     </div>

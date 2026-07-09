@@ -208,36 +208,69 @@ export default function ReportsListPage() {
   return (
     <>
       <DashboardAppShell>
-        <main className="min-h-screen bg-[#f4f4f4]">
+        <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
           <div className="mx-auto max-w-[1600px] p-6">
-            <div className="mb-4 flex items-center justify-between">
+            {/* Page title area */}
+            <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="m-0 text-[2rem] font-normal">Reports</h2>
-                {shareFeedback ? (
-                  <p className="mt-1 text-xs text-[#198038]">{shareFeedback}</p>
-                ) : null}
+                <h1 className="v2-page-title">Reports</h1>
+                {shareFeedback && (
+                  <p
+                    className="mt-1 text-xs"
+                    style={{ color: "var(--cds-support-success)" }}
+                  >
+                    {shareFeedback}
+                  </p>
+                )}
               </div>
               <Button size="sm" onClick={() => setShowCreateModal(true)}>
                 Create Report
               </Button>
             </div>
 
-            <div className="mb-4 overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)]">
-              <div className="grid grid-cols-[minmax(220px,1fr)_180px_180px_200px] items-center gap-2.5 border-b border-[#e0e0e0] bg-[#f8f8f8] p-3">
-                <div className="flex h-8 items-center gap-1.5 rounded border border-[#d0d0d0] bg-white px-2 text-[#8d8d8d]">
-                  <Search fontSize="small" />
+            {/* List container */}
+            <div
+              className="mb-6 overflow-hidden rounded border shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+              style={{
+                background: "var(--cds-layer)",
+                borderColor: "var(--cds-border-subtle)",
+              }}
+            >
+              {/* Filter controls row */}
+              <div
+                className="v2-list-filter-row border-b p-3"
+                style={{
+                  borderColor: "var(--cds-border-subtle)",
+                  background: "var(--cds-layer-02)",
+                }}
+              >
+                <div
+                  className="flex h-8 items-center gap-1.5 rounded border px-2.5"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-placeholder)",
+                  }}
+                >
+                  <Search sx={{ fontSize: 16 }} />
                   <input
                     type="text"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Search"
-                    className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#262626] outline-none"
+                    placeholder="Search reports…"
+                    className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs outline-none"
+                    style={{ color: "var(--cds-text-primary)" }}
                   />
                 </div>
                 <select
                   value={selectedTag}
                   onChange={(event) => updateQueryParam("tag", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
                   <option value="all">Filter by Tag</option>
                   {allTags.map((tag) => (
@@ -249,7 +282,12 @@ export default function ReportsListPage() {
                 <select
                   value={selectedVisibility}
                   onChange={(event) => updateQueryParam("visibility", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
                   <option value="all">Filter by Visibility</option>
                   <option value="public">Public</option>
@@ -258,7 +296,12 @@ export default function ReportsListPage() {
                 <select
                   value={selectedOwner}
                   onChange={(event) => updateQueryParam("owner", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
                   <option value="all">Filter by Created By</option>
                   {allOwners.map((owner) => (
@@ -310,14 +353,14 @@ export default function ReportsListPage() {
       >
         {reportPendingDelete ? (
           <div>
-            <p className="mb-3 text-sm text-[#525252]">
+            <p className="mb-3 text-sm text-[var(--cds-text-secondary)]">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-[#161616]">
+              <span className="font-semibold text-[var(--cds-text-primary)]">
                 {reportPendingDelete.name}
               </span>
               ?
             </p>
-            <p className="m-0 text-xs text-[#8d8d8d]">
+            <p className="m-0 text-xs text-[var(--cds-text-placeholder)]">
               This action cannot be undone.
             </p>
           </div>
@@ -346,19 +389,25 @@ export default function ReportsListPage() {
                     : `Source: External Cost · Grouping: ${q.aggregateBy} · Cost Type: ${q.costType}`;
             return (
               <div>
-                <p className="mb-4 text-sm text-[#525252]">
+                <p className="mb-4 text-sm text-[var(--cds-text-secondary)]">
                   Someone shared a report configuration with you. Do you want to import it?
                 </p>
-                <div className="mb-4 border-l-4 border-[#0f62fe] bg-[#f4f4f4] p-4">
+                <div
+                  className="mb-4 border-l-4 p-4"
+                  style={{
+                    borderColor: "var(--cds-link-primary)",
+                    background: "var(--cds-layer-02)",
+                  }}
+                >
                   <p className="mb-1 text-base font-semibold">{sharedPayload.name}</p>
                   {sharedPayload.description ? (
-                    <p className="mb-2 text-sm text-[#525252]">
+                    <p className="mb-2 text-sm text-[var(--cds-text-secondary)]">
                       {sharedPayload.description}
                     </p>
                   ) : null}
-                  <p className="text-xs text-[#8d8d8d]">{querySummary}</p>
+                  <p className="text-xs text-[var(--cds-text-placeholder)]">{querySummary}</p>
                 </div>
-                <p className="text-xs text-[#8d8d8d]">
+                <p className="text-xs text-[var(--cds-text-placeholder)]">
                   This will be added as a new report in your workspace.
                 </p>
               </div>

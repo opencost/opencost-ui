@@ -53,10 +53,7 @@ const themeBootstrap = `(function () {
     var theme =
       stored === 'white' || stored === 'g100'
         ? stored
-        : window.matchMedia &&
-            window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'g100'
-          : 'white';
+        : 'white';
     var root = document.documentElement;
     root.setAttribute('data-carbon-theme', theme);
     root.classList.remove('cds--white', 'cds--g100');
@@ -86,6 +83,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { useAppTheme } from "~/components/theme-context";
+
+function AppThemeBodyWrapper({ children }: { children: React.ReactNode }) {
+  const { theme } = useAppTheme();
+  return (
+    <div
+      data-carbon-theme={theme}
+      className={`cds--${theme === "g100" ? "g100" : "white"} min-h-screen`}
+      style={{
+        backgroundColor: "var(--cds-background)",
+        color: "var(--cds-text-primary)",
+        colorScheme: theme === "g100" ? "dark" : "light",
+        transition: "background-color 0.15s ease, color 0.15s ease",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function App() {
   if (isLegacyMode) {
     return (
@@ -98,9 +115,11 @@ export default function App() {
     <ThemeProvider>
       <AppMuiThemeBridge>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Suspense fallback={null}>
-            <DashboardApp />
-          </Suspense>
+          <AppThemeBodyWrapper>
+            <Suspense fallback={null}>
+              <DashboardApp />
+            </Suspense>
+          </AppThemeBodyWrapper>
         </LocalizationProvider>
       </AppMuiThemeBridge>
     </ThemeProvider>

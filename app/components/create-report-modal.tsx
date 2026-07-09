@@ -126,7 +126,7 @@ export default function CreateReportModal({
         />
       </div>
       <div className="mb-4">
-        <label className="block text-sm text-[#525252] mb-2" htmlFor="report-data-source">
+        <label className="block text-sm text-[var(--cds-text-secondary)] mb-2" htmlFor="report-data-source">
           Data Source
         </label>
         <select
@@ -134,7 +134,7 @@ export default function CreateReportModal({
           value={layer}
           onChange={(event) => setLayer(event.target.value as ReportLayer)}
           disabled={isEditMode}
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626] disabled:bg-[#f4f4f4] disabled:text-[#6f6f6f]"
+          className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)] disabled:bg-[var(--cds-layer-02)] disabled:text-[var(--cds-text-placeholder)]"
         >
           {REPORT_DATA_SOURCE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -144,21 +144,21 @@ export default function CreateReportModal({
         </select>
       </div>
       <div className="mb-4">
-        <label className="block text-sm text-[#525252] mb-2" htmlFor="report-visibility">
+        <label className="block text-sm text-[var(--cds-text-secondary)] mb-2" htmlFor="report-visibility">
           Visibility
         </label>
         <select
           id="report-visibility"
           value={visibility}
           onChange={(event) => setVisibility(event.target.value as "public" | "private")}
-          className="h-10 w-full rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#262626]"
+          className="h-10 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
         >
           <option value="public">Public</option>
           <option value="private">Private</option>
         </select>
       </div>
       <div className="mb-2">
-        <label className="block text-sm text-[#525252] mb-2" htmlFor="report-tag-input">
+        <label className="block text-sm text-[var(--cds-text-secondary)] mb-2" htmlFor="report-tag-input">
           Tags
         </label>
         <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function CreateReportModal({
               }
             }}
             placeholder="Add tag"
-            className="h-10 min-w-0 flex-1 rounded border border-[#d0d0d0] px-2.5 text-[13px] text-[#262626]"
+            className="h-10 min-w-0 flex-1 rounded border border-[var(--cds-border-subtle)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           />
           <Button kind="secondary" size="sm" disabled={!tagInput.trim()} onClick={addTag}>
             Add

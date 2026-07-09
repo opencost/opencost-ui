@@ -30,19 +30,27 @@ function readStoredTheme(): ThemeName | null {
 }
 
 function readPreferredTheme(): ThemeName {
-  if (typeof window === "undefined" || !window.matchMedia) return "white";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "g100"
-    : "white";
+  return "white";
 }
 
 function applyThemeToDocument(theme: ThemeName) {
   if (typeof document === "undefined") return;
+  
+  // 1. Apply to html (documentElement)
   const root = document.documentElement;
   root.setAttribute("data-carbon-theme", theme);
   root.classList.remove("cds--white", "cds--g100");
   root.classList.add(theme === "g100" ? "cds--g100" : "cds--white");
   root.style.colorScheme = theme === "g100" ? "dark" : "light";
+
+  // 2. Apply to body
+  const body = document.body;
+  if (body) {
+    body.setAttribute("data-carbon-theme", theme);
+    body.classList.remove("cds--white", "cds--g100");
+    body.classList.add(theme === "g100" ? "cds--g100" : "cds--white");
+    body.style.colorScheme = theme === "g100" ? "dark" : "light";
+  }
 }
 
 function readDocumentTheme(): ThemeName | null {
@@ -64,24 +72,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyThemeToDocument(theme);
   }, [theme]);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (e: MediaQueryListEvent) => {
-      // Respect an explicit user choice once one has been persisted — only
-      // follow the OS preference while no stored theme exists.
-      if (readStoredTheme()) return;
-      setThemeState(e.matches ? "g100" : "white");
-    };
-    // Safari < 14 and some mobile browsers only support the deprecated
-    // addListener/removeListener API.
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    }
-    mq.addListener(onChange);
-    return () => mq.removeListener(onChange);
-  }, []);
 
   const setTheme = useCallback((next: ThemeName) => {
     setThemeState(next);

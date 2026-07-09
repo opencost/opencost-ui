@@ -227,36 +227,69 @@ export default function DashboardList() {
   return (
     <>
       <DashboardAppShell>
-        <main className="min-h-screen bg-[#f4f4f4]">
+        <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
           <div className="p-6 max-w-[1600px] mx-auto">
-            <div className="flex items-center justify-between mb-4">
+            {/* Page title area */}
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="m-0 text-[2rem] font-normal">Dashboards</h2>
-                {shareFeedback ? (
-                  <p className="mt-1 text-xs text-[#198038]">{shareFeedback}</p>
-                ) : null}
+                <h1 className="v2-page-title">Dashboards</h1>
+                {shareFeedback && (
+                  <p
+                    className="mt-1 text-xs"
+                    style={{ color: "var(--cds-support-success)" }}
+                  >
+                    {shareFeedback}
+                  </p>
+                )}
               </div>
               <Button size="sm" onClick={() => setShowCreateModal(true)}>
                 Create Dashboard
               </Button>
             </div>
 
-            <div className="mb-4 overflow-hidden rounded border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)]">
-              <div className="grid grid-cols-[minmax(220px,1fr)_180px_180px_200px] items-center gap-2.5 border-b border-[#e0e0e0] bg-[#f8f8f8] p-3">
-                <div className="flex h-8 items-center gap-1.5 rounded border border-[#d0d0d0] bg-white px-2 text-[#8d8d8d]">
-                  <Search fontSize="small" />
+            {/* List container */}
+            <div
+              className="mb-6 overflow-hidden rounded border shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+              style={{
+                background: "var(--cds-layer)",
+                borderColor: "var(--cds-border-subtle)",
+              }}
+            >
+              {/* Filter controls row */}
+              <div
+                className="v2-list-filter-row border-b p-3"
+                style={{
+                  borderColor: "var(--cds-border-subtle)",
+                  background: "var(--cds-layer-02)",
+                }}
+              >
+                <div
+                  className="flex h-8 items-center gap-1.5 rounded border px-2.5"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-placeholder)",
+                  }}
+                >
+                  <Search sx={{ fontSize: 16 }} />
                   <input
                     type="text"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Search"
-                    className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[#262626] outline-none"
+                    placeholder="Search dashboards…"
+                    className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs outline-none"
+                    style={{ color: "var(--cds-text-primary)" }}
                   />
                 </div>
                 <select
                   value={selectedTag}
                   onChange={(event) => updateQueryParam("tag", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
                   <option value="all">Filter by Tag</option>
                   {allTags.map((tag) => (
@@ -268,16 +301,26 @@ export default function DashboardList() {
                 <select
                   value={selectedScope}
                   onChange={(event) => updateQueryParam("scope", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
-                  <option value="all">Filter by scope</option>
+                  <option value="all">Filter by Scope</option>
                   <option value="opencost">OpenCost</option>
                   <option value="public">Public</option>
                 </select>
                 <select
                   value={selectedOwner}
                   onChange={(event) => updateQueryParam("owner", event.target.value)}
-                  className="h-8 rounded border border-[#d0d0d0] bg-white px-2.5 text-[13px] text-[#525252]"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-secondary)",
+                  }}
                 >
                   <option value="all">Filter by Created By</option>
                   {allOwners.map((owner) => (
@@ -291,27 +334,32 @@ export default function DashboardList() {
               {filteredDashboards.length > 0 ? (
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr>
-                      <th className="w-8 px-3 py-2.5 text-left text-xs font-semibold text-[#525252]" />
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                    <tr
+                      style={{
+                        borderBottom: "1px solid var(--cds-border-subtle)",
+                        background: "var(--cds-layer-02)",
+                      }}
+                    >
+                      <th className="w-8 px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }} />
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Name
                       </th>
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Created By
                       </th>
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Created On
                       </th>
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
-                        Time Last Modified
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
+                        Last Modified
                       </th>
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Visibility
                       </th>
-                      <th className="whitespace-nowrap px-3 py-2.5 text-left text-xs font-semibold text-[#525252]">
+                      <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Tags
                       </th>
-                      <th className="min-w-[10.5rem] whitespace-nowrap px-3 py-2.5 text-right text-xs font-semibold text-[#525252]">
+                      <th className="min-w-[10.5rem] whitespace-nowrap px-3 py-2 text-right text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
                         Actions
                       </th>
                     </tr>
@@ -324,43 +372,54 @@ export default function DashboardList() {
                       const modifiedOn = new Date(dashboard.updatedAt).toLocaleString();
                       const visibility = dashboard.starred ? "OpenCost" : "Public";
                       return (
-                        <tr key={dashboard.id} className="border-t border-[#f0f0f0] hover:bg-[#fcfcfc]">
+                        <tr
+                          key={dashboard.id}
+                          className="v2-table-row-hover"
+                          style={{ borderBottom: "1px solid var(--cds-border-subtle)" }}
+                        >
                           <td className="w-8 px-3 py-2.5 text-center align-middle">
                             {dashboard.starred ? (
                               <Star fontSize="small" className="text-[#f1c21b]" />
                             ) : (
-                              <StarBorder fontSize="small" className="text-[#8d8d8d]" />
+                              <StarBorder fontSize="small" style={{ color: "var(--cds-text-placeholder)" }} />
                             )}
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs">
                             <Link
                               to={`/dashboard/${dashboard.id}`}
-                              className="text-[#262626] no-underline hover:text-[#0f62fe]"
+                              className="font-medium no-underline hover:underline"
+                              style={{ color: "var(--cds-text-primary)" }}
                             >
                               {dashboard.name}
                             </Link>
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                             {dashboard.owner}
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                             {createdOn}
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                             {modifiedOn}
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs">
                             <span
-                              className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${
-                                visibility === "Public"
-                                  ? "bg-[#defbe6] text-[#198038]"
-                                  : "bg-[#edf5ff] text-[#0f62fe]"
-                              }`}
+                              className={`rounded-[10px] px-2 py-0.5 text-[10px] font-semibold`}
+                              style={{
+                                background:
+                                  visibility === "Public"
+                                    ? "var(--cds-notification-background-success, #defbe6)"
+                                    : "var(--cds-highlight, #edf5ff)",
+                                color:
+                                  visibility === "Public"
+                                    ? "var(--cds-support-success, #198038)"
+                                    : "var(--cds-focus, #0f62fe)",
+                              }}
                             >
                               {visibility}
                             </span>
                           </td>
-                          <td className="px-3 py-2.5 align-middle text-[13px] text-[#393939]">
+                          <td className="px-3 py-2.5 align-middle text-xs">
                             <div className="flex items-center gap-1 flex-wrap">
                               {dashboard.tags.length > 0 ? (
                                 dashboard.tags.slice(0, 3).map((tag) => (
@@ -369,13 +428,18 @@ export default function DashboardList() {
                                   </Tag>
                                 ))
                               ) : (
-                                <span className="text-[#8d8d8d]">--</span>
+                                <span style={{ color: "var(--cds-text-placeholder)" }}>--</span>
                               )}
                             </div>
                           </td>
                           <td className="min-w-[10.5rem] whitespace-nowrap px-3 py-2.5 text-right align-middle">
                             <button
-                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border transition-colors"
+                              style={{
+                                background: "var(--cds-layer)",
+                                borderColor: "var(--cds-border-subtle)",
+                                color: "var(--cds-text-secondary)",
+                              }}
                               aria-label="Edit dashboard"
                               title="Edit dashboard details"
                               onClick={() => setEditingDashboard(dashboard)}
@@ -383,7 +447,12 @@ export default function DashboardList() {
                               <EditOutlined fontSize="small" />
                             </button>
                             <button
-                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border transition-colors"
+                              style={{
+                                background: "var(--cds-layer)",
+                                borderColor: "var(--cds-border-subtle)",
+                                color: "var(--cds-text-secondary)",
+                              }}
                               aria-label="Duplicate dashboard"
                               title="Duplicate dashboard"
                               onClick={() => handleDuplicateDashboard(dashboard)}
@@ -391,7 +460,12 @@ export default function DashboardList() {
                               <ContentCopy fontSize="small" />
                             </button>
                             <button
-                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#0f62fe] hover:text-[#0f62fe]"
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border transition-colors"
+                              style={{
+                                background: "var(--cds-layer)",
+                                borderColor: "var(--cds-border-subtle)",
+                                color: "var(--cds-text-secondary)",
+                              }}
                               aria-label="Share dashboard"
                               title="Share dashboard"
                               onClick={() => void handleShareDashboard(dashboard)}
@@ -399,7 +473,12 @@ export default function DashboardList() {
                               <IosShareOutlined fontSize="small" />
                             </button>
                             <button
-                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border border-[#d0d0d0] bg-white text-[#525252] hover:border-[#da1e28] hover:text-[#da1e28]"
+                              className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded border transition-colors"
+                              style={{
+                                background: "var(--cds-layer)",
+                                borderColor: "var(--cds-border-subtle)",
+                                color: "var(--cds-text-secondary)",
+                              }}
                               aria-label="Delete dashboard"
                               title="Delete dashboard"
                               onClick={() => handleDeleteDashboard(dashboard)}
@@ -413,7 +492,10 @@ export default function DashboardList() {
                   </tbody>
                 </table>
               ) : (
-                <div className="p-6 text-sm text-[#6f6f6f]">
+                <div
+                  className="p-8 text-center text-xs"
+                  style={{ color: "var(--cds-text-placeholder)" }}
+                >
                   No dashboards match the selected search and filters.
                 </div>
               )}
@@ -456,7 +538,7 @@ export default function DashboardList() {
               Someone shared a dashboard configuration with you. Would you like
               to import it?
             </p>
-            <div className="p-4 bg-[var(--cds-layer-accent)] border-l-4 border-[var(--cds-focus)] mb-4">
+            <div className="p-4 bg-[var(--cds-layer-accent)] border-l-4 border-[var(--cds-link-primary)] mb-4">
               <p className="font-semibold text-base mb-1">
                 {sharedPayload.name}
               </p>
@@ -493,14 +575,14 @@ export default function DashboardList() {
       >
         {dashboardPendingDelete ? (
           <div>
-            <p className="mb-3 text-sm text-[#525252]">
+            <p className="mb-3 text-sm text-[var(--cds-text-secondary)]">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-[#161616]">
+              <span className="font-semibold text-[var(--cds-text-primary)]">
                 {dashboardPendingDelete.name}
               </span>
               ?
             </p>
-            <p className="m-0 text-xs text-[#8d8d8d]">
+            <p className="m-0 text-xs" style={{ color: 'var(--cds-text-placeholder)' }}>
               This action cannot be undone.
             </p>
           </div>

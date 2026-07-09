@@ -2,6 +2,10 @@
 @use "@carbon/react/scss/themes";
 @use "@carbon/react";
 
+// ============================================================
+// Theme Application
+// ============================================================
+
 :root,
 .cds--white {
   @include theme.theme(themes.$white);
@@ -14,6 +18,10 @@
   color-scheme: dark;
 }
 
+// ============================================================
+// Base
+// ============================================================
+
 body {
   font-family:
     "IBM Plex Sans",
@@ -23,15 +31,70 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-// Only tokenize body surface colors when the new UI has applied a theme
-// attribute via the bootstrap script — legacy builds never set this and
-// therefore keep their previous (browser default) body background/colors.
 html[data-carbon-theme] body {
   background-color: var(--cds-background);
   color: var(--cds-text-primary);
 }
+
+// Monospace for numeric values in tables
+.font-mono {
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+// ============================================================
+// Typography Scale
+// ============================================================
+
+.v2-page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--cds-text-primary);
+  margin: 0;
+}
+
+.v2-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--cds-text-primary);
+  margin: 0;
+}
+
+.v2-widget-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--cds-text-primary);
+  margin: 0;
+}
+
+.v2-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--cds-text-secondary);
+}
+
+.v2-metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--cds-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+// ============================================================
+// Dashboard Grid
+// ============================================================
 
 .dashboard-grid {
   display: grid;
@@ -40,41 +103,154 @@ html[data-carbon-theme] body {
   width: 100%;
 }
 
-.dashboard-grid-item-1 {
-  grid-column: span 1;
+.dashboard-grid-item-1 { grid-column: span 1; min-width: 0; }
+.dashboard-grid-item-2 { grid-column: span 2; min-width: 0; }
+.dashboard-grid-item-3 { grid-column: span 3; min-width: 0; }
+.dashboard-grid-item-4 { grid-column: span 4; min-width: 0; }
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-grid-item-3,
+  .dashboard-grid-item-4 {
+    grid-column: span 2;
+  }
 }
-.dashboard-grid-item-2 {
-  grid-column: span 2;
+
+@media (max-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid-item-1,
+  .dashboard-grid-item-2,
+  .dashboard-grid-item-3,
+  .dashboard-grid-item-4 {
+    grid-column: span 1;
+  }
 }
-.dashboard-grid-item-3 {
-  grid-column: span 3;
+
+// ============================================================
+// Widget Card — shared panel surface
+// ============================================================
+
+.v2-widget-card {
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  overflow: hidden;
+  min-width: 0;
 }
-.dashboard-grid-item-4 {
-  grid-column: span 4;
+
+.v2-widget-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
+
+.v2-widget-card-header {
+  padding: 1rem 1.25rem 0.875rem;
+  border-bottom: 1px solid var(--cds-border-subtle);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.v2-widget-card-body {
+  padding: 1.25rem;
+}
+
+// ============================================================
+// Metric Cards (KPI Cards)
+// ============================================================
+
+.metric-card {
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
+  border-radius: 4px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--cds-link-primary);
+    border-radius: 4px 0 0 4px;
+  }
+}
+
+.metric-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border-color: var(--cds-border-strong);
+}
+
+.metric-card--cloud::before  { background: #8a3ffc; } // purple — cloud
+.metric-card--external::before { background: #007d79; } // teal — external
+.metric-card--efficiency::before { background: var(--cds-support-success, #198038); } // green
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cds-text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--cds-text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 0.625rem;
+}
+
+.metric-change {
+  font-size: 0.75rem;
+  margin-top: 0.375rem;
+  line-height: 1.4;
+  color: var(--cds-text-secondary);
+}
+
+// ============================================================
+// Card Surfaces (generic)
+// ============================================================
 
 .card-enhanced {
   background: var(--cds-layer);
   border: 1px solid var(--cds-border-subtle);
   border-radius: 4px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .card-enhanced:hover {
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 2px 4px rgba(0, 0, 0, 0.1);
-  border-color: var(--cds-focus);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.section-card {
+  background: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
 }
 
 .section-title {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--cds-text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
   letter-spacing: -0.01em;
 }
 
@@ -85,49 +261,175 @@ html[data-carbon-theme] body {
   line-height: 1.5;
 }
 
-.metric-card {
-  background: var(--cds-layer);
-  border: 1px solid var(--cds-border-subtle);
-  border-radius: 4px;
-  padding: 1.25rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease-in-out;
+// ============================================================
+// Skeleton / Loading States
+// ============================================================
+
+@keyframes v2-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 
-.metric-card:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+.v2-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--cds-skeleton-element) 25%,
+    var(--cds-skeleton-background) 50%,
+    var(--cds-skeleton-element) 75%
+  );
+  background-size: 800px 100%;
+  animation: v2-shimmer 1.4s ease-in-out infinite;
+  border-radius: 2px;
 }
 
-.metric-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--cds-text-primary);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+.v2-skeleton-text {
+  @extend .v2-skeleton;
+  height: 0.875rem;
+  border-radius: 2px;
 }
 
-.metric-label {
-  font-size: 0.875rem;
+.v2-skeleton-metric {
+  @extend .v2-skeleton;
+  height: 1.75rem;
+  width: 8rem;
+  border-radius: 2px;
+}
+
+// ============================================================
+// Empty States
+// ============================================================
+
+.v2-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
   color: var(--cds-text-secondary);
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.01em;
+  gap: 0.75rem;
+
+  &__icon {
+    opacity: 0.4;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cds-text-primary);
+  }
+
+  &__description {
+    font-size: 0.8125rem;
+    color: var(--cds-text-secondary);
+    max-width: 28rem;
+    line-height: 1.5;
+  }
 }
 
-.metric-change {
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  line-height: 1.4;
-}
+// ============================================================
+// Navigation Sidebar
+// ============================================================
 
-.section-card {
-  background: var(--cds-layer);
-  border: 1px solid var(--cds-border-subtle);
+.v2-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.75rem;
   border-radius: 4px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
+  cursor: pointer;
+  color: var(--cds-text-secondary);
+  position: relative;
 }
+
+.v2-nav-item:hover {
+  background: var(--cds-layer-hover);
+  color: var(--cds-text-primary);
+}
+
+.v2-nav-item--active {
+  color: var(--cds-link-primary);
+  background: var(--cds-highlight, #d0e2ff);
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    background: var(--cds-link-primary);
+    border-radius: 0 2px 2px 0;
+  }
+}
+
+.v2-nav-group-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cds-text-secondary);
+  opacity: 0.7;
+}
+
+// ============================================================
+// Tables
+// ============================================================
+
+.v2-table-numeric {
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+}
+
+.v2-table-row-hover {
+  transition: background 0.1s ease;
+}
+
+.v2-table-row-hover:hover td {
+  background: var(--cds-layer-hover) !important;
+}
+
+// Sticky table head
+.v2-sticky-header thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--cds-layer);
+}
+
+// ============================================================
+// Filter Controls
+// ============================================================
+
+.v2-filter-panel {
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease;
+}
+
+.v2-filter-panel--open {
+  max-height: 20rem;
+  opacity: 1;
+}
+
+.v2-filter-panel--closed {
+  max-height: 0;
+  opacity: 0;
+}
+
+// ============================================================
+// Banners
+// ============================================================
 
 .legacy-banner {
   background: var(--cds-notification-background-warning, #fff8e1);
@@ -138,6 +440,10 @@ html[data-carbon-theme] body {
   color: var(--cds-text-secondary);
 }
 
+// ============================================================
+// Chart Overrides
+// ============================================================
+
 .cost-allocation-chart {
   .cds--chart-holder
     svg
@@ -145,4 +451,80 @@ html[data-carbon-theme] body {
     stroke: transparent;
     stroke-width: 8;
   }
+}
+
+
+// ============================================================
+// Responsive Filter / Search Rows on List Pages
+// ============================================================
+
+.v2-list-filter-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) 180px 180px 200px;
+  gap: 0.75rem;
+  align-items: center;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 550px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================
+// Dark Mode Targeted Fixes
+// ============================================================
+
+// Carbon Select label text — ensure readability in both themes
+.cds--select .cds--label,
+.cds--select-input__wrapper .cds--label {
+  color: var(--cds-text-secondary) !important;
+}
+
+// Carbon Select input — ensure text is always readable
+.cds--select-input {
+  background-color: var(--cds-field) !important;
+  color: var(--cds-text-primary) !important;
+  border-bottom-color: var(--cds-border-strong) !important;
+}
+
+// Carbon Select chevron icon
+.cds--select__arrow {
+  fill: var(--cds-text-primary) !important;
+}
+
+// Checkbox labels in filter panels
+.v2-filter-panel label,
+.v2-filter-panel input[type="checkbox"] + * {
+  color: var(--cds-text-primary) !important;
+}
+
+// Native <select> dropdowns used in filter rows — force theme-aware colors
+.v2-filter-panel select,
+.v2-list-filter-row select {
+  background-color: var(--cds-layer) !important;
+  color: var(--cds-text-primary) !important;
+  border-color: var(--cds-border-subtle) !important;
+  color-scheme: inherit;
+}
+
+// Carbon Modal — ensure the modal container respects the current theme
+.cds--modal-container {
+  background-color: var(--cds-layer) !important;
+  color: var(--cds-text-primary) !important;
+}
+
+.cds--modal-header__heading {
+  color: var(--cds-text-primary) !important;
+}
+
+.cds--modal-content {
+  color: var(--cds-text-primary) !important;
+}
+
+// Carbon Modal close button
+.cds--modal-close:hover {
+  background-color: var(--cds-layer-hover) !important;
 }

@@ -477,9 +477,8 @@ html[data-carbon-theme] body {
 // Dark Mode Targeted Fixes
 // ============================================================
 
-// Carbon Select label text — ensure readability in both themes
-.cds--select .cds--label,
-.cds--select-input__wrapper .cds--label {
+// Carbon label text — ensure readability in both themes
+.cds--label {
   color: var(--cds-text-secondary) !important;
 }
 
@@ -510,21 +509,158 @@ html[data-carbon-theme] body {
   color-scheme: inherit;
 }
 
-// Carbon Modal — ensure the modal container respects the current theme
+// ============================================================
+// Modernized Carbon Overrides & Native Controls
+// ============================================================
+
+// Carbon Modal overlay/backdrop
+.cds--modal {
+  backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  transition: opacity 200ms ease-in-out;
+}
+
+// Carbon Modal container
 .cds--modal-container {
   background-color: var(--cds-layer) !important;
   color: var(--cds-text-primary) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--cds-border-subtle) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden;
+}
+
+.cds--modal-header {
+  padding-bottom: 1rem !important;
 }
 
 .cds--modal-header__heading {
   color: var(--cds-text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
 }
 
 .cds--modal-content {
   color: var(--cds-text-primary) !important;
+  padding-right: 1.5rem !important;
+  margin-bottom: 2rem !important;
 }
 
 // Carbon Modal close button
-.cds--modal-close:hover {
-  background-color: var(--cds-layer-hover) !important;
+.cds--modal-close {
+  color: var(--cds-text-primary) !important;
+  border-radius: 4px !important;
+  margin: 0.75rem !important;
+  &:hover {
+    background-color: var(--cds-layer-hover) !important;
+  }
+}
+
+// Carbon Modal footer
+.cds--modal-footer {
+  background-color: var(--cds-layer-02, var(--cds-layer)) !important;
+  border-top: 1px solid var(--cds-border-subtle) !important;
+  padding: 1rem 1.5rem !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+  height: auto !important;
+
+  .cds--btn {
+    flex: 0 1 auto !important;
+    max-width: none !important;
+    min-height: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+}
+
+// Carbon Buttons
+.cds--btn {
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+// Carbon inputs & Text areas
+.cds--text-input,
+.cds--text-area {
+  background-color: var(--cds-field, var(--cds-layer)) !important;
+  color: var(--cds-text-primary) !important;
+  border: 1px solid var(--cds-border-subtle) !important;
+  border-bottom: 2px solid var(--cds-border-strong) !important;
+  border-radius: 4px !important;
+  padding: 0 0.75rem !important;
+  height: 2.5rem !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+
+  &:focus {
+    outline: none !important;
+    border-color: var(--cds-link-primary, #0f62fe) !important;
+    border-bottom-color: var(--cds-link-primary, #0f62fe) !important;
+    box-shadow: 0 0 0 2px rgba(15, 98, 254, 0.2) !important;
+  }
+}
+
+.cds--text-area {
+  height: auto !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+// Carbon Select Input
+.cds--select-input {
+  background-color: var(--cds-field, var(--cds-layer)) !important;
+  color: var(--cds-text-primary) !important;
+  border: 1px solid var(--cds-border-subtle) !important;
+  border-bottom: 2px solid var(--cds-border-strong) !important;
+  border-radius: 4px !important;
+  height: 2.5rem !important;
+  font-size: 0.875rem !important;
+  padding-right: 2.5rem !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+
+  &:focus {
+    outline: none !important;
+    border-color: var(--cds-link-primary, #0f62fe) !important;
+    border-bottom-color: var(--cds-link-primary, #0f62fe) !important;
+    box-shadow: 0 0 0 2px rgba(15, 98, 254, 0.2) !important;
+  }
+}
+
+.cds--select__arrow {
+  fill: var(--cds-text-primary) !important;
+  right: 0.75rem !important;
+}
+
+// Carbon Tags
+.cds--tag {
+  border-radius: var(--radius-full, 9999px) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 0.25rem 0.75rem !important;
+  min-height: auto !important;
+  height: auto !important;
+  border: 1px solid transparent !important;
+}
+
+// Focus animations & outlines for native elements
+select,
+input[type="text"],
+input[type="date"],
+textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  &:focus {
+    outline: none !important;
+    border-color: var(--cds-link-primary, #0f62fe) !important;
+    box-shadow: 0 0 0 2px rgba(15, 98, 254, 0.2) !important;
+  }
+}
+
+// Carbon Tiles
+.cds--tile {
+  background-color: var(--cds-layer) !important;
+  border: 1px solid var(--cds-border-subtle) !important;
+  border-radius: 4px !important;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease !important;
 }

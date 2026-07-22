@@ -112,16 +112,76 @@ const CloudCostDetails = ({
     return dataPoint;
   });
 
+  const modalStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  const paperStyle = {
+    backgroundColor: "var(--cds-layer)",
+    color: "var(--cds-text-primary)",
+    border: "1px solid var(--cds-border-subtle)",
+    borderRadius: "8px",
+    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+    padding: "24px",
+    maxWidth: "700px",
+    width: "90%",
+    maxHeight: "85vh",
+    overflowY: "auto",
+    outline: "none",
+  };
+
   return (
     <div>
       <Modal
         open={true}
         onClose={onClose}
         title={`Costs over the last ${window}`}
-        style={{ margin: "10%" }}
+        style={modalStyle}
       >
-        <Paper style={{ padding: 20 }}>
-          <Typography style={{ marginTop: "1rem" }} variant="body1">
+        <Paper style={paperStyle}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+            borderBottom: "1px solid var(--cds-border-subtle)",
+            paddingBottom: "12px"
+          }}>
+            <h3 style={{
+              margin: 0,
+              fontSize: "1.25rem",
+              fontWeight: 600,
+              color: "var(--cds-text-primary)",
+              fontFamily: '"IBM Plex Sans", sans-serif'
+            }}>
+              {`Costs over the last ${window}`}
+            </h3>
+            <button
+              onClick={onClose}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--cds-text-primary)",
+                cursor: "pointer",
+                fontSize: "1.5rem",
+                lineHeight: 1,
+                padding: "4px 8px",
+                borderRadius: "4px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--cds-layer-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              &times;
+            </button>
+          </div>
+
+          <Typography style={{ marginTop: "0.5rem", color: "var(--cds-text-secondary)", fontFamily: '"IBM Plex Sans", sans-serif' }} variant="body2">
             {selectedItem}
           </Typography>
 

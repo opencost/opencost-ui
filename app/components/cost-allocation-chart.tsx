@@ -111,9 +111,10 @@ function buildChartData(
   const points: ChartPoint[] = [];
 
   for (const set of rawData) {
+    // The allocation API returns null sets for days without data.
     const allRaw: AllocationLike[] = Array.isArray(set)
       ? set
-      : (Object.values(set) as AllocationLike[]);
+      : (Object.values(set ?? {}) as AllocationLike[]);
     const allocs: AllocationLike[] = includeUnallocated
       ? allRaw
       : allRaw.filter((a) => !isUnallocated(a));

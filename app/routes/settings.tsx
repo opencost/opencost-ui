@@ -3,6 +3,8 @@ import { CheckCircleOutlined, OpenInNew } from "@mui/icons-material";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import { useSettings } from "~/components/settings-context";
 import { currencyCodes } from "~/constants/currencyCodes";
+import { useTranslation } from "react-i18next";
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "~/i18n";
 
 export function meta() {
   return [
@@ -12,14 +14,24 @@ export function meta() {
 }
 
 export default function SettingsPage() {
+  const { t, i18n } = useTranslation();
   const { defaultCurrency, setDefaultCurrency } = useSettings();
   const [saved, setSaved] = useState(false);
   const [pendingCurrency, setPendingCurrency] = useState(defaultCurrency);
+  const [pendingLanguage, setPendingLanguage] = useState<SupportedLanguage>(
+    (SUPPORTED_LANGUAGES.some((l) => l.code === i18n.language)
+      ? i18n.language
+      : "en") as SupportedLanguage
+  );
 
-  const isDirty = pendingCurrency !== defaultCurrency;
+  const isDirty =
+    pendingCurrency !== defaultCurrency || pendingLanguage !== i18n.language;
 
   const handleSave = () => {
     setDefaultCurrency(pendingCurrency);
+    if (pendingLanguage !== i18n.language) {
+      i18n.changeLanguage(pendingLanguage);
+    }
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2500);
   };
@@ -29,7 +41,7 @@ export default function SettingsPage() {
       <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
         <div className="mx-auto max-w-[800px] p-6">
           <div className="mb-6">
-            <h1 className="v2-page-title">Settings</h1>
+            <h1 className="v2-page-title">{t("settings.title")}</h1>
             <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-text-secondary)" }}>
               Global preferences applied across dashboards and reports.
             </p>
@@ -52,17 +64,49 @@ export default function SettingsPage() {
             >
               <h2 className="v2-section-title">Display</h2>
             </div>
-            <div className="px-5 py-5">
+            <div className="px-5 py-5 flex flex-col gap-5">
+              {/* Language Selector */}
+              <div className="max-w-[360px]">
+                <label
+                  className="mb-1.5 block text-xs font-semibold"
+                  style={{ color: "var(--cds-text-secondary)" }}
+                  htmlFor="settings-language"
+                >
+                  {t("settings.language_title")}
+                </label>
+                <p className="mb-2 text-xs" style={{ color: "var(--cds-text-placeholder)" }}>
+                  {t("settings.language_description")}
+                </p>
+                <select
+                  id="settings-language"
+                  value={pendingLanguage}
+                  onChange={(e) => setPendingLanguage(e.target.value as SupportedLanguage)}
+                  className="h-9 w-full rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  style={{
+                    background: "var(--cds-layer)",
+                    borderColor: "var(--cds-border-subtle)",
+                    color: "var(--cds-text-primary)",
+                  }}
+                >
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.flag} {lang.label} ({lang.code.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Currency Selector */}
               <div className="max-w-[360px]">
                 <label
                   className="mb-1.5 block text-xs font-semibold"
                   style={{ color: "var(--cds-text-secondary)" }}
                   htmlFor="settings-currency"
                 >
-                  Default Currency
+                  {t("settings.currency_title")}
                 </label>
-                <p className="mb-3 text-xs" style={{ color: "var(--cds-text-placeholder)" }}>
-                  Used as the default currency when creating new reports and dashboards.
+                <p className="mb-2 text-xs" style={{ color: "var(--cds-text-placeholder)" }}>
+                  {t("settings.currency_description")}
                 </p>
                 <select
                   id="settings-currency"
@@ -83,14 +127,15 @@ export default function SettingsPage() {
                 </select>
               </div>
 
-              <div className="mt-5 flex items-center gap-3">
+              {/* Save Button */}
+              <div className="pt-2 flex items-center gap-3">
                 <button
                   type="button"
                   disabled={!isDirty}
                   onClick={handleSave}
                   className="inline-flex h-8 items-center gap-1.5 rounded bg-[#0f62fe] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#0353e9] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
                 >
-                  Save changes
+                  {t("common.save")}
                 </button>
                 {saved ? (
                   <span className="inline-flex items-center gap-1 text-xs" style={{ color: "var(--cds-support-success)" }}>

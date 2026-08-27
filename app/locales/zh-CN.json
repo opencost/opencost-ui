@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "home": "首页",
+    "dashboards": "仪表板",
+    "reports": "报告",
+    "settings": "设置",
+    "allocation": "成本分配",
+    "assets": "集群资产",
+    "cloud_cost": "云端成本",
+    "collapse": "折叠侧边栏",
+    "expand": "展开侧边栏",
+    "search_placeholder": "搜索仪表板、报告、页面…",
+    "quick_links": "快捷链接",
+    "results": "搜索结果",
+    "no_results": "未找到相关结果",
+    "navigate": "导航",
+    "open": "打开",
+    "close": "关闭"
+  },
+  "header": {
+    "switch_theme_dark": "切换至深色模式",
+    "switch_theme_light": "切换至浅色模式",
+    "language": "界面语言"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "total": "总计",
+    "currency": "货币",
+    "date_range": "日期范围",
+    "cluster": "集群",
+    "namespace": "命名空间",
+    "node": "节点",
+    "pod": "Pod",
+    "controller": "控制器",
+    "service": "服务"
+  },
+  "cost": {
+    "total_cost": "总成本",
+    "cpu_cost": "CPU 成本",
+    "ram_cost": "内存成本",
+    "storage_cost": "存储成本",
+    "gpu_cost": "GPU 成本",
+    "network_cost": "网络成本",
+    "idle_cost": "闲置成本",
+    "efficiency": "利用效率"
+  },
+  "settings": {
+    "title": "设置",
+    "language_title": "界面语言",
+    "language_description": "选择 OpenCost 界面显示语言",
+    "currency_title": "计费货币",
+    "currency_description": "成本核算的默认货币单位",
+    "theme_title": "主题样式",
+    "theme_description": "选择浅色或深色界面主题"
+  }
+}

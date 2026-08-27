@@ -17,6 +17,7 @@ import { useDashboard } from "~/components/dashboard-context";
 import { useReport } from "~/components/report-context";
 import { useTutorialWizardOptional } from "~/components/tutorial-wizard-context";
 import { useAppTheme } from "~/components/theme-context";
+import { useTranslation } from "react-i18next";
 
 interface DashboardAppShellProps {
   children: ReactNode;
@@ -97,6 +98,7 @@ export default function DashboardAppShell({
   children,
   pageTitle,
 }: DashboardAppShellProps) {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const { dashboards } = useDashboard();
   const { reports } = useReport();
@@ -111,6 +113,13 @@ export default function DashboardAppShell({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const pageTitleMap: Record<string, string> = {
+    "/": t("nav.home"),
+    "/dashboards": t("nav.dashboards"),
+    "/reports": t("nav.reports"),
+    "/settings": t("nav.settings"),
+  };
 
   const homeActive = pathname === "/";
   const tutorial = useTutorialWizardOptional();
@@ -142,19 +151,19 @@ export default function DashboardAppShell({
   // Derive contextual page title
   const resolvedPageTitle =
     pageTitle ??
-    PAGE_TITLES[pathname] ??
-    (pathname.startsWith("/dashboard/") ? "Dashboard" : null) ??
-    (pathname.startsWith("/report/") ? "Report" : null) ??
+    pageTitleMap[pathname] ??
+    (pathname.startsWith("/dashboard/") ? t("nav.dashboards") : null) ??
+    (pathname.startsWith("/report/") ? t("nav.reports") : null) ??
     "OpenCost";
 
   const quickLinks = useMemo<SearchEntry[]>(
     () => [
-      { id: "home", label: "Home", type: "page", icon: <HomeOutlined fontSize="small" />, href: "/" },
-      { id: "dashboards", label: "Dashboards", type: "page", icon: <DashboardOutlined fontSize="small" />, href: "/dashboards" },
-      { id: "reports", label: "Reports", type: "page", icon: <DescriptionOutlined fontSize="small" />, href: "/reports" },
-      { id: "settings", label: "Settings", type: "page", icon: <SettingsOutlined fontSize="small" />, href: "/settings" },
+      { id: "home", label: t("nav.home"), type: "page", icon: <HomeOutlined fontSize="small" />, href: "/" },
+      { id: "dashboards", label: t("nav.dashboards"), type: "page", icon: <DashboardOutlined fontSize="small" />, href: "/dashboards" },
+      { id: "reports", label: t("nav.reports"), type: "page", icon: <DescriptionOutlined fontSize="small" />, href: "/reports" },
+      { id: "settings", label: t("nav.settings"), type: "page", icon: <SettingsOutlined fontSize="small" />, href: "/settings" },
     ],
-    [],
+    [t],
   );
 
   const dashboardLinks = useMemo<SearchEntry[]>(
@@ -335,22 +344,22 @@ export default function DashboardAppShell({
           </div>
 
           {/* Nav */}
-          <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 pr-1.5">
+          <nav className="flex flex-col gap-1 p-2">
             <NavLink
               href="/"
-              label="Home"
+              label={t("nav.home")}
               icon={<HomeOutlined sx={{ fontSize: 16 }} />}
               active={homeActive}
               collapsed={collapsed}
             />
             <NavGroupLabel
-              label="Reporting"
+              label={t("nav.reports")}
               icon={<DashboardOutlined sx={{ fontSize: 16 }} />}
               collapsed={collapsed}
             />
             <NavLink
               href="/dashboards"
-              label="Dashboards"
+              label={t("nav.dashboards")}
               icon={<DashboardOutlined sx={{ fontSize: 16 }} />}
               active={dashboardsActive}
               nested
@@ -359,7 +368,7 @@ export default function DashboardAppShell({
             />
             <NavLink
               href="/reports"
-              label="Reports"
+              label={t("nav.reports")}
               icon={<DescriptionOutlined sx={{ fontSize: 16 }} />}
               active={reportsActive}
               nested
@@ -373,7 +382,7 @@ export default function DashboardAppShell({
             />
             <NavLink
               href="/settings"
-              label="Settings"
+              label={t("nav.settings")}
               icon={<SettingsOutlined sx={{ fontSize: 16 }} />}
               active={settingsActive}
               collapsed={collapsed}
@@ -390,7 +399,7 @@ export default function DashboardAppShell({
                 color: "var(--cds-text-secondary)",
               }}
               onClick={() => setCollapsed((p) => !p)}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? t("nav.expand") : t("nav.collapse")}
             >
               {collapsed ? (
                 <ChevronRight sx={{ fontSize: 14 }} />
@@ -455,7 +464,7 @@ export default function DashboardAppShell({
                   borderColor: "var(--cds-border-subtle)",
                   color: "var(--cds-text-secondary)",
                 }}
-                title={theme === "g100" ? "Switch to light mode" : "Switch to dark mode"}
+                title={theme === "g100" ? t("header.switch_theme_light") : t("header.switch_theme_dark")}
                 aria-label="Toggle theme"
               >
                 {theme === "g100" ? (

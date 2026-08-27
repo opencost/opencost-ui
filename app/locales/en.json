@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboards": "Dashboards",
+    "reports": "Reports",
+    "settings": "Settings",
+    "allocation": "Allocation",
+    "assets": "Assets",
+    "cloud_cost": "Cloud Costs",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "search_placeholder": "Search dashboards, reports, pages…",
+    "quick_links": "Quick Links",
+    "results": "Results",
+    "no_results": "No results for",
+    "navigate": "Navigate",
+    "open": "Open",
+    "close": "Close"
+  },
+  "header": {
+    "switch_theme_dark": "Switch to dark mode",
+    "switch_theme_light": "Switch to light mode",
+    "language": "Language"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "total": "Total",
+    "currency": "Currency",
+    "date_range": "Date Range",
+    "cluster": "Cluster",
+    "namespace": "Namespace",
+    "node": "Node",
+    "pod": "Pod",
+    "controller": "Controller",
+    "service": "Service"
+  },
+  "cost": {
+    "total_cost": "Total Cost",
+    "cpu_cost": "CPU Cost",
+    "ram_cost": "RAM Cost",
+    "storage_cost": "Storage Cost",
+    "gpu_cost": "GPU Cost",
+    "network_cost": "Network Cost",
+    "idle_cost": "Idle Cost",
+    "efficiency": "Efficiency"
+  },
+  "settings": {
+    "title": "Settings",
+    "language_title": "Interface Language",
+    "language_description": "Choose the display language for the OpenCost UI",
+    "currency_title": "Currency",
+    "currency_description": "Default currency for cost calculations",
+    "theme_title": "Theme",
+    "theme_description": "Select light or dark interface theme"
+  }
+}

@@ -13,6 +13,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import type { Route } from "./+types/root";
 import "./app.scss";
 import "./tailwind.css";
+import "~/i18n";
 import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 import { SettingsProvider } from "~/components/settings-context";

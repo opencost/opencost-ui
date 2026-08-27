@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "home": "Главная",
+    "dashboards": "Дашборды",
+    "reports": "Отчёты",
+    "settings": "Настройки",
+    "allocation": "Аллокация затрат",
+    "assets": "Ресурсы кластера",
+    "cloud_cost": "Облачные расходы",
+    "collapse": "Свернуть меню",
+    "expand": "Развернуть меню",
+    "search_placeholder": "Поиск дашбордов, отчётов, страниц…",
+    "quick_links": "Быстрый переход",
+    "results": "Результаты",
+    "no_results": "Ничего не найдено по запросу",
+    "navigate": "Перейти",
+    "open": "Открыть",
+    "close": "Закрыть"
+  },
+  "header": {
+    "switch_theme_dark": "Переключить на тёмную тему",
+    "switch_theme_light": "Переключить на светлую тему",
+    "language": "Язык интерфейса"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "total": "Всего",
+    "currency": "Валюта",
+    "date_range": "Диапазон дат",
+    "cluster": "Кластер",
+    "namespace": "Namespace",
+    "node": "Нода",
+    "pod": "Под",
+    "controller": "Контроллер",
+    "service": "Сервис"
+  },
+  "cost": {
+    "total_cost": "Общая стоимость",
+    "cpu_cost": "Стоимость CPU",
+    "ram_cost": "Стоимость RAM",
+    "storage_cost": "Стоимость дисков",
+    "gpu_cost": "Стоимость GPU",
+    "network_cost": "Стоимость сети",
+    "idle_cost": "Простой (Idle)",
+    "efficiency": "Эффективность"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language_title": "Язык интерфейса",
+    "language_description": "Выберите язык отображения панели управления OpenCost",
+    "currency_title": "Валюта",
+    "currency_description": "Валюта по умолчанию для расчета затрат",
+    "theme_title": "Тема оформления",
+    "theme_description": "Выберите светлую или тёмную тему интерфейса"
+  }
+}

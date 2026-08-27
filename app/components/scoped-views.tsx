@@ -1,5 +1,6 @@
 import { Select, SelectItem } from "@carbon/react";
 import { Tune } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 import {
   CLOUD_WINDOW_OPTIONS,
   CLOUD_AGGREGATION_OPTIONS,
@@ -207,6 +208,8 @@ export function AllocationFilterControls({
   idPrefix = "alloc",
   compact = true,
 }: AllocationFilterControlsProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
@@ -218,35 +221,38 @@ export function AllocationFilterControls({
     >
       <Select
         id={`${idPrefix}-window`}
-        labelText="Window"
+        labelText={t("common.date_range", "Window")}
         value={window}
         size="sm"
         onChange={(e) => onWindowChange(e.target.value)}
       >
         {ALLOCATION_WINDOW_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`time.${o.value}`, o.name)} />
         ))}
       </Select>
       <Select
         id={`${idPrefix}-aggregate`}
-        labelText="Aggregate by"
+        labelText={t("common.cluster", "Aggregate by")}
         value={aggregateBy}
         size="sm"
         onChange={(e) => onAggregateByChange(e.target.value)}
       >
-        {ALLOCATION_AGGREGATE_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
-        ))}
+        {ALLOCATION_AGGREGATE_OPTIONS.map((o) => {
+          const aggKey = o.value === "controllerKind" ? "controller" : o.value;
+          return (
+            <SelectItem key={o.value} value={o.value} text={t(`common.${aggKey}`, o.name)} />
+          );
+        })}
       </Select>
       <Select
         id={`${idPrefix}-accumulate`}
-        labelText="Granularity"
+        labelText={t("time.day", "Granularity")}
         value={accumulate}
         size="sm"
         onChange={(e) => onAccumulateChange(e.target.value)}
       >
         {REPORT_ACCUMULATE_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.label} />
+          <SelectItem key={o.value} value={o.value} text={t(`time.${o.value}`, o.label)} />
         ))}
       </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
@@ -255,7 +261,7 @@ export function AllocationFilterControls({
           checked={!!includeIdle}
           onChange={(e) => onIncludeIdleChange(e.target.checked)}
         />
-        Include idle costs
+        {t("cost.idle_cost", "Include idle costs")}
       </label>
       {onIncludeUnallocatedChange ? (
         <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
@@ -264,7 +270,7 @@ export function AllocationFilterControls({
             checked={includeUnallocated !== false}
             onChange={(e) => onIncludeUnallocatedChange(e.target.checked)}
           />
-          Include unallocated costs
+          {t("common.total", "Include unallocated costs")}
         </label>
       ) : null}
     </div>
@@ -292,6 +298,7 @@ export function CloudFilterControls({
   idPrefix = "cloud",
   compact = true,
 }: CloudFilterControlsProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
@@ -303,35 +310,35 @@ export function CloudFilterControls({
     >
       <Select
         id={`${idPrefix}-window`}
-        labelText="Date range"
+        labelText={t("common.date_range")}
         value={window}
         size="sm"
         onChange={(e) => onWindowChange(e.target.value)}
       >
         {CLOUD_WINDOW_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`time.${o.value}`, o.name)} />
         ))}
       </Select>
       <Select
         id={`${idPrefix}-breakdown`}
-        labelText="Breakdown"
+        labelText={t("common.breakdown")}
         value={aggregateBy}
         size="sm"
         onChange={(e) => onAggregateByChange(e.target.value)}
       >
         {CLOUD_AGGREGATION_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`common.${o.value}`, o.name)} />
         ))}
       </Select>
       <Select
         id={`${idPrefix}-cost-metric`}
-        labelText="Cost metric"
+        labelText={t("cost.cost_metric")}
         value={costMetric}
         size="sm"
         onChange={(e) => onCostMetricChange(e.target.value)}
       >
         {CLOUD_COST_METRIC_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`cost.${o.value}`, o.name)} />
         ))}
       </Select>
     </div>
@@ -363,6 +370,7 @@ export function AssetsFilterControls({
   idPrefix = "assets",
   compact = true,
 }: AssetsFilterControlsProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`grid items-end ${compact ? "gap-3 mb-3" : "gap-4 mb-4"}`}
@@ -374,35 +382,35 @@ export function AssetsFilterControls({
     >
       <Select
         id={`${idPrefix}-window`}
-        labelText="Window"
+        labelText={t("common.date_range")}
         value={window}
         size="sm"
         onChange={(e) => onWindowChange(e.target.value)}
       >
         {ASSETS_WINDOW_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`time.${o.value}`, o.name)} />
         ))}
       </Select>
       <Select
         id={`${idPrefix}-aggregate`}
-        labelText="Aggregate by"
+        labelText={t("reports.group_by")}
         value={aggregateBy}
         size="sm"
         onChange={(e) => onAggregateByChange(e.target.value)}
       >
         {ASSETS_AGGREGATE_OPTIONS.map((o) => (
-          <SelectItem key={o.value} value={o.value} text={o.name} />
+          <SelectItem key={o.value} value={o.value} text={t(`common.${o.value}`, o.name)} />
         ))}
       </Select>
       <Select
         id={`${idPrefix}-accumulate`}
-        labelText="Time"
+        labelText={t("time.day", "Time")}
         value={String(accumulate)}
         size="sm"
         onChange={(e) => onAccumulateChange(e.target.value === "true")}
       >
-        <SelectItem value="true" text="Entire window" />
-        <SelectItem value="false" text="Daily" />
+        <SelectItem value="true" text={t("time.all", "Entire window")} />
+        <SelectItem value="false" text={t("time.day", "Daily")} />
       </Select>
       <label className="flex items-end gap-2 text-sm cursor-pointer pb-2">
         <input
@@ -410,7 +418,7 @@ export function AssetsFilterControls({
           checked={!!includeIdle}
           onChange={(e) => onIncludeIdleChange(e.target.checked)}
         />
-        Include idle
+        {t("reports.include_idle_costs", "Include idle")}
       </label>
     </div>
   );

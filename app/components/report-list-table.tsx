@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { Tag } from "@carbon/react";
+import { useTranslation } from "react-i18next";
 import {
   Star,
   StarBorder,
@@ -24,11 +25,23 @@ export default function ReportListTable({
   onShare,
   onDelete,
 }: ReportListTableProps) {
+  const { t } = useTranslation();
+
+  const getTranslatedReportName = (report: Report) => {
+    if (report.id === "report-1" || report.name === "Namespace Cost Trend") {
+      return t("reports.namespace_cost_trend");
+    }
+    if (report.id === "report-2" || report.name === "Cluster Cost Breakdown") {
+      return t("reports.cluster_cost_breakdown");
+    }
+    return report.name;
+  };
+
   if (reports.length === 0) {
     const message =
       totalReportCount === 0
-        ? "You do not have any reports yet. Create a report to get started."
-        : "No reports match the selected search and filters.";
+        ? t("reports.no_reports_yet")
+        : t("reports.no_reports_match");
     return (
       <div
         className="p-8 text-center text-xs"
@@ -50,25 +63,25 @@ export default function ReportListTable({
         >
           <th className="w-8 px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }} />
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Name
+            {t("table.name")}
           </th>
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Owner
+            {t("table.owner")}
           </th>
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Created On
+            {t("table.created_on")}
           </th>
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Last Modified
+            {t("table.last_modified")}
           </th>
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Visibility
+            {t("table.visibility")}
           </th>
           <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Tags
+            {t("table.tags")}
           </th>
           <th className="w-[8rem] whitespace-nowrap px-3 py-2 text-right text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-            Actions
+            {t("table.actions")}
           </th>
         </tr>
       </thead>
@@ -76,6 +89,8 @@ export default function ReportListTable({
         {reports.map((report) => {
           const createdOn = new Date(report.createdAt).toLocaleDateString();
           const modifiedOn = new Date(report.updatedAt).toLocaleString();
+          const displayOwner = report.owner === "You" ? t("common.you") : report.owner;
+          const displayVisibility = report.visibility === "public" ? t("common.public") : t("common.private");
           return (
             <tr
               key={report.id}
@@ -95,11 +110,11 @@ export default function ReportListTable({
                   className="font-medium no-underline hover:underline"
                   style={{ color: "var(--cds-text-primary)" }}
                 >
-                  {report.name}
+                  {getTranslatedReportName(report)}
                 </Link>
               </td>
               <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
-                {report.owner}
+                {displayOwner}
               </td>
               <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                 {createdOn}
@@ -121,7 +136,7 @@ export default function ReportListTable({
                         : "var(--cds-text-secondary, #525252)",
                   }}
                 >
-                  {report.visibility === "public" ? "Public" : "Private"}
+                  {displayVisibility}
                 </span>
               </td>
               <td className="px-3 py-2.5 align-middle text-xs">
@@ -145,8 +160,8 @@ export default function ReportListTable({
                     borderColor: "var(--cds-border-subtle)",
                     color: "var(--cds-text-secondary)",
                   }}
-                  aria-label="Edit report"
-                  title="Edit report"
+                  aria-label={t("common.edit")}
+                  title={t("common.edit")}
                   onClick={() => onEdit(report)}
                 >
                   <EditOutlined fontSize="small" />
@@ -158,8 +173,8 @@ export default function ReportListTable({
                     borderColor: "var(--cds-border-subtle)",
                     color: "var(--cds-text-secondary)",
                   }}
-                  aria-label="Share report"
-                  title="Share report"
+                  aria-label={t("common.share")}
+                  title={t("common.share")}
                   onClick={() => onShare(report)}
                 >
                   <IosShareOutlined fontSize="small" />
@@ -171,8 +186,8 @@ export default function ReportListTable({
                     borderColor: "var(--cds-border-subtle)",
                     color: "var(--cds-text-secondary)",
                   }}
-                  aria-label="Delete report"
-                  title="Delete report"
+                  aria-label={t("common.delete")}
+                  title={t("common.delete")}
                   onClick={() => onDelete(report)}
                 >
                   <DeleteOutlined fontSize="small" />

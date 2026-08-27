@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 import { ArrowLeft, OverflowMenuVertical } from "@carbon/icons-react";
 import { EditOutlined, ShareOutlined } from "@mui/icons-material";
@@ -22,9 +23,23 @@ function WidgetRenderer({
   widget: Widget;
   useSharedAllocationFilters: boolean;
 }) {
+  const { t } = useTranslation();
+
+  const getTranslatedWidgetTitle = (title: string) => {
+    if (title === "Cost Summary") return t("cost.cost_summary");
+    if (title === "Cost Allocation") return t("cost.cost_allocation");
+    if (title === "Cost Breakdown Table" || title === "Allocation Breakdown Table") {
+      return t("cost.cost_breakdown_table");
+    }
+    if (title === "Cloud Costs") return t("cost.cloud_costs");
+    return title;
+  };
+
+  const widgetTitle = getTranslatedWidgetTitle(widget.title);
+
   switch (widget.type) {
     case "summary-cards":
-      return <CostSummaryCards title={widget.title} />;
+      return <CostSummaryCards title={widgetTitle} />;
     case "cloud-costs-chart":
       return (
         <WidgetCard>
@@ -35,8 +50,8 @@ function WidgetRenderer({
       return (
         <WidgetCard>
           <CloudCostTableWidget
-            title={widget.title}
-            description="Cloud service spend with utilization and totals"
+            title={widgetTitle}
+            description={t("cost.cloud_services_spend")}
           />
         </WidgetCard>
       );
@@ -44,8 +59,8 @@ function WidgetRenderer({
       return (
         <WidgetCard>
           <CostAllocationChart
-            title={widget.title}
-            description="Cost breakdown by cluster, namespace, pod, or other dimension"
+            title={widgetTitle}
+            description={t("cost.cost_allocation_desc")}
             useSharedFilters={useSharedAllocationFilters}
           />
         </WidgetCard>
@@ -53,7 +68,7 @@ function WidgetRenderer({
     case "external-services-chart":
     case "external-costs-chart":
       return (
-        <WidgetCard title={widget.title} description="Third-party service costs">
+        <WidgetCard title={widgetTitle} description={t("cost.external_costs")}>
           <ExternalServicesChartWidget />
         </WidgetCard>
       );
@@ -64,15 +79,15 @@ function WidgetRenderer({
       return (
         <WidgetCard>
           <CostAllocationTable
-            title={widget.title}
-            description="Cost allocation breakdown by cluster, namespace, pod, or other dimension"
+            title={widgetTitle}
+            description={t("cost.cost_allocation_desc")}
             useSharedFilters={useSharedAllocationFilters}
           />
         </WidgetCard>
       );
     case "anomaly-detection":
       return (
-        <WidgetCard title={widget.title}>
+        <WidgetCard title={widgetTitle}>
           <div
             className="v2-empty-state"
             style={{ minHeight: "10rem" }}
@@ -85,7 +100,7 @@ function WidgetRenderer({
       );
     case "carbon-metrics":
       return (
-        <WidgetCard title={widget.title}>
+        <WidgetCard title={widgetTitle}>
           <div className="v2-empty-state" style={{ minHeight: "10rem" }}>
             <p className="v2-empty-state__description">
               Carbon metrics coming soon
@@ -124,11 +139,32 @@ export default function DashboardView({
   isDefaultDashboard = false,
   showBackButton = true,
 }: DashboardViewProps) {
+  const { t } = useTranslation();
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentWidgets, setCurrentWidgets] = useState<Widget[]>(
     dashboard.widgets,
   );
   const [shareToast, setShareToast] = useState<"copied" | "error" | null>(null);
+
+  const getTranslatedDashboardName = (d: Dashboard) => {
+    if (d.id === "1" || d.name === "Home") return t("dashboards.home_name");
+    if (d.id === "2" || d.name === "Allocations") return t("dashboards.allocations_name");
+    if (d.id === "3" || d.name === "Cloud Cost") return t("dashboards.cloud_cost_name");
+    if (d.id === "4" || d.name === "Infra Assets") return t("dashboards.infra_assets_name");
+    return d.name;
+  };
+
+  const getTranslatedDashboardDesc = (d: Dashboard) => {
+    if (d.id === "1" || d.name === "Home") return t("dashboards.home_desc");
+    if (d.id === "2" || d.name === "Allocations") return t("dashboards.allocations_desc");
+    if (d.id === "3" || d.name === "Cloud Cost") return t("dashboards.cloud_cost_desc");
+    if (d.id === "4" || d.name === "Infra Assets") return t("dashboards.infra_assets_desc");
+    return d.description;
+  };
+
+  const resolvedName = getTranslatedDashboardName(dashboard);
+  const resolvedDesc = getTranslatedDashboardDesc(dashboard);
+
   const hasAllocationChart = currentWidgets.some(
     (w) => w.type === "cost-allocation-chart",
   );
@@ -186,19 +222,19 @@ export default function DashboardView({
                 borderColor: "var(--cds-border-subtle)",
                 color: "var(--cds-text-secondary)",
               }}
-              aria-label="Back"
+              aria-label={t("common.back")}
             >
               <ArrowLeft size={16} />
             </button>
           )}
           <div className="min-w-0">
-            <h1 className="v2-page-title truncate">{dashboard.name}</h1>
-            {dashboard.description && (
+            <h1 className="v2-page-title truncate">{resolvedName}</h1>
+            {resolvedDesc && (
               <p
                 className="m-0 mt-0.5 text-xs truncate"
                 style={{ color: "var(--cds-text-secondary)" }}
               >
-                {dashboard.description}
+                {resolvedDesc}
               </p>
             )}
           </div>
@@ -217,7 +253,7 @@ export default function DashboardView({
                     : "var(--cds-support-error)",
               }}
             >
-              {shareToast === "copied" ? "Link copied!" : "Copy failed"}
+              {shareToast === "copied" ? t("common.link_copied") : t("common.copy_failed")}
             </span>
           )}
           <button
@@ -229,10 +265,10 @@ export default function DashboardView({
               borderColor: "var(--cds-border-subtle)",
               color: "var(--cds-text-secondary)",
             }}
-            title="Share dashboard"
+            title={t("common.share")}
           >
             <ShareOutlined sx={{ fontSize: 14 }} />
-            Share
+            {t("common.share")}
           </button>
           <button
             type="button"
@@ -243,10 +279,10 @@ export default function DashboardView({
               borderColor: "var(--cds-border-subtle)",
               color: "var(--cds-text-secondary)",
             }}
-            title="Edit layout"
+            title={t("common.edit")}
           >
             <EditOutlined sx={{ fontSize: 14 }} />
-            Edit
+            {t("common.edit")}
           </button>
           <OverflowMenu
             renderIcon={OverflowMenuVertical}
@@ -256,12 +292,12 @@ export default function DashboardView({
           >
             {onDuplicate && (
               <OverflowMenuItem
-                itemText="Duplicate Dashboard"
+                itemText={t("dashboards.duplicate")}
                 onClick={onDuplicate}
               />
             )}
             <OverflowMenuItem
-              itemText="Delete Dashboard"
+              itemText={t("dashboards.delete")}
               hasDivider
               disabled={isDefaultDashboard}
               isDelete

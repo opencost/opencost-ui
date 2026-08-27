@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSettings } from "~/components/settings-context";
+import { useTranslation } from "react-i18next";
 import {
   Currency,
   ChartLine,
@@ -67,13 +68,15 @@ export interface CostSummaryCardsProps {
 }
 
 export default function CostSummaryCards({
-  title = "Cost Summary",
+  title,
   window: windowProp,
   aggregateBy: aggregateByProp,
   accumulate: accumulateProp,
   includeIdle: includeIdleProp,
   filters = EMPTY_FILTERS,
 }: CostSummaryCardsProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("cost.cost_summary");
   const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
@@ -184,7 +187,7 @@ export default function CostSummaryCards({
   return (
     <div className="w-full">
       <FilterableWidgetHeader
-        title={title}
+        title={resolvedTitle}
         expanded={showFilters}
         onToggle={() => setShowFilters((s) => !s)}
         filterContent={
@@ -203,27 +206,27 @@ export default function CostSummaryCards({
       />
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          label="Total Cluster Cost"
+          label={t("cost.total_cluster_cost")}
           value={data ? toCurrency(data.totalCost, currency, 2) : "—"}
           icon={Currency}
           loading={loading}
         />
         <MetricCard
-          label="Cloud Costs"
+          label={t("cost.cloud_costs")}
           value={data ? toCurrency(data.cloudCost, currency, 2) : "—"}
           icon={ChartLine}
           loading={loading}
           accentClass="metric-card--cloud"
         />
         <MetricCard
-          label="External Costs"
+          label={t("cost.external_costs")}
           value={data ? toCurrency(data.externalCost, currency, 2) : "—"}
           icon={ChartLineSmooth}
           loading={loading}
           accentClass="metric-card--external"
         />
         <MetricCard
-          label="Efficiency"
+          label={t("cost.efficiency")}
           value={data ? `${data.efficiency.toFixed(1)}%` : "—"}
           icon={Activity}
           loading={loading}

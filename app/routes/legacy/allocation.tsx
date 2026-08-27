@@ -3,7 +3,8 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { find, get, sortBy, toArray } from "lodash";
+import lodash from "lodash";
+const { find, get, sortBy, toArray } = lodash;
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 

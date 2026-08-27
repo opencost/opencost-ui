@@ -3,6 +3,7 @@ import { Button, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 import { ArrowLeft } from "@carbon/icons-react";
 import { useNavigate, useParams } from "react-router";
 import { Star, StarBorder } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportBuilderSidePanel from "~/components/report-builder-side-panel";
 import ReportResultsView from "~/components/report-results-view";
@@ -20,6 +21,7 @@ function escapeCsvField(value: string | number | null | undefined): string {
 }
 
 export default function ReportBuilderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { reportId } = useParams<{ reportId: string }>();
   const { reports, updateReport, createReport, deleteReport } = useReport();
@@ -197,6 +199,21 @@ export default function ReportBuilderPage() {
     });
   };
 
+  const getTranslatedReportName = (r: Report) => {
+    if (r.id === "report-1" || r.name === "Namespace Cost Trend") return t("reports.namespace_cost_trend");
+    if (r.id === "report-2" || r.name === "Cluster Cost Breakdown") return t("reports.cluster_cost_breakdown");
+    return r.name;
+  };
+
+  const getTranslatedReportDesc = (r: Report) => {
+    if (r.id === "report-1" || r.name === "Namespace Cost Trend") return t("reports.namespace_cost_trend_desc");
+    if (r.id === "report-2" || r.name === "Cluster Cost Breakdown") return t("reports.cluster_cost_breakdown_desc");
+    return r.description;
+  };
+
+  const resolvedName = currentDraft ? getTranslatedReportName(currentDraft) : "";
+  const resolvedDesc = currentDraft ? getTranslatedReportDesc(currentDraft) : "";
+
   return (
     <DashboardAppShell>
       <main className="min-h-screen" style={{ background: "var(--cds-background)" }}>
@@ -207,17 +224,17 @@ export default function ReportBuilderPage() {
                 kind="ghost"
                 size="sm"
                 onClick={() => navigate("/reports")}
-                iconDescription="Back to reports"
+                iconDescription={t("reports.back_to_reports")}
               >
                 <ArrowLeft className="mr-[0.375rem]" />
-                Back to Reports
+                {t("reports.back_to_reports")}
               </Button>
               <div>
                 <h1 className="v2-page-title">
-                  {currentDraft.name}
+                  {resolvedName}
                 </h1>
                 <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-text-secondary)" }}>
-                  {currentDraft.description}
+                  {resolvedDesc}
                 </p>
                 {actionFeedback ? (
                   <p className="m-0 mt-1 text-xs" style={{ color: "var(--cds-support-success)" }}>
@@ -228,10 +245,10 @@ export default function ReportBuilderPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" onClick={handleSave}>
-                Save
+                {t("reports.save")}
               </Button>
               <Button size="sm" kind="ghost" onClick={handleSaveAsCopy}>
-                Save As Copy
+                {t("reports.save_as_copy")}
               </Button>
               <Button
                 size="sm"
@@ -239,24 +256,18 @@ export default function ReportBuilderPage() {
                 onClick={handleToggleFavorite}
                 renderIcon={currentDraft.favorite ? Star : StarBorder}
               >
-                Favorite
+                {t("reports.favorite")}
               </Button>
               <Button size="sm" kind="ghost" onClick={handleExport}>
-                Export
+                {t("reports.export")}
               </Button>
               <OverflowMenu flipped size="sm" iconDescription="More actions">
                 <OverflowMenuItem
-                  itemText="Create New Report"
+                  itemText={t("reports.create_new_report")}
                   onClick={() => navigate("/reports")}
                 />
-                <OverflowMenuItem itemText="Edit Details" onClick={() => navigate("/reports")} />
-                <OverflowMenuItem itemText="Delete Report" isDelete onClick={handleDelete} />
-                {/* <OverflowMenuItem
-                  itemText="Subscribe to Report"
-                />
-                <OverflowMenuItem
-                  itemText="Export PDF"
-                /> */}
+                <OverflowMenuItem itemText={t("reports.edit_details")} onClick={() => navigate("/reports")} />
+                <OverflowMenuItem itemText={t("reports.delete_report")} isDelete onClick={handleDelete} />
               </OverflowMenu>
             </div>
           </div>

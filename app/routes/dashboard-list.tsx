@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button, Modal, Tag } from "@carbon/react";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   StarBorder,
@@ -71,6 +72,7 @@ export function meta() {
 }
 
 export default function DashboardList() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -87,6 +89,14 @@ export default function DashboardList() {
   const selectedTag = searchParams.get("tag") ?? "all";
   const selectedScope = searchParams.get("scope") ?? "all";
   const selectedOwner = searchParams.get("owner") ?? "all";
+
+  const getTranslatedDashboardName = (d: Dashboard) => {
+    if (d.id === "1" || d.name === "Home") return t("dashboards.home_name");
+    if (d.id === "2" || d.name === "Allocations") return t("dashboards.allocations_name");
+    if (d.id === "3" || d.name === "Cloud Cost") return t("dashboards.cloud_cost_name");
+    if (d.id === "4" || d.name === "Infra Assets") return t("dashboards.infra_assets_name");
+    return d.name;
+  };
 
   const allTags = Array.from(new Set(dashboards.flatMap((d) => d.tags))).sort();
   const allOwners = Array.from(new Set(dashboards.map((d) => d.owner))).sort();
@@ -232,7 +242,7 @@ export default function DashboardList() {
             {/* Page title area */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="v2-page-title">Dashboards</h1>
+                <h1 className="v2-page-title">{t("dashboards.title")}</h1>
                 {shareFeedback && (
                   <p
                     className="mt-1 text-xs"
@@ -243,7 +253,7 @@ export default function DashboardList() {
                 )}
               </div>
               <Button size="sm" onClick={() => setShowCreateModal(true)}>
-                Create Dashboard
+                {t("dashboards.create_dashboard")}
               </Button>
             </div>
 
@@ -276,7 +286,7 @@ export default function DashboardList() {
                     type="text"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Search dashboards…"
+                    placeholder={t("dashboards.search_placeholder")}
                     className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs outline-none"
                     style={{ color: "var(--cds-text-primary)" }}
                   />
@@ -291,7 +301,7 @@ export default function DashboardList() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Tag</option>
+                  <option value="all">{t("dashboards.filter_by_tag")}</option>
                   {allTags.map((tag) => (
                     <option key={tag} value={tag}>
                       {tag}
@@ -308,9 +318,9 @@ export default function DashboardList() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Scope</option>
+                  <option value="all">{t("dashboards.filter_by_visibility")}</option>
                   <option value="opencost">OpenCost</option>
-                  <option value="public">Public</option>
+                  <option value="public">{t("common.public")}</option>
                 </select>
                 <select
                   value={selectedOwner}
@@ -322,10 +332,10 @@ export default function DashboardList() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Created By</option>
+                  <option value="all">{t("dashboards.filter_by_owner")}</option>
                   {allOwners.map((owner) => (
                     <option key={owner} value={owner}>
-                      {owner}
+                      {owner === "You" ? t("common.you") : owner}
                     </option>
                   ))}
                 </select>
@@ -342,25 +352,25 @@ export default function DashboardList() {
                     >
                       <th className="w-8 px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }} />
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Name
+                        {t("table.name")}
                       </th>
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Created By
+                        {t("table.owner")}
                       </th>
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Created On
+                        {t("table.created_on")}
                       </th>
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Last Modified
+                        {t("table.last_modified")}
                       </th>
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Visibility
+                        {t("table.visibility")}
                       </th>
                       <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Tags
+                        {t("table.tags")}
                       </th>
                       <th className="min-w-[10.5rem] whitespace-nowrap px-3 py-2 text-right text-xs font-semibold" style={{ color: "var(--cds-text-secondary)" }}>
-                        Actions
+                        {t("table.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -371,6 +381,8 @@ export default function DashboardList() {
                       ).toLocaleDateString();
                       const modifiedOn = new Date(dashboard.updatedAt).toLocaleString();
                       const visibility = dashboard.starred ? "OpenCost" : "Public";
+                      const displayOwner = dashboard.owner === "You" ? t("common.you") : dashboard.owner;
+                      const displayVisibility = visibility === "Public" ? t("common.public") : visibility;
                       return (
                         <tr
                           key={dashboard.id}
@@ -390,11 +402,11 @@ export default function DashboardList() {
                               className="font-medium no-underline hover:underline"
                               style={{ color: "var(--cds-text-primary)" }}
                             >
-                              {dashboard.name}
+                              {getTranslatedDashboardName(dashboard)}
                             </Link>
                           </td>
                           <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
-                            {dashboard.owner}
+                            {displayOwner}
                           </td>
                           <td className="px-3 py-2.5 align-middle text-xs" style={{ color: "var(--cds-text-secondary)" }}>
                             {createdOn}
@@ -416,7 +428,7 @@ export default function DashboardList() {
                                     : "var(--cds-focus, #0f62fe)",
                               }}
                             >
-                              {visibility}
+                              {displayVisibility}
                             </span>
                           </td>
                           <td className="px-3 py-2.5 align-middle text-xs">

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSettings } from "~/components/settings-context";
+import { useTranslation } from "react-i18next";
 import {
   TableContainer,
   Table,
@@ -11,7 +12,8 @@ import {
   Pagination,
 } from "@carbon/react";
 import { Close } from "@carbon/icons-react";
-import { get, round, toArray, sortBy, reverse } from "lodash";
+import lodash from "lodash";
+const { get, round, toArray, sortBy, reverse } = lodash;
 import AllocationService from "~/services/allocation";
 import {
   rangeToCumulative,
@@ -33,19 +35,24 @@ function generateTitle(
   window: string,
   aggregateBy: string,
   accumulate: string,
+  t?: (key: string, fallback?: string) => string,
 ): string {
+  const tr = t ?? ((k: string, fb?: string) => fb ?? k);
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
-  let windowName = winOpt?.name ?? "";
-  if (windowName === "" && checkCustomWindow(window)) {
+  let windowName = tr(`time.${window}`, winOpt?.name ?? window);
+  if (!winOpt && checkCustomWindow(window)) {
     windowName = toVerboseTimeRange(window) ?? window;
   }
-  if (windowName === "") windowName = window;
+
   const aggOpt = ALLOCATION_AGGREGATE_OPTIONS.find(
     (o) => o.value === aggregateBy,
   );
-  const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
-  const gran = reportAccumulateLabel(accumulate);
-  return `${windowName} by ${aggregationName} (${gran})`;
+  const aggKey = aggregateBy === "controllerKind" ? "controller" : aggregateBy;
+  const aggregationName = tr(`common.${aggKey}`, aggOpt?.name ?? aggregateBy).toLowerCase();
+
+  const gran = tr(`time.${accumulate}`, reportAccumulateLabel(accumulate));
+  const byWord = tr("time.by", "by");
+  return `${windowName} ${byWord} ${aggregationName} (${gran})`;
 }
 
 const drilldownHierarchy: Record<string, string> = {
@@ -86,8 +93,8 @@ export interface CostAllocationTableProps {
 }
 
 export default function CostAllocationTable({
-  title = "Allocation Breakdown",
-  description = "Cost allocation breakdown by cluster, namespace, pod, or other dimension",
+  title,
+  description,
   window: windowProp,
   aggregateBy: globalAggregateByProp,
   accumulate: accumulateProp,
@@ -96,6 +103,9 @@ export default function CostAllocationTable({
   currency: currencyProp,
   useSharedFilters = false,
 }: CostAllocationTableProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("cost.cost_breakdown_table");
+  const resolvedDesc = description ?? t("cost.cost_allocation_desc");
   const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [sharedFilters, setSharedFilters] =
@@ -152,7 +162,17 @@ export default function CostAllocationTable({
     direction: "asc" | "desc";
   }>({ key: "totalCost", direction: "desc" });
 
-  const dataTitle = generateTitle(window, aggregateBy, accumulate);
+  const dataTitle = generateTitle(window, aggregateBy, accumulate, t);
+
+  const tableHeaders = [
+    { key: "name", header: t("table.name"), isSortable: true },
+    { key: "cpuCost", header: "CPU", isSortable: true },
+    { key: "gpuCost", header: "GPU", isSortable: true },
+    { key: "ramCost", header: "RAM", isSortable: true },
+    { key: "pvCost", header: "PV", isSortable: true },
+    { key: "totalEfficiency", header: t("cost.efficiency"), isSortable: true },
+    { key: "totalCost", header: t("cost.total_cost"), isSortable: true },
+  ];
 
   const filteredAllocationData = useMemo(() => {
     if (includeUnallocated) return allocationData;
@@ -382,15 +402,15 @@ export default function CostAllocationTable({
     <div className="w-full">
       {useSharedFilters ? (
         <div className="mb-4">
-          <h3 className="text-lg font-semibold m-0">{title}</h3>
-          {description && (
-            <p className="text-sm text-[var(--cds-text-secondary)] mt-1 mb-0">{description}</p>
+          <h3 className="text-lg font-semibold m-0">{resolvedTitle}</h3>
+          {resolvedDesc && (
+            <p className="text-sm text-[var(--cds-text-secondary)] mt-1 mb-0">{resolvedDesc}</p>
           )}
         </div>
       ) : (
         <FilterableWidgetHeader
-          title={title}
-          description={description}
+          title={resolvedTitle}
+          description={resolvedDesc}
           expanded={showFilters}
           onToggle={() => setShowFilters((s) => !s)}
           filterContent={
@@ -452,7 +472,7 @@ export default function CostAllocationTable({
         <Table size="md" useZebraStyles>
           <TableHead>
             <TableRow>
-              {headers.map((header: any) => (
+              {tableHeaders.map((header: any) => (
                 <TableHeader
                   key={header.key}
                   isSortable={header.isSortable}
@@ -484,7 +504,7 @@ export default function CostAllocationTable({
               className="font-semibold"
               style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
             >
-              <TableCell>Totals</TableCell>
+              <TableCell>{t("common.total")}</TableCell>
               <TableCell className="v2-table-numeric">
                 {toCurrency(totalData.cpuCost ?? 0, currency)}
               </TableCell>

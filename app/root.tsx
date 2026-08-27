@@ -17,28 +17,11 @@ import "~/i18n";
 import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 import { SettingsProvider } from "~/components/settings-context";
+import { DashboardProvider } from "~/components/dashboard-context";
+import { ReportProvider } from "~/components/report-context";
+import { TutorialWizardProvider } from "~/components/tutorial-wizard-context";
 
 const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
-
-const DashboardApp = lazy(() =>
-  Promise.all([
-    import("~/components/dashboard-context"),
-    import("~/components/report-context"),
-    import("~/components/tutorial-wizard-context"),
-  ]).then(([dashboard, report, tutorial]) => ({
-    default: () => (
-      <SettingsProvider>
-        <dashboard.DashboardProvider>
-          <report.ReportProvider>
-            <tutorial.TutorialWizardProvider>
-              <Outlet />
-            </tutorial.TutorialWizardProvider>
-          </report.ReportProvider>
-        </dashboard.DashboardProvider>
-      </SettingsProvider>
-    ),
-  })),
-);
 
 // Applies the persisted / preferred theme before React hydrates so the first
 // paint matches the user's choice (avoids a light-to-dark flash). The
@@ -117,9 +100,15 @@ export default function App() {
       <AppMuiThemeBridge>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <AppThemeBodyWrapper>
-            <Suspense fallback={null}>
-              <DashboardApp />
-            </Suspense>
+            <SettingsProvider>
+              <DashboardProvider>
+                <ReportProvider>
+                  <TutorialWizardProvider>
+                    <Outlet />
+                  </TutorialWizardProvider>
+                </ReportProvider>
+              </DashboardProvider>
+            </SettingsProvider>
           </AppThemeBodyWrapper>
         </LocalizationProvider>
       </AppMuiThemeBridge>

@@ -1,4 +1,5 @@
-import { forEach, get, round } from "lodash";
+import lodash from "lodash";
+const { forEach, get, round } = lodash;
 
 // rangeToCumulative takes an AllocationSetRange (array of AllocationSet)
 // and accumulates the values into a single AllocationSet (object).

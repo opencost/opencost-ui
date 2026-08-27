@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSettings } from "~/components/settings-context";
 import { useAppTheme } from "~/components/theme-context";
+import { useTranslation } from "react-i18next";
 import { ScaleTypes } from "@carbon/charts";
 import { SwitchableChart } from "./switchable-chart";
 import { ChartTypeToggle, type ChartMode } from "./chart-type-toggle";
@@ -37,21 +38,24 @@ function generateTitle(
   window: string,
   aggregateBy: string,
   accumulate: string,
+  t?: (key: string, fallback?: string) => string,
 ): string {
+  const tr = t ?? ((k: string, fb?: string) => fb ?? k);
   const winOpt = ALLOCATION_WINDOW_OPTIONS.find((o) => o.value === window);
-  let windowName = winOpt?.name ?? "";
-  if (windowName === "" && checkCustomWindow(window)) {
+  let windowName = tr(`time.${window}`, winOpt?.name ?? window);
+  if (!winOpt && checkCustomWindow(window)) {
     windowName = toVerboseTimeRange(window) ?? window;
   }
-  if (windowName === "") windowName = window;
 
   const aggOpt = ALLOCATION_AGGREGATE_OPTIONS.find(
     (o) => o.value === aggregateBy,
   );
-  const aggregationName = (aggOpt?.name ?? aggregateBy).toLowerCase();
+  const aggKey = aggregateBy === "controllerKind" ? "controller" : aggregateBy;
+  const aggregationName = tr(`common.${aggKey}`, aggOpt?.name ?? aggregateBy).toLowerCase();
 
-  const gran = reportAccumulateLabel(accumulate);
-  return `${windowName} by ${aggregationName} (${gran})`;
+  const gran = tr(`time.${accumulate}`, reportAccumulateLabel(accumulate));
+  const byWord = tr("time.by", "by");
+  return `${windowName} ${byWord} ${aggregationName} (${gran})`;
 }
 
 function isIdle(alloc: AllocationLike): boolean {
@@ -181,6 +185,7 @@ export default function CostAllocationChart({
   topN = 10,
   useSharedFilters = false,
 }: CostAllocationChartProps) {
+  const { t } = useTranslation();
   const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
@@ -204,7 +209,7 @@ export default function CostAllocationChart({
   const [loading, setLoading] = useState(true);
   const { theme } = useAppTheme();
 
-  const chartTitle = generateTitle(window, aggregateBy, accumulate);
+  const chartTitle = generateTitle(window, aggregateBy, accumulate, t);
   const chartData = useMemo(
     () =>
       rawData.length > 0

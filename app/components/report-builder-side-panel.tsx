@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@carbon/react";
 import { DeleteOutlined } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 import {
   REPORT_WINDOW_PRESETS,
   buildUtcRangeFromDateInputs,
@@ -198,13 +199,15 @@ export default function ReportBuilderSidePanel({
     updateQuery({ groupings: next });
   };
 
+  const { t } = useTranslation();
+
   return (
     <aside className="flex h-full min-h-0 w-[360px] shrink-0 flex-col border-l border-[var(--cds-border-subtle)] bg-[var(--cds-layer)]">
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-visible overscroll-contain p-4 pb-16">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">Report Config</h2>
+        <h2 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">{t("reports.report_config")}</h2>
         <Button size="sm" onClick={onRun} disabled={isRunning}>
-          {isRunning ? "Running..." : "Run Report"}
+          {isRunning ? t("reports.running") : t("reports.run_report")}
         </Button>
       </div>
       <label className="mb-4 flex items-center gap-2 text-sm text-[var(--cds-text-primary)]">
@@ -213,11 +216,11 @@ export default function ReportBuilderSidePanel({
           checked={autoRun}
           onChange={(event) => onAutoRunChange(event.target.checked)}
         />
-        Auto Run
+        {t("reports.auto_run")}
       </label>
 
       <div className="mb-4">
-        <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">Data Source</h3>
+        <h3 className="m-0 text-lg font-semibold text-[var(--cds-text-primary)]">{t("reports.data_source")}</h3>
         <select
           value={query.layer}
           onChange={(event) =>
@@ -238,7 +241,7 @@ export default function ReportBuilderSidePanel({
           className="mb-1 block text-sm text-[var(--cds-text-secondary)]"
           htmlFor="report-window-preset"
         >
-          Date range
+          {t("common.date_range")}
         </label>
         <select
           id="report-window-preset"
@@ -320,7 +323,7 @@ export default function ReportBuilderSidePanel({
 
       <div className="mb-4">
         <label className="mb-1 block text-sm text-[var(--cds-text-secondary)]" htmlFor="report-granularity">
-          Granularity
+          {t("time.day", "Granularity")}
         </label>
         {allocationQuery ? (
           <select
@@ -335,7 +338,7 @@ export default function ReportBuilderSidePanel({
           >
             {REPORT_ACCUMULATE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(`time.${option.value}`, option.label)}
               </option>
             ))}
           </select>
@@ -352,7 +355,7 @@ export default function ReportBuilderSidePanel({
           >
             {REPORT_ACCUMULATE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(`time.${option.value}`, option.label)}
               </option>
             ))}
           </select>
@@ -367,9 +370,9 @@ export default function ReportBuilderSidePanel({
         <>
           <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">Measures</h4>
+              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">{t("reports.measures")}</h4>
               <Button kind="ghost" size="sm" onClick={addMeasure}>
-                + Add Measure
+                {t("reports.add_measure")}
               </Button>
             </div>
             <div className="space-y-2">
@@ -406,9 +409,9 @@ export default function ReportBuilderSidePanel({
 
           <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">Groupings</h4>
+              <h4 className="m-0 text-sm font-semibold text-[var(--cds-text-primary)]">{t("reports.groupings")}</h4>
               <Button kind="ghost" size="sm" onClick={addGrouping}>
-                + Add Grouping
+                {t("reports.add_grouping")}
               </Button>
             </div>
             <div className="space-y-2">
@@ -445,9 +448,9 @@ export default function ReportBuilderSidePanel({
 
       {cloudCostQuery ? (
         <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
-          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">Cloud Settings</h4>
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">{t("reports.cloud_settings")}</h4>
           <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-cloud-grouping">
-            Breakdown
+            {t("common.breakdown")}
           </label>
           <select
             id="report-cloud-grouping"
@@ -462,7 +465,7 @@ export default function ReportBuilderSidePanel({
             ))}
           </select>
           <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-cloud-metric">
-            Cost Metric
+            {t("cost.cost_metric")}
           </label>
           <select
             id="report-cloud-metric"
@@ -483,7 +486,7 @@ export default function ReportBuilderSidePanel({
         <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
           <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">Assets Settings</h4>
           <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-assets-grouping">
-            Group By
+            {t("reports.group_by")}
           </label>
           <select
             id="report-assets-grouping"
@@ -502,9 +505,9 @@ export default function ReportBuilderSidePanel({
 
       {externalCostQuery ? (
         <div className="mb-4 rounded border border-[var(--cds-border-subtle)] bg-[#f8f8f8] p-3">
-          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">External Cost Settings</h4>
+          <h4 className="mb-2 mt-0 text-sm font-semibold text-[var(--cds-text-primary)]">{t("reports.external_cost_settings")}</h4>
           <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-grouping">
-            Group By
+            {t("reports.group_by")}
           </label>
           <select
             id="report-external-grouping"
@@ -520,7 +523,7 @@ export default function ReportBuilderSidePanel({
           </select>
 
           <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-cost-type">
-            Cost Type
+            {t("reports.cost_type")}
           </label>
           <select
             id="report-external-cost-type"
@@ -538,7 +541,7 @@ export default function ReportBuilderSidePanel({
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="mb-1 block text-xs text-[var(--cds-text-secondary)]" htmlFor="report-external-sort-by">
-                Sort By
+                {t("reports.sort_by")}
               </label>
               <select
                 id="report-external-sort-by"
@@ -558,7 +561,7 @@ export default function ReportBuilderSidePanel({
                 className="mb-1 block text-xs text-[var(--cds-text-secondary)]"
                 htmlFor="report-external-sort-direction"
               >
-                Sort Direction
+                {t("reports.sort_direction")}
               </label>
               <select
                 id="report-external-sort-direction"
@@ -581,7 +584,7 @@ export default function ReportBuilderSidePanel({
 
       <div className="mb-4">
         <label className="mb-1 block text-sm text-[var(--cds-text-secondary)]" htmlFor="report-chart-type">
-          Chart Type
+          {t("reports.chart_type")}
         </label>
         <select
           id="report-chart-type"
@@ -613,7 +616,7 @@ export default function ReportBuilderSidePanel({
             }
             onChange={(event) => updateQuery({ includeIdle: event.target.checked })}
           />
-          Include idle costs
+          {t("reports.include_idle_costs")}
         </label>
       ) : null}
 
@@ -626,15 +629,15 @@ export default function ReportBuilderSidePanel({
               updateQuery({ includeUnallocated: event.target.checked })
             }
           />
-          Include unallocated costs
+          {t("reports.include_unallocated_costs")}
         </label>
       ) : null}
 
       <div className="overflow-visible border-t border-[var(--cds-border-subtle)] pt-4 pb-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="m-0 text-base font-semibold text-[var(--cds-text-primary)]">Filters</h3>
+          <h3 className="m-0 text-base font-semibold text-[var(--cds-text-primary)]">{t("reports.filters")}</h3>
           <Button kind="ghost" size="sm" onClick={addFilter}>
-            + Add Filter Group
+            {t("reports.add_filter_group")}
           </Button>
         </div>
         {query.filters.length > 0 ? (
@@ -646,7 +649,7 @@ export default function ReportBuilderSidePanel({
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className="text-xs font-medium uppercase tracking-wide text-[var(--cds-text-placeholder)]">
-                    Rule {index + 1}
+                    {t("reports.rule")} {index + 1}
                   </span>
                   <button
                     type="button"
@@ -686,7 +689,7 @@ export default function ReportBuilderSidePanel({
             ))}
           </div>
         ) : (
-          <p className="m-0 text-sm text-[#8d8d8d]">No filters applied.</p>
+          <p className="m-0 text-sm text-[#8d8d8d]">{t("reports.no_filters_applied")}</p>
         )}
       </div>
       </div>

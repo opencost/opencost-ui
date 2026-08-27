@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSettings } from "~/components/settings-context";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -100,7 +101,6 @@ function buildChartData(
   return points;
 }
 
-
 function buildColorScale(points: ChartPoint[]): Record<string, string> {
   const scale: Record<string, string> = {};
   const keys = [...new Set(points.map((p) => p.key))];
@@ -123,18 +123,21 @@ function generateTitle(
   window: string,
   aggregateBy: string,
   costMetric: string,
+  t?: (key: string, fallback?: string) => string,
 ): string {
+  const tr = t ?? ((k: string, fb?: string) => fb ?? k);
   const winOpt = CLOUD_WINDOW_OPTIONS.find((o) => o.value === window);
-  let windowName = winOpt?.name ?? "";
-  if (windowName === "" && checkCustomWindow(window)) {
+  let windowName = tr(`time.${window}`, winOpt?.name ?? window);
+  if (!winOpt && checkCustomWindow(window)) {
     windowName = toVerboseTimeRange(window) ?? window;
   }
-  if (windowName === "") windowName = window;
 
   const aggOpt = CLOUD_AGGREGATION_OPTIONS.find((o) => o.value === aggregateBy);
-  const aggregationName = (aggOpt?.name ?? aggregateBy).trim().toLowerCase();
+  const aggregationName = tr(`common.${aggregateBy}`, aggOpt?.name ?? aggregateBy).toLowerCase();
 
-  return `Cumulative cost for ${windowName} by ${aggregationName}`;
+  const prefix = tr("cost.cumulative_cost_for", "Cumulative cost for");
+  const byWord = tr("time.by", "by");
+  return `${prefix} ${windowName} ${byWord} ${aggregationName}`;
 }
 
 const headers = [
@@ -161,6 +164,7 @@ export default function CloudCostWidget({
   costMetric: costMetricProp,
   currency: currencyProp,
 }: CloudCostWidgetProps) {
+  const { t } = useTranslation();
   const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("bar");
@@ -180,6 +184,7 @@ export default function CloudCostWidget({
     string | null
   >(null);
   const effectiveAggregateBy = drilldownAggregateBy ?? aggregateBy;
+
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [tableRows, setTableRows] = useState<CloudCostRow[]>([]);
   const [tableTotal, setTableTotal] = useState<CloudCostRow | null>(null);
@@ -197,6 +202,15 @@ export default function CloudCostWidget({
 
   const isItemLevel = !nextAggregation(effectiveAggregateBy);
   const [selectedItem, setSelectedItem] = useState<CloudCostRow | null>(null);
+
+  const chartTitle = generateTitle(window, aggregateBy, costMetric, t);
+
+  const tableHeaders = [
+    { key: "name", header: t("table.name"), isSortable: true },
+    { key: "kubernetesPercent", header: t("cost.k8s_utilization"), isSortable: true },
+    { key: "cost", header: t("cost.total_cost"), isSortable: true },
+  ];
+
   const [itemDetailData, setItemDetailData] = useState<
     { date: string; cost: number }[]
   >([]);
@@ -233,7 +247,7 @@ export default function CloudCostWidget({
     return () => { cancelled = true; };
   }, [selectedItem]);
 
-  const title = generateTitle(window, effectiveAggregateBy, costMetric);
+  const title = generateTitle(window, effectiveAggregateBy, costMetric, t);
 
   function handleDrilldown(row: CloudCostRow) {
     const nextAgg = nextAggregation(effectiveAggregateBy);
@@ -432,11 +446,11 @@ export default function CloudCostWidget({
       <div id="cloud-graph" className="mb-6">
         {loading ? (
           <div className="h-[300px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
-            Loading…
+            {t("common.loading")}
           </div>
         ) : chartData.length === 0 ? (
           <div className="h-[300px] flex items-center justify-center text-[var(--cds-text-placeholder)]">
-            No cloud cost data available.
+            {t("cost.no_cloud_cost_data")}
           </div>
         ) : (
           <div className="w-full h-[300px]">
@@ -453,16 +467,16 @@ export default function CloudCostWidget({
       {/* Table */}
       <div id="cloud-cost-table">
         {loading ? (
-          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading…</div>
+          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">{t("common.loading")}</div>
         ) : tableRows.length === 0 ? (
-          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">No results</div>
+          <div className="p-8 text-center text-[var(--cds-text-placeholder)]">{t("common.no_results")}</div>
         ) : (
           <>
             <TableContainer className="v2-sticky-header">
               <Table size="md" useZebraStyles>
                 <TableHead>
                   <TableRow>
-                    {headers.map((header) => (
+                    {tableHeaders.map((header) => (
                       <TableHeader
                         key={header.key}
                         isSortable={header.isSortable}
@@ -494,7 +508,7 @@ export default function CloudCostWidget({
                     className="font-semibold"
                     style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
                   >
-                    <TableCell>{tableTotal?.name || "Totals"}</TableCell>
+                    <TableCell>{tableTotal?.name || t("common.total")}</TableCell>
                     <TableCell className="v2-table-numeric">
                       {Math.round(
                         (Number(tableTotal?.kubernetesPercent) ?? 0) * 100,

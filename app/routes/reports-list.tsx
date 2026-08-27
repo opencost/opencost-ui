@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Modal } from "@carbon/react";
 import { Search } from "@mui/icons-material";
 import { useNavigate, useSearchParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import CreateReportModal from "~/components/create-report-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportListTable from "~/components/report-list-table";
@@ -56,6 +57,7 @@ export function meta() {
 }
 
 export default function ReportsListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -213,7 +215,7 @@ export default function ReportsListPage() {
             {/* Page title area */}
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h1 className="v2-page-title">Reports</h1>
+                <h1 className="v2-page-title">{t("reports.title")}</h1>
                 {shareFeedback && (
                   <p
                     className="mt-1 text-xs"
@@ -224,7 +226,7 @@ export default function ReportsListPage() {
                 )}
               </div>
               <Button size="sm" onClick={() => setShowCreateModal(true)}>
-                Create Report
+                {t("reports.create_report")}
               </Button>
             </div>
 
@@ -257,7 +259,7 @@ export default function ReportsListPage() {
                     type="text"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Search reports…"
+                    placeholder={t("reports.search_placeholder")}
                     className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs outline-none"
                     style={{ color: "var(--cds-text-primary)" }}
                   />
@@ -272,7 +274,7 @@ export default function ReportsListPage() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Tag</option>
+                  <option value="all">{t("reports.filter_by_tag")}</option>
                   {allTags.map((tag) => (
                     <option key={tag} value={tag}>
                       {tag}
@@ -289,9 +291,9 @@ export default function ReportsListPage() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Visibility</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
+                  <option value="all">{t("reports.filter_by_visibility")}</option>
+                  <option value="public">{t("common.public")}</option>
+                  <option value="private">{t("common.private")}</option>
                 </select>
                 <select
                   value={selectedOwner}
@@ -303,10 +305,10 @@ export default function ReportsListPage() {
                     color: "var(--cds-text-secondary)",
                   }}
                 >
-                  <option value="all">Filter by Created By</option>
+                  <option value="all">{t("reports.filter_by_owner")}</option>
                   {allOwners.map((owner) => (
                     <option key={owner} value={owner}>
-                      {owner}
+                      {owner === "You" ? t("common.you") : owner}
                     </option>
                   ))}
                 </select>

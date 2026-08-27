@@ -6,7 +6,8 @@ import IconButton from "@mui/material/IconButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Link, Paper, Typography } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import { get, find } from "lodash";
+import lodash from "lodash";
+const { get, find } = lodash;
 import { useLocation, useNavigate } from "react-router";
 
 import { checkCustomWindow, toVerboseTimeRange } from "~/lib/legacy-util";

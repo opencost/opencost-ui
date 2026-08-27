@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSettings } from "~/components/settings-context";
+import { useTranslation } from "react-i18next";
 import {
   Pagination,
   Table,
@@ -28,12 +29,6 @@ interface CloudCostRow {
   [k: string]: unknown;
 }
 
-const headers = [
-  { key: "name", header: "Name", isSortable: true },
-  { key: "kubernetesPercent", header: "K8s Utilization", isSortable: true },
-  { key: "cost", header: "Total cost", isSortable: true },
-];
-
 export interface CloudCostTableWidgetProps {
   title?: string;
   description?: string;
@@ -49,13 +44,16 @@ function nextAggregation(current: string): string | undefined {
 }
 
 export default function CloudCostTableWidget({
-  title = "Cloud Costs Table",
-  description = "Cloud service spend with utilization and totals",
+  title,
+  description,
   window: windowProp,
   aggregateBy: aggregateByProp,
   costMetric: costMetricProp,
   currency: currencyProp,
 }: CloudCostTableWidgetProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("cost.cloud_costs_table");
+  const resolvedDesc = description ?? t("cost.cloud_services_spend");
   const { defaultCurrency } = useSettings();
   const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState({
@@ -63,6 +61,12 @@ export default function CloudCostTableWidget({
     aggregateBy: "service",
     costMetric: DEFAULT_CLOUD_FILTERS.cloudCostMetric,
   });
+
+  const tableHeaders = [
+    { key: "name", header: t("table.name"), isSortable: true },
+    { key: "kubernetesPercent", header: t("cost.k8s_utilization"), isSortable: true },
+    { key: "cost", header: t("cost.total_cost"), isSortable: true },
+  ];
   const window = windowProp ?? localFilters.window;
   const aggregateBy = aggregateByProp ?? localFilters.aggregateBy;
   const costMetric = costMetricProp ?? localFilters.costMetric;
@@ -185,8 +189,8 @@ export default function CloudCostTableWidget({
   return (
     <div className="w-full">
       <FilterableWidgetHeader
-        title={title}
-        description={description}
+        title={resolvedTitle}
+        description={resolvedDesc}
         expanded={showFilters}
         onToggle={() => setShowFilters((s) => !s)}
         filterContent={
@@ -217,10 +221,10 @@ export default function CloudCostTableWidget({
         </div>
       )}
       {loading ? (
-        <div className="p-8 text-center text-[var(--cds-text-placeholder)]">Loading...</div>
+        <div className="p-8 text-center text-[var(--cds-text-placeholder)]">{t("common.loading")}</div>
       ) : rows.length === 0 ? (
         <div className="p-8 text-center text-[var(--cds-text-placeholder)]">
-          No cloud cost data available.
+          {t("cost.no_cloud_cost_data")}
         </div>
       ) : (
         <>
@@ -228,7 +232,7 @@ export default function CloudCostTableWidget({
             <Table size="md" useZebraStyles>
               <TableHead>
                 <TableRow>
-                  {headers.map((header) => (
+                  {tableHeaders.map((header) => (
                     <TableHeader
                       key={header.key}
                       isSortable={header.isSortable}
@@ -259,7 +263,7 @@ export default function CloudCostTableWidget({
                   className="font-semibold"
                   style={{ borderBottom: "2px solid var(--cds-border-strong)" }}
                 >
-                  <TableCell>{totals?.name || "Totals"}</TableCell>
+                  <TableCell>{totals?.name || t("common.total")}</TableCell>
                   <TableCell className="v2-table-numeric">
                     {Math.round((totals?.kubernetesPercent ?? 0) * 100)}%
                   </TableCell>

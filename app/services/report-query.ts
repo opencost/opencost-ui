@@ -1,4 +1,5 @@
-import { get, toArray } from "lodash";
+import lodash from "lodash";
+const { get, toArray } = lodash;
 import AllocationService from "~/services/allocation";
 import AssetsService from "~/services/assets";
 import CloudCostService from "~/services/cloud-cost";

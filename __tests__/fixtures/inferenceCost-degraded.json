@@ -1,0 +1,267 @@
+{
+  "code": 200,
+  "data": {
+    "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+    "diagnostics": [
+      {
+        "scope": "response",
+        "code": "missingPodUidRelabelRule",
+        "message": "Model Server Protocol metrics carry no pod_uid label. Engine-level entries require the Prometheus scrape config to attach it."
+      }
+    ],
+    "inferenceCosts": {
+      "bge-large-en-v1.5/embeddings": {
+        "properties": {
+          "modelName": "bge-large-en-v1.5",
+          "namespace": "embeddings",
+          "cluster": "prod-gpu-east",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 2410.8,
+        "promptTokens": 1420000000,
+        "generationTokens": 0,
+        "totalTokens": 1420000000,
+        "costPerMillionTokens": 1.7,
+        "inputCost": 2410.8,
+        "outputCost": 0,
+        "inputCostPerMillionTokens": 1.7,
+        "outputCostPerMillionTokens": 0,
+        "cacheSavingsFraction": 0,
+        "granularity": "model",
+        "replicaCount": 4,
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "no_decode_loop",
+        "saturation": {
+          "engine": "vllm",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:03:00Z",
+          "lastSampleTime": "2026-09-16T23:58:00Z",
+          "kvCacheUtilization": { "avg": 0, "p95": 0, "max": 0 },
+          "queueDepth": { "avg": 0, "p95": 0, "max": 0 },
+          "runningRequests": { "avg": 0, "p95": 0, "max": 0 },
+          "preemptions": 0
+        },
+        "efficiency": {
+          "batchCeilingConfidence": "unknown",
+          "thrashIndicator": false
+        },
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "noDecodeLoop",
+            "message": "This engine serves a pooling model, which runs no decode loop. KV-cache utilization, queue depth, and running requests are absent by design, not by collection failure."
+          }
+        ],
+        "provenance": {
+          "capacityConsumption": {
+            "measured": false,
+            "dataSource": "prometheus-source",
+            "note": "Omitted: no decode-stage signal exists for a pooling model."
+          }
+        }
+      },
+      "custom-sglang-model/experimental": {
+        "properties": {
+          "modelName": "custom-sglang-model",
+          "namespace": "experimental",
+          "cluster": "prod-gpu-east",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 963.4,
+        "promptTokens": 0,
+        "generationTokens": 0,
+        "totalTokens": 0,
+        "costPerMillionTokens": 0,
+        "inputCost": 0,
+        "outputCost": 0,
+        "inputCostPerMillionTokens": 0,
+        "outputCostPerMillionTokens": 0,
+        "cacheSavingsFraction": 0,
+        "granularity": "model",
+        "replicaCount": 1,
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "engine_unsupported",
+        "saturation": {
+          "engine": "sglang",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 0
+        },
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "engineUnsupported",
+            "message": "No Model Server Protocol metric mapping is implemented for engine \"sglang\". Cost is reported; capacity signals are not."
+          }
+        ]
+      },
+      "phi-3-mini/edge-inference": {
+        "properties": {
+          "modelName": "phi-3-mini",
+          "namespace": "edge-inference",
+          "cluster": "edge-cluster-3",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 148.2,
+        "promptTokens": 0,
+        "generationTokens": 0,
+        "totalTokens": 0,
+        "costPerMillionTokens": 0,
+        "inputCost": 0,
+        "outputCost": 0,
+        "inputCostPerMillionTokens": 0,
+        "outputCostPerMillionTokens": 0,
+        "cacheSavingsFraction": 0,
+        "granularity": "model",
+        "replicaCount": 1,
+        "pricingSources": ["onPremCustomPricing"],
+        "measurementAvailability": "engine_telemetry_unavailable",
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "engineTelemetryUnavailable",
+            "message": "No InferenceEngine entry matched this replica. Cost is reported; no capacity signal was collected."
+          }
+        ]
+      },
+      "llama-3-70b/long-context": {
+        "properties": {
+          "modelName": "llama-3-70b",
+          "namespace": "long-context",
+          "cluster": "prod-gpu-west",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 18492.0,
+        "promptTokens": 88000000,
+        "generationTokens": 14200000,
+        "totalTokens": 102200000,
+        "costPerMillionTokens": 180.94,
+        "inputCost": 14793.6,
+        "outputCost": 3698.4,
+        "inputCostPerMillionTokens": 168.11,
+        "outputCostPerMillionTokens": 260.45,
+        "cacheSavingsFraction": 0.12,
+        "granularity": "model",
+        "replicaCount": 3,
+        "pricingSources": ["cloudListPricing", "onPremCustomPricing"],
+        "measurementAvailability": "no_batch_denominator",
+        "saturation": {
+          "engine": "vllm",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:04:00Z",
+          "lastSampleTime": "2026-09-16T23:59:00Z",
+          "kvCacheUtilization": { "avg": 0.71, "p95": 0.88, "max": 0.93 },
+          "queueDepth": { "avg": 0, "p95": 0, "max": 0 },
+          "runningRequests": { "avg": 2.4, "p95": 4.0, "max": 5 },
+          "preemptions": 118
+        },
+        "efficiency": {
+          "capacityConsumption": 0.88,
+          "headroom": 0.12,
+          "bindingConstraint": "kv_cache",
+          "batchCeilingConfidence": "unknown",
+          "thrashIndicator": true,
+          "consumedCost": 16272.96,
+          "idleCost": 2219.04,
+          "costPerConsumedReplicaHour": 125.03
+        },
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "noBatchDenominator",
+            "message": "The queue was never non-empty in the requested window or the 24h lookback, so no concurrent-sequence ceiling could be observed. Capacity consumption rests on KV-cache utilization alone."
+          }
+        ],
+        "provenance": {
+          "capacityConsumption": {
+            "basis": "kvCacheUtilization.p95 only",
+            "measured": true,
+            "dataSource": "prometheus-source",
+            "note": "Batch occupancy omitted: no observable batch ceiling."
+          }
+        }
+      },
+      "whisper-large-v3/transcription": {
+        "properties": {
+          "modelName": "whisper-large-v3",
+          "namespace": "transcription",
+          "cluster": "prod-gpu-west",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 3120.5,
+        "promptTokens": 0,
+        "generationTokens": 42000000,
+        "totalTokens": 42000000,
+        "costPerMillionTokens": 74.3,
+        "inputCost": 0,
+        "outputCost": 3120.5,
+        "inputCostPerMillionTokens": 0,
+        "outputCostPerMillionTokens": 74.3,
+        "cacheSavingsFraction": 0,
+        "granularity": "model",
+        "replicaCount": 5,
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "available",
+        "excludedMemberCount": 2,
+        "saturation": {
+          "engine": "vllm",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 1440,
+          "firstSampleTime": "2026-09-11T00:00:00Z",
+          "lastSampleTime": "2026-09-16T23:55:00Z",
+          "kvCacheUtilization": { "avg": 0.33, "p95": 0.52, "max": 0.68 },
+          "queueDepth": { "avg": 0.2, "p95": 0.0, "max": 6 },
+          "runningRequests": { "avg": 11.0, "p95": 17.0, "max": 24 },
+          "preemptions": 3
+        },
+        "efficiency": {
+          "capacityConsumption": 0.71,
+          "headroom": 0.29,
+          "bindingConstraint": "batch_slots",
+          "batchOccupancy": 0.71,
+          "batchCeiling": 24,
+          "batchCeilingConfidence": "observed",
+          "batchCeilingDerivedFrom": {
+            "start": "2026-09-14T09:00:00Z",
+            "end": "2026-09-14T10:00:00Z"
+          },
+          "batchCeilingSampleIntervals": 8,
+          "thrashIndicator": true,
+          "consumedCost": 2215.56,
+          "idleCost": 904.94,
+          "costPerConsumedReplicaHour": 26.15,
+          "costPerAchievedBatchSlotHour": 1.69
+        },
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "aggregatePartialCoverage",
+            "message": "2 of 5 members are excluded from the derived measures because their own telemetry is unavailable. Capacity consumption, headroom, consumed cost, and idle cost cover the included members only."
+          }
+        ],
+        "provenance": {
+          "capacityConsumption": {
+            "basis": "cost-weighted mean of member values",
+            "measured": true,
+            "dataSource": "prometheus-source"
+          }
+        }
+      }
+    },
+    "truncation": {
+      "returnedEntries": 5,
+      "omittedEntries": 0
+    }
+  }
+}

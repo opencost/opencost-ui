@@ -1,0 +1,299 @@
+{
+  "code": 200,
+  "data": {
+    "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+    "inferenceCosts": {
+      "3f2a1b8c-1111-4aaa-9bbb-000000000001/0": {
+        "properties": {
+          "modelName": "meta-llama/Llama-3-8B",
+          "namespace": "llm-serving",
+          "namespaceUid": "aaaa1111-2222-4ccc-8ddd-000000000001",
+          "cluster": "prod-gpu-east",
+          "pod": "llama3-8b-7d9f8c6b4d-x2k9p",
+          "podUid": "3f2a1b8c-1111-4aaa-9bbb-000000000001",
+          "controller": "llama3-8b",
+          "controllerKind": "deployment",
+          "container": "vllm",
+          "node": "gpu-node-04",
+          "engine": "vllm",
+          "engineIndex": "0",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 803.6,
+        "promptTokens": 201000000,
+        "generationTokens": 24100000,
+        "totalTokens": 225100000,
+        "costPerMillionTokens": 3.57,
+        "inputCost": 642.88,
+        "outputCost": 160.72,
+        "inputCostPerMillionTokens": 3.2,
+        "outputCostPerMillionTokens": 6.67,
+        "cacheSavingsFraction": 0.44,
+        "granularity": "engine",
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "available",
+        "saturation": {
+          "engine": "vllm",
+          "engineIndex": "0",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:02:00Z",
+          "lastSampleTime": "2026-09-16T23:57:00Z",
+          "kvCacheUtilization": { "avg": 0.79, "p95": 0.91, "max": 0.96 },
+          "queueDepth": { "avg": 1.8, "p95": 6.0, "max": 22 },
+          "runningRequests": { "avg": 29.4, "p95": 32.0, "max": 32 },
+          "preemptions": 37
+        },
+        "efficiency": {
+          "capacityConsumption": 1.0,
+          "headroom": 0.0,
+          "bindingConstraint": "queue",
+          "batchOccupancy": 1.0,
+          "batchCeiling": 32,
+          "batchCeilingConfidence": "observed",
+          "batchCeilingDerivedFrom": {
+            "start": "2026-09-16T14:00:00Z",
+            "end": "2026-09-16T18:00:00Z"
+          },
+          "batchCeilingSampleIntervals": 48,
+          "thrashIndicator": true,
+          "consumedCost": 803.6,
+          "idleCost": 0.0,
+          "costPerConsumedReplicaHour": 4.78,
+          "costPerAchievedBatchSlotHour": 0.16
+        },
+        "hostGpuDutyCycle": {
+          "average": 0.98,
+          "max": 1.0,
+          "deviceCount": 1,
+          "devices": [
+            { "gpuUuid": "GPU-1a2b3c4d", "gpuDeviceModel": "NVIDIA H100 80GB HBM3", "average": 0.98, "max": 1.0 }
+          ],
+          "provenance": {
+            "sourceMetric": "DCGM_FI_PROF_GR_ENGINE_ACTIVE",
+            "aggregation": "window average and window maximum",
+            "measured": true,
+            "note": "A serving engine keeps the device busy at any batch size. This value does not measure consumed serving capacity."
+          }
+        }
+      },
+      "3f2a1b8c-1111-4aaa-9bbb-000000000002/0": {
+        "properties": {
+          "modelName": "meta-llama/Llama-3-8B",
+          "namespace": "llm-serving",
+          "namespaceUid": "aaaa1111-2222-4ccc-8ddd-000000000001",
+          "cluster": "prod-gpu-east",
+          "pod": "llama3-8b-7d9f8c6b4d-m4n7q",
+          "podUid": "3f2a1b8c-1111-4aaa-9bbb-000000000002",
+          "controller": "llama3-8b",
+          "controllerKind": "deployment",
+          "container": "vllm",
+          "node": "gpu-node-07",
+          "engine": "vllm",
+          "engineIndex": "0",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 803.6,
+        "promptTokens": 4100000,
+        "generationTokens": 380000,
+        "totalTokens": 4480000,
+        "costPerMillionTokens": 179.38,
+        "inputCost": 642.88,
+        "outputCost": 160.72,
+        "inputCostPerMillionTokens": 156.8,
+        "outputCostPerMillionTokens": 422.95,
+        "cacheSavingsFraction": 0.03,
+        "granularity": "engine",
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "available",
+        "saturation": {
+          "engine": "vllm",
+          "engineIndex": "0",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:02:00Z",
+          "lastSampleTime": "2026-09-16T23:57:00Z",
+          "kvCacheUtilization": { "avg": 0.02, "p95": 0.05, "max": 0.09 },
+          "queueDepth": { "avg": 0.0, "p95": 0.0, "max": 0 },
+          "runningRequests": { "avg": 0.3, "p95": 1.0, "max": 2 },
+          "preemptions": 0
+        },
+        "efficiency": {
+          "capacityConsumption": 0.05,
+          "headroom": 0.95,
+          "bindingConstraint": "none",
+          "batchOccupancy": 0.03,
+          "batchCeiling": 32,
+          "batchCeilingConfidence": "inferred",
+          "batchCeilingDerivedFrom": {
+            "start": "2026-09-09T00:00:00Z",
+            "end": "2026-09-10T00:00:00Z"
+          },
+          "batchCeilingSampleIntervals": 4,
+          "thrashIndicator": false,
+          "consumedCost": 40.18,
+          "idleCost": 763.42,
+          "costPerConsumedReplicaHour": 95.67,
+          "costPerAchievedBatchSlotHour": 15.94
+        },
+        "hostGpuDutyCycle": {
+          "average": 0.93,
+          "max": 0.97,
+          "deviceCount": 1,
+          "divergenceIndicator": {
+            "hostGpuDutyCycleAverage": 0.93,
+            "capacityConsumption": 0.05,
+            "divergenceThreshold": 0.8,
+            "lowConsumptionThreshold": 0.5
+          },
+          "devices": [
+            { "gpuUuid": "GPU-7e6d5c4b", "gpuDeviceModel": "NVIDIA H100 80GB HBM3", "average": 0.93, "max": 0.97 }
+          ],
+          "provenance": {
+            "sourceMetric": "DCGM_FI_PROF_GR_ENGINE_ACTIVE",
+            "aggregation": "window average and window maximum",
+            "measured": true,
+            "note": "A serving engine keeps the device busy at any batch size. This value does not measure consumed serving capacity."
+          }
+        }
+      },
+      "3f2a1b8c-1111-4aaa-9bbb-000000000003/0": {
+        "properties": {
+          "modelName": "meta-llama/Llama-3-8B",
+          "namespace": "llm-serving",
+          "namespaceUid": "aaaa1111-2222-4ccc-8ddd-000000000001",
+          "cluster": "prod-gpu-east",
+          "pod": "llama3-8b-dp-0",
+          "podUid": "3f2a1b8c-1111-4aaa-9bbb-000000000003",
+          "controller": "llama3-8b-dp",
+          "controllerKind": "statefulset",
+          "container": "vllm",
+          "node": "gpu-node-11",
+          "engine": "vllm",
+          "engineIndex": "0",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 1607.2,
+        "promptTokens": 96000000,
+        "generationTokens": 11400000,
+        "totalTokens": 107400000,
+        "costPerMillionTokens": 14.96,
+        "inputCost": 1285.76,
+        "outputCost": 321.44,
+        "inputCostPerMillionTokens": 13.39,
+        "outputCostPerMillionTokens": 28.2,
+        "cacheSavingsFraction": 0.38,
+        "granularity": "engine",
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "available",
+        "saturation": {
+          "engine": "vllm",
+          "engineIndex": "0",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:02:00Z",
+          "lastSampleTime": "2026-09-16T23:57:00Z",
+          "kvCacheUtilization": { "avg": 0.55, "p95": 0.74, "max": 0.88 },
+          "queueDepth": { "avg": 0.3, "p95": 1.0, "max": 9 },
+          "runningRequests": { "avg": 15.1, "p95": 24.0, "max": 24 },
+          "preemptions": 12
+        },
+        "efficiency": {
+          "capacityConsumption": 1.0,
+          "headroom": 0.0,
+          "bindingConstraint": "queue",
+          "batchOccupancy": 1.0,
+          "batchCeiling": 24,
+          "batchCeilingConfidence": "observed",
+          "batchCeilingDerivedFrom": {
+            "start": "2026-09-15T11:00:00Z",
+            "end": "2026-09-15T13:00:00Z"
+          },
+          "batchCeilingSampleIntervals": 24,
+          "thrashIndicator": true,
+          "consumedCost": 1607.2,
+          "idleCost": 0.0,
+          "costPerConsumedReplicaHour": 9.57,
+          "costPerAchievedBatchSlotHour": 0.63
+        }
+      },
+      "3f2a1b8c-1111-4aaa-9bbb-000000000003/1": {
+        "properties": {
+          "modelName": "meta-llama/Llama-3-8B",
+          "namespace": "llm-serving",
+          "namespaceUid": "aaaa1111-2222-4ccc-8ddd-000000000001",
+          "cluster": "prod-gpu-east",
+          "pod": "llama3-8b-dp-0",
+          "podUid": "3f2a1b8c-1111-4aaa-9bbb-000000000003",
+          "controller": "llama3-8b-dp",
+          "controllerKind": "statefulset",
+          "container": "vllm",
+          "node": "gpu-node-11",
+          "engine": "vllm",
+          "engineIndex": "1",
+          "workloadType": "inference"
+        },
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "costBasis": "allocation",
+        "totalCost": 0.0,
+        "promptTokens": 91000000,
+        "generationTokens": 10800000,
+        "totalTokens": 101800000,
+        "costPerMillionTokens": 0.0,
+        "inputCost": 0.0,
+        "outputCost": 0.0,
+        "inputCostPerMillionTokens": 0.0,
+        "outputCostPerMillionTokens": 0.0,
+        "cacheSavingsFraction": 0.36,
+        "granularity": "engine",
+        "pricingSources": ["cloudListPricing"],
+        "measurementAvailability": "available",
+        "saturation": {
+          "engine": "vllm",
+          "engineIndex": "1",
+          "sampleIntervalSeconds": 300,
+          "sampleCount": 2016,
+          "firstSampleTime": "2026-09-10T00:02:00Z",
+          "lastSampleTime": "2026-09-16T23:57:00Z",
+          "kvCacheUtilization": { "avg": 0.51, "p95": 0.7, "max": 0.85 },
+          "queueDepth": { "avg": 0.2, "p95": 1.0, "max": 7 },
+          "runningRequests": { "avg": 14.2, "p95": 23.0, "max": 24 },
+          "preemptions": 9
+        },
+        "efficiency": {
+          "capacityConsumption": 0.96,
+          "headroom": 0.04,
+          "bindingConstraint": "queue",
+          "batchOccupancy": 0.96,
+          "batchCeiling": 24,
+          "batchCeilingConfidence": "observed",
+          "batchCeilingDerivedFrom": {
+            "start": "2026-09-15T11:00:00Z",
+            "end": "2026-09-15T13:00:00Z"
+          },
+          "batchCeilingSampleIntervals": 24,
+          "thrashIndicator": true,
+          "consumedCost": 0.0,
+          "idleCost": 0.0
+        },
+        "diagnostics": [
+          {
+            "scope": "entry",
+            "code": "costAttributedToLowestEngineIndex",
+            "message": "This replica's cost is attributed once, to engine index 0. This entry reports its own telemetry with zero cost so the replica's cost is not double counted."
+          }
+        ]
+      }
+    },
+    "truncation": {
+      "returnedEntries": 4,
+      "omittedEntries": 0
+    }
+  }
+}

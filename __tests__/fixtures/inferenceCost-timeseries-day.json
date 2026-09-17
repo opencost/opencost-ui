@@ -1,0 +1,127 @@
+{
+  "code": 200,
+  "data": {
+    "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+    "inferenceCostSets": [
+      {
+        "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-11T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-10T00:00:00Z", "end": "2026-09-11T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "available",
+            "efficiency": {
+              "capacityConsumption": 0.79,
+              "headroom": 0.21,
+              "bindingConstraint": "kv_cache",
+              "consumedCost": 544.15,
+              "idleCost": 144.65
+            }
+          }
+        }
+      },
+      {
+        "window": { "start": "2026-09-11T00:00:00Z", "end": "2026-09-12T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-11T00:00:00Z", "end": "2026-09-12T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "available",
+            "efficiency": {
+              "capacityConsumption": 0.84,
+              "headroom": 0.16,
+              "bindingConstraint": "queue",
+              "consumedCost": 578.59,
+              "idleCost": 110.21
+            }
+          }
+        }
+      },
+      {
+        "window": { "start": "2026-09-12T00:00:00Z", "end": "2026-09-13T00:00:00Z" },
+        "inferenceCosts": {}
+      },
+      {
+        "window": { "start": "2026-09-13T00:00:00Z", "end": "2026-09-14T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-13T00:00:00Z", "end": "2026-09-14T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "no_batch_denominator",
+            "efficiency": {
+              "capacityConsumption": 0.36,
+              "headroom": 0.64,
+              "bindingConstraint": "kv_cache",
+              "batchCeilingConfidence": "unknown",
+              "consumedCost": 247.97,
+              "idleCost": 440.83
+            }
+          }
+        }
+      },
+      {
+        "window": { "start": "2026-09-14T00:00:00Z", "end": "2026-09-15T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-14T00:00:00Z", "end": "2026-09-15T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "available",
+            "efficiency": {
+              "capacityConsumption": 0.88,
+              "headroom": 0.12,
+              "bindingConstraint": "queue",
+              "consumedCost": 606.14,
+              "idleCost": 82.66
+            }
+          }
+        }
+      },
+      {
+        "window": { "start": "2026-09-15T00:00:00Z", "end": "2026-09-16T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-15T00:00:00Z", "end": "2026-09-16T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "available",
+            "efficiency": {
+              "capacityConsumption": 0.91,
+              "headroom": 0.09,
+              "bindingConstraint": "queue",
+              "consumedCost": 626.81,
+              "idleCost": 61.99
+            }
+          }
+        }
+      },
+      {
+        "window": { "start": "2026-09-16T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+        "inferenceCosts": {
+          "meta-llama/Llama-3-8B/llm-serving": {
+            "properties": { "modelName": "meta-llama/Llama-3-8B", "namespace": "llm-serving", "workloadType": "inference" },
+            "window": { "start": "2026-09-16T00:00:00Z", "end": "2026-09-17T00:00:00Z" },
+            "costBasis": "allocation",
+            "totalCost": 688.8,
+            "measurementAvailability": "available",
+            "efficiency": {
+              "capacityConsumption": 0.86,
+              "headroom": 0.14,
+              "bindingConstraint": "queue",
+              "consumedCost": 592.37,
+              "idleCost": 96.43
+            }
+          }
+        }
+      }
+    ]
+  }
+}

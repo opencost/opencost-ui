@@ -1,0 +1,5 @@
+{
+  "code": 400,
+  "message": "unsupported aggregation dimension \"bogus_dimension\". Supported dimensions: model_name, model_version, namespace, cluster, pod, controller, controller_kind, container, workload_type, node, gpu_uuid, engine, label:<key>",
+  "data": null
+}

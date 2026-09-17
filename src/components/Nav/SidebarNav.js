@@ -4,6 +4,7 @@ import { Drawer, List } from "@material-ui/core";
 import { NavItem } from "./NavItem";
 import { BarChart } from "@material-ui/icons";
 import { Cloud } from "@material-ui/icons";
+import { Memory } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/styles";
 
 const DRAWER_WIDTH = 200;
@@ -45,6 +46,7 @@ const SidebarNav = ({ active }) => {
     },
     { name: "Cloud Costs", href: "cloud", icon: <Cloud /> },
     { name: "External Costs", href: "external-costs", icon: <Cloud /> },
+    { name: "Inference", href: "inference", icon: <Memory /> },
   ];
 
   return (

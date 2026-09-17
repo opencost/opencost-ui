@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
+
     "preinstall": "npx npm-force-resolutions"
   },
   "browserslist": [

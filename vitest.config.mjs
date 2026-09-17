@@ -9,7 +9,28 @@ import react from '@vitejs/plugin-react';
 // because Parcel does read it. Leaving it untouched is what keeps the test
 // setup from being able to break the production bundle.
 export default defineConfig({
-  plugins: [react()],
+  // This repo writes JSX inside .js files throughout — every component under
+  // src/ does. Parcel accepts that; Vite does not by default and fails with
+  // "content contains invalid JS syntax", pointing at the first tag it meets.
+  // Widening the plugin's include to .js is what lets the existing source be
+  // tested without renaming ~30 files.
+  plugins: [react({ include: /\.(js|jsx)$/ })],
+
+  // The plugin's include alone is not sufficient. Vite runs its own esbuild
+  // transform for import analysis before the React plugin sees the file, and
+  // that pass treats .js as plain JavaScript, so it fails on the first tag. This
+  // tells it to use the JSX loader for source files.
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
+    exclude: [],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: { '.js': 'jsx' },
+    },
+  },
+
   test: {
     globals: true,
     environment: 'jsdom',

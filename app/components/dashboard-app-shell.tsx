@@ -53,7 +53,7 @@ function NavLink({
   const activeClass = active ? "v2-nav-item v2-nav-item--active" : "v2-nav-item";
   const nestedClass = nested && !collapsed ? "ml-4" : "";
   const tutorialClass = tutorialPulse
-    ? "relative z-[2] shadow-[0_0_0_2px_#0f62fe,0_4px_20px_rgba(15,98,254,0.25)]"
+    ? "relative z-[2] shadow-[0_0_0_2px_var(--oc-accent),0_4px_20px_var(--oc-accent-soft)] ring-0"
     : "";
 
   return (

@@ -284,7 +284,7 @@ export default function DashboardList() {
                 <select
                   value={selectedTag}
                   onChange={(event) => updateQueryParam("tag", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -301,7 +301,7 @@ export default function DashboardList() {
                 <select
                   value={selectedScope}
                   onChange={(event) => updateQueryParam("scope", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -315,7 +315,7 @@ export default function DashboardList() {
                 <select
                   value={selectedOwner}
                   onChange={(event) => updateQueryParam("owner", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -409,11 +409,11 @@ export default function DashboardList() {
                                 background:
                                   visibility === "Public"
                                     ? "var(--cds-notification-background-success, #defbe6)"
-                                    : "var(--cds-highlight, #edf5ff)",
+                                    : "var(--oc-accent-soft, var(--cds-highlight))",
                                 color:
                                   visibility === "Public"
                                     ? "var(--cds-support-success, #198038)"
-                                    : "var(--cds-focus, #0f62fe)",
+                                    : "var(--oc-accent, var(--cds-focus))",
                               }}
                             >
                               {visibility}

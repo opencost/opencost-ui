@@ -265,7 +265,7 @@ export default function ReportsListPage() {
                 <select
                   value={selectedTag}
                   onChange={(event) => updateQueryParam("tag", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -282,7 +282,7 @@ export default function ReportsListPage() {
                 <select
                   value={selectedVisibility}
                   onChange={(event) => updateQueryParam("visibility", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -296,7 +296,7 @@ export default function ReportsListPage() {
                 <select
                   value={selectedOwner}
                   onChange={(event) => updateQueryParam("owner", event.target.value)}
-                  className="h-8 rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-8 rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",

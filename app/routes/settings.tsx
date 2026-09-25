@@ -68,7 +68,7 @@ export default function SettingsPage() {
                   id="settings-currency"
                   value={pendingCurrency}
                   onChange={(e) => setPendingCurrency(e.target.value)}
-                  className="h-9 w-full rounded border px-2.5 text-xs focus:border-[#0f62fe] focus:outline-none"
+                  className="h-9 w-full rounded border px-2.5 text-xs focus:border-[var(--oc-accent)] focus:outline-none"
                   style={{
                     background: "var(--cds-layer)",
                     borderColor: "var(--cds-border-subtle)",
@@ -88,7 +88,7 @@ export default function SettingsPage() {
                   type="button"
                   disabled={!isDirty}
                   onClick={handleSave}
-                  className="inline-flex h-8 items-center gap-1.5 rounded bg-[#0f62fe] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#0353e9] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
+                  className="oc-btn-primary inline-flex h-8 items-center gap-1.5 rounded bg-[var(--oc-accent)] px-4 text-xs font-semibold text-white transition-colors hover:bg-[var(--oc-accent-hover)] disabled:cursor-not-allowed disabled:bg-[#c6c6c6]"
                 >
                   Save changes
                 </button>

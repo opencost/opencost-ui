@@ -340,6 +340,7 @@ export default function CloudCostWidget({
         left: {
           mapsTo: "value",
           scaleType: ScaleTypes.LINEAR,
+          stacked: true,
           ticks: {
             formatter: (v: number | Date) =>
               toCurrency(typeof v === "number" ? v : v.getTime(), currency),

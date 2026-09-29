@@ -14,6 +14,11 @@ export default function AppMuiThemeBridge({
       createTheme({
         palette: {
           mode: theme === "g100" ? "dark" : "light",
+          primary: {
+            main: "#16803c",
+            dark: "#0e6027",
+            light: theme === "g100" ? "#72d79b" : "#50b579",
+          },
         },
       }),
     [theme],

@@ -10,12 +10,40 @@
 .cds--white {
   @include theme.theme(themes.$white);
   color-scheme: light;
+  --oc-accent: #16803c;
+  --oc-accent-hover: #50b579;
+  --oc-accent-soft: rgba(97, 202, 140, 0.14);
+  --oc-accent-focus-ring: rgba(97, 202, 140, 0.4);
+  --cds-link-primary: var(--oc-accent);
+  --cds-link-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary: var(--oc-accent);
+  --cds-button-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary-active: #0e6027;
+  --cds-focus: var(--oc-accent);
+  --cds-interactive: var(--oc-accent);
+  --cds-border-interactive: var(--oc-accent);
+  --cds-icon-interactive: var(--oc-accent);
+  --cds-highlight: var(--oc-accent-soft);
 }
 
 [data-carbon-theme="g100"],
 .cds--g100 {
   @include theme.theme(themes.$g100);
   color-scheme: dark;
+  --oc-accent: #16803c;
+  --oc-accent-hover: #72d79b;
+  --oc-accent-soft: rgba(97, 202, 140, 0.22);
+  --oc-accent-focus-ring: rgba(97, 202, 140, 0.5);
+  --cds-link-primary: var(--oc-accent);
+  --cds-link-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary: var(--oc-accent);
+  --cds-button-primary-hover: var(--oc-accent-hover);
+  --cds-button-primary-active: #0e6027;
+  --cds-focus: var(--oc-accent);
+  --cds-interactive: var(--oc-accent);
+  --cds-border-interactive: var(--oc-accent);
+  --cds-icon-interactive: var(--oc-accent);
+  --cds-highlight: var(--oc-accent-soft);
 }
 
 // ============================================================
@@ -38,6 +66,37 @@ body {
 html[data-carbon-theme] body {
   background-color: var(--cds-background);
   color: var(--cds-text-primary);
+}
+
+.oc-btn-primary {
+  appearance: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--oc-accent-focus-ring);
+  }
+
+  &:disabled,
+  &:disabled:focus,
+  &:disabled:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
 }
 
 // Monospace for numeric values in tables
@@ -192,9 +251,9 @@ html[data-carbon-theme] body {
   border-color: var(--cds-border-strong);
 }
 
-.metric-card--cloud::before  { background: #8a3ffc; } // purple — cloud
+.metric-card--cloud::before  { background: var(--oc-accent); }
 .metric-card--external::before { background: #007d79; } // teal — external
-.metric-card--efficiency::before { background: var(--cds-support-success, #198038); } // green
+.metric-card--efficiency::before { background: var(--cds-support-success, #198038); }
 
 .metric-value {
   font-size: 1.75rem;
@@ -354,7 +413,7 @@ html[data-carbon-theme] body {
 
 .v2-nav-item--active {
   color: var(--cds-link-primary);
-  background: var(--cds-highlight, #d0e2ff);
+  background: var(--oc-accent-soft, var(--cds-highlight));
 
   &::before {
     content: "";

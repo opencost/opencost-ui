@@ -39,7 +39,10 @@
   --cds-button-primary: var(--oc-accent);
   --cds-button-primary-hover: var(--oc-accent-hover);
   --cds-button-primary-active: #0e6027;
-  --cds-focus: var(--oc-accent);
+  // Brand green (#16803c) is only ~3.0:1 on the g100 field (#262626) and
+  // ~2.3:1 on layer-02 (#393939), below WCAG 1.4.11's 3:1 requirement for
+  // focus indicators. The lighter accent stays >= 6.5:1 on both.
+  --cds-focus: var(--oc-accent-hover);
   --cds-interactive: var(--oc-accent);
   --cds-border-interactive: var(--oc-accent);
   --cds-icon-interactive: var(--oc-accent);
@@ -659,8 +662,8 @@ html[data-carbon-theme] body {
     ):not(.cds--text-area--warning) {
     outline: 2px solid var(--cds-focus);
     outline-offset: -2px;
-    border-color: var(--cds-link-primary, #0f62fe);
-    border-bottom-color: var(--cds-link-primary, #0f62fe);
+    border-color: var(--cds-link-primary);
+    border-bottom-color: var(--cds-link-primary);
   }
 }
 
@@ -677,7 +680,9 @@ html[data-carbon-theme] body {
 // Carbon Select Input.
 // Scoped to skip inline selects (Pagination relies on chrome-less inline
 // styling), disabled selects, and invalid selects (Carbon's red focus outline
-// must win); height is left to Carbon so size="sm" works.
+// must win); height is left to Carbon so size="sm" works. The :not() chain
+// raises specificity to 0,5,0 and beats Carbon's hover rule, so the hover
+// background is restated below.
 .cds--select:not(.cds--select--inline):not(.cds--select--disabled):not(
     .cds--select--invalid
   )
@@ -689,13 +694,17 @@ html[data-carbon-theme] body {
   border-radius: 4px;
   font-size: 0.875rem;
   padding-right: 2.5rem;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--cds-field-hover);
+  }
 
   &:focus {
     outline: 2px solid var(--cds-focus);
     outline-offset: -2px;
-    border-color: var(--cds-link-primary, #0f62fe);
-    border-bottom-color: var(--cds-link-primary, #0f62fe);
+    border-color: var(--cds-link-primary);
+    border-bottom-color: var(--cds-link-primary);
   }
 }
 
@@ -732,7 +741,7 @@ textarea {
   &:focus {
     outline: 2px solid var(--cds-focus);
     outline-offset: -2px;
-    border-color: var(--cds-link-primary, #0f62fe);
+    border-color: var(--cds-link-primary);
   }
 }
 

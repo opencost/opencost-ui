@@ -12,13 +12,18 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { toCurrency } from "../../../lib/legacy-util";
+import {
+  checkCustomWindow,
+  toCurrency,
+  toVerboseTimeRange,
+} from "../../../lib/legacy-util";
 import cloudCostDayTotals from "../../../services/cloud-cost-day-totals";
 import {
   ThemedModalHeader,
   modalCenterStyle,
   paperBaseStyle,
 } from "../themed-modal";
+import { windowOptions } from "./tokens";
 
 const paperStyle = {
   ...paperBaseStyle,
@@ -123,6 +128,12 @@ const CloudCostDetails = ({
     return dataPoint;
   });
 
+  // Same human-readable label cloud.tsx uses in its page title; the raw
+  // window token ("lastweek", "week", an ISO range) is not fit for a heading.
+  const windowLabel =
+    windowOptions.find((option) => option.value === window)?.name ??
+    (checkCustomWindow(window) ? toVerboseTimeRange(window) : window);
+
   return (
     <div>
       <Modal open={true} onClose={onClose} style={modalCenterStyle}>
@@ -133,7 +144,7 @@ const CloudCostDetails = ({
           aria-labelledby="cloud-cost-details-title"
         >
           <ThemedModalHeader
-            title={`Costs over the last ${window}`}
+            title={`Costs: ${windowLabel}`}
             titleId="cloud-cost-details-title"
             onClose={onClose}
           />
@@ -153,6 +164,11 @@ const CloudCostDetails = ({
             <div style={{ marginBottom: 20 }}>
               <Warnings warnings={errors} />
             </div>
+          )}
+          {!loading && errors.length === 0 && data.length === 0 && (
+            <Typography variant="body2" style={{ marginTop: "2.5rem" }}>
+              No data
+            </Typography>
           )}
           {data.length > 0 && (
             <div style={{ display: "flex", marginTop: "2.5rem" }}>

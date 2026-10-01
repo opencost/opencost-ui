@@ -123,6 +123,7 @@ export default function ReportFilterValueInput({
   return (
     <div ref={rootRef} className="relative" onBlur={handleBlur}>
       <input
+        type="text"
         value={draft}
         onChange={(event) => {
           setDraft(event.target.value);
@@ -133,14 +134,14 @@ export default function ReportFilterValueInput({
         aria-autocomplete={hasAutocomplete ? "list" : undefined}
         aria-controls={hasAutocomplete ? listId : undefined}
         aria-expanded={showList}
-        className="h-9 w-full rounded border border-[var(--cds-border-subtle)] px-2 text-[13px] text-[var(--cds-text-primary)]"
+        className="h-9 w-full rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-field)] px-2 text-[13px] text-[var(--cds-text-primary)]"
       />
 
       {showList ? (
         <ul
           id={listId}
           role="listbox"
-          className="z-10 mt-1 max-h-48 list-none overflow-y-auto rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] p-0 shadow-md"
+          className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 list-none overflow-y-auto rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-layer)] p-0 shadow-md"
         >
           {loading ? (
             <li className="px-2 py-1.5 text-xs text-[var(--cds-text-placeholder)]">Loading…</li>

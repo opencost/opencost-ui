@@ -14,6 +14,17 @@ import {
 } from "recharts";
 import { toCurrency } from "../../../lib/legacy-util";
 import cloudCostDayTotals from "../../../services/cloud-cost-day-totals";
+import {
+  ThemedModalHeader,
+  modalCenterStyle,
+  paperBaseStyle,
+} from "../themed-modal";
+
+const paperStyle = {
+  ...paperBaseStyle,
+  maxWidth: "700px",
+  maxHeight: "85vh",
+};
 
 const CloudCostDetails = ({
   onClose,
@@ -53,7 +64,7 @@ const CloudCostDetails = ({
         if (resp.message && resp.message.indexOf("boundary error") >= 0) {
           let match = resp.message.match(/(ETL is \d+\.\d+% complete)/);
           let secondary = "Try again after ETL build is complete";
-          if (match.length > 0) {
+          if (match && match.length > 0) {
             secondary = `${match[1]}. ${secondary}`;
           }
           setErrors([
@@ -67,7 +78,7 @@ const CloudCostDetails = ({
       }
     } catch (err) {
       console.log(err);
-      if (err.message.indexOf("404") === 0) {
+      if (err.response?.status === 404 || err.message?.includes("404")) {
         setErrors([
           {
             primary: "Failed to load report data",
@@ -77,7 +88,7 @@ const CloudCostDetails = ({
         ]);
       } else {
         let secondary = "Please open an Issue on GitHub if problems persist.";
-        if (err.message.length > 0) {
+        if (err.message?.length > 0) {
           secondary = err.message;
         }
         setErrors([
@@ -99,7 +110,7 @@ const CloudCostDetails = ({
     }
   }, [fetch]);
 
-  const drilldownData = data.sort(
+  const drilldownData = [...data].sort(
     (a, b) =>
       new Date(a.date ?? "").getTime() - new Date(b.date ?? "").getTime(),
   );
@@ -114,14 +125,20 @@ const CloudCostDetails = ({
 
   return (
     <div>
-      <Modal
-        open={true}
-        onClose={onClose}
-        title={`Costs over the last ${window}`}
-        style={{ margin: "10%" }}
-      >
-        <Paper style={{ padding: 20 }}>
-          <Typography style={{ marginTop: "1rem" }} variant="body1">
+      <Modal open={true} onClose={onClose} style={modalCenterStyle}>
+        <Paper
+          style={paperStyle}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cloud-cost-details-title"
+        >
+          <ThemedModalHeader
+            title={`Costs over the last ${window}`}
+            titleId="cloud-cost-details-title"
+            onClose={onClose}
+          />
+
+          <Typography style={{ marginTop: "0.5rem", color: "var(--cds-text-secondary)", fontFamily: '"IBM Plex Sans", sans-serif' }} variant="body2">
             {selectedItem}
           </Typography>
 
@@ -137,7 +154,7 @@ const CloudCostDetails = ({
               <Warnings warnings={errors} />
             </div>
           )}
-          {data && (
+          {data.length > 0 && (
             <div style={{ display: "flex", marginTop: "2.5rem" }}>
               <BarChart
                 data={itemData}
@@ -156,11 +173,22 @@ const CloudCostDetails = ({
                 <Legend verticalAlign={"bottom"} />
                 <XAxis dataKey={"time"} />
                 <YAxis tickFormatter={(tick) => `${toCurrency(tick)}`} />
-                <Bar dataKey={"cost"} fill={"#2196f3"} name={"Item Cost"} />
+                <Bar
+                  dataKey={"cost"}
+                  fill={"var(--cds-link-primary)"}
+                  name={"Item Cost"}
+                />
                 <Tooltip
                   formatter={(value) =>
                     `${toCurrency(value ?? 0, currency, 4, true)}`
                   }
+                  contentStyle={{
+                    backgroundColor: "var(--cds-layer)",
+                    border: "1px solid var(--cds-border-subtle)",
+                    borderRadius: "4px",
+                  }}
+                  labelStyle={{ color: "var(--cds-text-primary)" }}
+                  itemStyle={{ color: "var(--cds-text-primary)" }}
                 />
               </BarChart>
             </div>

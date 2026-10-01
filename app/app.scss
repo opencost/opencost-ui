@@ -39,7 +39,10 @@
   --cds-button-primary: var(--oc-accent);
   --cds-button-primary-hover: var(--oc-accent-hover);
   --cds-button-primary-active: #0e6027;
-  --cds-focus: var(--oc-accent);
+  // Brand green (#16803c) is only ~3.0:1 on the g100 field (#262626) and
+  // ~2.3:1 on layer-02 (#393939), below WCAG 1.4.11's 3:1 requirement for
+  // focus indicators. The lighter accent stays >= 6.5:1 on both.
+  --cds-focus: var(--oc-accent-hover);
   --cds-interactive: var(--oc-accent);
   --cds-border-interactive: var(--oc-accent);
   --cds-icon-interactive: var(--oc-accent);
@@ -536,23 +539,14 @@ html[data-carbon-theme] body {
 // Dark Mode Targeted Fixes
 // ============================================================
 
-// Carbon Select label text — ensure readability in both themes
-.cds--select .cds--label,
-.cds--select-input__wrapper .cds--label {
-  color: var(--cds-text-secondary) !important;
+// Carbon label text — ensure readability in both themes
+// (:not keeps Carbon's disabled-label dimming intact)
+.cds--label:not(.cds--label--disabled) {
+  color: var(--cds-text-secondary);
 }
 
-// Carbon Select input — ensure text is always readable
-.cds--select-input {
-  background-color: var(--cds-field) !important;
-  color: var(--cds-text-primary) !important;
-  border-bottom-color: var(--cds-border-strong) !important;
-}
-
-// Carbon Select chevron icon
-.cds--select__arrow {
-  fill: var(--cds-text-primary) !important;
-}
+// Carbon Select input/arrow dark-mode fixes live in the
+// "Modernized Carbon Overrides" section below.
 
 // Checkbox labels in filter panels
 .v2-filter-panel label,
@@ -569,21 +563,217 @@ html[data-carbon-theme] body {
   color-scheme: inherit;
 }
 
-// Carbon Modal — ensure the modal container respects the current theme
+// ============================================================
+// Modernized Carbon Overrides & Native Controls
+// ============================================================
+
+// Carbon Modal overlay/backdrop
+.cds--modal {
+  backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+
+// Carbon Modal container
 .cds--modal-container {
   background-color: var(--cds-layer) !important;
   color: var(--cds-text-primary) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--cds-border-subtle) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden;
+}
+
+.cds--modal-header {
+  padding-bottom: 1rem !important;
 }
 
 .cds--modal-header__heading {
   color: var(--cds-text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
 }
 
 .cds--modal-content {
   color: var(--cds-text-primary) !important;
+  padding-right: 1.5rem !important;
+  margin-bottom: 2rem !important;
 }
 
 // Carbon Modal close button
-.cds--modal-close:hover {
-  background-color: var(--cds-layer-hover) !important;
+.cds--modal-close {
+  color: var(--cds-text-primary) !important;
+  border-radius: 4px !important;
+  margin: 0.75rem !important;
+  &:hover {
+    background-color: var(--cds-layer-hover) !important;
+  }
+}
+
+// Carbon Modal footer
+.cds--modal-footer {
+  background-color: var(--cds-layer-02, var(--cds-layer)) !important;
+  border-top: 1px solid var(--cds-border-subtle) !important;
+  padding: 1rem 1.5rem !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+  height: auto !important;
+
+  .cds--btn {
+    flex: 0 1 auto !important;
+    max-width: none !important;
+    min-height: 2.25rem !important;
+    height: 2.25rem !important;
+    // Carbon footer buttons are 64px with baseline-aligned labels and
+    // 14px/32px block padding — reset both so the label centers at 36px
+    padding-block: 0 !important;
+    align-items: center !important;
+  }
+}
+
+// Carbon Buttons.
+// No !important: source order after Carbon is enough for the refresh look,
+// and Carbon's more specific ghost/disabled/icon-only rules can still win.
+.cds--btn {
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+// Carbon inputs & Text areas.
+// This sheet compiles after Carbon, so same-specificity rules here win by
+// source order without !important — which lets Carbon's higher-specificity
+// state styling (:disabled, --invalid, --warning) keep working.
+// Height is left to Carbon so size="sm" / size="xl" still work.
+.cds--text-input,
+.cds--text-area {
+  background-color: var(--cds-field, var(--cds-layer));
+  color: var(--cds-text-primary);
+  border: 1px solid var(--cds-border-subtle);
+  border-bottom: 2px solid var(--cds-border-strong);
+  border-radius: 4px;
+  padding-inline: 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease;
+
+  &:focus:not(.cds--text-input--invalid):not(.cds--text-input--warning):not(
+      .cds--text-area--invalid
+    ):not(.cds--text-area--warning) {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+    border-color: var(--cds-link-primary);
+    border-bottom-color: var(--cds-link-primary);
+  }
+}
+
+// Keep Carbon's reserved space for the invalid/warning icon
+.cds--text-input--invalid,
+.cds--text-input--warning {
+  padding-inline-end: 2.5rem;
+}
+
+.cds--text-area {
+  padding-block: 0.5rem;
+}
+
+// Carbon Select Input.
+// Scoped to skip inline selects (Pagination relies on chrome-less inline
+// styling), disabled selects, and invalid selects (Carbon's red focus outline
+// must win); height is left to Carbon so size="sm" works. The :not() chain
+// raises specificity to 0,5,0 and beats Carbon's hover rule, so the hover
+// background is restated below.
+.cds--select:not(.cds--select--inline):not(.cds--select--disabled):not(
+    .cds--select--invalid
+  )
+  .cds--select-input {
+  background-color: var(--cds-field, var(--cds-layer));
+  color: var(--cds-text-primary);
+  border: 1px solid var(--cds-border-subtle);
+  border-bottom: 2px solid var(--cds-border-strong);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  padding-right: 2.5rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--cds-field-hover);
+  }
+
+  &:focus {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+    border-color: var(--cds-link-primary);
+    border-bottom-color: var(--cds-link-primary);
+  }
+}
+
+// Carbon Select chevron — readable in both themes; Carbon's disabled
+// dimming still wins via its higher-specificity sibling selector
+.cds--select__arrow {
+  fill: var(--cds-text-primary);
+}
+
+.cds--select:not(.cds--select--inline) .cds--select__arrow {
+  right: 0.75rem;
+}
+
+// Carbon Tags (skip dismissible filter tags — their geometry is tied to the
+// close button's fixed circular size — and size="sm" tags whose padding/height
+// come from Carbon)
+.cds--tag:not(.cds--tag--filter):not(.cds--tag--sm) {
+  border-radius: var(--radius-full, 9999px);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  min-height: auto;
+  height: auto;
+  border: 1px solid transparent;
+}
+
+// Focus outlines for native elements (theme token, no hardcoded light-theme glow)
+select,
+input[type="text"],
+input[type="date"],
+textarea {
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+    border-color: var(--cds-link-primary);
+  }
+}
+
+// Shared close control for hand-rolled MUI themed modals
+.themed-modal-close {
+  background: none;
+  border: none;
+  color: var(--cds-text-primary);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--cds-layer-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: 2px;
+  }
+}
+
+// Carbon Tiles.
+// No !important here: inline styles and Tailwind utilities are used as state
+// indicators (dashboard-builder selection borders, accent panels) and must
+// keep winning over this base styling.
+.cds--tile {
+  background-color: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }

@@ -164,6 +164,7 @@ export default function CreateReportModal({
         <div className="flex items-center gap-2">
           <input
             id="report-tag-input"
+            type="text"
             value={tagInput}
             onChange={(event) => setTagInput(event.target.value)}
             onKeyDown={(event) => {
@@ -173,7 +174,7 @@ export default function CreateReportModal({
               }
             }}
             placeholder="Add tag"
-            className="h-10 min-w-0 flex-1 rounded border border-[var(--cds-border-subtle)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
+            className="h-10 min-w-0 flex-1 rounded border border-[var(--cds-border-subtle)] bg-[var(--cds-field)] px-2.5 text-[13px] text-[var(--cds-text-primary)]"
           />
           <Button kind="secondary" size="sm" disabled={!tagInput.trim()} onClick={addTag}>
             Add

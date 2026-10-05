@@ -138,6 +138,10 @@ export const ALLOCATION_GROUPING_OPTIONS = [
   { label: "Service", value: "service" },
   { label: "Pod", value: "pod" },
   { label: "Container", value: "container" },
+  {
+    label: "label:app.kubernetes.io/name",
+    value: "label:app.kubernetes.io/name",
+  },
 ];
 
 export const CLOUD_COST_GROUPING_OPTIONS = [

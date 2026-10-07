@@ -90,11 +90,20 @@ function topNPerDay(
   return { top, other, idle };
 }
 
-function getDateLabel(alloc: AllocationLike): string {
+function getDateLabel(alloc: AllocationLike, accumulate: string): string {
   const start = alloc?.window?.start ?? alloc?.start;
   if (!start || String(start).trim().length === 0) return "?";
   const d = new Date(start as string);
   if (Number.isNaN(d.getTime()) || d.getUTCFullYear() < 1971) return "?";
+  if (accumulate === "hour") {
+    return d.toLocaleString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "UTC",
+    });
+  }
   return d.toLocaleDateString("en-US", {
     month: "2-digit",
     day: "2-digit",
@@ -107,6 +116,7 @@ function buildChartData(
   topN: number,
   includeIdle: boolean,
   includeUnallocated: boolean,
+  accumulate: string,
 ): ChartPoint[] {
   const points: ChartPoint[] = [];
 
@@ -124,7 +134,7 @@ function buildChartData(
       topN,
       (a) => a.totalCost ?? 0,
     );
-    const date = getDateLabel(allocs[0]);
+    const date = getDateLabel(allocs[0], accumulate);
 
     for (const a of top) {
       const k = a.name ?? "?";
@@ -208,9 +218,9 @@ export default function CostAllocationChart({
   const chartData = useMemo(
     () =>
       rawData.length > 0
-        ? buildChartData(rawData, topN, includeIdle, includeUnallocated)
+        ? buildChartData(rawData, topN, includeIdle, includeUnallocated, accumulate)
         : [],
-    [rawData, topN, includeIdle, includeUnallocated],
+    [rawData, topN, includeIdle, includeUnallocated, accumulate],
   );
 
   useEffect(() => {

@@ -186,19 +186,19 @@ describe("InferenceIdleWidget", () => {
     await user.click(screen.getByRole("button", { name: "Toggle filter options" }));
     await user.selectOptions(screen.getByLabelText("Window"), "48h");
     await screen.findByTestId("inference-idle-ranking");
-    await user.selectOptions(screen.getByLabelText("Aggregate by"), "pod");
+    await user.selectOptions(screen.getByLabelText("Aggregate by"), "model_version");
     await waitFor(() => expect(fetchTotal).toHaveBeenCalledTimes(6));
     expect(fetchTotal.mock.calls.slice(4).map(([q]) => q)).toEqual([
-      { window: "48h", aggregate: "pod", costBasis: "allocation" },
-      { window: "48h", aggregate: "pod", costBasis: "usage" },
+      { window: "48h", aggregate: "model_version", costBasis: "allocation" },
+      { window: "48h", aggregate: "model_version", costBasis: "usage" },
     ]);
   });
 
   it("honours props for the initial query and currency", async () => {
     byBasis();
-    render(<InferenceIdleWidget title="Idle" window="today" aggregateBy="namespace" currency="EUR" />);
+    render(<InferenceIdleWidget title="Idle" window="today" aggregateBy="model_version" currency="EUR" />);
     await screen.findByTestId("inference-idle-ranking");
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "today", aggregate: "namespace", costBasis: "allocation" });
+    expect(fetchTotal).toHaveBeenCalledWith({ window: "today", aggregate: "model_version", costBasis: "allocation" });
     expect(screen.getByText("Idle")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("€350.79 of €350.79");
   });

@@ -63,7 +63,7 @@ export interface InferenceCostWidgetProps {
 /** Inference cost over time (bar/line), top N plus "other", like Cost Allocation. */
 export default function InferenceCostWidget({
   title = "AI Inference Costs",
-  description = "Inference cost by model, namespace, or other dimension",
+  description = "Inference cost by model name, version, or workload type",
   window: windowProp = "7d",
   aggregateBy: aggregateByProp = "model_name",
   accumulate: accumulateProp = "day",

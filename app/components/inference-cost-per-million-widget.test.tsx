@@ -162,9 +162,9 @@ describe("InferenceCostPerMillionWidget", () => {
     await screen.findByTestId("inference-cost-per-million");
     await user.click(screen.getByRole("button", { name: "Toggle filter options" }));
     await user.selectOptions(screen.getByLabelText("Window"), "yesterday");
-    await user.selectOptions(screen.getByLabelText("Aggregate by"), "namespace");
+    await user.selectOptions(screen.getByLabelText("Aggregate by"), "model_version");
     await user.selectOptions(screen.getByLabelText("Cost basis"), "usage");
-    expect(fetchTotal).toHaveBeenLastCalledWith({ window: "yesterday", aggregate: "namespace", costBasis: "usage" });
+    expect(fetchTotal).toHaveBeenLastCalledWith({ window: "yesterday", aggregate: "model_version", costBasis: "usage" });
     expect(fetchTotal).toHaveBeenCalledTimes(4);
   });
 
@@ -174,13 +174,13 @@ describe("InferenceCostPerMillionWidget", () => {
       <InferenceCostPerMillionWidget
         title="Build vs Buy"
         window="14d"
-        aggregateBy="cluster"
+        aggregateBy="model_version"
         costBasis="usage"
         metric="outputCostPerMillionTokens"
         currency="EUR"
       />,
     );
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "14d", aggregate: "cluster", costBasis: "usage" });
+    expect(fetchTotal).toHaveBeenCalledWith({ window: "14d", aggregate: "model_version", costBasis: "usage" });
     await screen.findByTestId("inference-cost-per-million");
     expect(screen.getByText("Build vs Buy")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("€2.100");

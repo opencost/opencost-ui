@@ -81,20 +81,20 @@ describe("InferenceCostWidget", () => {
         title="Custom"
         description="desc"
         window="24h"
-        aggregateBy="namespace"
+        aggregateBy="model_version"
         accumulate="hour"
         costBasis="usage"
         currency="EUR"
       />,
     );
     expect(fetchTimeseries).toHaveBeenCalledWith(
-      { window: "24h", aggregate: "namespace", costBasis: "usage" },
+      { window: "24h", aggregate: "model_version", costBasis: "usage" },
       "hour",
     );
     await screen.findByTestId("StackedBarChart");
     expect(screen.getByText("Custom")).toBeInTheDocument();
     expect(screen.getByText("desc")).toBeInTheDocument();
-    expect(lastProps.StackedBarChart.options.title).toBe("Last 24h by namespace (hourly, usage basis)");
+    expect(lastProps.StackedBarChart.options.title).toBe("Last 24h by model version (hourly, usage basis)");
     expect(lastProps.StackedBarChart.options.tooltip.valueFormatter(1)).toBe("€1.00");
   });
 
@@ -115,12 +115,12 @@ describe("InferenceCostWidget", () => {
     await screen.findByTestId("StackedBarChart");
     await openFilters(user);
     await user.selectOptions(screen.getByLabelText("Window"), "14d");
-    await user.selectOptions(screen.getByLabelText("Aggregate by"), "cluster");
+    await user.selectOptions(screen.getByLabelText("Aggregate by"), "model_version");
     await user.selectOptions(screen.getByLabelText("Granularity"), "week");
     await user.selectOptions(screen.getByLabelText("Cost basis"), "usage");
     await waitFor(() =>
       expect(fetchTimeseries).toHaveBeenLastCalledWith(
-        { window: "14d", aggregate: "cluster", costBasis: "usage" },
+        { window: "14d", aggregate: "model_version", costBasis: "usage" },
         "week",
       ),
     );

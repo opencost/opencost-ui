@@ -19,17 +19,10 @@ import type { InferenceCostSet, InferenceCostSetRange } from "~/services/inferen
 import { ic, set } from "~/test/inference-fixtures";
 
 describe("option lists", () => {
-  it("exposes every aggregate dimension the API accepts", () => {
-    // Mirrors supportedAggregateProperties in opencost pkg/inferencecost.
+  it("only offers model-level dimensions, no Kubernetes ones", () => {
     expect(INFERENCE_AGGREGATE_OPTIONS.map((o) => o.value)).toEqual([
       "model_name",
       "model_version",
-      "namespace",
-      "cluster",
-      "pod",
-      "controller",
-      "controller_kind",
-      "container",
       "workload_type",
     ]);
   });

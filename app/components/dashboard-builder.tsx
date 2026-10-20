@@ -42,7 +42,7 @@ const WIDGET_TYPES = [
     value: "inference-cost-chart",
     label: "AI Inference Costs",
     description:
-      "Inference cost over time by model, namespace, or other dimension",
+      "Inference cost over time by model name, version, or workload type",
   },
   {
     value: "inference-cost-per-million",

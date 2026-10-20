@@ -4,16 +4,16 @@ import type {
   InferenceCostSetRange,
 } from "~/services/inference-cost";
 
-/** Aggregate dimensions supported by `/inferenceCost/*` (see opencost pkg/inferencecost). */
+/**
+ * Aggregate dimensions offered by the inference widgets: only the
+ * model-level ones from the API's supportedAggregateProperties. The
+ * Kubernetes dimensions it also accepts (namespace, cluster, pod,
+ * controller, controller_kind, container) are deliberately not exposed;
+ * these widgets describe models, not where they are scheduled.
+ */
 export const INFERENCE_AGGREGATE_OPTIONS = [
   { name: "Model name", value: "model_name" },
   { name: "Model version", value: "model_version" },
-  { name: "Namespace", value: "namespace" },
-  { name: "Cluster", value: "cluster" },
-  { name: "Pod", value: "pod" },
-  { name: "Controller", value: "controller" },
-  { name: "Controller kind", value: "controller_kind" },
-  { name: "Container", value: "container" },
   { name: "Workload type", value: "workload_type" },
 ];
 

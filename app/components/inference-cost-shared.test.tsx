@@ -1,8 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import {
   InferenceEmptyState,
   InferenceLoading,
+  InferenceWindowAggregateSelects,
   aggregateName,
   inferenceErrorMessage,
   optionName,
@@ -36,7 +38,7 @@ describe("inference-cost-shared", () => {
   });
 
   it("aggregateName lowercases known dimensions and passes unknown ones through", () => {
-    expect(aggregateName("controller_kind")).toBe("controller kind");
+    expect(aggregateName("model_name")).toBe("model name");
     expect(aggregateName("gpu")).toBe("gpu");
   });
 
@@ -48,6 +50,27 @@ describe("inference-cost-shared", () => {
     expect(inferenceErrorMessage({ isAxiosError: true })).toBe("Failed to load inference costs.");
     expect(inferenceErrorMessage(new Error("x"))).toBe("Failed to load inference costs.");
     expect(inferenceErrorMessage(undefined)).toBe("Failed to load inference costs.");
+  });
+
+  it("offers only model-level dimensions and reports changes", async () => {
+    const user = userEvent.setup();
+    const onWindow = vi.fn();
+    const onAgg = vi.fn();
+    render(
+      <InferenceWindowAggregateSelects
+        idPrefix="t"
+        window="7d"
+        aggregateBy="model_name"
+        onWindowChange={onWindow}
+        onAggregateByChange={onAgg}
+      />,
+    );
+    const agg = screen.getByLabelText("Aggregate by");
+    expect(within(agg).getAllByRole("option").map((o) => o.textContent)).toEqual(["Model name", "Model version", "Workload type"]);
+    await user.selectOptions(agg, "model_version");
+    expect(onAgg).toHaveBeenCalledWith("model_version");
+    await user.selectOptions(screen.getByLabelText("Window"), "24h");
+    expect(onWindow).toHaveBeenCalledWith("24h");
   });
 
   it("renders loading and empty states", () => {

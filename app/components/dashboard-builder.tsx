@@ -38,6 +38,22 @@ const WIDGET_TYPES = [
     label: "Infrastructure Assets",
     description: "Cost, utilization, and carbon emissions by asset",
   },
+  {
+    value: "inference-cost-chart",
+    label: "AI Inference Costs",
+    description:
+      "Inference cost over time by model, namespace, or other dimension",
+  },
+  {
+    value: "inference-cost-per-million",
+    label: "AI Inference Cost per 1M Tokens",
+    description: "Cost per million tokens by model, cheapest first",
+  },
+  {
+    value: "inference-idle-ranking",
+    label: "AI Inference Idle Cost",
+    description: "Models ranked by idle + shared cost, as a share of allocated cost",
+  },
 ];
 
 interface DashboardBuilderProps {

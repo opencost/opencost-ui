@@ -10,6 +10,9 @@ import CloudCostWidget from "./cloud-cost-widget";
 import CloudCostTableWidget from "./cloud-cost-table-widget";
 import ExternalServicesChartWidget from "./external-services-chart-widget";
 import AssetsVisualization from "./assets-visualization";
+import InferenceCostWidget from "./inference-cost-widget";
+import InferenceCostPerMillionWidget from "./inference-cost-per-million-widget";
+import InferenceIdleWidget from "./inference-idle-widget";
 import WidgetCard from "./widget-card";
 import { AllocationFiltersProvider } from "./allocation-filters-context";
 import { encodeSharePayload } from "~/lib/share-encoding";
@@ -59,6 +62,24 @@ function WidgetRenderer({
       );
     case "assets-visualization":
       return <AssetsVisualization />;
+    case "inference-cost-chart":
+      return (
+        <WidgetCard>
+          <InferenceCostWidget title={widget.title} />
+        </WidgetCard>
+      );
+    case "inference-cost-per-million":
+      return (
+        <WidgetCard>
+          <InferenceCostPerMillionWidget title={widget.title} />
+        </WidgetCard>
+      );
+    case "inference-idle-ranking":
+      return (
+        <WidgetCard>
+          <InferenceIdleWidget title={widget.title} />
+        </WidgetCard>
+      );
     case "cost-allocation-table":
     case "cost-table":
       return (

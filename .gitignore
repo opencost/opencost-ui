@@ -26,3 +26,4 @@ tilt_config.json
 # Lighthouse CI
 .lighthouseci/
 
+coverage

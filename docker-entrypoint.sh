@@ -58,7 +58,10 @@ if [ -n "$CUSTOM_AGGREGATION_OPTIONS" ]; then
 fi
 
 if [ ! -e /etc/nginx/conf.d/default.nginx.conf ]; then
-    envsubst '$API_PORT $API_SERVER $UI_PORT $NGINX_ROOT $UI_PATH $BASE_URL $PROXY_CONNECT_TIMEOUT $PROXY_SEND_TIMEOUT $PROXY_READ_TIMEOUT' \
+    # Default when unset or empty (e.g. a deployment overriding env).
+    : "${INFERENCE_PROXY_READ_TIMEOUT:=300s}"
+    export INFERENCE_PROXY_READ_TIMEOUT
+    envsubst '$API_PORT $API_SERVER $UI_PORT $NGINX_ROOT $UI_PATH $BASE_URL $PROXY_CONNECT_TIMEOUT $PROXY_SEND_TIMEOUT $PROXY_READ_TIMEOUT $INFERENCE_PROXY_READ_TIMEOUT' \
         < /etc/nginx/conf.d/default.nginx.conf.template \
         > /etc/nginx/conf.d/default.nginx.conf
 fi

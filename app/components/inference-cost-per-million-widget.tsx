@@ -8,6 +8,7 @@ import {
   InferenceLoading,
   InferenceWindowAggregateSelects,
   aggregateName,
+  formatTokens,
   inferenceErrorMessage,
   optionName,
   windowName,
@@ -27,10 +28,6 @@ import {
 import { toCurrency } from "~/lib/legacy-util";
 
 const GRADIENT = `linear-gradient(to right, ${GAUGE_STOPS.join(", ")})`;
-
-function formatTokens(n: number): string {
-  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
-}
 
 export interface InferenceCostPerMillionWidgetProps {
   title?: string;
@@ -70,23 +67,25 @@ export default function InferenceCostPerMillionWidget({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    const cancelled = () => controller.signal.aborted;
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const d = await InferenceCostService.fetchTotal({ window, aggregate: aggregateBy, costBasis });
-        if (!cancelled) setData(d);
+        const d = await InferenceCostService.fetchTotal(
+          { window, aggregate: aggregateBy, costBasis },
+          controller.signal,
+        );
+        if (!cancelled()) setData(d);
       } catch (e: unknown) {
-        if (!cancelled) setError(inferenceErrorMessage(e));
+        if (!cancelled()) setError(inferenceErrorMessage(e));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled()) setLoading(false);
       }
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [window, aggregateBy, costBasis]);
 
   const { rows, hidden } = useMemo(() => buildCostPerMillionRows(data, metric), [data, metric]);

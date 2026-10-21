@@ -68,6 +68,18 @@ function stepLabel(start: string | undefined, hourly: boolean): string {
 }
 
 /**
+ * One label per timeseries step, in order. Used as the chart's bottom-axis
+ * domain so a step with no non-zero points still keeps its slot on the axis.
+ */
+export function buildStepLabels(
+  range: InferenceCostSetRange | undefined,
+  hourly = false,
+): string[] {
+  const labels = (range?.inferenceCostSets ?? []).map((set) => stepLabel(set.window?.start, hourly));
+  return [...new Set(labels)];
+}
+
+/**
  * Builds stacked/grouped chart points from a timeseries response.
  *
  * The top N keys are ranked by total cost across the WHOLE range (not per

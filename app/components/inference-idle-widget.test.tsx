@@ -48,22 +48,36 @@ beforeEach(() => {
 });
 
 describe("InferenceIdleWidget", () => {
-  it("requests allocation then usage, one after the other", async () => {
+  it("requests both bases with one abort signal and waits for both", async () => {
     const alloc = deferred<InferenceCostSet>();
     const use = deferred<InferenceCostSet>();
     fetchTotal.mockReturnValueOnce(alloc.promise).mockReturnValueOnce(use.promise);
-    render(<InferenceIdleWidget />);
+    const { unmount } = render(<InferenceIdleWidget />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
-    expect(fetchTotal).toHaveBeenCalledTimes(1);
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "7d", aggregate: "model_name", costBasis: "allocation" });
+    // Serialising them is the service's job (shared concurrency limit).
+    expect(fetchTotal).toHaveBeenCalledTimes(2);
+    expect(fetchTotal).toHaveBeenNthCalledWith(
+      1,
+      { window: "7d", aggregate: "model_name", costBasis: "allocation" },
+      expect.any(AbortSignal),
+    );
+    expect(fetchTotal).toHaveBeenNthCalledWith(
+      2,
+      { window: "7d", aggregate: "model_name", costBasis: "usage" },
+      expect.any(AbortSignal),
+    );
+    const [s1, s2] = fetchTotal.mock.calls.map((c) => c[1] as AbortSignal);
+    expect(s1).toBe(s2);
 
     await act(async () => alloc.resolve(allocation));
-    expect(fetchTotal).toHaveBeenCalledTimes(2);
-    expect(fetchTotal).toHaveBeenLastCalledWith({ window: "7d", aggregate: "model_name", costBasis: "usage" });
     expect(screen.getByText("Loading…")).toBeInTheDocument();
 
     await act(async () => use.resolve(usage));
     expect(rows()).toHaveLength(3);
+
+    expect(s1.aborted).toBe(false);
+    unmount();
+    expect(s1.aborted).toBe(true);
   });
 
   it("ranks by idle + shared dollars with a usage/idle split bar", async () => {
@@ -198,7 +212,10 @@ describe("InferenceIdleWidget", () => {
     byBasis();
     render(<InferenceIdleWidget title="Idle" window="today" aggregateBy="model_version" currency="EUR" />);
     await screen.findByTestId("inference-idle-ranking");
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "today", aggregate: "model_version", costBasis: "allocation" });
+    expect(fetchTotal).toHaveBeenCalledWith(
+      { window: "today", aggregate: "model_version", costBasis: "allocation" },
+      expect.any(AbortSignal),
+    );
     expect(screen.getByText("Idle")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("€350.79 of €350.79");
   });

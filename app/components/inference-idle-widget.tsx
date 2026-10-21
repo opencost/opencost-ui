@@ -136,27 +136,33 @@ export default function InferenceIdleWidget({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    const cancelled = () => controller.signal.aborted;
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        // Sequential on purpose: each basis is a full ComputeAllocation pass
-        // server-side (~40-80s for 7d), and two concurrent 7d queries were
-        // observed to drop both connections and take the backend down.
-        const allocation = await InferenceCostService.fetchTotal({ window, aggregate: aggregateBy, costBasis: "allocation" });
-        const usage = await InferenceCostService.fetchTotal({ window, aggregate: aggregateBy, costBasis: "usage" });
-        if (!cancelled) setTotals({ allocation, usage });
+        // Issued together; the service's shared concurrency limit sends them
+        // to the server one at a time.
+        const [allocation, usage] = await Promise.all([
+          InferenceCostService.fetchTotal(
+            { window, aggregate: aggregateBy, costBasis: "allocation" },
+            controller.signal,
+          ),
+          InferenceCostService.fetchTotal(
+            { window, aggregate: aggregateBy, costBasis: "usage" },
+            controller.signal,
+          ),
+        ]);
+        if (!cancelled()) setTotals({ allocation, usage });
       } catch (e: unknown) {
-        if (!cancelled) setError(inferenceErrorMessage(e));
+        if (!cancelled()) setError(inferenceErrorMessage(e));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled()) setLoading(false);
       }
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [window, aggregateBy]);
 
   const idle = useMemo(

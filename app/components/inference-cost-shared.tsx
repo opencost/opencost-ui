@@ -21,10 +21,16 @@ export function aggregateName(aggregateBy: string): string {
   return optionName(INFERENCE_AGGREGATE_OPTIONS, aggregateBy).toLowerCase();
 }
 
+export function formatTokens(n: number): string {
+  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+}
+
 export function inferenceErrorMessage(e: unknown): string {
-  return isAxiosError(e) && e.response?.status === 501
-    ? "Inference cost tracking is not enabled on this OpenCost instance."
-    : "Failed to load inference costs.";
+  const status = isAxiosError(e) ? e.response?.status : undefined;
+  if (status === 501) return "Inference cost tracking is not enabled on this OpenCost instance.";
+  if (status === 504)
+    return "Timed out waiting for inference costs. Try a shorter window, or raise the UI proxy's INFERENCE_PROXY_READ_TIMEOUT.";
+  return "Failed to load inference costs.";
 }
 
 /** Window + aggregate selects, rendered inside each widget's filter grid. */

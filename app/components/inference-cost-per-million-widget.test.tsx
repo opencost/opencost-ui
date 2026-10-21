@@ -57,7 +57,10 @@ describe("InferenceCostPerMillionWidget", () => {
     fetchTotal.mockReturnValueOnce(d.promise);
     render(<InferenceCostPerMillionWidget />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "7d", aggregate: "model_name", costBasis: "allocation" });
+    expect(fetchTotal).toHaveBeenCalledWith(
+      { window: "7d", aggregate: "model_name", costBasis: "allocation" },
+      expect.any(AbortSignal),
+    );
     await act(async () => d.resolve(data));
 
     expect(screen.getByText("Cost per 1M Tokens")).toBeInTheDocument();
@@ -164,8 +167,13 @@ describe("InferenceCostPerMillionWidget", () => {
     await user.selectOptions(screen.getByLabelText("Window"), "yesterday");
     await user.selectOptions(screen.getByLabelText("Aggregate by"), "model_version");
     await user.selectOptions(screen.getByLabelText("Cost basis"), "usage");
-    expect(fetchTotal).toHaveBeenLastCalledWith({ window: "yesterday", aggregate: "model_version", costBasis: "usage" });
+    expect(fetchTotal).toHaveBeenLastCalledWith(
+      { window: "yesterday", aggregate: "model_version", costBasis: "usage" },
+      expect.any(AbortSignal),
+    );
     expect(fetchTotal).toHaveBeenCalledTimes(4);
+    const signals = fetchTotal.mock.calls.map((c) => c[1] as AbortSignal);
+    expect(signals.map((s) => s.aborted)).toEqual([true, true, true, false]);
   });
 
   it("honours props for the initial query and currency", async () => {
@@ -180,7 +188,10 @@ describe("InferenceCostPerMillionWidget", () => {
         currency="EUR"
       />,
     );
-    expect(fetchTotal).toHaveBeenCalledWith({ window: "14d", aggregate: "model_version", costBasis: "usage" });
+    expect(fetchTotal).toHaveBeenCalledWith(
+      { window: "14d", aggregate: "model_version", costBasis: "usage" },
+      expect.any(AbortSignal),
+    );
     await screen.findByTestId("inference-cost-per-million");
     expect(screen.getByText("Build vs Buy")).toBeInTheDocument();
     expect(rows()[0]).toHaveTextContent("€2.100");

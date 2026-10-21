@@ -6,6 +6,7 @@ import {
   InferenceLoading,
   InferenceWindowAggregateSelects,
   aggregateName,
+  formatTokens,
   inferenceErrorMessage,
   optionName,
   windowName,
@@ -42,14 +43,23 @@ describe("inference-cost-shared", () => {
     expect(aggregateName("gpu")).toBe("gpu");
   });
 
-  it("inferenceErrorMessage singles out 501", () => {
+  it("inferenceErrorMessage singles out 501 and 504", () => {
     expect(inferenceErrorMessage({ isAxiosError: true, response: { status: 501 } })).toMatch(/not enabled/);
+    expect(inferenceErrorMessage({ isAxiosError: true, response: { status: 504 } })).toMatch(
+      /^Timed out .* shorter window/,
+    );
     expect(inferenceErrorMessage({ isAxiosError: true, response: { status: 502 } })).toBe(
       "Failed to load inference costs.",
     );
     expect(inferenceErrorMessage({ isAxiosError: true })).toBe("Failed to load inference costs.");
     expect(inferenceErrorMessage(new Error("x"))).toBe("Failed to load inference costs.");
     expect(inferenceErrorMessage(undefined)).toBe("Failed to load inference costs.");
+  });
+
+  it("formatTokens uses compact notation", () => {
+    expect(formatTokens(950)).toBe("950");
+    expect(formatTokens(1_500_000)).toBe("1.5M");
+    expect(formatTokens(2_340)).toBe("2.3K");
   });
 
   it("offers only model-level dimensions and reports changes", async () => {

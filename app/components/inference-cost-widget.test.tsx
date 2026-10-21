@@ -59,11 +59,13 @@ describe("InferenceCostWidget", () => {
     expect(fetchTimeseries).toHaveBeenCalledWith(
       { window: "7d", aggregate: "model_name", costBasis: "allocation" },
       "day",
+      expect.any(AbortSignal),
     );
     await act(async () => d.resolve(series));
     expect(screen.getByTestId("StackedBarChart")).toHaveAttribute("data-points", "3");
     const { options } = lastProps.StackedBarChart;
     expect(options.title).toBe("Last 7 days by model name (daily, allocation basis)");
+    expect(options.axes.bottom.domain).toEqual(["10/19"]);
     expect(options.theme).toBe("g100");
     expect(options.axes.left.stacked).toBe(true);
     expect(options.tooltip.showTotal).toBe(true);
@@ -72,6 +74,18 @@ describe("InferenceCostWidget", () => {
     expect(options.tooltip.valueFormatter(1)).toBe("$1.00");
     // Each key gets its own colour.
     expect(new Set(Object.values(options.color.scale)).size).toBe(3);
+  });
+
+  it("keeps a slot on the time axis for a step with no cost", async () => {
+    fetchTimeseries.mockResolvedValueOnce({
+      ...series,
+      inferenceCostSets: [...series.inferenceCostSets, set({}, "2026-10-20T00:00:00Z")],
+    });
+    render(<InferenceCostWidget />);
+    await screen.findByTestId("StackedBarChart");
+    const groups = (lastProps.StackedBarChart.data as { group: string }[]).map((p) => p.group);
+    expect(new Set(groups)).toEqual(new Set(["10/19"]));
+    expect(lastProps.StackedBarChart.options.axes.bottom.domain).toEqual(["10/19", "10/20"]);
   });
 
   it("uses props as the initial query", async () => {
@@ -90,6 +104,7 @@ describe("InferenceCostWidget", () => {
     expect(fetchTimeseries).toHaveBeenCalledWith(
       { window: "24h", aggregate: "model_version", costBasis: "usage" },
       "hour",
+      expect.any(AbortSignal),
     );
     await screen.findByTestId("StackedBarChart");
     expect(screen.getByText("Custom")).toBeInTheDocument();
@@ -122,9 +137,14 @@ describe("InferenceCostWidget", () => {
       expect(fetchTimeseries).toHaveBeenLastCalledWith(
         { window: "14d", aggregate: "model_version", costBasis: "usage" },
         "week",
+        expect.any(AbortSignal),
       ),
     );
     expect(fetchTimeseries).toHaveBeenCalledTimes(5);
+    // Each filter change aborts the superseded request.
+    const signals = fetchTimeseries.mock.calls.map((c) => c[2] as AbortSignal);
+    expect(signals.slice(0, 4).every((s) => s.aborted)).toBe(true);
+    expect(signals[4].aborted).toBe(false);
   });
 
   it("formats tokens compactly without refetching", async () => {

@@ -13,6 +13,7 @@ import {
   InferenceLoading,
   InferenceWindowAggregateSelects,
   aggregateName,
+  formatTokens,
   inferenceErrorMessage,
   optionName,
   windowName,
@@ -28,16 +29,13 @@ import {
   INFERENCE_METRIC_OPTIONS,
   OTHER_KEY,
   buildInferenceChartData,
+  buildStepLabels,
   isAdditiveMetric,
   type ChartPoint,
   type InferenceMetric,
 } from "~/lib/inference-cost";
 import { toCurrency } from "~/lib/legacy-util";
 import { primary, browns } from "~/constants/colors";
-
-function formatTokens(n: number): string {
-  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
-}
 
 function buildColorScale(points: ChartPoint[]): Record<string, string> {
   const scale: Record<string, string> = {};
@@ -89,29 +87,33 @@ export default function InferenceCostWidget({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    const cancelled = () => controller.signal.aborted;
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const d = await InferenceCostService.fetchTimeseries({ window, aggregate: aggregateBy, costBasis }, accumulate);
-        if (!cancelled) setSeries(d);
+        const d = await InferenceCostService.fetchTimeseries(
+          { window, aggregate: aggregateBy, costBasis },
+          accumulate,
+          controller.signal,
+        );
+        if (!cancelled()) setSeries(d);
       } catch (e: unknown) {
-        if (!cancelled) setError(inferenceErrorMessage(e));
+        if (!cancelled()) setError(inferenceErrorMessage(e));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled()) setLoading(false);
       }
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [window, aggregateBy, accumulate, costBasis]);
 
   const chartData = useMemo(
     () => buildInferenceChartData(series, metric, topN, accumulate === "hour"),
     [series, metric, topN, accumulate],
   );
+  const stepLabels = useMemo(() => buildStepLabels(series, accumulate === "hour"), [series, accumulate]);
 
   const chartTitle = `${windowName(window)} by ${aggregateName(aggregateBy)} (${optionName(
     INFERENCE_ACCUMULATE_OPTIONS,
@@ -132,7 +134,9 @@ export default function InferenceCostWidget({
           stacked: additive,
           ticks: { formatter: (v: number | Date) => fmt(typeof v === "number" ? v : v.getTime()) },
         },
-        bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS },
+        // Explicit domain: steps whose values are all zero have no points,
+        // and would otherwise drop off a LABELS axis built from the data.
+        bottom: { mapsTo: "group", scaleType: ScaleTypes.LABELS, domain: stepLabels },
       },
       data: { groupMapsTo: "key" },
       height: "400px",
@@ -145,7 +149,7 @@ export default function InferenceCostWidget({
         groupLabel: "Date",
       },
     };
-  }, [chartData, metric, currency, theme, chartTitle, additive]);
+  }, [chartData, stepLabels, metric, currency, theme, chartTitle, additive]);
 
   let body: React.ReactNode;
   if (loading) body = <InferenceLoading />;

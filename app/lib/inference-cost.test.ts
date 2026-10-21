@@ -12,6 +12,7 @@ import {
   buildCostPerMillionRows,
   buildIdleRanking,
   buildInferenceChartData,
+  buildStepLabels,
   gaugeColor,
   isAdditiveMetric,
 } from "./inference-cost";
@@ -165,6 +166,40 @@ describe("buildInferenceChartData", () => {
     expect(buildInferenceChartData({ window: range.window, inferenceCostSets: [set(sparse)] }, "totalTokens", 5)).toEqual([]);
     const noCost = { a: { totalTokens: 3 } } as unknown as InferenceCostSet["inferenceCosts"];
     expect(buildInferenceChartData({ window: range.window, inferenceCostSets: [set(noCost)] }, "totalCost", 5)).toEqual([]);
+  });
+});
+
+describe("buildStepLabels", () => {
+  it("lists every step in order, including steps with no costs", () => {
+    const range = {
+      window: { start: "", end: "" },
+      inferenceCostSets: [
+        set({ a: ic({ totalCost: 1 }) }, "2026-10-19T00:00:00Z"),
+        set({}, "2026-10-20T00:00:00Z"),
+        set({ a: ic({ totalCost: 0 }) }, "2026-10-21T00:00:00Z"),
+      ],
+    } as InferenceCostSetRange;
+    expect(buildStepLabels(range)).toEqual(["10/19", "10/20", "10/21"]);
+    // Zero-valued steps produce no points, which is why the axis needs this list.
+    expect(new Set(buildInferenceChartData(range, "totalCost", 5).map((p) => p.group))).toEqual(
+      new Set(["10/19"]),
+    );
+  });
+
+  it("labels hours and dedupes repeated labels", () => {
+    const range = {
+      window: { start: "", end: "" },
+      inferenceCostSets: [
+        set({}, "2026-10-19T13:00:00Z"),
+        set({}, "2026-10-19T14:00:00Z"),
+        set({}, "2026-10-19T14:00:00Z"),
+      ],
+    } as InferenceCostSetRange;
+    expect(buildStepLabels(range, true)).toEqual(["10/19, 13", "10/19, 14"]);
+  });
+
+  it("handles a missing range", () => {
+    expect(buildStepLabels(undefined)).toEqual([]);
   });
 });
 

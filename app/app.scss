@@ -548,14 +548,17 @@ html[data-carbon-theme] body {
 // Carbon Select input/arrow dark-mode fixes live in the
 // "Modernized Carbon Overrides" section below.
 
-// Checkbox labels in filter panels
-.v2-filter-panel label,
+// Checkbox labels in filter panels (Carbon field labels keep text-secondary)
+.v2-filter-panel label:not(.cds--label),
 .v2-filter-panel input[type="checkbox"] + * {
   color: var(--cds-text-primary) !important;
 }
 
-// Native <select> dropdowns used in filter rows — force theme-aware colors
-.v2-filter-panel select,
+// Native <select> dropdowns used in filter rows — force theme-aware colors.
+// Carbon Selects are excluded: their theme-aware styling lives in the
+// "Carbon Select Input" block below, and an !important here would defeat its
+// hover/focus/border states.
+.v2-filter-panel select:not(.cds--select-input),
 .v2-list-filter-row select {
   background-color: var(--cds-layer) !important;
   color: var(--cds-text-primary) !important;
@@ -593,10 +596,11 @@ html[data-carbon-theme] body {
   font-size: 1.25rem !important;
 }
 
+// No margin/padding overrides: Carbon already pads the scroll area (1rem
+// gutters, 3rem bottom), and a margin here shrinks the scroll viewport so the
+// scroll-fade mask hides real content at common window heights.
 .cds--modal-content {
   color: var(--cds-text-primary) !important;
-  padding-right: 1.5rem !important;
-  margin-bottom: 2rem !important;
 }
 
 // Carbon Modal close button
@@ -613,7 +617,8 @@ html[data-carbon-theme] body {
 .cds--modal-footer {
   background-color: var(--cds-layer-02, var(--cds-layer)) !important;
   border-top: 1px solid var(--cds-border-subtle) !important;
-  padding: 1rem 1.5rem !important;
+  // 1rem inline matches Carbon's header/content gutters so edges line up
+  padding: 1rem !important;
   display: flex !important;
   justify-content: flex-end !important;
   gap: 0.5rem !important;
@@ -659,7 +664,7 @@ html[data-carbon-theme] body {
 
   &:focus:not(.cds--text-input--invalid):not(.cds--text-input--warning):not(
       .cds--text-area--invalid
-    ):not(.cds--text-area--warning) {
+    ):not(.cds--text-area--warn) {
     outline: 2px solid var(--cds-focus);
     outline-offset: -2px;
     border-color: var(--cds-link-primary);
@@ -731,11 +736,15 @@ html[data-carbon-theme] body {
   border: 1px solid transparent;
 }
 
-// Focus outlines for native elements (theme token, no hardcoded light-theme glow)
-select,
-input[type="text"],
-input[type="date"],
-textarea {
+// Focus outlines for native elements (theme token, no hardcoded light-theme glow).
+// MUI inputs are excluded: InputBase draws its own underline and sets
+// `:focus { outline: 0 }` at a lower specificity than this rule. :where()
+// keeps the exclusion at zero specificity, so this rule still loses to
+// Tailwind's `focus:outline-none` exactly as before.
+select:not(:where(.MuiInputBase-input)),
+input[type="text"]:not(:where(.MuiInputBase-input)),
+input[type="date"]:not(:where(.MuiInputBase-input)),
+textarea:not(:where(.MuiInputBase-input)) {
   transition: border-color 0.15s ease;
 
   &:focus {

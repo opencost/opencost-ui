@@ -68,10 +68,15 @@ describe("InferenceCostWidget", () => {
     expect(options.axes.bottom.domain).toEqual(["10/19"]);
     expect(options.theme).toBe("g100");
     expect(options.axes.left.stacked).toBe(true);
-    expect(options.tooltip.showTotal).toBe(true);
+    expect(options.ruler).toEqual({ enabled: false });
+    expect(options.tooltip.alwaysShowRulerTooltip).toBeUndefined();
+    const tip = options.tooltip.customHTML([{ group: "10/19", key: "llama-3", value: 1 }], "DEFAULT");
+    expect(tip).toContain("10/19");
+    expect(tip).toContain("llama-3: $1.00");
+    expect(tip).not.toContain("Total");
+    expect(options.tooltip.customHTML([], "DEFAULT")).toBe("DEFAULT");
     expect(options.axes.left.ticks.formatter(12.5)).toBe("$12.50");
     expect(options.axes.left.ticks.formatter(new Date(3))).toBe("$3.00");
-    expect(options.tooltip.valueFormatter(1)).toBe("$1.00");
     // Each key gets its own colour.
     expect(new Set(Object.values(options.color.scale)).size).toBe(3);
   });
@@ -110,7 +115,9 @@ describe("InferenceCostWidget", () => {
     expect(screen.getByText("Custom")).toBeInTheDocument();
     expect(screen.getByText("desc")).toBeInTheDocument();
     expect(lastProps.StackedBarChart.options.title).toBe("Last 24h by model version (hourly, usage basis)");
-    expect(lastProps.StackedBarChart.options.tooltip.valueFormatter(1)).toBe("€1.00");
+    expect(lastProps.StackedBarChart.options.tooltip.customHTML([{ group: "x", key: "k", value: 1 }], "")).toContain(
+      "k: €1.00",
+    );
   });
 
   it("switches to a stacked area chart in line mode", async () => {
@@ -156,7 +163,7 @@ describe("InferenceCostWidget", () => {
     await user.selectOptions(screen.getByLabelText("Metric"), "totalTokens");
     const { options, data } = lastProps.StackedBarChart;
     expect(options.axes.left.ticks.formatter(1_500_000)).toBe("1.5M");
-    expect(options.tooltip.valueFormatter(2500)).toBe("2.5K");
+    expect(options.tooltip.customHTML([{ group: "x", key: "k", value: 2500 }], "")).toContain("k: 2.5K");
     expect(data).toHaveLength(2); // the zero-token key is dropped
     expect(fetchTimeseries).toHaveBeenCalledTimes(1);
   });
@@ -171,7 +178,7 @@ describe("InferenceCostWidget", () => {
     const grouped = lastProps.GroupedBarChart;
     expect(screen.getByTestId("GroupedBarChart")).toHaveAttribute("data-points", "2");
     expect(grouped.options.axes.left.stacked).toBe(false);
-    expect(grouped.options.tooltip.showTotal).toBe(false);
+    expect(grouped.options.tooltip.customHTML([{ group: "x", key: "k", value: 1 }], "")).not.toContain("Total");
     await user.click(screen.getByRole("button", { name: "Line chart" }));
     const line = lastProps.LineChart;
     expect(screen.getByTestId("LineChart")).toBeInTheDocument();

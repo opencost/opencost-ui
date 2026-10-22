@@ -149,8 +149,8 @@ export default function InferenceCostWidget({
       tooltip: {
         // Carbon's default tooltip runs valueFormatter on every row, which
         // blanks the date and model name, and labels them "x-value"/"Group".
-        customHTML: (data: unknown, defaultHTML: string) =>
-          buildTrendTooltipHTML(data, fmt, colorScale, additive) ?? defaultHTML,
+        customHTML: (data: unknown, defaultHTML: string, datum: unknown) =>
+          buildTrendTooltipHTML(datum ?? data, fmt, colorScale, additive) ?? defaultHTML,
       },
     };
   }, [chartData, stepLabels, metric, currency, theme, chartTitle, additive]);

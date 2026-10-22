@@ -30,6 +30,7 @@ import {
   OTHER_KEY,
   buildInferenceChartData,
   buildStepLabels,
+  buildTrendTooltipHTML,
   isAdditiveMetric,
   type ChartPoint,
   type InferenceMetric,
@@ -142,11 +143,14 @@ export default function InferenceCostWidget({
       height: "400px",
       color: { scale: colorScale },
       bars: { maxWidth: 48, spacingFactor: 0.65 },
+      // Show only the hovered bar or point: with the ruler on, Carbon
+      // gathers every series at that step into one tooltip.
+      ruler: { enabled: false },
       tooltip: {
-        valueFormatter: (v: number) => fmt(v),
-        showTotal: additive,
-        totalLabel: "Total:",
-        groupLabel: "Date",
+        // Carbon's default tooltip runs valueFormatter on every row, which
+        // blanks the date and model name, and labels them "x-value"/"Group".
+        customHTML: (data: unknown, defaultHTML: string, datum: unknown) =>
+          buildTrendTooltipHTML(datum ?? data, fmt, colorScale, additive) ?? defaultHTML,
       },
     };
   }, [chartData, stepLabels, metric, currency, theme, chartTitle, additive]);

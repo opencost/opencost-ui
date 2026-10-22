@@ -51,6 +51,53 @@ export interface ChartPoint {
 
 export const OTHER_KEY = "other";
 
+function escapeHTML(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
+
+/**
+ * Tooltip HTML for the trend chart. The chart disables Carbon's ruler, so
+ * this normally gets just the hovered bar or point ({group, key, value}) and
+ * shows its step, model (with colour swatch) and formatted value. If Carbon
+ * ever passes several points they are listed largest first, with a total for
+ * additive metrics. Returns null when there is nothing to show, so the
+ * caller can fall back to Carbon's default.
+ *
+ * Names come from the API, so they are escaped before going into HTML.
+ */
+export function buildTrendTooltipHTML(
+  data: unknown,
+  format: (v: number) => string,
+  colors: Record<string, string>,
+  showTotal: boolean,
+): string | null {
+  const points = (Array.isArray(data) ? data : [data]).filter(
+    (d): d is ChartPoint => !!d && typeof d === "object" && typeof (d as ChartPoint).key === "string",
+  );
+  if (points.length === 0) return null;
+
+  const value = (p: ChartPoint) => (Number.isFinite(p.value) ? p.value : 0);
+  const rows = [...points]
+    .sort((a, b) => value(b) - value(a))
+    .map(
+      (p) =>
+        `<p style="margin:0 0 4px 0;font-size:0.875rem;display:flex;align-items:center;gap:6px">` +
+        `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${colors[p.key] ?? "#8d8d8d"};flex-shrink:0"></span>` +
+        `<span>${escapeHTML(p.key)}: ${escapeHTML(format(value(p)))}</span></p>`,
+    )
+    .join("");
+  const header = points[0].group
+    ? `<p style="margin:0 0 6px 0;font-size:0.75rem;font-weight:600">${escapeHTML(String(points[0].group))}</p>`
+    : "";
+  const total =
+    showTotal && points.length > 1
+      ? `<p style="margin:8px 0 0 0;font-size:0.875rem;font-weight:600;border-top:1px solid var(--cds-border-subtle);padding-top:6px">Total: ${escapeHTML(
+          format(points.reduce((s, p) => s + value(p), 0)),
+        )}</p>`
+      : "";
+  return `<div style="padding:8px 12px">${header}${rows}${total}</div>`;
+}
+
 function stepLabel(start: string | undefined, hourly: boolean): string {
   if (!start) return "?";
   const d = new Date(start);

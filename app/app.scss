@@ -583,6 +583,16 @@ html[data-carbon-theme] body {
   overflow: hidden;
 }
 
+// Transform here clips the chart's nested table modal
+.cds--modal.item-detail-modal.is-visible > .cds--modal-container {
+  transform: none;
+}
+
+// Keep open modals above the sticky header
+.app-shell-content:has(.cds--modal.is-visible, .cds--modal[aria-modal="true"]) {
+  z-index: 60;
+}
+
 .cds--modal-header {
   padding-bottom: 1rem !important;
 }

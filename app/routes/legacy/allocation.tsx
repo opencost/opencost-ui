@@ -63,10 +63,20 @@ const accumulateOptions = [
   { name: "Daily", value: false },
 ];
 
-function generateTitle({ window, aggregateBy, accumulate }) {
+// Explicitly type parameters to avoid implicit 'any' compile errors
+function generateTitle({
+  window,
+  aggregateBy,
+  accumulate,
+}: {
+  window: string;
+  aggregateBy: string;
+  accumulate: boolean;
+}) {
   let windowName = get(find(windowOptions, { value: window }), "name", "");
   if (windowName === "") {
-    if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window);
+    // toVerboseTimeRange can return null; fallback to empty string
+    if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window) || "";
     else console.warn(`unknown window: ${window}`);
   }
   let aggregationName = get(
@@ -86,8 +96,8 @@ const ReportsPage = () => {
   const [cumulativeData, setCumulativeData] = useState({});
   const [totalData, setTotalData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState([]);
-  const [includeIdle, setIncludeIdle] = useState();
+  const [errors, setErrors] = useState<any[]>([]);//Changed type to any so 'never' isn't being flagged out
+  const [includeIdle, setIncludeIdle] = useState<boolean>();
 
   const routerLocation = useLocation();
   const searchParams = new URLSearchParams(routerLocation.search);
@@ -110,7 +120,10 @@ const ReportsPage = () => {
   useEffect(() => {
     const cumulative = rangeToCumulative(allocationData, aggregateBy);
     setCumulativeData(toArray(cumulative));
-    setTotalData(cumulativeToTotals(cumulative));
+    // Guard against null cumulative before calculating totals
+    if (cumulative) {
+      setTotalData(cumulativeToTotals(cumulative));
+    }
   }, [allocationData, aggregateBy]);
 
   useEffect(() => {
@@ -137,7 +150,7 @@ const ReportsPage = () => {
     };
     const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
-    const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
+    const expectedFilterCount = (aggregateToFilterCount as Record<string, any>)[aggregateBy] || 0;
 
     if (currentIndex === 0 && currentFilters.length > 0) {
       const np = new URLSearchParams(routerLocation.search);
@@ -220,7 +233,7 @@ const ReportsPage = () => {
         setAllocationData([]);
       }
     } catch (err) {
-      if (err.message.indexOf("404") === 0) {
+      if ((err as Error).message.indexOf("404") === 0) {
         setErrors([
           {
             primary: "Failed to load report data",
@@ -233,7 +246,7 @@ const ReportsPage = () => {
           {
             primary: "Failed to load report data",
             secondary:
-              err.message ||
+              (err as Error).message ||
               "Please open an Issue on GitHub if problems persist.",
           },
         ]);
@@ -243,7 +256,7 @@ const ReportsPage = () => {
     setLoading(false);
   }
 
-  function handleBreadcrumbNavigate(level) {
+  function handleBreadcrumbNavigate(level:number) {
     const aggregateHierarchy = [
       "namespace",
       "controllerKind",
@@ -275,14 +288,15 @@ const ReportsPage = () => {
     navigate({ search: `?${np.toString()}` });
   }
 
-  function drilldown(row) {
+  // Type drilldown row and index signatures to ensure safe dynamic key lookup
+  function drilldown(row: any) {
     const drilldownHierarchy = {
       namespace: "controllerKind",
       controllerKind: "controller",
       controller: "pod",
       pod: "container",
     };
-    const nextAgg = drilldownHierarchy[aggregateBy];
+    const nextAgg = (drilldownHierarchy as Record<string, string>)[aggregateBy];
     if (!nextAgg) return;
     if (!row.name || String(row.name).trim() === "") return;
     const filterPropertyMap = {
@@ -292,7 +306,7 @@ const ReportsPage = () => {
       pod: "pod",
       container: "container",
     };
-    const filterProperty = filterPropertyMap[aggregateBy] || aggregateBy;
+    const filterProperty = (filterPropertyMap as Record<string, string>)[aggregateBy] || aggregateBy;
     let filterValue = String(row.name).trim();
     let updatedFilters = [...filters];
     if (aggregateBy === "controller" && filterValue.includes(":")) {
@@ -357,18 +371,18 @@ const ReportsPage = () => {
               filters={filters}
               onNavigate={handleBreadcrumbNavigate}
             />
-            <Subtitle report={{ window: win, aggregateBy, accumulate }} />
+            <Subtitle onClick={() => {}} report={{ window: win, aggregateBy, accumulate }} />
           </div>
           <Controls
             windowOptions={windowOptions}
             window={win}
-            setWindow={(win) => {
+            setWindow={(win: string) => {
               searchParams.set("window", win);
               navigate({ search: `?${searchParams.toString()}` });
             }}
             aggregationOptions={aggregationOptions}
             aggregateBy={aggregateBy}
-            setAggregateBy={(agg) => {
+            setAggregateBy={(agg: string) => {
               const np = new URLSearchParams(routerLocation.search);
               np.set("agg", agg);
               np.delete("filter");
@@ -376,15 +390,15 @@ const ReportsPage = () => {
             }}
             accumulateOptions={accumulateOptions}
             accumulate={accumulate}
-            setAccumulate={(acc) => {
-              searchParams.set("acc", acc);
+            setAccumulate={(acc: boolean) => {
+              searchParams.set("acc", String(acc));
               navigate({ search: `?${searchParams.toString()}` });
             }}
             title={title}
             cumulativeData={cumulativeData}
             currency={currency}
             currencyOptions={currencyCodes}
-            setCurrency={(curr) => {
+            setCurrency={(curr:string) => {
               searchParams.set("currency", curr);
               navigate({ search: `?${searchParams.toString()}` });
             }}

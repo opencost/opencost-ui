@@ -34,13 +34,13 @@ const ExternalCosts = () => {
   const [aggregateBy, setAggregateBy] = React.useState(
     aggregationOptions[0].value,
   );
-  const [filters, setFilters] = React.useState([]);
+  const [filters, setFilters] = React.useState<any[]>([]); //Changed type to any so 'never' isn't being flagged out
   const [currency, setCurrency] = React.useState("USD");
 
   const [init, setInit] = React.useState(false);
   const [fetch, setFetch] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
-  const [errors, setErrors] = React.useState([]);
+  const [errors, setErrors] = React.useState<any[]>([]); //Changed type to any here as well for the same reason , so 'never' isn't being flagged out
   const [showModal, setShowModal] = React.useState(false);
 
   const [externalCostData, setExternalCostData] = React.useState([]);
@@ -72,7 +72,8 @@ const ExternalCosts = () => {
         {
           primary: "Failed to load report data",
           secondary:
-            err.message ||
+            //Fixed error typing ..
+            (err as Error).message ||
             "Please open an Issue with OpenCost if problems persist.",
         },
       ]);
@@ -98,7 +99,8 @@ const ExternalCosts = () => {
         {
           primary: "Failed to load report data",
           secondary:
-            err.message ||
+            //Fixed error typing..
+            (err as Error).message ||
             "Please open an Issue with OpenCost if problems persist.",
         },
       ]);
@@ -114,7 +116,7 @@ const ExternalCosts = () => {
     setLoading(false);
   }
 
-  function drilldown(row) {
+  function drilldown(row : Record<string,any>) {
     if (
       ["domain", "accountName", "resourceType", "resourceName"].includes(
         aggregateBy,
@@ -124,13 +126,13 @@ const ExternalCosts = () => {
         ...filters,
         {
           property: aggregateBy,
-          value: row[aggToKeyMapExternalCosts[aggregateBy]],
+          value: row[(aggToKeyMapExternalCosts as Record<string, string>)[aggregateBy]],
         },
       ]);
       if (aggregateBy === "domain") setAggregateBy("accountName");
       else if (aggregateBy === "accountName") setAggregateBy("resourceType");
       else if (aggregateBy === "resourceType") setAggregateBy("resourceName");
-      else setShowModal(row);
+      else setShowModal(false);
     }
   }
 
@@ -173,17 +175,17 @@ const ExternalCosts = () => {
           <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
             <ExternalCostsControls
               costType={costType}
-              setCostType={(type) => {
+              setCostType={(type:string) => {
                 searchParams.set("costType", type);
                 navigate({ search: `?${searchParams.toString()}` });
               }}
               window={window}
-              setWindow={(win) => {
+              setWindow={(win:string) => {
                 searchParams.set("window", win);
                 navigate({ search: `?${searchParams.toString()}` });
               }}
               aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
+              setAggregateBy={(agg:string) => {
                 setFilters([]);
                 searchParams.set("agg", agg);
                 navigate({ search: `?${searchParams.toString()}` });
@@ -224,7 +226,7 @@ const ExternalCosts = () => {
           {showModal && (
             <ExternalCostDetails
               row={showModal}
-              onClose={() => setShowModal(null)}
+              onClose={() => setShowModal(false)}
             />
           )}
         </Paper>

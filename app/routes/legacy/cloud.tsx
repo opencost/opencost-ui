@@ -40,7 +40,7 @@ const CloudCosts = () => {
   const [costMetric, setCostMetric] = React.useState(
     costMetricOptions[0].value,
   );
-  const [filters, setFilters] = React.useState([]);
+  const [filters, setFilters] = React.useState<any[]>([]);
   const [currency, setCurrency] = React.useState("USD");
   const [selectedProviderId, setSelectedProviderId] = React.useState("");
   const [selectedItemName, setselectedItemName] = React.useState("");
@@ -49,13 +49,24 @@ const CloudCosts = () => {
   const [init, setInit] = React.useState(false);
   const [fetch, setFetch] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
-  const [errors, setErrors] = React.useState([]);
-  const [cloudCostData, setCloudCostData] = React.useState([]);
+  // Explicitly type arrays/objects to prevent inferring as 'never[]'
+  const [errors, setErrors] = React.useState<any[]>([]);
+  const [cloudCostData, setCloudCostData] = React.useState<any>({});
 
-  function generateTitle({ window, aggregateBy, costMetric }) {
+  // Type function parameters to avoid implicit 'any' compile errors
+  function generateTitle({
+    window,
+    aggregateBy,
+    costMetric,
+  }: {
+    window: string;
+    aggregateBy: string;
+    costMetric: string;
+  }) {
     let windowName = get(find(windowOptions, { value: window }), "name", "");
     if (windowName === "") {
-      if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window);
+      // toVerboseTimeRange can return null, fallback to empty string
+      if (checkCustomWindow(window)) windowName = toVerboseTimeRange(window) || "";
       else console.warn(`unknown window: ${window}`);
     }
     let aggregationName = get(
@@ -103,7 +114,9 @@ const CloudCosts = () => {
         setCloudCostData([]);
       }
     } catch (err) {
-      if (err.message.indexOf("404") === 0) {
+      // Type-safe error message extraction
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.indexOf("404") === 0) {
         setErrors([
           {
             primary: "Failed to load report data",
@@ -116,7 +129,7 @@ const CloudCosts = () => {
           {
             primary: "Failed to load report data",
             secondary:
-              err.message ||
+              errMsg ||
               "Please open an Issue with OpenCost if problems persist.",
           },
         ]);
@@ -126,7 +139,8 @@ const CloudCosts = () => {
     setLoading(false);
   }
 
-  function drilldown(row) {
+  // Type drilldown row as any to allow dynamic property access
+  function drilldown(row: any) {
     if (aggregateBy.includes("item")) {
       try {
         setSelectedProviderId(row.providerID);
@@ -224,32 +238,31 @@ const CloudCosts = () => {
           <div style={{ display: "flex", flexFlow: "row", padding: 24 }}>
             <div style={{ flexGrow: 1 }}>
               <Typography variant="h5">{title}</Typography>
-              <Subtitle report={{ window, aggregateBy }} />
+              <Subtitle onClick={() => {}} report={{ window, aggregateBy }} />
             </div>
             <CloudCostEditControls
               windowOptions={windowOptions}
               window={window}
-              setWindow={(win) => {
+              setWindow={(win: string) => {
                 searchParams.set("window", win);
                 navigate({ search: `?${searchParams.toString()}` });
               }}
               aggregationOptions={aggregationOptions}
               aggregateBy={aggregateBy}
-              setAggregateBy={(agg) => {
+              setAggregateBy={(agg: string) => {
                 setFilters([]);
                 searchParams.set("agg", agg);
                 navigate({ search: `?${searchParams.toString()}` });
               }}
               costMetricOptions={costMetricOptions}
               costMetric={costMetric}
-              setCostMetric={(c) => {
+              setCostMetric={(c: string) => {
                 searchParams.set("costMetric", c);
                 navigate({ search: `?${searchParams.toString()}` });
               }}
-              title={title}
               currency={currency}
               currencyOptions={currencyCodes}
-              setCurrency={(curr) => {
+              setCurrency={(curr: string) => {
                 searchParams.set("currency", curr);
                 navigate({ search: `?${searchParams.toString()}` });
               }}

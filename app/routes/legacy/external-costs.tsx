@@ -41,7 +41,8 @@ const ExternalCosts = () => {
   const [fetch, setFetch] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [errors, setErrors] = React.useState<any[]>([]); //Changed type to any here as well for the same reason , so 'never' isn't being flagged out
-  const [showModal, setShowModal] = React.useState(false);
+  // showModal holds the selected row object to display in ExternalCostDetails, or null when closed
+  const [showModal, setShowModal] = React.useState<any>(null);
 
   const [externalCostData, setExternalCostData] = React.useState([]);
   const [externalCostTableData, setExternalCostTableData] = React.useState([]);
@@ -132,7 +133,7 @@ const ExternalCosts = () => {
       if (aggregateBy === "domain") setAggregateBy("accountName");
       else if (aggregateBy === "accountName") setAggregateBy("resourceType");
       else if (aggregateBy === "resourceType") setAggregateBy("resourceName");
-      else setShowModal(false);
+      else setShowModal(row); // Open modal with the selected resource row
     }
   }
 
@@ -223,10 +224,10 @@ const ExternalCosts = () => {
               drilldown={drilldown}
             />
           )}
-          {showModal && (
+          {Boolean(showModal) && (
             <ExternalCostDetails
               row={showModal}
-              onClose={() => setShowModal(false)}
+              onClose={() => setShowModal(null)}
             />
           )}
         </Paper>

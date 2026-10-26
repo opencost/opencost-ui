@@ -7,7 +7,7 @@ import RangeChart from "./rangeChart";
 const ExternalCostsChart = ({
   graphData,
   currency,
-  n,
+  //Cleaned up 'n' as it wasn't being used anywhere and just creating compile errors
   height,
   aggregateBy,
 }) => {

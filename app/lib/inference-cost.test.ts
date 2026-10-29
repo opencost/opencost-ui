@@ -13,6 +13,7 @@ import {
   buildIdleRanking,
   buildInferenceChartData,
   buildStepLabels,
+  buildTrendTooltipHTML,
   gaugeColor,
   isAdditiveMetric,
 } from "./inference-cost";
@@ -378,5 +379,68 @@ describe("gaugeColor", () => {
     expect(gaugeColor(5)).toBe(GAUGE_STOPS[3]);
     expect(gaugeColor(Number.NaN)).toBe(GAUGE_STOPS[0]);
     expect(gaugeColor(Number.POSITIVE_INFINITY)).toBe(GAUGE_STOPS[0]);
+  });
+});
+
+describe("buildTrendTooltipHTML", () => {
+  const fmt = (v: number) => `$${v.toFixed(2)}`;
+  const colors = { a: "#111111", b: "#222222" };
+
+  it("shows the step, each model largest first with its colour, and a total", () => {
+    const html = buildTrendTooltipHTML(
+      [
+        { group: "10/20", key: "a", value: 1 },
+        { group: "10/20", key: "b", value: 36.01 },
+      ],
+      fmt,
+      colors,
+      true,
+    )!;
+    expect(html).toContain("10/20");
+    expect(html.indexOf("b: $36.01")).toBeLessThan(html.indexOf("a: $1.00"));
+    expect(html).toContain("#222222");
+    expect(html).toContain("Total: $37.01");
+    expect(html).not.toContain("x-value");
+  });
+
+  it("shows just the hovered value for a single point, with no total", () => {
+    for (const data of [{ group: "10/20", key: "a", value: 2 }, [{ group: "10/20", key: "a", value: 2 }]]) {
+      const html = buildTrendTooltipHTML(data, fmt, colors, true)!;
+      expect(html).toContain("a: $2.00");
+      expect(html).not.toContain("Total");
+    }
+  });
+
+  it("omits the total for rates even with several points", () => {
+    const html = buildTrendTooltipHTML(
+      [
+        { group: "10/20", key: "a", value: 1 },
+        { group: "10/20", key: "b", value: 2 },
+      ],
+      fmt,
+      colors,
+      false,
+    )!;
+    expect(html).not.toContain("Total");
+  });
+
+  it("falls back to grey for unknown keys, 0 for bad values, and no header without a step", () => {
+    const html = buildTrendTooltipHTML([{ key: "z", value: Number.NaN }], fmt, colors, true)!;
+    expect(html).toContain("#8d8d8d");
+    expect(html).toContain("z: $0.00");
+    expect(html).not.toContain("font-size:0.75rem");
+  });
+
+  it("escapes names from the API", () => {
+    const html = buildTrendTooltipHTML([{ group: "<b>", key: `<img src=x onerror="1">`, value: 1 }], fmt, {}, false)!;
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<b>");
+    expect(html).toContain("&#60;img");
+  });
+
+  it("returns null when there is nothing to show", () => {
+    expect(buildTrendTooltipHTML([], fmt, colors, true)).toBeNull();
+    expect(buildTrendTooltipHTML(null, fmt, colors, true)).toBeNull();
+    expect(buildTrendTooltipHTML([{ value: 1 }], fmt, colors, true)).toBeNull();
   });
 });

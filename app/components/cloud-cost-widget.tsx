@@ -646,6 +646,7 @@ function ItemDetailModal({
       modalHeading={itemName}
       onRequestClose={onClose}
       size="lg"
+      className="item-detail-modal"
     >
       {loading ? (
         <div className="flex items-center justify-center h-[300px] text-[var(--cds-text-placeholder)]">

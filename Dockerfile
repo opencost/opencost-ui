@@ -10,13 +10,7 @@ ARG vite_base_api_url=
 ENV VITE_BASENAME=${vite_basename}
 ENV VITE_BASE_API_URL=${vite_base_api_url}
 
-# Save first build outside build/ so build:legacy (which overwrites build/) doesn't remove it
-RUN npm run build && cp -r build/client /opt/standard
-RUN npm run build:legacy
-# Verify both builds produced output
-RUN test -f /opt/standard/index.html && test -f /opt/ui/build/client/index.html && \
-    test -d /opt/standard/assets && test -d /opt/ui/build/client/assets && \
-    echo "Both builds OK" && ls -la /opt/standard/ && ls -la /opt/ui/build/client/
+RUN npm run build
 
 FROM nginx:alpine
 
@@ -41,11 +35,10 @@ ENV API_SERVER=0.0.0.0
 ENV UI_PORT=9090
 ENV UI_PATH=${vite_basename}
 
-RUN mkdir -p /var/www /var/www/legacy
+RUN mkdir -p /var/www
 
 COPY THIRD_PARTY_LICENSES.txt /THIRD_PARTY_LICENSES.txt
-COPY --from=builder /opt/standard /var/www
-COPY --from=builder /opt/ui/build/client /var/www/legacy
+COPY --from=builder /opt/ui/build/client /var/www
 
 COPY default.nginx.conf.template /etc/nginx/conf.d/default.nginx.conf.template
 COPY nginx.conf /etc/nginx/
@@ -60,7 +53,6 @@ RUN chown 1001:1000 -R /usr/local/bin/docker-entrypoint.sh
 
 # BASE_MODEL should start with a slash but not end with one
 ENV BASE_URL=/model
-ENV LEGACY_MODE=false
 ENV PROXY_CONNECT_TIMEOUT=60s
 ENV PROXY_SEND_TIMEOUT=60s
 ENV PROXY_READ_TIMEOUT=60s

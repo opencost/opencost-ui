@@ -38,7 +38,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Build (new UI + legacy UI)
+      - name: Build UI
         working-directory: ./
         run: |
           just build-local

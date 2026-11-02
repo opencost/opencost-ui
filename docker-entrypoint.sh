@@ -19,16 +19,9 @@ replace_placeholder_in_js() {
     done
 }
 
-# Set document root based on LEGACY_MODE (run with -e LEGACY_MODE=true for legacy UI)
-if [ "$LEGACY_MODE" = "true" ] || [ "$LEGACY_MODE" = "1" ] || [ "$LEGACY_MODE" = "yes" ]; then
-    export NGINX_ROOT=/var/www/legacy
-    WWW_ROOT=/var/www/legacy
-    echo "Serving legacy UI from $WWW_ROOT"
-else
-    export NGINX_ROOT=/var/www
-    WWW_ROOT=/var/www
-    echo "Serving default UI from $WWW_ROOT"
-fi
+export NGINX_ROOT=/var/www
+WWW_ROOT=/var/www
+echo "Serving UI from $WWW_ROOT"
 
 # Copy build output to /var/www if present (Dockerfile.cross flow)
 if [ -d /opt/ui/dist ]; then

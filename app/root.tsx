@@ -17,7 +17,7 @@ import { ThemeProvider, THEME_STORAGE_KEY } from "~/components/theme-context";
 import AppMuiThemeBridge from "~/components/app-mui-theme-bridge";
 import { SettingsProvider } from "~/components/settings-context";
 
-const isLegacyMode = import.meta.env.VITE_LEGACY_MODE === "true";
+
 
 const DashboardApp = lazy(() =>
   Promise.all([
@@ -70,9 +70,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {!isLegacyMode && (
-          <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
-        )}
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body>
         {children}
@@ -104,13 +102,6 @@ function AppThemeBodyWrapper({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  if (isLegacyMode) {
-    return (
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <Outlet />
-      </LocalizationProvider>
-    );
-  }
   return (
     <ThemeProvider>
       <AppMuiThemeBridge>

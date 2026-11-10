@@ -211,7 +211,8 @@ function buildTimeSeries(
   const aggregateTotals = new Map<string, number>();
 
   rawSets.forEach((set) => {
-    const items = Object.values(set) as any[];
+    // The allocation API returns null sets for days without data.
+    const items = Object.values(set ?? {}) as any[];
     items.forEach((item) => {
       const name = String(item?.name ?? "Unknown");
       const v = combinedMeasureValue(item, measures);
@@ -225,7 +226,7 @@ function buildTimeSeries(
     .map(([name]) => name);
 
   const points = rawSets.map((set, index) => {
-    const items = Object.values(set) as any[];
+    const items = Object.values(set ?? {}) as any[];
 
     let label: string;
     const trimmedStart =

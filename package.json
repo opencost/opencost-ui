@@ -40,7 +40,7 @@
     "sass": "^1.97.3"
   },
   "devDependencies": {
-    "@react-router/dev": "7.14.1",
+    "@react-router/dev": "8.5.1",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.3",

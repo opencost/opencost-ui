@@ -53,31 +53,27 @@ jobs:
         run: |
           echo "release version: ${{ inputs.release_version }}"
 
-      - name: Make Branch Name
-        id: branch
-        run: |
-          VERSION_NUMBER=${{ steps.version_number.outputs.RELEASE_VERSION }}
-          echo "BRANCH_NAME=v${VERSION_NUMBER%.*}" >> $GITHUB_ENV
-
-      # checkout opencost UI to allow access to actions
-      - name: Checkout actions
-        uses: actions/checkout@v7
-        with:
-          repository: "opencost/opencost-ui"
-
       - name: Checkout Repo
         uses: actions/checkout@v7
         with:
-          repository: "opencost/opencost-ui"
-          ref: "${{ steps.branch.outputs.BRANCH_NAME }}"
-          path: ./opencost-ui
+          ref: "refs/tags/v${{ steps.version_number.outputs.RELEASE_VERSION }}"
+
+      - name: Verify the checkout is the tagged commit
+        env:
+          RELEASE_VERSION: ${{ steps.version_number.outputs.RELEASE_VERSION }}
+        run: |
+          want="$(git rev-list -n1 "refs/tags/v${RELEASE_VERSION}")"
+          have="$(git rev-parse HEAD)"
+          if [ "${want}" != "${have}" ]; then
+            echo "::error::HEAD ${have} is not the commit tagged v${RELEASE_VERSION} (${want}); refusing to publish"
+            exit 1
+          fi
+          echo "Building v${RELEASE_VERSION} from ${have}"
 
       - name: Set SHA
         id: sha
         run: |
-          pushd ./opencost-ui
           echo "OC_SHORTHASH=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          popd
 
       - name: Set OpenCost Image Tags
         id: tags

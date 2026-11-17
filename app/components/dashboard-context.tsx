@@ -204,6 +204,37 @@ const DEFAULT_DASHBOARDS: Dashboard[] = [
     updatedAt: new Date().toISOString(),
     owner: "You",
   },
+  {
+    id: "5",
+    name: "AI Inference Costs",
+    description:
+      "Inference cost over time, cost per 1M tokens, and idle cost by model",
+    widgets: [
+      {
+        id: "1",
+        type: "inference-cost-chart",
+        title: "AI Inference Costs",
+        gridSize: "4",
+      },
+      {
+        id: "2",
+        type: "inference-cost-per-million",
+        title: "AI Inference Cost per 1M Tokens",
+        gridSize: "2",
+      },
+      {
+        id: "3",
+        type: "inference-idle-ranking",
+        title: "AI Inference Idle Cost",
+        gridSize: "2",
+      },
+    ],
+    tags: ["inference"],
+    starred: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    owner: "You",
+  },
 ];
 
 function loadDashboardsFromStorage(): Dashboard[] {

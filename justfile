@@ -6,8 +6,7 @@ default:
 
 build-local:
     npm ci
-    npm run build && mkdir -p standard && cp -r build/client ./standard
-    npm run build:legacy
+    npm run build
 
 build IMAGE_TAG RELEASE_VERSION: build-local
     docker buildx build \

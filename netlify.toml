@@ -15,13 +15,3 @@
 [context.production.environment]
   NODE_VERSION = "20"
   VITE_BASE_API_URL = "https://demo.infra.opencost.io/model"
-
-# Legacy UI: deploy from "legacy" branch → legacy--yoursite.netlify.app
-[context.legacy]
-  command = "npm run build:legacy"
-  publish = "build/client"
-
-[context.legacy.environment]
-  NODE_VERSION = "20"
-  VITE_LEGACY_MODE = "true"
-  VITE_BASE_API_URL = "https://demo.infra.opencost.io/model"

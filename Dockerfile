@@ -18,7 +18,7 @@ RUN test -f /opt/standard/index.html && test -f /opt/ui/build/client/index.html 
     test -d /opt/standard/assets && test -d /opt/ui/build/client/assets && \
     echo "Both builds OK" && ls -la /opt/standard/ && ls -la /opt/ui/build/client/
 
-FROM nginx:alpine
+FROM nginx:1.31.9-alpine
 
 RUN apk --no-cache upgrade
 

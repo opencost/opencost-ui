@@ -1,7 +1,7 @@
 # This dockerfile is for development purposes only; do not use this for production deployments
 # This file exists due to changes introduced in https://github.com/opencost/opencost/pull/2502
 # Tilt cannot reference files that exist outside of this ./ui folder so the reference to THIRD_PARTY_LICENSES.txt is removed
-FROM nginx:alpine
+FROM nginx:1.31.9-alpine
 
 RUN apk --no-cache upgrade
 

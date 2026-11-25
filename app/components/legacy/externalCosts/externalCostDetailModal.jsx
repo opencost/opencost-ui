@@ -120,4 +120,3 @@ export const ExternalCostDetails = ({ row, onClose }) => (
     </Modal>
   </div>
 );
-

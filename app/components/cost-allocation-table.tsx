@@ -214,7 +214,8 @@ export default function CostAllocationTable({
             : [];
         if (!cancelled && raw.length > 0) {
           const sorted = sortBy(raw, (set: any) => {
-            const arr = Object.values(set) as any[];
+            // The allocation API returns null sets for days without data.
+            const arr = Object.values(set ?? {}) as any[];
             return arr[0]?.window?.start ?? "";
           });
           setAllocationData(sorted);

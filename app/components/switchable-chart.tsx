@@ -22,6 +22,23 @@ function buildLineOptions(options: Record<string, any>): Record<string, any> {
   };
 }
 
+/**
+ * Carbon Charts only uses stack totals for the Y-domain when axes.left.stacked
+ * is true. Without it, the domain is the max of individual segments while bars
+ * still draw stacked — so Breakdown → Service overflows the chart bounds.
+ */
+function withStackedRangeAxis(options: Record<string, any>): Record<string, any> {
+  const left = options.axes?.left;
+  if (!left || left.stacked === true) return options;
+  return {
+    ...options,
+    axes: {
+      ...options.axes,
+      left: { ...left, stacked: true },
+    },
+  };
+}
+
 export function SwitchableChart({
   data,
   options,
@@ -31,13 +48,20 @@ export function SwitchableChart({
   if (mode === "line") {
     const lineOptions = buildLineOptions(options);
     if (stacked) {
-      return <StackedAreaChart data={data} options={lineOptions} />;
+      return (
+        <StackedAreaChart
+          data={data}
+          options={withStackedRangeAxis(lineOptions)}
+        />
+      );
     }
     return <LineChart data={data} options={lineOptions} />;
   }
 
   if (stacked) {
-    return <StackedBarChart data={data} options={options} />;
+    return (
+      <StackedBarChart data={data} options={withStackedRangeAxis(options)} />
+    );
   }
   return <SimpleBarChart data={data} options={options} />;
 }

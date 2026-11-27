@@ -10,11 +10,61 @@ import {
 import { primary, greyscale, browns } from "../../../../constants/colors";
 import { toCurrency } from "../../../../lib/legacy-util";
 
+const _IDLE_ = "__idle__";
+const _OTHER_ = "others";
+
+export const getDataForCloudDay = (dayData) => {
+  const { end, start } = dayData;
+  const copy = [...dayData.items];
+
+  // find items for idle and other
+  const idleIndex = copy.findIndex((item) => item.name === _IDLE_);
+  let idle = undefined;
+  if (idleIndex > -1) {
+    idle = copy[idleIndex];
+    copy.splice(idleIndex, 1);
+  }
+  const otherIndex = copy.findIndex(
+    (i) => i.name === _OTHER_ || i.name === "other",
+  );
+  let other = undefined;
+  if (otherIndex > -1) {
+    other = { ...copy[otherIndex], name: "other" };
+    copy.splice(otherIndex, 1);
+  }
+
+  // sort and remove any items < top 8
+  const sortedItems = copy.slice().sort((a, b) => {
+    return a.value > b.value ? -1 : 1;
+  });
+
+  const top8 = sortedItems.slice(0, 8);
+  // get items that didn't make the cut and shove into other
+  const lefovers = sortedItems.slice(8);
+  if (lefovers.length > 0) {
+    const othersTotal = lefovers.reduce((sum, item) => sum + item.value, 0);
+    if (other) {
+      other.value += othersTotal;
+    } else if (othersTotal) {
+      other = {
+        name: "other",
+        value: othersTotal,
+      };
+    }
+  }
+  // add in idle and other
+  if (idle) {
+    top8.unshift(idle);
+  }
+  if (other) {
+    top8.unshift(other);
+  }
+
+  return { end, start, graph: top8 };
+};
+
 const RangeChart = ({ data, currency, height }) => {
   const accents = [...primary, ...greyscale, ...browns];
-
-  const _IDLE_ = "__idle__";
-  const _OTHER_ = "others";
 
   const getItemCost = (item) => {
     return item.value;
@@ -67,56 +117,6 @@ const RangeChart = ({ data, currency, height }) => {
 
     return bar;
   }
-
-  const getDataForCloudDay = (dayData) => {
-    const { end, start } = dayData;
-    const copy = [...dayData.items];
-
-    // find items for idle and other
-    const idleIndex = copy.findIndex((item) => item.name === _IDLE_);
-    let idle = undefined;
-    if (idleIndex > -1) {
-      idle = copy[idleIndex];
-      copy.splice(idleIndex, 1);
-    }
-    const otherIndex = copy.findIndex(
-      (i) => i.name === _OTHER_ || i.name === "other",
-    );
-    let other = undefined;
-    if (otherIndex > -1) {
-      other = { ...copy[otherIndex], name: "other" };
-      copy.splice(otherIndex, 1);
-    }
-
-    // sort and remove any items < top 8
-    const sortedItems = copy.slice().sort((a, b) => {
-      return a.value > b.value ? -1 : 1;
-    });
-
-    const top8 = sortedItems.slice(0, 8);
-    // get items that didn't make the cut and shove into other
-    const lefovers = sortedItems.slice(8);
-    if (lefovers.length > 0) {
-      const othersTotal = lefovers.reduce((a, b) => a.value + b.value);
-      if (other) {
-        other.value += othersTotal;
-      } else if (othersTotal) {
-        other = {
-          name: "other",
-          value: othersTotal,
-        };
-      }
-    }
-    // add in idle and other
-    if (idle) {
-      top8.unshift(idle);
-    }
-    if (other) {
-      top8.unshift(other);
-    }
-
-    return { end, start, graph: top8 };
-  };
 
   const getDataForGraph = (dataPoints) => {
     // for each day, we want top 8 + Idle and Other

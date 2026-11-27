@@ -273,7 +273,7 @@ export function parseFilters(
         filters
           .filter((f) => String(f.value).trim().length > 0)
           .map((f) => {
-            const escapedValue = String(f.value).replace(/"/g, '\\"');
+            const escapedValue = String(f.value).replace(/["\\]/g, "\\$&");
             return `${f.property}:"${escapedValue}"`;
           }),
       ),
@@ -286,15 +286,14 @@ export function parseFiltersFromUrl(
 ): { property: string; value: string }[] {
   if (!filterString || typeof filterString !== "string") return [];
   const filters: { property: string; value: string }[] = [];
-  const parts = filterString.split("+");
-  for (const part of parts) {
-    const match = part.match(/^([^:]+):"((?:[^"\\]|\\.)*)"$/);
-    if (match) {
-      filters.push({
-        property: match[1].trim(),
-        value: match[2].replace(/\\"/g, '"'),
-      });
-    }
+  // Match each property:"value" term instead of splitting on "+", which can
+  // also appear inside a quoted value (e.g. label:"c++").
+  const term = /(?:^|\+)([^:+]+):"((?:[^"\\]|\\.)*)"(?=\+|$)/g;
+  for (const match of filterString.matchAll(term)) {
+    filters.push({
+      property: match[1].trim(),
+      value: match[2].replace(/\\(.)/g, "$1"),
+    });
   }
   return filters;
 }

@@ -315,7 +315,7 @@ export function formatSampleItemsForGraph({
       end,
       items: Object.entries(cloudCosts).map(([name, item]: [string, any]) => ({
         name,
-        value: item.netCost.cost,
+        value: item[costMetricPropName].cost,
       })),
       start,
     }),

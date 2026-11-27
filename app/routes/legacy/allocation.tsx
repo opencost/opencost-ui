@@ -24,6 +24,7 @@ import {
   rangeToCumulative,
   toVerboseTimeRange,
 } from "~/lib/legacy-util";
+import { applicableAllocationFilters } from "~/lib/allocation-drilldown";
 import { currencyCodes } from "~/constants/currencyCodes";
 
 export function meta() {
@@ -114,62 +115,17 @@ const ReportsPage = () => {
   }, [allocationData, aggregateBy]);
 
   useEffect(() => {
-    const aggregateHierarchy = [
-      "namespace",
-      "controllerKind",
-      "controller",
-      "pod",
-      "container",
-    ];
-    const filterHierarchy = [
-      "namespace",
-      "controllerKind",
-      "controllerName",
-      "pod",
-      "container",
-    ];
-    const aggregateToFilterCount = {
-      namespace: 0,
-      controllerKind: 1,
-      controller: 2,
-      pod: 3,
-      container: 4,
-    };
-    const currentIndex = aggregateHierarchy.indexOf(aggregateBy);
     const currentFilters = filterParam ? parseFiltersFromUrl(filterParam) : [];
-    const expectedFilterCount = aggregateToFilterCount[aggregateBy] || 0;
+    const kept = applicableAllocationFilters(currentFilters, aggregateBy);
 
-    if (currentIndex === 0 && currentFilters.length > 0) {
+    if (kept.length !== currentFilters.length) {
       const np = new URLSearchParams(routerLocation.search);
-      np.delete("filter");
-      const ns = `?${np.toString()}`;
-      if (routerLocation.search !== ns)
-        navigate({ search: ns }, { replace: true });
-      return;
-    }
-    if (currentFilters.length > expectedFilterCount) {
-      const trimmed = currentFilters.slice(0, expectedFilterCount);
-      const np = new URLSearchParams(routerLocation.search);
-      trimmed.length > 0
-        ? np.set("filter", parseFilters(trimmed))
+      kept.length > 0
+        ? np.set("filter", parseFilters(kept))
         : np.delete("filter");
       const ns = `?${np.toString()}`;
       if (routerLocation.search !== ns)
         navigate({ search: ns }, { replace: true });
-      return;
-    }
-    for (let i = 0; i < currentFilters.length; i++) {
-      if (currentFilters[i].property !== filterHierarchy[i]) {
-        const trimmed = currentFilters.slice(0, i);
-        const np = new URLSearchParams(routerLocation.search);
-        trimmed.length > 0
-          ? np.set("filter", parseFilters(trimmed))
-          : np.delete("filter");
-        const ns = `?${np.toString()}`;
-        if (routerLocation.search !== ns)
-          navigate({ search: ns }, { replace: true });
-        return;
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routerLocation.search, aggregateBy]);

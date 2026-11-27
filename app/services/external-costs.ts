@@ -1,14 +1,5 @@
 import client from "./api-client";
-
-function parseExternalCostFilters(
-  filters: { property: string; value: string }[] | string,
-): string {
-  if (typeof filters === "string") return filters;
-  return (
-    [...new Set(filters.map((f) => `${f.property}:"${f.value}"`))].join("+") ||
-    ""
-  );
-}
+import { parseFilters } from "~/lib/legacy-util";
 
 class ExternalCostsService {
   async fetchExternalGraphCosts(
@@ -23,7 +14,7 @@ class ExternalCostsService {
       window: win,
       aggregate,
       costType,
-      filter: parseExternalCostFilters(filters),
+      filter: parseFilters(filters),
       sortBy,
       sortDirection,
     };
@@ -43,7 +34,7 @@ class ExternalCostsService {
       window: win,
       aggregate,
       costType,
-      filter: parseExternalCostFilters(filters),
+      filter: parseFilters(filters),
       sortBy,
       sortDirection,
     };

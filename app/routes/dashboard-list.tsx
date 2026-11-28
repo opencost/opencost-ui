@@ -17,7 +17,7 @@ import {
 } from "~/components/dashboard-context";
 import CreateDashboardModal from "~/components/create-dashboard-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
-import { decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
+import { buildShareUrl, decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -194,7 +194,7 @@ export default function DashboardList() {
       tags: dashboard.tags,
     };
     const encoded = encodeSharePayload(sharePayload);
-    const shareUrl = `${window.location.origin}/dashboards?share=${encoded}`;
+    const shareUrl = buildShareUrl("dashboards", encoded);
 
     try {
       await navigator.clipboard.writeText(shareUrl);

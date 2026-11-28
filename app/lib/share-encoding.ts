@@ -23,3 +23,7 @@ export function decodeSharePayload(encoded: string): unknown {
   const json = new TextDecoder().decode(bytes);
   return JSON.parse(json) as unknown;
 }
+
+export function buildShareUrl(page: "reports" | "dashboards", encoded: string): string {
+  return `${window.location.origin}${import.meta.env.BASE_URL}${page}?share=${encoded}`;
+}

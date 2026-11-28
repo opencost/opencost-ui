@@ -15,7 +15,7 @@ import InferenceCostPerMillionWidget from "./inference-cost-per-million-widget";
 import InferenceIdleWidget from "./inference-idle-widget";
 import WidgetCard from "./widget-card";
 import { AllocationFiltersProvider } from "./allocation-filters-context";
-import { encodeSharePayload } from "~/lib/share-encoding";
+import { buildShareUrl, encodeSharePayload } from "~/lib/share-encoding";
 import type { Widget, Dashboard } from "./dashboard-context";
 
 function WidgetRenderer({
@@ -170,7 +170,7 @@ export default function DashboardView({
         ...dashboard,
         widgets: currentWidgets,
       });
-      const url = `${window.location.origin}/dashboards?share=${encoded}`;
+      const url = buildShareUrl("dashboards", encoded);
       await navigator.clipboard.writeText(url);
       setShareToast("copied");
       setTimeout(() => setShareToast(null), 4000);

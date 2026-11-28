@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import CreateReportModal from "~/components/create-report-modal";
 import DashboardAppShell from "~/components/dashboard-app-shell";
 import ReportListTable from "~/components/report-list-table";
-import { decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
+import { buildShareUrl, decodeSharePayload, encodeSharePayload } from "~/lib/share-encoding";
 import { useReport } from "~/components/report-context";
 import { normalizeReportQuery, type Report } from "~/types/report";
 
@@ -164,7 +164,7 @@ export default function ReportsListPage() {
       query: report.query,
     };
     const encoded = encodeSharePayload(payload);
-    const shareUrl = `${window.location.origin}/reports?share=${encoded}`;
+    const shareUrl = buildShareUrl("reports", encoded);
 
     try {
       await navigator.clipboard.writeText(shareUrl);
